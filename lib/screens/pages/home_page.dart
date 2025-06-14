@@ -1,5 +1,6 @@
 // file: lib/screens/pages/home_page.dart
 
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/helpers/db_helper.dart';
@@ -20,26 +21,30 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // Các biến trạng thái của trang
   bool _isPromoCardDismissed = false;
   String? _aiSuggestion;
   DateTime? _suggestionTimestamp;
-  bool _isLoadingSuggestion = true;
+  bool _isLoadingSuggestion = false; // Bắt đầu với false để không hiển thị loading khi mới vào
   Map<String, dynamic>? _currentWeather;
 
   @override
   void initState() {
     super.initState();
-    _loadInitialData();
+    // Trong initState, chỉ làm các việc thật nhẹ nhàng
+    _loadDismissedState();
+    _loadLastSuggestionFromCache();
+
+    // Lên lịch để chạy _fetchSuggestion SAU KHI frame đầu tiên được vẽ xong
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Chỉ fetch gợi ý mới nếu chưa có gợi ý nào được load từ cache
+      if (_aiSuggestion == null) {
+        _fetchSuggestion();
+      }
+    });
   }
 
-  Future<void> _loadInitialData() async {
-    // Chạy song song 2 tác vụ không phụ thuộc nhau
-    await Future.wait([
-      _loadDismissedState(),
-      _fetchSuggestion(),
-    ]);
-  }
-
+  // Đọc trạng thái đã lưu của thẻ khuyến mãi
   Future<void> _loadDismissedState() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
@@ -49,15 +54,31 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // Hàm này chỉ đọc từ SharedPreferences, rất nhanh
+  Future<void> _loadLastSuggestionFromCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _aiSuggestion = prefs.getString('last_suggestion_text');
+        final timestampString = prefs.getString('last_suggestion_timestamp');
+        if (timestampString != null) {
+          _suggestionTimestamp = DateTime.parse(timestampString);
+        }
+      });
+    }
+  }
+
+  // Hàm chính để lấy gợi ý từ AI
   Future<void> _fetchSuggestion() async {
     if (!_isLoadingSuggestion) {
       setState(() { _isLoadingSuggestion = true; });
     }
+
     try {
       final weatherData = await WeatherService.getWeather('Da Nang');
       if (mounted) setState(() => _currentWeather = weatherData);
 
-      final items = await DBHelper.getData('clothing_items').then((data) => data.map((item) => ClothingItem.fromMap(item)).toList());
+      final items = await DatabaseHelper.instance.getAllItems().then((data) => data.map((item) => ClothingItem.fromMap(item)).toList());
       if (items.isEmpty) throw Exception('Tủ đồ trống.');
 
       final suggestion = await SuggestionService.getOutfitSuggestion(weather: weatherData, items: items);
@@ -95,7 +116,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<ClothingItem>> _loadRecentItems() async {
-    final dataList = await DBHelper.getRecentItems(5);
+    final dataList = await DatabaseHelper.instance.getRecentItems(5);
     return dataList.map((itemMap) => ClothingItem.fromMap(itemMap)).toList();
   }
 
@@ -114,8 +135,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {   
-    // Cấu trúc Scaffold đúng
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -146,58 +166,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildTodaysSuggestionCard() {
-    return Column(
-      children: [
-        SectionHeader(
-          title: 'Gợi ý hôm nay',
-          actionIcon: Icons.refresh,
-          onActionPressed: _fetchSuggestion,
-        ),
-        const SizedBox(height: 16),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(16)),
-          child: _isLoadingSuggestion
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (_currentWeather != null) ...[
-                      Text(
-                        _currentWeather!['name'],
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(_getWeatherIcon(_currentWeather!['weather'][0]['icon']), color: Colors.orange.shade700, size: 32),
-                          const SizedBox(width: 8),
-                          Text('${_currentWeather!['main']['temp'].toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-                        ],
-                      ),
-                      const Divider(height: 24, thickness: 0.5),
-                    ],
-                    Text(
-                      _aiSuggestion ?? 'Chưa có gợi ý nào. Hãy nhấn nút làm mới!',
-                      style: const TextStyle(fontSize: 16, height: 1.5),
-                    ),
-                    if (_suggestionTimestamp != null && _aiSuggestion != null && !_aiSuggestion!.contains('lỗi') && !_aiSuggestion!.contains('gợi ý')) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        'Cập nhật lúc: ${DateFormat('HH:mm, dd/MM/yyyy').format(_suggestionTimestamp!)}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontStyle: FontStyle.italic),
-                      ),
-                    ],
-                  ],
-                ),
-        )
-      ],
-    );
-  }
-  
-  // Các hàm build khác không thay đổi
   Widget _buildHeader() {
     return Row(
       children: [
@@ -280,6 +248,57 @@ class _HomePageState extends State<HomePage> {
             },
           ),
         ),
+      ],
+    );
+  }
+  
+  Widget _buildTodaysSuggestionCard() {
+    return Column(
+      children: [
+        SectionHeader(
+          title: 'Gợi ý hôm nay',
+          actionIcon: Icons.refresh,
+          onActionPressed: _fetchSuggestion,
+        ),
+        const SizedBox(height: 16),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(16)),
+          child: _isLoadingSuggestion
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_currentWeather != null) ...[
+                      Text(
+                        _currentWeather!['name'],
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(_getWeatherIcon(_currentWeather!['weather'][0]['icon']), color: Colors.orange.shade700, size: 32),
+                          const SizedBox(width: 8),
+                          Text('${_currentWeather!['main']['temp'].toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      const Divider(height: 24, thickness: 0.5),
+                    ],
+                    Text(
+                      _aiSuggestion ?? 'Chưa có gợi ý nào. Hãy nhấn nút làm mới!',
+                      style: const TextStyle(fontSize: 16, height: 1.5),
+                    ),
+                    if (_suggestionTimestamp != null && _aiSuggestion != null && !_aiSuggestion!.contains('lỗi') && !_aiSuggestion!.contains('gợi ý')) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        'Cập nhật lúc: ${DateFormat('HH:mm, dd/MM/yyyy').format(_suggestionTimestamp!)}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+                      ),
+                    ],
+                  ],
+                ),
+        )
       ],
     );
   }

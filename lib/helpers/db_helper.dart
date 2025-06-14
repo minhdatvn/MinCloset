@@ -1,128 +1,89 @@
 // file: lib/helpers/db_helper.dart
-
+// file: lib/helpers/db_helper.dart
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:path/path.dart' as path;
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/clothing_item.dart';
 
-class DBHelper {
-  // Hàm tạo cả 2 bảng trong CSDL
-  static Future<void> _createTables(sql.Database database) async {
-    // 1. Tạo bảng cho các tủ đồ
-    await database.execute("""CREATE TABLE closets (
-        id TEXT PRIMARY KEY,
-        name TEXT
-      )""");
-    
-    // 2. Cập nhật bảng clothing_items để thêm cột closetId
-    await database.execute("""CREATE TABLE clothing_items (
-        id TEXT PRIMARY KEY,
-        name TEXT,
-        category TEXT,
-        color TEXT,
-        imagePath TEXT,
-        closetId TEXT,
-        season TEXT,
-        occasion TEXT,
-        material TEXT,
-        pattern TEXT
-      )""");
+class DatabaseHelper {
+  sql.Database? _database;
+  static final DatabaseHelper instance = DatabaseHelper._init();
+  DatabaseHelper._init();
+
+  Future<sql.Database> get database async {
+    if (_database != null) return _database!;
+    _database = await _initDB('mincloset.db');
+    return _database!;
   }
 
-  // Hàm để mở hoặc tạo CSDL
-  static Future<sql.Database> db() async {
+  Future<sql.Database> _initDB(String filePath) async {
     final dbPath = await sql.getDatabasesPath();
-    return sql.openDatabase(
-      path.join(dbPath, 'mincloset.db'),
-      onCreate: (db, version) {
-        return _createTables(db);
-      },
-      version: 1,
-    );
+    final finalPath = path.join(dbPath, filePath);
+    return await sql.openDatabase(finalPath, version: 1, onCreate: _createDB);
   }
 
-  // === CÁC HÀM CHO CLOSET ===
-  static Future<void> insertCloset(String table, Map<String, dynamic> data) async {
-    final db = await DBHelper.db();
-    await db.insert(table, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
-  }
-  
-  static Future<List<Map<String, dynamic>>> getClosets(String table) async {
-    final db = await DBHelper.db();
-    return db.query(table, orderBy: 'name ASC');
+  Future<void> _createDB(sql.Database db, int version) async {
+    await db.execute("""CREATE TABLE closets (id TEXT PRIMARY KEY, name TEXT)""");
+    await db.execute("""CREATE TABLE clothing_items (
+        id TEXT PRIMARY KEY, name TEXT, category TEXT, color TEXT,
+        imagePath TEXT, closetId TEXT, season TEXT, occasion TEXT,
+        material TEXT, pattern TEXT
+      )""");
   }
 
-  static Future<int> updateCloset(Closet closet) async {
-    final db = await DBHelper.db();
-    return db.update(
-      'closets',
-      closet.toMap(),
-      where: 'id = ?',
-      whereArgs: [closet.id],
-    );
+  // HÀM _createDB ĐÃ ĐƯỢC XÓA KHỎI ĐÂY
+
+  // === CÁC HÀM TƯƠNG TÁC CSDL GIỮ NGUYÊN ===
+  Future<void> insertCloset(Map<String, dynamic> data) async {
+    final db = await instance.database;
+    await db.insert('closets', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
   }
 
-  static Future<void> deleteCloset(String id) async {
-    final db = await DBHelper.db();
-    // Dùng transaction để đảm bảo cả 2 hành động xóa cùng lúc
+  Future<List<Map<String, dynamic>>> getClosets() async {
+    final db = await instance.database;
+    return db.query('closets', orderBy: 'name ASC');
+  }
+
+  Future<int> updateCloset(Closet closet) async {
+    final db = await instance.database;
+    return db.update('closets', closet.toMap(), where: 'id = ?', whereArgs: [closet.id]);
+  }
+
+  Future<void> deleteCloset(String id) async {
+    final db = await instance.database;
     await db.transaction((txn) async {
-      // 1. Xóa tất cả các món đồ thuộc về tủ đồ này
-      await txn.delete(
-        'clothing_items',
-        where: 'closetId = ?',
-        whereArgs: [id],
-      );
-      // 2. Xóa chính tủ đồ đó
-      await txn.delete(
-        'closets',
-        where: 'id = ?',
-        whereArgs: [id],
-      );
+      await txn.delete('clothing_items', where: 'closetId = ?', whereArgs: [id]);
+      await txn.delete('closets', where: 'id = ?', whereArgs: [id]);
     });
   }
 
-  // === CÁC HÀM CHO CLOTHING ITEM ===
-  static Future<void> insert(String table, Map<String, dynamic> data) async {
-    final db = await DBHelper.db();
-    await db.insert(table, data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+  Future<void> insertItem(Map<String, dynamic> data) async {
+    final db = await instance.database;
+    await db.insert('clothing_items', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+  }
+  
+  Future<List<Map<String, dynamic>>> getItemsInCloset(String closetId) async {
+    final db = await instance.database;
+    return db.query('clothing_items', where: 'closetId = ?', whereArgs: [closetId]);
+  }
+  
+  Future<int> updateItem(ClothingItem item) async {
+    final db = await instance.database;
+    return db.update('clothing_items', item.toMap(), where: 'id = ?', whereArgs: [item.id]);
   }
 
-  static Future<List<Map<String, dynamic>>> getData(String table) async {
-    final db = await DBHelper.db();
-    return db.query(table);
+  Future<void> deleteItem(String id) async {
+    final db = await instance.database;
+    await db.delete('clothing_items', where: 'id = ?', whereArgs: [id]);
+  }
+  
+  Future<List<Map<String, dynamic>>> getAllItems() async {
+    final db = await instance.database;
+    return db.query('clothing_items');
   }
 
-  static Future<List<Map<String, dynamic>>> getRecentItems(int limit) async {
-    final db = await DBHelper.db();
+  Future<List<Map<String, dynamic>>> getRecentItems(int limit) async {
+    final db = await instance.database;
     return db.query('clothing_items', orderBy: 'id DESC', limit: limit);
-  }
-
-  static Future<void> deleteItem(String id) async {
-    final db = await DBHelper.db();
-    await db.delete(
-      'clothing_items',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-  }
-
-  static Future<int> updateItem(ClothingItem item) async {
-    final db = await DBHelper.db();
-    return db.update(
-      'clothing_items',
-      item.toMap(),
-      where: 'id = ?',
-      whereArgs: [item.id],
-    );
-  }
-
-  // Hàm quan trọng để lấy tất cả các món đồ thuộc về một tủ đồ cụ thể
-  static Future<List<Map<String, dynamic>>> getItemsInCloset(String closetId) async {
-    final db = await DBHelper.db();
-    return db.query(
-      'clothing_items',
-      where: 'closetId = ?', // Tìm các dòng có closetId khớp
-      whereArgs: [closetId], // Giá trị để so sánh
-    );
   }
 }

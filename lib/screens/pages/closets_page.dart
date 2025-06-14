@@ -26,7 +26,7 @@ class _ClosetsPageState extends State<ClosetsPage> {
               if (nameController.text.trim().isEmpty) return;
               final navigator = Navigator.of(ctx);
               final newCloset = Closet(id: const Uuid().v4(), name: nameController.text.trim());
-              await DBHelper.insertCloset('closets', newCloset.toMap());
+              await DatabaseHelper.instance.insertCloset(newCloset.toMap());
               if (mounted) {
                 navigator.pop();
                 setState(() {});
@@ -53,7 +53,7 @@ class _ClosetsPageState extends State<ClosetsPage> {
               if (nameController.text.trim().isEmpty) return;
               final navigator = Navigator.of(ctx);
               final updatedCloset = Closet(id: closet.id, name: nameController.text.trim());
-              await DBHelper.updateCloset(updatedCloset);
+              await DatabaseHelper.instance.updateCloset(updatedCloset);
               if (mounted) {
                 navigator.pop();
                 setState(() {});
@@ -77,7 +77,7 @@ class _ClosetsPageState extends State<ClosetsPage> {
           TextButton(
             onPressed: () async {
               final navigator = Navigator.of(ctx);
-              await DBHelper.deleteCloset(closet.id);
+              await DatabaseHelper.instance.deleteCloset(closet.id);
               if (mounted) {
                 navigator.pop();
                 setState(() {});
@@ -101,7 +101,7 @@ class _ClosetsPageState extends State<ClosetsPage> {
         foregroundColor: Colors.black,
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: DBHelper.getClosets('closets'),
+        future: DatabaseHelper.instance.getClosets(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
           if (!snapshot.hasData || snapshot.data!.isEmpty) return const Center(child: Text('Bạn chưa có tủ đồ nào.\nHãy nhấn nút + để tạo tủ đồ đầu tiên!', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, color: Colors.grey)));
@@ -132,6 +132,7 @@ class _ClosetsPageState extends State<ClosetsPage> {
         },
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'closets_page_fab',
         onPressed: _showAddClosetDialog,
         child: const Icon(Icons.add),
       ),

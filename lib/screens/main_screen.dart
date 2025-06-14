@@ -43,6 +43,7 @@ class _MainScreenState extends State<MainScreen> {
       body: _widgetOptions.elementAt(_selectedIndex),
 
       floatingActionButton: FloatingActionButton(
+        heroTag: 'main_screen_fab',
         onPressed: _navigateToAddItemScreen, // Thêm hành động thật cho nút '+'
         shape: const CircleBorder(),
         backgroundColor: Colors.black,

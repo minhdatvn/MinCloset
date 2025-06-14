@@ -28,7 +28,7 @@ class _ClosetDetailPageState extends State<ClosetDetailPage> {
   
   // Chuyển logic load thành một thuộc tính Future
   Future<List<ClothingItem>> _loadItems() {
-    return DBHelper.getItemsInCloset(widget.closet.id)
+    return DatabaseHelper.instance.getItemsInCloset(widget.closet.id)
         .then((dataList) => dataList.map((item) => ClothingItem.fromMap(item)).toList());
   }
 

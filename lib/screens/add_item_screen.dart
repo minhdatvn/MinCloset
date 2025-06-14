@@ -128,14 +128,17 @@ class _AddItemScreenState extends State<AddItemScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              GestureDetector(
-                onTap: _takePicture,
-                child: Container(
-                  height: 200, width: double.infinity,
-                  decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8)),
-                  child: _selectedImage != null
-                      ? Image.file(_selectedImage!, fit: BoxFit.cover, width: double.infinity)
-                      : const Center(child: Icon(Icons.camera_alt, size: 40, color: Colors.grey)),
+              AspectRatio( // <-- BỌC BÊN NGOÀI
+                aspectRatio: 1 / 1, // Tỷ lệ chiều rộng / chiều cao = 1:1 (hình vuông)
+                child: GestureDetector(
+                  onTap: _takePicture,
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8)),
+                    child: _selectedImage != null
+                        ? Image.file(_selectedImage!, fit: BoxFit.cover, width: double.infinity)
+                        : const Center(child: Icon(Icons.camera_alt, size: 40, color: Colors.grey)),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),

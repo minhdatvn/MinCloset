@@ -86,17 +86,28 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
               runSpacing: 4.0,
               children: widget.allOptions.map((option) {
                 final String name = option is OptionWithImage ? option.name : option;
-                final Widget? avatar = option is OptionWithImage ? CircleAvatar(backgroundImage: AssetImage(option.imagePath)) : null;
+                final Widget? avatar = option is OptionWithImage
+                  ? CircleAvatar(
+                      // Dùng Image.asset để có thể dùng errorBuilder
+                      child: Image.asset(
+                        option.imagePath,
+                        errorBuilder: (context, error, stackTrace) {
+                          // Nếu không tìm thấy file ảnh, hiển thị một icon mặc định
+                          return const Icon(Icons.category, size: 18, color: Colors.grey);
+                        },
+                      ),
+                    )
+                  : null;
 
-                return FilterChip(
-                  avatar: avatar,
-                  label: Text(name),
-                  selected: _selectedOptions.contains(name),
-                  onSelected: (_) => _handleSelection(name),
-                  selectedColor: Colors.deepPurple.withAlpha(51),
-                  checkmarkColor: Colors.deepPurple,
-                );
-              }).toList(),
+              return FilterChip(
+                avatar: avatar,
+                label: Text(name),
+                selected: _selectedOptions.contains(name),
+                onSelected: (_) => _handleSelection(name),
+                selectedColor: Colors.deepPurple.withAlpha(51),
+                checkmarkColor: Colors.deepPurple,
+              );
+          }).toList(),
             ),
           ),
       ],

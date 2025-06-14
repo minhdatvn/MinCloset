@@ -1,14 +1,16 @@
 // file: lib/screens/pages/home_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mincloset/helpers/db_helper.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/services/suggestion_service.dart';
 import 'package:mincloset/services/weather_service.dart';
+import 'package:mincloset/utils/logger.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:mincloset/widgets/section_header.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mincloset/utils/logger.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,26 +20,29 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Các biến trạng thái cho cả giao diện
+  // Các biến trạng thái của trang
   bool _isPromoCardDismissed = false;
   String? _aiSuggestion;
+  DateTime? _suggestionTimestamp;
   bool _isLoadingSuggestion = true;
+  Map<String, dynamic>? _currentWeather;
 
   @override
   void initState() {
     super.initState();
-    _loadInitialData(); // Gọi hàm tải dữ liệu chính
+    _loadInitialData();
   }
 
-  // Hàm tải tất cả dữ liệu cần thiết cho trang Home khi khởi động
+  // Tải tất cả dữ liệu cần thiết cho trang này
   Future<void> _loadInitialData() async {
-    // Chạy song song việc load trạng thái thẻ và lấy gợi ý
+    // Chạy song song 2 tác vụ không phụ thuộc nhau
     await Future.wait([
       _loadDismissedState(),
-      _fetchSuggestion(),
+      _fetchSuggestion(), 
     ]);
   }
 
+  // Đọc trạng thái đã lưu của thẻ khuyến mãi
   Future<void> _loadDismissedState() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
@@ -47,129 +52,156 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Hàm chính để lấy gợi ý từ AI
+  // Lấy gợi ý mới từ AI và cập nhật thời tiết
   Future<void> _fetchSuggestion() async {
-    // Nếu đang không loading thì set lại để hiển thị vòng xoay
     if (!_isLoadingSuggestion) {
       setState(() { _isLoadingSuggestion = true; });
     }
 
     try {
-      final items = await DBHelper.getData('clothing_items')
-          .then((data) => data.map((item) => ClothingItem.fromMap(item)).toList());
-
-      if (items.isEmpty) {
-        throw Exception('Tủ đồ trống.');
-      }
-
       final weatherData = await WeatherService.getWeather('Da Nang');
-      final suggestion = await SuggestionService.getOutfitSuggestion(
-          weather: weatherData, items: items);
+      // Cập nhật thời tiết vào state để UI có thể sử dụng
+      if (mounted) setState(() => _currentWeather = weatherData);
+
+      final items = await DBHelper.getData('clothing_items').then((data) => data.map((item) => ClothingItem.fromMap(item)).toList());
+      if (items.isEmpty) throw Exception('Tủ đồ trống.');
+
+      final suggestion = await SuggestionService.getOutfitSuggestion(weather: weatherData, items: items);
+      
+      final now = DateTime.now();
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('last_suggestion_text', suggestion);
+      await prefs.setString('last_suggestion_timestamp', now.toIso8601String());
       
       if(mounted) {
         setState(() {
           _aiSuggestion = suggestion;
+          _suggestionTimestamp = now;
         });
       }
-    } catch (e, s) { // Thêm 's' để lấy StackTrace
-      logger.w(
-        'Không thể lấy gợi ý', // Dùng warning thay vì error vì đây có thể là lỗi do người dùng (tủ đồ trống)
-        error: e,
-        stackTrace: s,
-      );
+    } catch (e, s) {
+      logger.w('Không thể lấy gợi ý', error: e, stackTrace: s);
       if (mounted) {
         setState(() {
           _aiSuggestion = e.toString().contains('Tủ đồ trống')
               ? 'Hãy thêm đồ vào tủ để nhận gợi ý.'
               : 'Không thể nhận gợi ý lúc này.';
+          _suggestionTimestamp = null;
         });
       }
     } finally {
-      if(mounted) {
-        setState(() {
-          _isLoadingSuggestion = false;
-        });
-      }
+      if(mounted) setState(() => _isLoadingSuggestion = false);
     }
   }
 
   Future<void> _dismissPromoCard() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('promoCardDismissed', true);
-    setState(() {
-      _isPromoCardDismissed = true;
-    });
+    setState(() => _isPromoCardDismissed = true);
   }
 
   Future<List<ClothingItem>> _loadRecentItems() async {
-    // 1. Lấy dữ liệu thô (List<Map>) từ CSDL
     final dataList = await DBHelper.getRecentItems(5);
-    
-    // 2. Dùng hàm map để chuyển đổi từng Map thành một đối tượng ClothingItem
-    //    và trả về một danh sách các đối tượng ClothingItem hoàn chỉnh.
-    return dataList
-        .map((itemMap) => ClothingItem.fromMap(itemMap))
-        .toList();
+    return dataList.map((itemMap) => ClothingItem.fromMap(itemMap)).toList();
+  }
+
+  // Hàm chuyển mã thời tiết thành icon
+  IconData _getWeatherIcon(String iconCode) {
+    switch (iconCode) {
+      case '01d': case '01n': return Icons.wb_sunny;
+      case '02d': case '02n': return Icons.cloud_outlined;
+      case '03d': case '03n': case '04d': case '04n': return Icons.cloud;
+      case '09d': case '09n': return Icons.grain;
+      case '10d': case '10n': return Icons.water_drop;
+      case '11d': case '11n': return Icons.thunderstorm;
+      case '13d': case '13n': return Icons.ac_unit;
+      case '50d': case '50n': return Icons.foggy;
+      default: return Icons.thermostat;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        // AppBar tùy chỉnh, không có background, chỉ có nội dung
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: _buildHeader(),
-        toolbarHeight: 80,
-      ),
-      body: RefreshIndicator( // Thêm chức năng kéo để làm mới
-        onRefresh: _fetchSuggestion,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (!_isPromoCardDismissed) const SizedBox(height: 16),
-              if (!_isPromoCardDismissed) _buildPromoCard(),
-              const SizedBox(height: 32),
-              _buildAiStylistSection(),
-              const SizedBox(height: 32),
-              _buildRecentlyAddedSection(),
-              const SizedBox(height: 32),
-              // --- THẺ GỢI Ý HÔM NAY ---
-              _buildTodaysSuggestionCard(),
-              const SizedBox(height: 32),
-            ],
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _fetchSuggestion,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeader(),
+                if (!_isPromoCardDismissed) const SizedBox(height: 24),
+                if (!_isPromoCardDismissed) _buildPromoCard(),
+                const SizedBox(height: 32),
+                _buildAiStylistSection(),
+                const SizedBox(height: 32),
+                _buildRecentlyAddedSection(),
+                const SizedBox(height: 32),
+                _buildTodaysSuggestionCard(),
+                const SizedBox(height: 32),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  // Widget cho Thẻ Gợi ý hôm nay
   Widget _buildTodaysSuggestionCard() {
     return Column(
       children: [
-        SectionHeader(title: 'Gợi ý hôm nay', onSeeAll: (){}),
+        SectionHeader(
+          title: 'Gợi ý hôm nay',
+          actionIcon: Icons.refresh,
+          onActionPressed: _fetchSuggestion,
+        ),
         const SizedBox(height: 16),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(16)
-          ),
+          decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(16)),
           child: _isLoadingSuggestion
-            ? const Center(child: CircularProgressIndicator())
-            : Text(
-                _aiSuggestion ?? 'Đã có lỗi xảy ra.',
-                style: const TextStyle(fontSize: 16, height: 1.5),
-              ),
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_currentWeather != null) ...[
+                      Text(
+                        _currentWeather!['name'],
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(_getWeatherIcon(_currentWeather!['weather'][0]['icon']), color: Colors.orange.shade700, size: 32),
+                          const SizedBox(width: 8),
+                          Text('${_currentWeather!['main']['temp'].toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      const Divider(height: 24, thickness: 0.5),
+                    ],
+                    Text(
+                      _aiSuggestion ?? 'Chưa có gợi ý nào. Hãy nhấn nút làm mới!',
+                      style: const TextStyle(fontSize: 16, height: 1.5),
+                    ),
+                    if (_suggestionTimestamp != null && _aiSuggestion != null && !_aiSuggestion!.contains('lỗi') && !_aiSuggestion!.contains('gợi ý')) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        'Cập nhật lúc: ${DateFormat('HH:mm, dd/MM/yyyy').format(_suggestionTimestamp!)}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontStyle: FontStyle.italic),
+                      ),
+                    ],
+                  ],
+                ),
         )
       ],
     );
   }
-
+  
+  // Các hàm build khác không thay đổi
   Widget _buildHeader() {
     return Row(
       children: [
@@ -181,10 +213,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         const Spacer(),
-        IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.notifications_outlined, size: 28),
-        ),
+        IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_outlined, size: 28)),
       ],
     );
   }
@@ -195,11 +224,7 @@ class _HomePageState extends State<HomePage> {
         Container(
           padding: const EdgeInsets.fromLTRB(16, 16, 40, 16),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.deepPurple.shade200, Colors.purple.shade300],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            gradient: LinearGradient(colors: [Colors.deepPurple.shade200, Colors.purple.shade300], begin: Alignment.topLeft, end: Alignment.bottomRight),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
@@ -213,14 +238,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        Positioned(
-          top: 4,
-          right: 4,
-          child: IconButton(
-            icon: const Icon(Icons.close, color: Colors.white, size: 20),
-            onPressed: _dismissPromoCard,
-          ),
-        ),
+        Positioned(top: 4, right: 4, child: IconButton(icon: const Icon(Icons.close, color: Colors.white, size: 20), onPressed: _dismissPromoCard)),
       ],
     );
   }
@@ -232,43 +250,9 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(
-              child: Container(
-                height: 100,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade400,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Icon(Icons.auto_awesome, color: Colors.white),
-                    Text('Bắt đầu phối đồ', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-            ),
+            Expanded(child: Container(height: 100, padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.blue.shade400, borderRadius: BorderRadius.circular(16)), child: const Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Icon(Icons.auto_awesome, color: Colors.white), Text('Bắt đầu phối đồ', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))]))),
             const SizedBox(width: 16),
-            Expanded(
-              child: Container(
-                height: 100,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Icon(Icons.history, color: Colors.black),
-                    Text('Lịch sử', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-            ),
+            Expanded(child: Container(height: 100, padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(16)), child: const Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Icon(Icons.history, color: Colors.black), Text('Lịch sử', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold))]))),
           ],
         ),
       ],
@@ -278,30 +262,21 @@ class _HomePageState extends State<HomePage> {
   Widget _buildRecentlyAddedSection() {
     return Column(
       children: [
-        SectionHeader(
-          title: 'Đã thêm gần đây',
-          onSeeAll: () {},
-        ),
+        SectionHeader(title: 'Đã thêm gần đây', onSeeAll: () {}),
         const SizedBox(height: 16),
         SizedBox(
           height: 120,
           child: FutureBuilder<List<ClothingItem>>(
             future: _loadRecentItems(),
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return _buildAddFirstItemButton();
-              }
+              if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+              if (!snapshot.hasData || snapshot.data!.isEmpty) return _buildAddFirstItemButton();
               final items = snapshot.data!;
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: items.length + 1,
                 itemBuilder: (ctx, index) {
-                  if (index == 0) {
-                    return _buildAddFirstItemButton();
-                  }
+                  if (index == 0) return _buildAddFirstItemButton();
                   final item = items[index - 1];
                   return RecentItemCard(item: item);
                 },
@@ -315,18 +290,17 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildAddFirstItemButton() {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (ctx) => const AddItemScreen()),
+        ).then((_) => setState(() {}));
+      },
       borderRadius: BorderRadius.circular(12),
       child: Container(
         width: 120,
         margin: const EdgeInsets.only(right: 12),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.grey.shade200,
-        ),
-        child: const Center(
-          child: Icon(Icons.add, size: 40, color: Colors.grey),
-        ),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.grey.shade200),
+        child: const Center(child: Icon(Icons.add, size: 40, color: Colors.grey)),
       ),
     );
   }

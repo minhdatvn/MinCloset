@@ -3,6 +3,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Thêm import
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/utils/logger.dart';
 
 class SuggestionService {
   // Đọc key từ biến môi trường một cách an toàn
@@ -49,8 +50,12 @@ class SuggestionService {
       final content = [Content.text(prompt)];
       final response = await model.generateContent(content);
       return response.text ?? "Xin lỗi, tôi chưa nghĩ ra được gợi ý nào phù hợp.";
-    } catch (e) {
-      print('Lỗi khi gọi Gemini API: $e');
+    } catch (e, s) { // Thêm 's' để lấy StackTrace
+      logger.e(
+        'Lỗi khi gọi Gemini API', // Tin nhắn chính
+        error: e,     // Đối tượng lỗi
+        stackTrace: s, // Stack trace để biết lỗi xảy ra ở đâu
+      );
       return "Đã có lỗi xảy ra khi kết nối với AI. Vui lòng thử lại.";
     }
   }

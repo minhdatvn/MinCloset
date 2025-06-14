@@ -8,6 +8,7 @@ import 'package:mincloset/services/weather_service.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:mincloset/widgets/section_header.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mincloset/utils/logger.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -70,7 +71,12 @@ class _HomePageState extends State<HomePage> {
           _aiSuggestion = suggestion;
         });
       }
-    } catch (e) {
+    } catch (e, s) { // Thêm 's' để lấy StackTrace
+      logger.w(
+        'Không thể lấy gợi ý', // Dùng warning thay vì error vì đây có thể là lỗi do người dùng (tủ đồ trống)
+        error: e,
+        stackTrace: s,
+      );
       if (mounted) {
         setState(() {
           _aiSuggestion = e.toString().contains('Tủ đồ trống')
@@ -78,7 +84,6 @@ class _HomePageState extends State<HomePage> {
               : 'Không thể nhận gợi ý lúc này.';
         });
       }
-      print(e);
     } finally {
       if(mounted) {
         setState(() {
@@ -223,7 +228,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildAiStylistSection() {
     return Column(
       children: [
-        SectionHeader(title: 'AI Stylist'),
+        const SectionHeader(title: 'AI Stylist'),
         const SizedBox(height: 16),
         Row(
           children: [

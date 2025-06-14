@@ -21,7 +21,11 @@ class DBHelper {
         category TEXT,
         color TEXT,
         imagePath TEXT,
-        closetId TEXT 
+        closetId TEXT,
+        season TEXT,
+        occasion TEXT,
+        material TEXT,
+        pattern TEXT
       )""");
   }
 

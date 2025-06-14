@@ -6,7 +6,11 @@ class ClothingItem {
   final String category;
   final String color;
   final String imagePath;
-  final String closetId; // <-- THUỘC TÍNH MỚI
+  final String closetId;
+  final String? season;
+  final String? occasion;
+  final String? material;
+  final String? pattern;
 
   ClothingItem({
     required this.id,
@@ -14,7 +18,12 @@ class ClothingItem {
     required this.category,
     required this.color,
     required this.imagePath,
-    required this.closetId, // <-- THÊM VÀO CONSTRUCTOR
+    required this.closetId,
+    // Thêm vào constructor
+    this.season,
+    this.occasion,
+    this.material,
+    this.pattern,
   });
 
   Map<String, dynamic> toMap() {
@@ -24,7 +33,12 @@ class ClothingItem {
       'category': category,
       'color': color,
       'imagePath': imagePath,
-      'closetId': closetId, // <-- THÊM VÀO HÀM
+      'closetId': closetId,
+      // Thêm vào hàm
+      'season': season,
+      'occasion': occasion,
+      'material': material,
+      'pattern': pattern,
     };
   }
 
@@ -35,7 +49,12 @@ class ClothingItem {
       category: map['category'],
       color: map['color'],
       imagePath: map['imagePath'],
-      closetId: map['closetId'], // <-- THÊM VÀO HÀM
+      closetId: map['closetId'],
+      // Thêm vào hàm
+      season: map['season'],
+      occasion: map['occasion'],
+      material: map['material'],
+      pattern: map['pattern'],
     );
   }
 }

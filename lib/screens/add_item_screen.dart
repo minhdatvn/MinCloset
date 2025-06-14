@@ -1,3 +1,5 @@
+// file: lib/screens/add_item_screen.dart
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -8,7 +10,7 @@ import 'package:uuid/uuid.dart';
 
 class AddItemScreen extends StatefulWidget {
   final String? preselectedClosetId;
-  final ClothingItem? itemToEdit; // Thuộc tính để nhận món đồ cần sửa
+  final ClothingItem? itemToEdit;
 
   const AddItemScreen({super.key, this.preselectedClosetId, this.itemToEdit});
 
@@ -20,6 +22,10 @@ class _AddItemScreenState extends State<AddItemScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _colorController = TextEditingController();
+  final _seasonController = TextEditingController();
+  final _occasionController = TextEditingController();
+  final _materialController = TextEditingController();
+  final _patternController = TextEditingController();
 
   File? _selectedImage;
   String? _selectedCategory;
@@ -39,10 +45,25 @@ class _AddItemScreenState extends State<AddItemScreen> {
       if (item.imagePath.isNotEmpty) {
         _selectedImage = File(item.imagePath);
       }
+      _seasonController.text = item.season ?? '';
+      _occasionController.text = item.occasion ?? '';
+      _materialController.text = item.material ?? '';
+      _patternController.text = item.pattern ?? '';
     } else {
       _selectedClosetId = widget.preselectedClosetId;
     }
     _loadClosets();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _colorController.dispose();
+    _seasonController.dispose();
+    _occasionController.dispose();
+    _materialController.dispose();
+    _patternController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadClosets() async {
@@ -66,10 +87,9 @@ class _AddItemScreenState extends State<AddItemScreen> {
   void _saveItem() async {
     if (_formKey.currentState!.validate()) {
       if (_selectedImage == null || _selectedCategory == null || _selectedClosetId == null) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng điền đủ tất cả thông tin!')));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Vui lòng điền đủ thông tin bắt buộc!')));
         return;
       }
-      
       _formKey.currentState!.save();
       
       if (_isEditing) {
@@ -80,6 +100,10 @@ class _AddItemScreenState extends State<AddItemScreen> {
           color: _colorController.text,
           imagePath: _selectedImage!.path,
           closetId: _selectedClosetId!,
+          season: _seasonController.text,
+          occasion: _occasionController.text,
+          material: _materialController.text,
+          pattern: _patternController.text,
         );
         await DBHelper.updateItem(updatedItem);
       } else {
@@ -90,6 +114,10 @@ class _AddItemScreenState extends State<AddItemScreen> {
           color: _colorController.text,
           imagePath: _selectedImage!.path,
           closetId: _selectedClosetId!,
+          season: _seasonController.text,
+          occasion: _occasionController.text,
+          material: _materialController.text,
+          pattern: _patternController.text,
         );
         await DBHelper.insert('clothing_items', newItem.toMap());
       }
@@ -114,24 +142,33 @@ class _AddItemScreenState extends State<AddItemScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // === PHẦN CODE ĐẦY ĐỦ CHO KHU VỰC ẢNH ===
               GestureDetector(
                 onTap: _takePicture,
                 child: Container(
                   height: 200,
-                  decoration: BoxDecoration(border: Border.all(width: 1, color: Colors.grey), borderRadius: BorderRadius.circular(8)),
-                  child: _selectedImage != null ? Image.file(_selectedImage!, fit: BoxFit.cover, width: double.infinity) : const Center(child: Icon(Icons.camera_alt, size: 40, color: Colors.grey)),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 1, color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: _selectedImage != null
+                      ? Image.file(_selectedImage!, fit: BoxFit.cover, width: double.infinity)
+                      : const Center(
+                          child: Icon(Icons.camera_alt, size: 40, color: Colors.grey),
+                        ),
                 ),
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Tên món đồ'),
+                decoration: const InputDecoration(labelText: 'Tên món đồ *'),
                 validator: (value) => (value == null || value.trim().isEmpty) ? 'Vui lòng nhập tên.' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _colorController,
-                decoration: const InputDecoration(labelText: 'Màu sắc'),
+                decoration: const InputDecoration(labelText: 'Màu sắc *'),
                 validator: (value) => (value == null || value.trim().isEmpty) ? 'Vui lòng nhập màu sắc.' : null,
               ),
               const SizedBox(height: 16),
@@ -139,7 +176,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
                 value: _selectedClosetId,
                 items: _closets.map((closet) => DropdownMenuItem(value: closet.id, child: Text(closet.name))).toList(),
                 onChanged: (value) => setState(() => _selectedClosetId = value),
-                decoration: const InputDecoration(labelText: 'Chọn tủ đồ'),
+                decoration: const InputDecoration(labelText: 'Chọn tủ đồ *'),
                 validator: (value) => value == null ? 'Vui lòng chọn một tủ đồ.' : null,
               ),
               const SizedBox(height: 16),
@@ -147,8 +184,28 @@ class _AddItemScreenState extends State<AddItemScreen> {
                 value: _selectedCategory,
                 items: categories.map((category) => DropdownMenuItem(value: category, child: Text(category))).toList(),
                 onChanged: (value) => setState(() => _selectedCategory = value),
-                decoration: const InputDecoration(labelText: 'Danh mục'),
+                decoration: const InputDecoration(labelText: 'Danh mục *'),
                 validator: (value) => value == null ? 'Vui lòng chọn một danh mục.' : null,
+              ),
+              const Divider(height: 32),
+              TextFormField(
+                controller: _seasonController,
+                decoration: const InputDecoration(labelText: 'Mùa (VD: Xuân, Hạ)'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _occasionController,
+                decoration: const InputDecoration(labelText: 'Mục đích (VD: Đi làm, Đi chơi)'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _materialController,
+                decoration: const InputDecoration(labelText: 'Chất liệu (VD: Cotton, Lụa)'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _patternController,
+                decoration: const InputDecoration(labelText: 'Họa tiết (VD: Kẻ sọc, Trơn)'),
               ),
               const SizedBox(height: 32),
               ElevatedButton.icon(

@@ -20,7 +20,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Các biến trạng thái của trang
   bool _isPromoCardDismissed = false;
   String? _aiSuggestion;
   DateTime? _suggestionTimestamp;
@@ -33,16 +32,14 @@ class _HomePageState extends State<HomePage> {
     _loadInitialData();
   }
 
-  // Tải tất cả dữ liệu cần thiết cho trang này
   Future<void> _loadInitialData() async {
     // Chạy song song 2 tác vụ không phụ thuộc nhau
     await Future.wait([
       _loadDismissedState(),
-      _fetchSuggestion(), 
+      _fetchSuggestion(),
     ]);
   }
 
-  // Đọc trạng thái đã lưu của thẻ khuyến mãi
   Future<void> _loadDismissedState() async {
     final prefs = await SharedPreferences.getInstance();
     if (mounted) {
@@ -52,15 +49,12 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Lấy gợi ý mới từ AI và cập nhật thời tiết
   Future<void> _fetchSuggestion() async {
     if (!_isLoadingSuggestion) {
       setState(() { _isLoadingSuggestion = true; });
     }
-
     try {
       final weatherData = await WeatherService.getWeather('Da Nang');
-      // Cập nhật thời tiết vào state để UI có thể sử dụng
       if (mounted) setState(() => _currentWeather = weatherData);
 
       final items = await DBHelper.getData('clothing_items').then((data) => data.map((item) => ClothingItem.fromMap(item)).toList());
@@ -105,7 +99,6 @@ class _HomePageState extends State<HomePage> {
     return dataList.map((itemMap) => ClothingItem.fromMap(itemMap)).toList();
   }
 
-  // Hàm chuyển mã thời tiết thành icon
   IconData _getWeatherIcon(String iconCode) {
     switch (iconCode) {
       case '01d': case '01n': return Icons.wb_sunny;
@@ -121,29 +114,32 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {   
+    // Cấu trúc Scaffold đúng
     return Scaffold(
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _fetchSuggestion,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(),
-                if (!_isPromoCardDismissed) const SizedBox(height: 24),
-                if (!_isPromoCardDismissed) _buildPromoCard(),
-                const SizedBox(height: 32),
-                _buildAiStylistSection(),
-                const SizedBox(height: 32),
-                _buildRecentlyAddedSection(),
-                const SizedBox(height: 32),
-                _buildTodaysSuggestionCard(),
-                const SizedBox(height: 32),
-              ],
-            ),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        elevation: 0,
+        title: _buildHeader(),
+        toolbarHeight: 80,
+      ),
+      body: RefreshIndicator(
+        onRefresh: _fetchSuggestion,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (!_isPromoCardDismissed) _buildPromoCard(),
+              const SizedBox(height: 32),
+              _buildAiStylistSection(),
+              const SizedBox(height: 32),
+              _buildRecentlyAddedSection(),
+              const SizedBox(height: 32),
+              _buildTodaysSuggestionCard(),
+              const SizedBox(height: 32),
+            ],
           ),
         ),
       ),

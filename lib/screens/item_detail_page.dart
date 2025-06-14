@@ -14,14 +14,10 @@ class ItemDetailPage extends StatelessWidget {
   // Hàm điều hướng sang trang Sửa
   void _navigateToEditItem(BuildContext context) {
     Navigator.of(context).push<bool>(
-      MaterialPageRoute(
-        builder: (ctx) => AddItemScreen(itemToEdit: item)
-      ),
+      MaterialPageRoute(builder: (ctx) => AddItemScreen(itemToEdit: item)),
     ).then((result) {
-      // Nếu trang sửa trả về true (đã cập nhật), ta đóng luôn trang chi tiết
-      // để màn hình danh sách phía sau tự refresh
       if (result == true && context.mounted) {
-        Navigator.of(context).pop(true); // Trả về true cho trang danh sách
+        Navigator.of(context).pop(true);
       }
     });
   }
@@ -54,9 +50,9 @@ class ItemDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // DefaultTabController là widget bao bọc để quản lý các tab
+    // DefaultTabController vẫn bao bọc bên ngoài cùng
     return DefaultTabController(
-      length: 2, // Chúng ta có 2 tab
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Chi tiết Món đồ'),
@@ -72,22 +68,39 @@ class ItemDetailPage extends StatelessWidget {
               tooltip: 'Xóa món đồ',
             ),
           ],
-          // 'bottom' của AppBar là nơi để đặt TabBar
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Thông tin'),
-              Tab(text: 'Phối đồ'),
-            ],
-          ),
         ),
-        // TabBarView chứa nội dung của các tab tương ứng
-        body: TabBarView(
+        // Cấu trúc body giờ là một Column
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // --- NỘI DUNG TAB 1: THÔNG TIN ---
-            _buildInfoTab(context),
-            
-            // --- NỘI DUNG TAB 2: PHỐI ĐỒ (tạm thời) ---
-            const Center(child: Text('Các bộ đồ có sử dụng món đồ này sẽ hiện ở đây.')),
+            // PHẦN 1: HÌNH ẢNH
+            Image.file(
+              File(item.imagePath),
+              height: MediaQuery.of(context).size.height * 0.4,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+
+            // PHẦN 2: THANH TAB
+            const TabBar(
+              tabs: [
+                Tab(text: 'Thông tin'),
+                Tab(text: 'Phối đồ'),
+              ],
+            ),
+
+            // PHẦN 3: NỘI DUNG TAB (dùng Expanded)
+            Expanded(
+              child: TabBarView(
+                children: [
+                  // Nội dung Tab 1: Thông tin
+                  _buildInfoTab(context),
+                  
+                  // Nội dung Tab 2: Phối đồ (tạm thời)
+                  const Center(child: Text('Các bộ đồ có sử dụng món đồ này sẽ hiện ở đây.')),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -100,25 +113,13 @@ class ItemDetailPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Hiển thị ảnh
-          Image.file(
-            File(item.imagePath),
-            height: MediaQuery.of(context).size.height * 0.4,
-            width: double.infinity,
-            fit: BoxFit.cover,
-          ),
-          const SizedBox(height: 16),
-          // Tên món đồ
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Text(
               item.name,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)
             ),
           ),
-          const SizedBox(height: 8),
-          
-          // Danh sách các thông tin chi tiết
           DetailInfoRow(label: 'Mùa', value: item.season ?? 'Chưa có'),
           const Divider(height: 1, indent: 16, endIndent: 16),
           DetailInfoRow(label: 'Mục đích', value: item.occasion ?? 'Chưa có'),

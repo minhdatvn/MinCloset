@@ -1,8 +1,9 @@
 // file: lib/screens/main_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:mincloset/screens/add_item_screen.dart'; // Sẽ dùng cho nút '+'
+import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/pages/home_page.dart';
+import 'package:mincloset/screens/pages/closets_page.dart'; // <-- THÊM IMPORT MỚI
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -14,24 +15,24 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  // Danh sách các trang con
   static final List<Widget> _widgetOptions = <Widget>[
     const HomePage(),
-    const Center(child: Text('Trang Tủ đồ (Closet)')), // Placeholder
-    const Center(child: Text('Trang Phối đồ (Outfit)')), // Placeholder
-    const Center(child: Text('Trang Cá nhân (Profile)')), // Placeholder
+    const ClosetsPage(), // <-- THAY THẾ PLACEHOLDER
+    const Center(child: Text('Trang Phối đồ (Outfit)')),
+    const Center(child: Text('Trang Cá nhân (Profile)')),
   ];
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    setState(() {_selectedIndex = index;});
   }
   
   void _navigateToAddItemScreen() {
     Navigator.of(context).push(
       MaterialPageRoute(builder: (ctx) => const AddItemScreen()),
-    );
+    ).then((_) {
+      // Sau khi thêm đồ xong và quay lại, refresh lại trang hiện tại
+      setState(() {});
+    });
   }
 
   @override
@@ -65,7 +66,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
-
+  
   // Hàm này giữ nguyên
   Widget _buildNavItem({required IconData icon, required String label, required int index}) {
     final isSelected = _selectedIndex == index;

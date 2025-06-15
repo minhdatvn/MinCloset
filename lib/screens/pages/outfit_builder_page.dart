@@ -1,5 +1,3 @@
-// file: lib/screens/pages/outfit_builder_page.dart
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:mincloset/helpers/db_helper.dart';
@@ -14,11 +12,11 @@ class OutfitBuilderPage extends StatefulWidget {
 }
 
 class _OutfitBuilderPageState extends State<OutfitBuilderPage> {
-  // Danh sách TẤT CẢ các món đồ trong tủ để hiển thị ở dưới
   List<ClothingItem> _allItemsInCloset = [];
-  
-  // Danh sách các món đồ đang được hiển thị trên canvas
-  List<ClothingItem> _itemsOnCanvas = [];
+  // Thay đổi: mỗi sticker giờ là một đối tượng duy nhất, ta dùng Map
+  // để lưu trữ chúng với một key duy nhất, giúp việc xóa dễ dàng hơn.
+  final Map<String, ClothingItem> _itemsOnCanvas = {};
+  int _stickerCounter = 0; // Để tạo key duy nhất
 
   @override
   void initState() {
@@ -26,7 +24,6 @@ class _OutfitBuilderPageState extends State<OutfitBuilderPage> {
     _loadAllClosetItems();
   }
 
-  // Hàm tải tất cả các món đồ từ CSDL
   Future<void> _loadAllClosetItems() async {
     final dataList = await DatabaseHelper.instance.getAllItems();
     setState(() {
@@ -34,10 +31,32 @@ class _OutfitBuilderPageState extends State<OutfitBuilderPage> {
     });
   }
   
-  // Hàm thêm một món đồ từ bảng màu lên canvas
   void _addItemToCanvas(ClothingItem item) {
     setState(() {
-      _itemsOnCanvas.add(item);
+      // Mỗi khi thêm, tạo một key duy nhất cho sticker mới
+      final newStickerId = 'sticker_${_stickerCounter++}';
+      _itemsOnCanvas[newStickerId] = item;
+    });
+  }
+
+  // === HÀM MỚI ĐỂ XÓA STICKER ===
+  void _onStickerDelete(String stickerId) {
+    setState(() {
+      _itemsOnCanvas.remove(stickerId);
+    });
+  }
+
+  // === HÀM MỚI ĐỂ ĐƯA LÊN TRÊN CÙNG ===
+  void _onStickerSelect(String stickerId) {
+    // Lấy ra món đồ được chọn
+    final selectedItem = _itemsOnCanvas[stickerId];
+    if (selectedItem == null) return;
+    
+    setState(() {
+      // Xóa nó khỏi vị trí hiện tại và thêm lại vào cuối Map
+      // Map trong Dart 3+ giữ nguyên thứ tự chèn, nên phần tử cuối sẽ được vẽ trên cùng
+      _itemsOnCanvas.remove(stickerId);
+      _itemsOnCanvas[stickerId] = selectedItem;
     });
   }
 
@@ -64,9 +83,17 @@ class _OutfitBuilderPageState extends State<OutfitBuilderPage> {
               color: Colors.grey.shade200,
               // Stack cho phép các sticker xếp chồng lên nhau
               child: Stack(
-                children: _itemsOnCanvas.map((item) {
-                  // Với mỗi món đồ trong danh sách, tạo một sticker
-                  return ClothingSticker(item: item);
+                // Lấy ra các giá trị của Map để build UI
+                children: _itemsOnCanvas.entries.map((entry) {
+                  final stickerId = entry.key;
+                  final item = entry.value;
+                  return ClothingSticker(
+                    key: ValueKey(stickerId), // Key giúp Flutter nhận diện widget
+                    item: item,
+                    // Truyền các hàm xử lý xuống cho sticker
+                    onSelect: () => _onStickerSelect(stickerId),
+                    onDelete: () => _onStickerDelete(stickerId),
+                  );
                 }).toList(),
               ),
             ),

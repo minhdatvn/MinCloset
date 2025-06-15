@@ -1,82 +1,112 @@
-// file: lib/screens/item_detail_page.dart
+// lib/screens/item_detail_page.dart
+
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/constants/app_options.dart';
-import 'package:mincloset/helpers/db_helper.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/notifiers/item_detail_notifier.dart';
+import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
 
-class ItemDetailPage extends StatefulWidget {
+// Chuyển thành ConsumerWidget
+class ItemDetailPage extends ConsumerWidget {
   final ClothingItem item;
   const ItemDetailPage({super.key, required this.item});
 
   @override
-  State<ItemDetailPage> createState() => _ItemDetailPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Tạo một provider instance riêng cho món đồ này
+    // `widget.item` giờ đây chỉ là giá trị khởi tạo ban đầu
+    final itemProvider = itemDetailProvider(item);
 
-class _ItemDetailPageState extends State<ItemDetailPage> {
-  late ClothingItem _currentItem;
+    // Dùng `ref.watch` để lấy ra state (chính là ClothingItem) hiện tại
+    // và lắng nghe các thay đổi của nó
+    final currentItem = ref.watch(itemProvider);
 
-  @override
-  void initState() {
-    super.initState();
-    _currentItem = widget.item;
-  }
+    // Dùng `ref.read` để lấy ra notifier, dùng để gọi các hàm
+    final notifier = ref.read(itemProvider.notifier);
 
-  void _handleFieldUpdate(Map<String, dynamic> newValues) async {
-    // Tạo một bản sao của item hiện tại và cập nhật các giá trị mới
-    final currentMap = _currentItem.toMap();
-    currentMap.addAll(newValues);
-    final updatedItem = ClothingItem.fromMap(currentMap);
-
-    setState(() {
-      _currentItem = updatedItem;
-    });
-    await DatabaseHelper.instance.updateItem(updatedItem);
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_currentItem.name)),
+      appBar: AppBar(
+        title: Text(currentItem.name), // Đọc tên từ state
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            onPressed: () {
+              // Đi đến màn hình Edit, truyền vào item hiện tại
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (ctx) => AddItemScreen(itemToEdit: currentItem)),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline, color: Colors.red),
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('Xác nhận xóa'),
+                  content: Text('Bạn có chắc chắn muốn xóa món đồ "${currentItem.name}" không?'),
+                  actions: [
+                    TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Hủy')),
+                    TextButton(onPressed: () => Navigator.of(context).pop(true), style: TextButton.styleFrom(foregroundColor: Colors.red), child: const Text('Xóa'),),
+                  ],
+                )
+              );
+              
+              if (confirmed == true) {
+                await notifier.deleteItem();
+                if (context.mounted) {
+                  // Quay về màn hình trước và trả về `true` để báo hiệu đã xóa
+                  Navigator.of(context).pop(true); 
+                }
+              }
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.file(File(_currentItem.imagePath), height: MediaQuery.of(context).size.height * 0.4, width: double.infinity, fit: BoxFit.cover),
+            // Hiển thị ảnh
+            Image.file(File(currentItem.imagePath), height: MediaQuery.of(context).size.height * 0.4, width: double.infinity, fit: BoxFit.cover),
             const SizedBox(height: 16),
-            Padding(padding: const EdgeInsets.symmetric(horizontal: 16.0), child: Text(_currentItem.name, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold))),
+            Padding(padding: const EdgeInsets.symmetric(horizontal: 16.0), child: Text(currentItem.name, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold))),
             const SizedBox(height: 8),
 
+            // Các trường thông tin có thể chỉnh sửa
+            // Giờ đây chúng gọi thẳng vào các hàm trong notifier
             MultiSelectChipField(
               label: 'Mùa',
               allOptions: AppOptions.seasons,
-              initialSelections: (_currentItem.season?.split(', ').where((s) => s.isNotEmpty).toSet() ?? {}),
-              onSelectionChanged: (newSelections) => _handleFieldUpdate({'season': newSelections.join(', ')}),
+              initialSelections: currentItem.season?.split(', ').where((s) => s.isNotEmpty).toSet() ?? {},
+              onSelectionChanged: (newSelections) => notifier.updateField(season: newSelections),
             ),
             const Divider(height: 1, indent: 16, endIndent: 16),
 
             MultiSelectChipField(
               label: 'Mục đích',
               allOptions: AppOptions.occasions,
-              initialSelections: (_currentItem.occasion?.split(', ').where((s) => s.isNotEmpty).toSet() ?? {}),
-              onSelectionChanged: (newSelections) => _handleFieldUpdate({'occasion': newSelections.join(', ')}),
+              initialSelections: currentItem.occasion?.split(', ').where((s) => s.isNotEmpty).toSet() ?? {},
+              onSelectionChanged: (newSelections) => notifier.updateField(occasion: newSelections),
             ),
             const Divider(height: 1, indent: 16, endIndent: 16),
 
             MultiSelectChipField(
               label: 'Chất liệu',
               allOptions: AppOptions.materials,
-              initialSelections: (_currentItem.material?.split(', ').where((s) => s.isNotEmpty).toSet() ?? {}),
-              onSelectionChanged: (newSelections) => _handleFieldUpdate({'material': newSelections.join(', ')}),
+              initialSelections: currentItem.material?.split(', ').where((s) => s.isNotEmpty).toSet() ?? {},
+              onSelectionChanged: (newSelections) => notifier.updateField(material: newSelections),
             ),
             const Divider(height: 1, indent: 16, endIndent: 16),
 
             MultiSelectChipField(
               label: 'Họa tiết',
               allOptions: AppOptions.patterns,
-              initialSelections: (_currentItem.pattern?.split(', ').where((s) => s.isNotEmpty).toSet() ?? {}),
-              onSelectionChanged: (newSelections) => _handleFieldUpdate({'pattern': newSelections.join(', ')}),
+              initialSelections: currentItem.pattern?.split(', ').where((s) => s.isNotEmpty).toSet() ?? {},
+              onSelectionChanged: (newSelections) => notifier.updateField(pattern: newSelections),
             ),
           ],
         ),

@@ -1,4 +1,4 @@
-// file: lib/models/clothing_item.dart
+// lib/models/clothing_item.dart
 
 class ClothingItem {
   final String id;
@@ -19,12 +19,38 @@ class ClothingItem {
     required this.color,
     required this.imagePath,
     required this.closetId,
-    // Thêm vào constructor
     this.season,
     this.occasion,
     this.material,
     this.pattern,
   });
+
+  // <<< THÊM TOÀN BỘ PHƯƠNG THỨC NÀY VÀO LỚP CỦA BẠN
+  ClothingItem copyWith({
+    String? id,
+    String? name,
+    String? category,
+    String? color,
+    String? imagePath,
+    String? closetId,
+    String? season,
+    String? occasion,
+    String? material,
+    String? pattern,
+  }) {
+    return ClothingItem(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      category: category ?? this.category,
+      color: color ?? this.color,
+      imagePath: imagePath ?? this.imagePath,
+      closetId: closetId ?? this.closetId,
+      season: season ?? this.season,
+      occasion: occasion ?? this.occasion,
+      material: material ?? this.material,
+      pattern: pattern ?? this.pattern,
+    );
+  }
 
   Map<String, dynamic> toMap() {
     return {
@@ -34,7 +60,6 @@ class ClothingItem {
       'color': color,
       'imagePath': imagePath,
       'closetId': closetId,
-      // Thêm vào hàm
       'season': season,
       'occasion': occasion,
       'material': material,
@@ -50,7 +75,6 @@ class ClothingItem {
       color: map['color'],
       imagePath: map['imagePath'],
       closetId: map['closetId'],
-      // Thêm vào hàm
       season: map['season'],
       occasion: map['occasion'],
       material: map['material'],

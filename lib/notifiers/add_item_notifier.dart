@@ -3,27 +3,22 @@
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mincloset/helpers/db_helper.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/providers/repository_providers.dart'; // <<< THAY ĐỔI IMPORT
+import 'package:mincloset/repositories/clothing_item_repository.dart'; // <<< THÊM IMPORT NÀY
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:uuid/uuid.dart';
 
-// <<< LỖI 1 ĐƯỢC SỬA TẠI ĐÂY: Thêm import này
-import 'package:mincloset/providers/database_providers.dart';
-
-
 class AddItemNotifier extends StateNotifier<AddItemState> {
-  final DatabaseHelper _dbHelper;
-  // <<< LỖI 2 ĐƯỢC SỬA TẠI ĐÂY: Xóa trường `_itemToEdit` không dùng đến
+  // <<< THAY ĐỔI: Phụ thuộc vào Repository
+  final ClothingItemRepository _clothingItemRepo;
 
-  // Tham số `itemToEdit` giờ được truyền trực tiếp vào constructor
-  // mà không cần gán vào một trường của lớp.
-  AddItemNotifier(this._dbHelper, ClothingItem? itemToEdit)
+  AddItemNotifier(this._clothingItemRepo, ClothingItem? itemToEdit)
       : super(itemToEdit != null
               ? AddItemState.fromClothingItem(itemToEdit)
               : const AddItemState());
 
-  // Các hàm để cập nhật từng phần của state từ UI
+  // ... các hàm onNameChanged, onClosetChanged, pickImage... giữ nguyên ...
   void onNameChanged(String name) => state = state.copyWith(name: name);
   void onClosetChanged(String? closetId) => state = state.copyWith(selectedClosetId: closetId);
   void onCategoryChanged(String category) => state = state.copyWith(selectedCategoryValue: category);
@@ -42,7 +37,6 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   }
 
   Future<void> saveItem() async {
-    // Validation
     if (state.name.trim().isEmpty || state.selectedCategoryValue.isEmpty || state.selectedClosetId == null || (state.image == null && state.imagePath == null)) {
         state = state.copyWith(errorMessage: 'Vui lòng điền đủ thông tin bắt buộc!');
         return;
@@ -64,10 +58,11 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     );
 
     try {
+      // <<< THAY ĐỔI: Gọi đến Repository
       if (state.isEditing) {
-        await _dbHelper.updateItem(clothingItem);
+        await _clothingItemRepo.updateItem(clothingItem);
       } else {
-        await _dbHelper.insertItem(clothingItem.toMap());
+        await _clothingItemRepo.insertItem(clothingItem);
       }
       state = state.copyWith(isLoading: false, isSuccess: true);
     } catch (e) {
@@ -76,10 +71,8 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   }
 }
 
-// Provider này không thay đổi
 final addItemProvider = StateNotifierProvider.autoDispose.family<AddItemNotifier, AddItemState, ClothingItem?>((ref, itemToEdit) {
-  // <<< LỖI 1 ĐƯỢC SỬA TẠI ĐÂY: 
-  // `dbHelperProvider` giờ đã được nhận diện nhờ câu lệnh import ở trên.
-  final dbHelper = ref.watch(dbHelperProvider);
-  return AddItemNotifier(dbHelper, itemToEdit);
+  // <<< THAY ĐỔI: Inject ClothingItemRepository
+  final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
+  return AddItemNotifier(clothingItemRepo, itemToEdit);
 });

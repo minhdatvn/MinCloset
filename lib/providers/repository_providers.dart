@@ -3,16 +3,22 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/repositories/closet_repository.dart';
+import 'package:mincloset/repositories/clothing_item_repository.dart'; // <<< THÊM IMPORT
+import 'package:mincloset/repositories/outfit_repository.dart';       // <<< THÊM IMPORT
 
-// Provider này sẽ tạo và cung cấp một đối tượng ClosetRepository duy nhất
-// cho toàn bộ ứng dụng.
 final closetRepositoryProvider = Provider<ClosetRepository>((ref) {
-  // Nó đọc `dbHelperProvider` mà chúng ta đã có...
   final dbHelper = ref.watch(dbHelperProvider);
-  // ...và dùng nó để tạo ra một ClosetRepository.
   return ClosetRepository(dbHelper);
 });
 
-// Sau này, bạn sẽ thêm các provider cho các repository khác vào đây, ví dụ:
-// final clothingItemRepositoryProvider = Provider(...);
-// final outfitRepositoryProvider = Provider(...);
+// <<< THÊM PROVIDER CHO CLOTHING ITEM REPOSITORY
+final clothingItemRepositoryProvider = Provider<ClothingItemRepository>((ref) {
+  final dbHelper = ref.watch(dbHelperProvider);
+  return ClothingItemRepository(dbHelper);
+});
+
+// <<< THÊM PROVIDER CHO OUTFIT REPOSITORY
+final outfitRepositoryProvider = Provider<OutfitRepository>((ref) {
+  final dbHelper = ref.watch(dbHelperProvider);
+  return OutfitRepository(dbHelper);
+});

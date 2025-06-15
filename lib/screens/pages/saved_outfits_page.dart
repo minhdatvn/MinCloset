@@ -3,9 +3,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/helpers/db_helper.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/providers/outfit_providers.dart';
+import 'package:mincloset/providers/repository_providers.dart'; // <<< THÊM IMPORT NÀY
 import 'package:share_plus/share_plus.dart';
 
 class SavedOutfitsPage extends ConsumerWidget {
@@ -13,6 +13,7 @@ class SavedOutfitsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // outfitsProvider đã được cập nhật để dùng repository trong các bước trước
     final outfitsAsyncValue = ref.watch(outfitsProvider);
 
     return Scaffold(
@@ -87,11 +88,8 @@ class SavedOutfitsPage extends ConsumerWidget {
     );
   }
 
-  // <<< LỖI ĐƯỢC SỬA TẠI ĐÂY - Quay lại dùng ShareParams
-  // Dựa trên phân tích lỗi từ VSCode của bạn
   Future<void> _shareOutfit(BuildContext context, Outfit outfit) async {
     try {
-      // Cú pháp đúng là truyền vào một đối tượng ShareParams
       await SharePlus.instance.share(
         ShareParams(
           text: 'Cùng xem bộ đồ "${outfit.name}" của tôi trên MinCloset nhé!',
@@ -125,7 +123,9 @@ class SavedOutfitsPage extends ConsumerWidget {
     );
 
     if (confirmed == true) {
-      await DatabaseHelper.instance.deleteOutfit(outfit.id);
+      // <<< THAY ĐỔI: Gọi đến Repository thay vì DatabaseHelper
+      await ref.read(outfitRepositoryProvider).deleteOutfit(outfit.id);
+      
       try {
         final imageFile = File(outfit.imagePath);
         if (await imageFile.exists()) {

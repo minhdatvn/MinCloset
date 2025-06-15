@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/pages/home_page.dart';
 import 'package:mincloset/screens/pages/closets_page.dart'; // <-- THÊM IMPORT MỚI
+import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,8 +18,8 @@ class _MainScreenState extends State<MainScreen> {
 
   static final List<Widget> _widgetOptions = <Widget>[
     const HomePage(),
-    const ClosetsPage(), // <-- THAY THẾ PLACEHOLDER
-    const Center(child: Text('Trang Phối đồ (Outfit)')),
+    const ClosetsPage(),
+    const OutfitBuilderPage(),
     const Center(child: Text('Trang Cá nhân (Profile)')),
   ];
 

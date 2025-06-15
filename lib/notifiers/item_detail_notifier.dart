@@ -11,8 +11,19 @@ class ItemDetailNotifier extends StateNotifier<ClothingItem> {
 
   ItemDetailNotifier(this._dbHelper, ClothingItem initialItem) : super(initialItem);
 
-  // <<< THÊM `Set<String>? color` VÀO ĐÂY
+  // <<< THÊM PHƯƠNG THỨC MỚI NÀY
+  Future<void> updateName(String newName) async {
+    // Chỉ cập nhật nếu tên mới không rỗng
+    if (newName.trim().isEmpty) return;
+    
+    // Gọi phương thức `updateField` đã có để tránh lặp code
+    // Bằng cách chỉ truyền vào tham số `name`
+    await updateField(name: newName.trim());
+  }
+
+  // Thêm `String? name` vào phương thức updateField
   Future<void> updateField({
+    String? name, // <<< THÊM THAM SỐ NÀY
     Set<String>? color,
     Set<String>? season,
     Set<String>? occasion,
@@ -20,7 +31,7 @@ class ItemDetailNotifier extends StateNotifier<ClothingItem> {
     Set<String>? pattern,
   }) async {
     final updatedItem = state.copyWith(
-      // <<< THÊM DÒNG NÀY VÀO
+      name: name, // <<< THÊM DÒNG NÀY
       color: color?.join(', '),
       season: season?.join(', '),
       occasion: occasion?.join(', '),
@@ -32,11 +43,7 @@ class ItemDetailNotifier extends StateNotifier<ClothingItem> {
       await _dbHelper.updateItem(updatedItem);
       state = updatedItem;
     } catch (e, s) {
-      logger.e(
-        "Lỗi khi cập nhật item",
-        error: e,
-        stackTrace: s
-      );
+      logger.e("Lỗi khi cập nhật item", error: e, stackTrace: s);
     }
   }
 

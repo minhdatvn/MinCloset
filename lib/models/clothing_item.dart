@@ -1,6 +1,7 @@
 // lib/models/clothing_item.dart
+import 'package:equatable/equatable.dart';
 
-class ClothingItem {
+class ClothingItem extends Equatable {
   final String id;
   final String name;
   final String category;
@@ -12,7 +13,7 @@ class ClothingItem {
   final String? material;
   final String? pattern;
 
-  ClothingItem({
+  const ClothingItem({
     required this.id,
     required this.name,
     required this.category,
@@ -81,4 +82,20 @@ class ClothingItem {
       pattern: map['pattern'],
     );
   }
+
+  // `props` định nghĩa các thuộc tính sẽ được dùng để so sánh
+  // hai đối tượng ClothingItem với nhau.
+  @override
+  List<Object?> get props => [
+        id,
+        name,
+        category,
+        color,
+        imagePath,
+        closetId,
+        season,
+        occasion,
+        material,
+        pattern
+      ];
 }

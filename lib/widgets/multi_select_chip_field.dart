@@ -1,10 +1,10 @@
-// file: lib/widgets/multi_select_chip_field.dart
+// lib/widgets/multi_select_chip_field.dart
 import 'package:flutter/material.dart';
 import 'package:mincloset/constants/app_options.dart';
 
 class MultiSelectChipField extends StatefulWidget {
   final String label;
-  final List<dynamic> allOptions; // Giờ có thể là List<String> hoặc List<OptionWithImage>
+  final List<dynamic> allOptions;
   final Set<String> initialSelections;
   final Function(Set<String>) onSelectionChanged;
 
@@ -24,10 +24,18 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
   bool _isExpanded = false;
   Set<String> _selectedOptions = {};
 
+  // <<< LỖI ĐƯỢC SỬA TẠI ĐÂY
+  @override
+  void initState() {
+    super.initState();
+    // Gán giá trị được truyền từ widget cha vào trạng thái nội bộ
+    // ngay khi widget được tạo lần đầu tiên.
+    _selectedOptions = widget.initialSelections;
+  }
+
   @override
   void didUpdateWidget(covariant MultiSelectChipField oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Nếu dữ liệu từ widget cha thay đổi, cập nhật lại trạng thái bên trong của widget con
     if (oldWidget.initialSelections != widget.initialSelections) {
       setState(() {
         _selectedOptions = widget.initialSelections;
@@ -36,14 +44,12 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
   }
 
   void _handleSelection(String optionName) {
-    // Dùng một bản sao để thay đổi
     final newSelections = Set<String>.from(_selectedOptions);
     if (newSelections.contains(optionName)) {
       newSelections.remove(optionName);
     } else {
       newSelections.add(optionName);
     }
-    // Cập nhật lại UI và báo cho widget cha
     setState(() {
       _selectedOptions = newSelections;
     });
@@ -88,11 +94,9 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
                 final String name = option is OptionWithImage ? option.name : option;
                 final Widget? avatar = option is OptionWithImage
                   ? CircleAvatar(
-                      // Dùng Image.asset để có thể dùng errorBuilder
                       child: Image.asset(
                         option.imagePath,
                         errorBuilder: (context, error, stackTrace) {
-                          // Nếu không tìm thấy file ảnh, hiển thị một icon mặc định
                           return const Icon(Icons.category, size: 18, color: Colors.grey);
                         },
                       ),

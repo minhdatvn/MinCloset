@@ -32,7 +32,7 @@ dev_dependencies:
   mocktail: ^1.0.3
   rename: ^3.0.2
   sqflite_common_ffi: ^2.3.3
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true

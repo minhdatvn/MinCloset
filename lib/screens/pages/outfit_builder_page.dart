@@ -1,7 +1,15 @@
+// lib/screens/pages/outfit_builder_page.dart
+
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:mincloset/helpers/db_helper.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/models/outfit.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:uuid/uuid.dart';
+import 'package:path/path.dart' as p;
 import 'package:mincloset/widgets/clothing_sticker.dart';
 
 class OutfitBuilderPage extends StatefulWidget {
@@ -12,11 +20,13 @@ class OutfitBuilderPage extends StatefulWidget {
 }
 
 class _OutfitBuilderPageState extends State<OutfitBuilderPage> {
+  // --- Các biến trạng thái ---
   List<ClothingItem> _allItemsInCloset = [];
-  // Thay đổi: mỗi sticker giờ là một đối tượng duy nhất, ta dùng Map
-  // để lưu trữ chúng với một key duy nhất, giúp việc xóa dễ dàng hơn.
   final Map<String, ClothingItem> _itemsOnCanvas = {};
-  int _stickerCounter = 0; // Để tạo key duy nhất
+  int _stickerCounter = 0;
+  final _screenshotController = ScreenshotController();
+  bool _isSaving = false;
+  String? _selectedStickerId;
 
   @override
   void initState() {
@@ -30,34 +40,116 @@ class _OutfitBuilderPageState extends State<OutfitBuilderPage> {
       _allItemsInCloset = dataList.map((item) => ClothingItem.fromMap(item)).toList();
     });
   }
-  
+
   void _addItemToCanvas(ClothingItem item) {
     setState(() {
-      // Mỗi khi thêm, tạo một key duy nhất cho sticker mới
       final newStickerId = 'sticker_${_stickerCounter++}';
       _itemsOnCanvas[newStickerId] = item;
+      _selectedStickerId = newStickerId;
     });
   }
 
-  // === HÀM MỚI ĐỂ XÓA STICKER ===
   void _onStickerDelete(String stickerId) {
     setState(() {
       _itemsOnCanvas.remove(stickerId);
+      _selectedStickerId = null;
     });
   }
 
-  // === HÀM MỚI ĐỂ ĐƯA LÊN TRÊN CÙNG ===
   void _onStickerSelect(String stickerId) {
-    // Lấy ra món đồ được chọn
     final selectedItem = _itemsOnCanvas[stickerId];
     if (selectedItem == null) return;
-    
     setState(() {
-      // Xóa nó khỏi vị trí hiện tại và thêm lại vào cuối Map
-      // Map trong Dart 3+ giữ nguyên thứ tự chèn, nên phần tử cuối sẽ được vẽ trên cùng
       _itemsOnCanvas.remove(stickerId);
       _itemsOnCanvas[stickerId] = selectedItem;
+      _selectedStickerId = stickerId;
     });
+  }
+  
+  void _deselectAllStickers() {
+    setState(() {
+      _selectedStickerId = null;
+    });
+  }
+  
+  Future<void> _saveOutfit() async {
+    if (_itemsOnCanvas.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng thêm ít nhất một món đồ để lưu!')),
+      );
+      return;
+    }
+    final outfitName = await _showNameOutfitDialog();
+    if (outfitName == null || outfitName.trim().isEmpty) return;
+
+    setState(() {
+      _isSaving = true;
+      _selectedStickerId = null;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    try {
+      final Uint8List? capturedImage = await _screenshotController.capture(
+        delay: const Duration(milliseconds: 10),
+      );
+      if (capturedImage == null) throw Exception('Không thể chụp ảnh màn hình.');
+
+      final directory = await getApplicationDocumentsDirectory();
+      final imagePath = p.join(directory.path, '${const Uuid().v4()}.png');
+      final imageFile = File(imagePath);
+      await imageFile.writeAsBytes(capturedImage);
+      final itemIds = _itemsOnCanvas.values.map((item) => item.id).join(',');
+
+      final newOutfit = Outfit(
+        id: const Uuid().v4(),
+        name: outfitName,
+        imagePath: imagePath,
+        itemIds: itemIds,
+      );
+      await DatabaseHelper.instance.insertOutfit(newOutfit);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Đã lưu bộ đồ "$outfitName" thành công!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Lỗi khi lưu bộ đồ: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
+  }
+  
+  Future<String?> _showNameOutfitDialog() {
+    final nameController = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Đặt tên cho bộ đồ'),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(hintText: 'Ví dụ: Dạo phố cuối tuần'),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Hủy'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop(nameController.text);
+            },
+            child: const Text('Lưu'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -66,40 +158,47 @@ class _OutfitBuilderPageState extends State<OutfitBuilderPage> {
       appBar: AppBar(
         title: const Text('Xưởng Phối đồ'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.check),
-            onPressed: () {
-              // Logic lưu bộ đồ sẽ ở đây
-            },
-            tooltip: 'Lưu bộ đồ',
-          )
+          // Đoạn code này sử dụng _isSaving và gọi _saveOutfit
+          if (_isSaving)
+            const Padding(
+              padding: EdgeInsets.only(right: 16.0),
+              child: Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 3, color: Colors.black))),
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.check),
+              onPressed: _saveOutfit, // Gọi hàm lưu
+              tooltip: 'Lưu bộ đồ',
+            )
         ],
       ),
       body: Column(
         children: [
-          // === KHUNG CANVAS ===
           Expanded(
-            child: Container(
-              color: Colors.grey.shade200,
-              // Stack cho phép các sticker xếp chồng lên nhau
-              child: Stack(
-                // Lấy ra các giá trị của Map để build UI
-                children: _itemsOnCanvas.entries.map((entry) {
-                  final stickerId = entry.key;
-                  final item = entry.value;
-                  return ClothingSticker(
-                    key: ValueKey(stickerId), // Key giúp Flutter nhận diện widget
-                    item: item,
-                    // Truyền các hàm xử lý xuống cho sticker
-                    onSelect: () => _onStickerSelect(stickerId),
-                    onDelete: () => _onStickerDelete(stickerId),
-                  );
-                }).toList(),
+            child: Screenshot(
+              controller: _screenshotController,
+              child: GestureDetector(
+                onTap: _deselectAllStickers,
+                child: Container(
+                  color: Colors.grey.shade200,
+                  child: Stack(
+                    children: _itemsOnCanvas.entries.map((entry) {
+                      final stickerId = entry.key;
+                      final item = entry.value;
+                      return ClothingSticker(
+                        key: ValueKey(stickerId),
+                        item: item,
+                        isSelected: stickerId == _selectedStickerId,
+                        onSelect: () => _onStickerSelect(stickerId),
+                        onDelete: () => _onStickerDelete(stickerId),
+                      );
+                    }).toList(),
+                  ),
+                ),
               ),
             ),
           ),
-
-          // === BẢNG MÀU QUẦN ÁO ===
+          // Phần thanh chọn đồ ở dưới
           Container(
             height: 120,
             color: Colors.white,

@@ -1,9 +1,9 @@
 // file: lib/helpers/db_helper.dart
-// file: lib/helpers/db_helper.dart
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:path/path.dart' as path;
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/models/outfit.dart';
 
 class DatabaseHelper {
   sql.Database? _database;
@@ -29,11 +29,16 @@ class DatabaseHelper {
         imagePath TEXT, closetId TEXT, season TEXT, occasion TEXT,
         material TEXT, pattern TEXT
       )""");
+    // Thêm bảng outfits mới
+    await db.execute("""CREATE TABLE outfits (
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        imagePath TEXT,
+        itemIds TEXT
+      )""");
   }
 
-  // HÀM _createDB ĐÃ ĐƯỢC XÓA KHỎI ĐÂY
-
-  // === CÁC HÀM TƯƠNG TÁC CSDL GIỮ NGUYÊN ===
+  // === CÁC HÀM CŨ GIỮ NGUYÊN (insertCloset, getClosets, ...) ===
   Future<void> insertCloset(Map<String, dynamic> data) async {
     final db = await instance.database;
     await db.insert('closets', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
@@ -85,5 +90,30 @@ class DatabaseHelper {
   Future<List<Map<String, dynamic>>> getRecentItems(int limit) async {
     final db = await instance.database;
     return db.query('clothing_items', orderBy: 'id DESC', limit: limit);
+  }
+
+  // === CÁC HÀM MỚI CHO OUTFIT ===
+
+  /// Thêm một bộ đồ mới vào CSDL
+  Future<void> insertOutfit(Outfit outfit) async {
+    final db = await instance.database;
+    await db.insert('outfits', outfit.toMap(),
+        conflictAlgorithm: sql.ConflictAlgorithm.replace);
+  }
+
+  /// Lấy tất cả các bộ đồ từ CSDL
+  Future<List<Outfit>> getOutfits() async {
+    final db = await instance.database;
+    final maps = await db.query('outfits', orderBy: 'id DESC');
+    if (maps.isEmpty) {
+      return [];
+    }
+    return List.generate(maps.length, (i) => Outfit.fromMap(maps[i]));
+  }
+
+  /// Xóa một bộ đồ khỏi CSDL bằng ID
+  Future<void> deleteOutfit(String id) async {
+    final db = await instance.database;
+    await db.delete('outfits', where: 'id = ?', whereArgs: [id]);
   }
 }

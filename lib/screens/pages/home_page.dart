@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:mincloset/helpers/db_helper.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
+import 'package:mincloset/screens/pages/outfit_builder_page.dart';
+import 'package:mincloset/screens/pages/saved_outfits_page.dart';
 import 'package:mincloset/services/suggestion_service.dart';
 import 'package:mincloset/services/weather_service.dart';
 import 'package:mincloset/utils/logger.dart';
@@ -214,9 +216,45 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(child: Container(height: 100, padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.blue.shade400, borderRadius: BorderRadius.circular(16)), child: const Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Icon(Icons.auto_awesome, color: Colors.white), Text('Bắt đầu phối đồ', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))]))),
+            // Thẻ "Bắt đầu phối đồ"
+            Expanded(
+              child: GestureDetector( // <-- THÊM GESTUREDETECTOR
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (ctx) => const OutfitBuilderPage()),
+                  );
+                },
+                child: Container(
+                  height: 100,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(color: Colors.blue.shade400, borderRadius: BorderRadius.circular(16)),
+                  child: const Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    Icon(Icons.auto_awesome, color: Colors.white),
+                    Text('Bắt đầu phối đồ', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))
+                  ]),
+                ),
+              ),
+            ),
             const SizedBox(width: 16),
-            Expanded(child: Container(height: 100, padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(16)), child: const Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Icon(Icons.history, color: Colors.black), Text('Lịch sử', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold))]))),
+            // Thẻ "Bộ đồ đã lưu"
+            Expanded(
+              child: GestureDetector( // <-- THÊM GESTUREDETECTOR
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (ctx) => const SavedOutfitsPage()),
+                  );
+                },
+                child: Container(
+                  height: 100,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(16)),
+                  child: const Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    Icon(Icons.collections_bookmark_outlined, color: Colors.black), // <-- ĐỔI ICON
+                    Text('Bộ đồ đã lưu', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)) // <-- ĐỔI TEXT
+                  ]),
+                ),
+              ),
+            ),
           ],
         ),
       ],

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mincloset/helpers/db_helper.dart';
 import 'package:mincloset/providers/database_providers.dart';
-import 'package:mincloset/providers/home_page_notifier.dart';
+import 'package:mincloset/notifiers/home_page_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/services/suggestion_service.dart';
 import 'package:mincloset/services/weather_service.dart';

@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/helpers/db_helper.dart'; // Tạm thời vẫn dùng
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/providers/database_providers.dart';
+import 'package:mincloset/providers/repository_providers.dart'; // <<< THÊM IMPORT NÀY
 import 'package:mincloset/screens/pages/closet_detail_page.dart';
 import 'package:uuid/uuid.dart';
 
@@ -13,6 +13,7 @@ class ClosetsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Phần này đã đúng, nó đọc closetsProvider (đã dùng repository)
     final closetsAsyncValue = ref.watch(closetsProvider);
 
     return Scaffold(
@@ -58,7 +59,7 @@ class ClosetsPage extends ConsumerWidget {
     );
   }
 
-  // --- LOGIC CHO CÁC HÀNH ĐỘNG ---
+  // --- LOGIC CHO CÁC HÀNH ĐỘNG ĐÃ ĐƯỢC CẬP NHẬT ---
 
   void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
     final nameController = TextEditingController();
@@ -72,11 +73,11 @@ class ClosetsPage extends ConsumerWidget {
           ElevatedButton(
             onPressed: () async {
               if (nameController.text.trim().isEmpty) return;
-              // Gọi thẳng vào DB
-              await DatabaseHelper.instance.insertCloset({
-                'id': const Uuid().v4(),
-                'name': nameController.text.trim(),
-              });
+              final newCloset = Closet(id: const Uuid().v4(), name: nameController.text.trim());
+              
+              // <<< THAY ĐỔI: Gọi đến Repository thay vì DatabaseHelper
+              await ref.read(closetRepositoryProvider).insertCloset(newCloset);
+              
               // Vô hiệu hóa provider để làm mới UI
               ref.invalidate(closetsProvider);
               if (context.mounted) Navigator.of(ctx).pop();
@@ -101,7 +102,10 @@ class ClosetsPage extends ConsumerWidget {
             onPressed: () async {
               if (nameController.text.trim().isEmpty) return;
               final updatedCloset = Closet(id: closet.id, name: nameController.text.trim());
-              await DatabaseHelper.instance.updateCloset(updatedCloset);
+
+              // <<< THAY ĐỔI: Gọi đến Repository thay vì DatabaseHelper
+              await ref.read(closetRepositoryProvider).updateCloset(updatedCloset);
+              
               ref.invalidate(closetsProvider);
               if (context.mounted) Navigator.of(ctx).pop();
             },
@@ -122,7 +126,9 @@ class ClosetsPage extends ConsumerWidget {
           TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
           TextButton(
             onPressed: () async {
-              await DatabaseHelper.instance.deleteCloset(closet.id);
+              // <<< THAY ĐỔI: Gọi đến Repository thay vì DatabaseHelper
+              await ref.read(closetRepositoryProvider).deleteCloset(closet.id);
+
               ref.invalidate(closetsProvider);
               if (context.mounted) Navigator.of(ctx).pop();
             },

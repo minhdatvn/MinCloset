@@ -1,11 +1,14 @@
+// file: lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Thêm import
 import 'package:mincloset/screens/splash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  runApp(const MinClosetApp());
+  // Bọc widget gốc của bạn trong ProviderScope
+  runApp(const ProviderScope(child: MinClosetApp()));
 }
 
 class MinClosetApp extends StatelessWidget {

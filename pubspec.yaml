@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_riverpod: ^2.5.1
   cupertino_icons: ^1.0.8
   image_picker: ^1.1.2
   uuid: ^4.4.0
@@ -27,6 +28,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  mocktail: ^1.0.3
   rename: ^3.0.2
   sqflite_common_ffi: ^2.3.3
   flutter_lints: ^4.0.0

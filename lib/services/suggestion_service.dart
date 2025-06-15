@@ -7,9 +7,9 @@ import 'package:mincloset/utils/logger.dart';
 
 class SuggestionService {
   // Đọc key từ biến môi trường một cách an toàn
-  static final String _apiKey = dotenv.env['GEMINI_API_KEY'] ?? 'API_KEY_NOT_FOUND';
+  final String _apiKey = dotenv.env['GEMINI_API_KEY'] ?? 'API_KEY_NOT_FOUND';
 
-  static Future<String> getOutfitSuggestion({
+  Future<String> getOutfitSuggestion({
     required Map<String, dynamic> weather,
     required List<ClothingItem> items,
   }) async {

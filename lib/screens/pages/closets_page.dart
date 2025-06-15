@@ -1,18 +1,66 @@
+// lib/screens/pages/closets_page.dart
+
 import 'package:flutter/material.dart';
-import 'package:mincloset/helpers/db_helper.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/helpers/db_helper.dart'; // Tạm thời vẫn dùng
 import 'package:mincloset/models/closet.dart';
+import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/screens/pages/closet_detail_page.dart';
 import 'package:uuid/uuid.dart';
 
-class ClosetsPage extends StatefulWidget {
+class ClosetsPage extends ConsumerWidget {
   const ClosetsPage({super.key});
 
   @override
-  State<ClosetsPage> createState() => _ClosetsPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final closetsAsyncValue = ref.watch(closetsProvider);
 
-class _ClosetsPageState extends State<ClosetsPage> {
-  void _showAddClosetDialog() {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Quản lý Tủ đồ'),
+      ),
+      body: closetsAsyncValue.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stackTrace) => Center(child: Text('Lỗi: $error')),
+        data: (closets) {
+          if (closets.isEmpty) {
+            return const Center(child: Text('Bạn chưa có tủ đồ nào.'));
+          }
+          return ListView.builder(
+            itemCount: closets.length,
+            itemBuilder: (ctx, index) {
+              final closet = closets[index];
+              return ListTile(
+                leading: const Icon(Icons.inventory_2_outlined),
+                title: Text(closet.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(icon: const Icon(Icons.edit_outlined, color: Colors.blue), onPressed: () => _showEditClosetDialog(context, ref, closet), tooltip: 'Sửa tên'),
+                    IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () => _showDeleteConfirmDialog(context, ref, closet), tooltip: 'Xóa tủ đồ'),
+                  ],
+                ),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => ClosetDetailPage(closet: closet)),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'closets_page_fab',
+        onPressed: () => _showAddClosetDialog(context, ref),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  // --- LOGIC CHO CÁC HÀNH ĐỘNG ---
+
+  void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
     final nameController = TextEditingController();
     showDialog(
       context: context,
@@ -24,13 +72,14 @@ class _ClosetsPageState extends State<ClosetsPage> {
           ElevatedButton(
             onPressed: () async {
               if (nameController.text.trim().isEmpty) return;
-              final navigator = Navigator.of(ctx);
-              final newCloset = Closet(id: const Uuid().v4(), name: nameController.text.trim());
-              await DatabaseHelper.instance.insertCloset(newCloset.toMap());
-              if (mounted) {
-                navigator.pop();
-                setState(() {});
-              }
+              // Gọi thẳng vào DB
+              await DatabaseHelper.instance.insertCloset({
+                'id': const Uuid().v4(),
+                'name': nameController.text.trim(),
+              });
+              // Vô hiệu hóa provider để làm mới UI
+              ref.invalidate(closetsProvider);
+              if (context.mounted) Navigator.of(ctx).pop();
             },
             child: const Text('Lưu'),
           ),
@@ -38,8 +87,8 @@ class _ClosetsPageState extends State<ClosetsPage> {
       ),
     );
   }
-
-  void _showEditClosetDialog(Closet closet) {
+  
+  void _showEditClosetDialog(BuildContext context, WidgetRef ref, Closet closet) {
     final nameController = TextEditingController(text: closet.name);
     showDialog(
       context: context,
@@ -51,13 +100,10 @@ class _ClosetsPageState extends State<ClosetsPage> {
           ElevatedButton(
             onPressed: () async {
               if (nameController.text.trim().isEmpty) return;
-              final navigator = Navigator.of(ctx);
               final updatedCloset = Closet(id: closet.id, name: nameController.text.trim());
               await DatabaseHelper.instance.updateCloset(updatedCloset);
-              if (mounted) {
-                navigator.pop();
-                setState(() {});
-              }
+              ref.invalidate(closetsProvider);
+              if (context.mounted) Navigator.of(ctx).pop();
             },
             child: const Text('Cập nhật'),
           ),
@@ -66,7 +112,7 @@ class _ClosetsPageState extends State<ClosetsPage> {
     );
   }
 
-  void _showDeleteConfirmDialog(Closet closet) {
+  void _showDeleteConfirmDialog(BuildContext context, WidgetRef ref, Closet closet) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -76,65 +122,14 @@ class _ClosetsPageState extends State<ClosetsPage> {
           TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
           TextButton(
             onPressed: () async {
-              final navigator = Navigator.of(ctx);
               await DatabaseHelper.instance.deleteCloset(closet.id);
-              if (mounted) {
-                navigator.pop();
-                setState(() {});
-              }
+              ref.invalidate(closetsProvider);
+              if (context.mounted) Navigator.of(ctx).pop();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Xóa'),
           ),
         ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Quản lý Tủ đồ'),
-        backgroundColor: Colors.white,
-        elevation: 1,
-        foregroundColor: Colors.black,
-      ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: DatabaseHelper.instance.getClosets(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
-          if (!snapshot.hasData || snapshot.data!.isEmpty) return const Center(child: Text('Bạn chưa có tủ đồ nào.\nHãy nhấn nút + để tạo tủ đồ đầu tiên!', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, color: Colors.grey)));
-          
-          final closets = snapshot.data!.map((map) => Closet.fromMap(map)).toList();
-          return ListView.builder(
-            itemCount: closets.length,
-            itemBuilder: (ctx, index) {
-              final closet = closets[index];
-              return ListTile(
-                leading: const Icon(Icons.inventory_2_outlined),
-                title: Text(closet.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(icon: const Icon(Icons.edit_outlined, color: Colors.blue), onPressed: () => _showEditClosetDialog(closet), tooltip: 'Sửa tên'),
-                    IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () => _showDeleteConfirmDialog(closet), tooltip: 'Xóa tủ đồ'),
-                  ],
-                ),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => ClosetDetailPage(closet: closet)),
-                  ).then((_) => setState(() {}));
-                },
-              );
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'closets_page_fab',
-        onPressed: _showAddClosetDialog,
-        child: const Icon(Icons.add),
       ),
     );
   }

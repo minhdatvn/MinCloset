@@ -5,6 +5,7 @@ import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/pages/home_page.dart';
 import 'package:mincloset/screens/pages/closets_page.dart'; // <-- THÊM IMPORT MỚI
 import 'package:mincloset/screens/pages/outfit_builder_page.dart';
+import 'package:mincloset/screens/pages/profile_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -20,7 +21,7 @@ class _MainScreenState extends State<MainScreen> {
     const HomePage(),
     const ClosetsPage(),
     const OutfitBuilderPage(),
-    const Center(child: Text('Trang Cá nhân (Profile)')),
+    const ProfilePage(),
   ];
 
   void _onItemTapped(int index) {

@@ -28,6 +28,10 @@
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>MinCloset cần truy cập vị trí của bạn để cung cấp thông tin thời tiết chính xác và đưa ra gợi ý trang phục phù hợp.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>MinCloset cần truy cập vị trí của bạn để cung cấp thông tin thời tiết chính xác và đưa ra gợi ý trang phục phù hợp.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

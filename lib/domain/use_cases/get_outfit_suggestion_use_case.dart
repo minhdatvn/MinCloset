@@ -1,33 +1,72 @@
 // lib/domain/use_cases/get_outfit_suggestion_use_case.dart
 
-import 'package:mincloset/models/clothing_item.dart'; // <<< THÊM DÒNG IMPORT NÀY
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/suggestion_repository.dart';
 import 'package:mincloset/repositories/weather_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mincloset/utils/logger.dart'; // <<< THÊM IMPORT NÀY
 
-// Lớp Use Case chỉ có một nhiệm vụ duy nhất
 class GetOutfitSuggestionUseCase {
   final ClothingItemRepository _clothingItemRepo;
   final WeatherRepository _weatherRepo;
   final SuggestionRepository _suggestionRepo;
 
-  // Nhận các repository cần thiết qua constructor
   GetOutfitSuggestionUseCase(
     this._clothingItemRepo,
     this._weatherRepo,
     this._suggestionRepo,
   );
 
-  // Phương thức `execute` chứa toàn bộ logic nghiệp vụ
+  Future<String> _getCityForWeather() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cityMode = prefs.getString('city_mode') ?? 'auto';
+
+    if (cityMode == 'manual') {
+      return prefs.getString('manual_city') ?? 'Da Nang';
+    }
+
+    // Xử lý logic cho chế độ "auto"
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          return 'Da Nang';
+        }
+      }
+      if (permission == LocationPermission.deniedForever) {
+        return 'Da Nang';
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+      return placemarks.first.locality ?? 'Da Nang';
+    } catch (e, s) { // <<< THAY ĐỔI: Bắt cả StackTrace (s)
+      // <<< THAY ĐỔI: Dùng logger.e thay cho print()
+      logger.e(
+        "Lỗi khi lấy vị trí tự động",
+        error: e,
+        stackTrace: s,
+      );
+      // Nếu có lỗi, quay về thành phố mặc định
+      return 'Da Nang';
+    }
+  }
+
   Future<Map<String, dynamic>> execute() async {
-    // Gọi song song để tối ưu thời gian
+    final city = await _getCityForWeather();
+
     final results = await Future.wait([
-      _weatherRepo.getWeather('Da Nang'),
+      _weatherRepo.getWeather(city),
       _clothingItemRepo.getAllItems(),
     ]);
 
     final weatherData = results[0] as Map<String, dynamic>;
-    // `getAllItems` từ repository đã trả về đúng kiểu List<ClothingItem>
     final items = results[1] as List<ClothingItem>;
 
     if (items.isEmpty) {
@@ -39,7 +78,7 @@ class GetOutfitSuggestionUseCase {
 
     final suggestionText = await _suggestionRepo.getOutfitSuggestion(
       weather: weatherData,
-      items: items, 
+      items: items,
     );
 
     return {

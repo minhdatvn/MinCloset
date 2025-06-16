@@ -1,26 +1,31 @@
 // lib/states/outfit_builder_state.dart
+
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mincloset/models/clothing_item.dart';
-
-// Dùng Equatable để dễ dàng so sánh các đối tượng state
-// Đừng quên thêm `equatable: ^2.0.5` vào pubspec.yaml
-import 'package:equatable/equatable.dart';
+import 'package:mincloset/models/outfit_filter.dart'; // <<< THÊM IMPORT NÀY
 
 @immutable
 class OutfitBuilderState extends Equatable {
   // Trạng thái dữ liệu
-  final List<ClothingItem> availableItems;
+  final List<ClothingItem> allItems;
+  final List<ClothingItem> filteredItems;
+  // <<< THAY THẾ `activeCategoryFilter` BẰNG ĐỐI TƯỢNG `OutfitFilter`
+  final OutfitFilter activeFilters;
+  
   final Map<String, ClothingItem> itemsOnCanvas;
   final String? selectedStickerId;
 
   // Trạng thái UI
-  final bool isLoading; // Tải danh sách đồ ban đầu
-  final bool isSaving;   // Trạng thái đang lưu bộ đồ
+  final bool isLoading;
+  final bool isSaving;
   final String? errorMessage;
   final bool saveSuccess;
 
   const OutfitBuilderState({
-    this.availableItems = const [],
+    this.allItems = const [],
+    this.filteredItems = const [],
+    this.activeFilters = const OutfitFilter(), // <<< THAY ĐỔI: Khởi tạo bộ lọc rỗng
     this.itemsOnCanvas = const {},
     this.selectedStickerId,
     this.isLoading = true,
@@ -29,18 +34,23 @@ class OutfitBuilderState extends Equatable {
     this.saveSuccess = false,
   });
 
+  // <<< CẬP NHẬT HÀM `copyWith` ĐỂ CÓ THAM SỐ `activeFilters`
   OutfitBuilderState copyWith({
-    List<ClothingItem>? availableItems,
+    List<ClothingItem>? allItems,
+    List<ClothingItem>? filteredItems,
+    OutfitFilter? activeFilters,
     Map<String, ClothingItem>? itemsOnCanvas,
     String? selectedStickerId,
-    bool? clearSelectedSticker, // Thêm cờ để xóa lựa chọn
+    bool? clearSelectedSticker,
     bool? isLoading,
     bool? isSaving,
     String? errorMessage,
     bool? saveSuccess,
   }) {
     return OutfitBuilderState(
-      availableItems: availableItems ?? this.availableItems,
+      allItems: allItems ?? this.allItems,
+      filteredItems: filteredItems ?? this.filteredItems,
+      activeFilters: activeFilters ?? this.activeFilters, // Thêm tham số này vào
       itemsOnCanvas: itemsOnCanvas ?? this.itemsOnCanvas,
       selectedStickerId: clearSelectedSticker == true ? null : selectedStickerId ?? this.selectedStickerId,
       isLoading: isLoading ?? this.isLoading,
@@ -49,11 +59,13 @@ class OutfitBuilderState extends Equatable {
       saveSuccess: saveSuccess ?? this.saveSuccess,
     );
   }
-
-  // Bắt buộc phải có khi dùng Equatable
+  
+  // <<< CẬP NHẬT `props` CHO EQUATABLE
   @override
   List<Object?> get props => [
-        availableItems,
+        allItems,
+        filteredItems,
+        activeFilters,
         itemsOnCanvas,
         selectedStickerId,
         isLoading,

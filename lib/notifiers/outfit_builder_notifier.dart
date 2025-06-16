@@ -1,29 +1,29 @@
 // lib/notifiers/outfit_builder_notifier.dart
-import 'dart:io';
+
 import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/helpers/db_helper.dart';
+import 'package:mincloset/domain/providers.dart';
+import 'package:mincloset/domain/use_cases/save_outfit_use_case.dart'; // <<< THÊM IMPORT NÀY
 import 'package:mincloset/models/clothing_item.dart';
-import 'package:mincloset/models/outfit.dart';
-import 'package:mincloset/providers/database_providers.dart';
+import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/states/outfit_builder_state.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:uuid/uuid.dart';
-import 'package:path/path.dart' as p;
+
 
 class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
-  final DatabaseHelper _dbHelper;
+  final ClothingItemRepository _clothingItemRepo;
+  final SaveOutfitUseCase _saveOutfitUseCase;
+
   int _stickerCounter = 0;
 
-  OutfitBuilderNotifier(this._dbHelper) : super(const OutfitBuilderState()) {
+  OutfitBuilderNotifier(this._clothingItemRepo, this._saveOutfitUseCase) : super(const OutfitBuilderState()) {
     loadAvailableItems();
   }
 
   Future<void> loadAvailableItems() async {
     state = state.copyWith(isLoading: true);
     try {
-      final itemsData = await _dbHelper.getAllItems();
-      final items = itemsData.map((map) => ClothingItem.fromMap(map)).toList();
+      final items = await _clothingItemRepo.getAllItems();
       state = state.copyWith(availableItems: items, isLoading: false);
     } catch (e) {
       state = state.copyWith(errorMessage: "Không thể tải danh sách đồ", isLoading: false);
@@ -40,11 +40,9 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
   void selectSticker(String stickerId) {
     final itemToBringForward = state.itemsOnCanvas[stickerId];
     if (itemToBringForward == null) return;
-
     final newCanvasItems = Map<String, ClothingItem>.from(state.itemsOnCanvas);
     newCanvasItems.remove(stickerId);
     newCanvasItems[stickerId] = itemToBringForward;
-
     state = state.copyWith(itemsOnCanvas: newCanvasItems, selectedStickerId: stickerId);
   }
 
@@ -65,20 +63,11 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
     }
     state = state.copyWith(isSaving: true, saveSuccess: false, errorMessage: null);
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      final imagePath = p.join(directory.path, '${const Uuid().v4()}.png');
-      await File(imagePath).writeAsBytes(capturedImage);
-
-      final itemIds = state.itemsOnCanvas.values.map((item) => item.id).join(',');
-
-      final newOutfit = Outfit(
-        id: const Uuid().v4(),
+      await _saveOutfitUseCase.execute(
         name: name,
-        imagePath: imagePath,
-        itemIds: itemIds,
+        itemsOnCanvas: state.itemsOnCanvas,
+        capturedImage: capturedImage,
       );
-
-      await _dbHelper.insertOutfit(newOutfit);
       state = state.copyWith(isSaving: false, saveSuccess: true);
     } catch (e) {
       state = state.copyWith(isSaving: false, errorMessage: "Lỗi khi lưu bộ đồ: $e");
@@ -87,5 +76,7 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
 }
 
 final outfitBuilderProvider = StateNotifierProvider.autoDispose<OutfitBuilderNotifier, OutfitBuilderState>((ref) {
-  return OutfitBuilderNotifier(ref.watch(dbHelperProvider));
+  final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
+  final saveOutfitUseCase = ref.watch(saveOutfitUseCaseProvider);
+  return OutfitBuilderNotifier(clothingItemRepo, saveOutfitUseCase);
 });

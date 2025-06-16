@@ -1,4 +1,4 @@
-// lib/screens/pages/saved_outfits_page.dart
+// lib/screens/pages/outfits_hub_page.dart
 
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -6,10 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/providers/outfit_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
-import 'package:mincloset/screens/pages/outfit_builder_page.dart'; // <<< THÊM IMPORT NÀY
+import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 import 'package:share_plus/share_plus.dart';
 
-// Tên lớp đã được đổi
+// Tên lớp đã được đổi thành OutfitsHubPage
 class OutfitsHubPage extends ConsumerWidget {
   const OutfitsHubPage({super.key});
 
@@ -19,7 +19,6 @@ class OutfitsHubPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        // Đổi tiêu đề cho phù hợp
         title: const Text('Trang phục của bạn'),
       ),
       body: outfitsAsyncValue.when(
@@ -29,15 +28,14 @@ class OutfitsHubPage extends ConsumerWidget {
           if (outfits.isEmpty) {
             return const Center(
               child: Text(
-                'Bạn chưa có bộ đồ nào.\nHãy bấm nút + để sáng tạo nhé!', // Sửa lại text cho phù hợp
+                'Bạn chưa có bộ đồ nào.\nHãy bấm nút + để sáng tạo nhé!',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 18, color: Colors.grey),
               ),
             );
           }
-          // GridView hiển thị các bộ đồ đã lưu giữ nguyên
           return GridView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 80), // Thêm padding dưới để không bị FAB che
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
             itemCount: outfits.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
@@ -89,12 +87,19 @@ class OutfitsHubPage extends ConsumerWidget {
         },
       ),
 
+      // <<< THAY ĐỔI LOGIC CỦA NÚT BẤM TẠI ĐÂY
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // Khi bấm, điều hướng đến Xưởng Phối đồ
-          Navigator.of(context).push(
+        onPressed: () async { // 1. Chuyển hàm thành `async`
+          // 2. Dùng `await` để chờ kết quả trả về từ màn hình OutfitBuilderPage
+          final bool? newOutfitCreated = await Navigator.of(context).push<bool>(
             MaterialPageRoute(builder: (context) => const OutfitBuilderPage())
           );
+
+          // 3. Nếu kết quả trả về là `true` (tức là đã lưu thành công)
+          if (newOutfitCreated == true && context.mounted) {
+            // 4. Làm mới lại danh sách bộ đồ
+            ref.invalidate(outfitsProvider);
+          }
         },
         label: const Text('Tạo bộ đồ mới'),
         icon: const Icon(Icons.add),
@@ -137,7 +142,6 @@ class OutfitsHubPage extends ConsumerWidget {
     );
 
     if (confirmed == true) {
-      // <<< THAY ĐỔI: Gọi đến Repository thay vì DatabaseHelper
       await ref.read(outfitRepositoryProvider).deleteOutfit(outfit.id);
       
       try {

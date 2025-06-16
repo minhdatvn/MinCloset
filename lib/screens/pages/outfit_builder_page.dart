@@ -1,12 +1,13 @@
 // lib/screens/pages/outfit_builder_page.dart
 
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/providers/database_providers.dart'; // <<< THÊM IMPORT NÀY
-import 'package:mincloset/widgets/filter_bottom_sheet.dart'; // <<< THÊM IMPORT NÀY
 import 'package:mincloset/notifiers/outfit_builder_notifier.dart';
+import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/widgets/clothing_sticker.dart';
+import 'package:mincloset/widgets/filter_bottom_sheet.dart';
 import 'package:screenshot/screenshot.dart';
 
 class OutfitBuilderPage extends ConsumerStatefulWidget {
@@ -59,13 +60,17 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(outfitBuilderProvider);
     final notifier = ref.read(outfitBuilderProvider.notifier);
-    // Lấy danh sách tủ đồ để truyền vào bottom sheet
     final closetsAsync = ref.watch(closetsProvider);
     
+    // <<< THAY ĐỔI Ở ĐÂY
     ref.listen(outfitBuilderProvider, (previous, next) {
-      if (next.saveSuccess) {
+      // Khi lưu thành công
+      if (next.saveSuccess && previous?.saveSuccess == false) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã lưu bộ đồ thành công!')));
+        // Tự động quay về và trả về `true` để báo hiệu
+        Navigator.of(context).pop(true);
       }
+      // Khi có lỗi
       if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
       }

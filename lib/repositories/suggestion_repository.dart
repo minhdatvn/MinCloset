@@ -7,10 +7,13 @@ class SuggestionRepository {
 
   SuggestionRepository(this._suggestionService);
 
+  // <<< THÊM `required String cityName` VÀO ĐÂY
   Future<String> getOutfitSuggestion({
     required Map<String, dynamic> weather,
     required List<ClothingItem> items,
+    required String cityName,
   }) {
-    return _suggestionService.getOutfitSuggestion(weather: weather, items: items);
+    // Và truyền nó xuống service
+    return _suggestionService.getOutfitSuggestion(weather: weather, items: items, cityName: cityName);
   }
 }

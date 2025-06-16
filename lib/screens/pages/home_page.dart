@@ -8,11 +8,11 @@ import 'package:mincloset/notifiers/home_page_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/states/home_page_state.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
-import 'package:mincloset/screens/pages/outfit_builder_page.dart';
-import 'package:mincloset/screens/pages/saved_outfits_page.dart';
+import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
-import 'package:mincloset/widgets/section_header.dart';
+import 'package:mincloset/widgets/section_header.dart'; // <<< THAY ĐỔI IMPORT
 
+// Provider này chỉ phục vụ cho việc lấy các món đồ đã thêm gần đây
 final recentItemsProvider = FutureProvider.autoDispose<List<ClothingItem>>((ref) async {
   final dbHelper = ref.watch(dbHelperProvider);
   final itemsData = await dbHelper.getRecentItems(5);
@@ -59,7 +59,6 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  // ... các hàm build widget khác không thay đổi ...
   Widget _buildHeader() {
     return const Row(
       children: [
@@ -85,7 +84,7 @@ class HomePage extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Thêm 30 món đồ và nhận gợi ý cho ngày mai!',
+            const Text('Thêm 30 món đồ và nhận gợi ý cho ngày mai!',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.deepPurple)),
             const SizedBox(height: 16),
             LinearProgressIndicator(
@@ -110,7 +109,7 @@ class HomePage extends ConsumerWidget {
             Expanded(
               child: GestureDetector(
                 onTap: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (ctx) => const OutfitBuilderPage())),
+                    .push(MaterialPageRoute(builder: (ctx) => const OutfitsHubPage())),
                 child: Container(
                   height: 100,
                   padding: const EdgeInsets.all(12),
@@ -130,8 +129,9 @@ class HomePage extends ConsumerWidget {
             const SizedBox(width: 16),
             Expanded(
               child: GestureDetector(
+                // <<< THAY ĐỔI Ở ĐÂY: Sửa SavedOutfitsPage thành OutfitsHubPage
                 onTap: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (ctx) => const SavedOutfitsPage())),
+                    .push(MaterialPageRoute(builder: (ctx) => const OutfitsHubPage())),
                 child: Container(
                   height: 100,
                   padding: const EdgeInsets.all(12),

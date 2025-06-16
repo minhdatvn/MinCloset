@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/pages/home_page.dart';
-import 'package:mincloset/screens/pages/closets_page.dart'; // <-- THÊM IMPORT MỚI
-import 'package:mincloset/screens/pages/outfit_builder_page.dart';
+import 'package:mincloset/screens/pages/closets_page.dart';
+import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/screens/pages/profile_page.dart';
 
 class MainScreen extends StatefulWidget {
@@ -17,10 +17,11 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
+  // <<< THAY ĐỔI TRONG DANH SÁCH WIDGET
   static final List<Widget> _widgetOptions = <Widget>[
     const HomePage(),
     const ClosetsPage(),
-    const OutfitBuilderPage(),
+    const OutfitsHubPage(), // Thay thế OutfitBuilderPage bằng OutfitsHubPage
     const ProfilePage(),
   ];
 

@@ -1,11 +1,11 @@
 // lib/screens/pages/profile_page.dart
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/states/profile_page_state.dart';
+import 'package:mincloset/widgets/stats_pie_chart.dart'; // <<< THÊM IMPORT CHO BIỂU ĐỒ
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -18,7 +18,6 @@ class ProfilePage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Trang cá nhân'),
-        // Thêm nút refresh để người dùng có thể tải lại dữ liệu nếu muốn
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -27,20 +26,15 @@ class ProfilePage extends ConsumerWidget {
           )
         ],
       ),
-      // <<< THAY ĐỔI Ở ĐÂY: body giờ sẽ gọi đến một hàm helper
-      // để quyết định hiển thị gì dựa trên state
       body: _buildBody(context, state, notifier),
     );
   }
 
-  // <<< THÊM HÀM MỚI NÀY: Hàm này chứa logic hiển thị chính
   Widget _buildBody(BuildContext context, ProfilePageState state, ProfilePageNotifier notifier) {
-    // 1. Nếu state đang ở trạng thái tải, hiển thị vòng xoay
     if (state.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    // 2. Nếu state có lỗi, hiển thị thông báo lỗi và nút thử lại
     if (state.errorMessage != null) {
       return Center(
         child: Padding(
@@ -66,7 +60,6 @@ class ProfilePage extends ConsumerWidget {
       );
     }
     
-    // 3. Nếu không tải và không có lỗi, hiển thị nội dung chính của trang
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -123,7 +116,6 @@ class ProfilePage extends ConsumerWidget {
             title: const Text('Cài đặt & Tùy chọn'),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
-              // Điều hướng đến trang Cài đặt
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const SettingsPage()),
               );
@@ -153,18 +145,18 @@ class ProfilePage extends ConsumerWidget {
           ),
           const SizedBox(height: 24),
 
+          // <<< THAY THẾ WIDGET PLACEHOLDER BẰNG BIỂU ĐỒ THẬT
           Text('Phân tích', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          Card(
-            elevation: 0,
-            color: Colors.grey.shade100,
-            child: const SizedBox(
-              height: 150,
-              child: Center(
-                child: Text('Biểu đồ phân tích sẽ được hiển thị ở đây.'),
-              ),
-            ),
-          )
+          StatsPieChart(
+            title: 'Phân tích theo Màu sắc',
+            dataMap: state.colorDistribution,
+          ),
+          const SizedBox(height: 16),
+          StatsPieChart(
+            title: 'Phân tích theo Danh mục',
+            dataMap: state.categoryDistribution,
+          ),
         ],
       ),
     );

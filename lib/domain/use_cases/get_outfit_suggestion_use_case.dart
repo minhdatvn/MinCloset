@@ -7,7 +7,7 @@ import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/suggestion_repository.dart';
 import 'package:mincloset/repositories/weather_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mincloset/utils/logger.dart'; // <<< THÊM IMPORT NÀY
+import 'package:mincloset/utils/logger.dart';
 
 class GetOutfitSuggestionUseCase {
   final ClothingItemRepository _clothingItemRepo;
@@ -59,8 +59,10 @@ class GetOutfitSuggestionUseCase {
   }
 
   Future<Map<String, dynamic>> execute() async {
+    // 1. Lấy tên thành phố (đã có từ bước trước)
     final city = await _getCityForWeather();
 
+    // 2. Gọi API và CSDL song song
     final results = await Future.wait([
       _weatherRepo.getWeather(city),
       _clothingItemRepo.getAllItems(),
@@ -76,9 +78,11 @@ class GetOutfitSuggestionUseCase {
       };
     }
 
+    // <<< THAY ĐỔI Ở ĐÂY: Truyền `city` vào hàm getOutfitSuggestion
     final suggestionText = await _suggestionRepo.getOutfitSuggestion(
       weather: weatherData,
       items: items,
+      cityName: city, // Truyền tên thành phố đã xác định vào
     );
 
     return {

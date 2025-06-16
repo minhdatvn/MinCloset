@@ -5,20 +5,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/providers/outfit_providers.dart';
-import 'package:mincloset/providers/repository_providers.dart'; // <<< THÊM IMPORT NÀY
+import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/screens/pages/outfit_builder_page.dart'; // <<< THÊM IMPORT NÀY
 import 'package:share_plus/share_plus.dart';
 
-class SavedOutfitsPage extends ConsumerWidget {
-  const SavedOutfitsPage({super.key});
+// Tên lớp đã được đổi
+class OutfitsHubPage extends ConsumerWidget {
+  const OutfitsHubPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // outfitsProvider đã được cập nhật để dùng repository trong các bước trước
     final outfitsAsyncValue = ref.watch(outfitsProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bộ đồ đã lưu'),
+        // Đổi tiêu đề cho phù hợp
+        title: const Text('Trang phục của bạn'),
       ),
       body: outfitsAsyncValue.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -27,14 +29,15 @@ class SavedOutfitsPage extends ConsumerWidget {
           if (outfits.isEmpty) {
             return const Center(
               child: Text(
-                'Bạn chưa lưu bộ đồ nào cả.\nHãy vào "Xưởng Phối đồ" để sáng tạo nhé!',
+                'Bạn chưa có bộ đồ nào.\nHãy bấm nút + để sáng tạo nhé!', // Sửa lại text cho phù hợp
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 18, color: Colors.grey),
               ),
             );
           }
+          // GridView hiển thị các bộ đồ đã lưu giữ nguyên
           return GridView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 80), // Thêm padding dưới để không bị FAB che
             itemCount: outfits.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
@@ -84,6 +87,17 @@ class SavedOutfitsPage extends ConsumerWidget {
             },
           );
         },
+      ),
+
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          // Khi bấm, điều hướng đến Xưởng Phối đồ
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const OutfitBuilderPage())
+          );
+        },
+        label: const Text('Tạo bộ đồ mới'),
+        icon: const Icon(Icons.add),
       ),
     );
   }

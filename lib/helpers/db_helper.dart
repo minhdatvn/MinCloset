@@ -116,4 +116,26 @@ class DatabaseHelper {
     final db = await instance.database;
     await db.delete('outfits', where: 'id = ?', whereArgs: [id]);
   }
+
+  ///Tìm trong tủ đồ
+  Future<List<Map<String, dynamic>>> searchItemsInCloset(String closetId, String query) async {
+    final db = await instance.database;
+    // Dùng LIKE với ký tự '%' để tìm kiếm các tên chứa chuỗi query
+    return db.query(
+      'clothing_items',
+      where: 'closetId = ? AND name LIKE ?',
+      whereArgs: [closetId, '%$query%'],
+    );
+  }
+
+  ///Tìm tất cả
+  Future<List<Map<String, dynamic>>> searchAllItems(String query) async {
+    final db = await instance.database;
+    if (query.isEmpty) return getAllItems();
+    return db.query(
+      'clothing_items',
+      where: 'name LIKE ?', // Bỏ điều kiện `closetId`
+      whereArgs: ['%$query%'],
+    );
+  }
 }

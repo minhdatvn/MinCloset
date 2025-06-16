@@ -1,55 +1,68 @@
 // lib/screens/pages/closets_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mincloset/models/closet.dart';
+import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
-import 'package:mincloset/providers/repository_providers.dart'; // <<< THÊM IMPORT NÀY
+import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/screens/item_detail_page.dart';
 import 'package:mincloset/screens/pages/closet_detail_page.dart';
+import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:uuid/uuid.dart';
 
-class ClosetsPage extends ConsumerWidget {
+class ClosetsPage extends ConsumerStatefulWidget {
   const ClosetsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Phần này đã đúng, nó đọc closetsProvider (đã dùng repository)
-    final closetsAsyncValue = ref.watch(closetsProvider);
+  ConsumerState<ClosetsPage> createState() => _ClosetsPageState();
+}
 
+class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quản lý Tủ đồ'),
+        title: const Text('Tủ đồ của bạn'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Tất cả vật phẩm'),
+            Tab(text: 'Theo Tủ đồ'),
+          ],
+        ),
       ),
-      body: closetsAsyncValue.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(child: Text('Lỗi: $error')),
-        data: (closets) {
-          if (closets.isEmpty) {
-            return const Center(child: Text('Bạn chưa có tủ đồ nào.'));
-          }
-          return ListView.builder(
-            itemCount: closets.length,
-            itemBuilder: (ctx, index) {
-              final closet = closets[index];
-              return ListTile(
-                leading: const Icon(Icons.inventory_2_outlined),
-                title: Text(closet.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(icon: const Icon(Icons.edit_outlined, color: Colors.blue), onPressed: () => _showEditClosetDialog(context, ref, closet), tooltip: 'Sửa tên'),
-                    IconButton(icon: const Icon(Icons.delete_outline, color: Colors.red), onPressed: () => _showDeleteConfirmDialog(context, ref, closet), tooltip: 'Xóa tủ đồ'),
-                  ],
-                ),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => ClosetDetailPage(closet: closet)),
-                  );
-                },
-              );
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          ItemBrowserView(
+            providerId: 'closetsPage',
+            onItemTapped: (item) {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => ItemDetailPage(item: item)),
+              ).then((itemWasChanged) {
+                if (itemWasChanged == true) {
+                  ref.invalidate(itemFilterProvider('closetsPage'));
+                }
+              });
             },
-          );
-        },
+          ),
+          _ClosetsListTab(),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: 'closets_page_fab',
@@ -58,8 +71,6 @@ class ClosetsPage extends ConsumerWidget {
       ),
     );
   }
-
-  // --- LOGIC CHO CÁC HÀNH ĐỘNG ĐÃ ĐƯỢC CẬP NHẬT ---
 
   void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
     final nameController = TextEditingController();
@@ -75,10 +86,9 @@ class ClosetsPage extends ConsumerWidget {
               if (nameController.text.trim().isEmpty) return;
               final newCloset = Closet(id: const Uuid().v4(), name: nameController.text.trim());
               
-              // <<< THAY ĐỔI: Gọi đến Repository thay vì DatabaseHelper
+              // <<< THAY ĐỔI Ở ĐÂY: Bỏ `new Closet(...)` và dùng thẳng biến `newCloset`
               await ref.read(closetRepositoryProvider).insertCloset(newCloset);
               
-              // Vô hiệu hóa provider để làm mới UI
               ref.invalidate(closetsProvider);
               if (context.mounted) Navigator.of(ctx).pop();
             },
@@ -88,55 +98,38 @@ class ClosetsPage extends ConsumerWidget {
       ),
     );
   }
-  
-  void _showEditClosetDialog(BuildContext context, WidgetRef ref, Closet closet) {
-    final nameController = TextEditingController(text: closet.name);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Sửa tên tủ đồ'),
-        content: TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Tên mới'), autofocus: true),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
-          ElevatedButton(
-            onPressed: () async {
-              if (nameController.text.trim().isEmpty) return;
-              final updatedCloset = Closet(id: closet.id, name: nameController.text.trim());
+}
 
-              // <<< THAY ĐỔI: Gọi đến Repository thay vì DatabaseHelper
-              await ref.read(closetRepositoryProvider).updateCloset(updatedCloset);
-              
-              ref.invalidate(closetsProvider);
-              if (context.mounted) Navigator.of(ctx).pop();
-            },
-            child: const Text('Cập nhật'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeleteConfirmDialog(BuildContext context, WidgetRef ref, Closet closet) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Xác nhận xóa'),
-        content: Text('Bạn có chắc chắn muốn xóa tủ đồ "${closet.name}"? Mọi món đồ bên trong cũng sẽ bị xóa vĩnh viễn.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
-          TextButton(
-            onPressed: () async {
-              // <<< THAY ĐỔI: Gọi đến Repository thay vì DatabaseHelper
-              await ref.read(closetRepositoryProvider).deleteCloset(closet.id);
-
-              ref.invalidate(closetsProvider);
-              if (context.mounted) Navigator.of(ctx).pop();
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Xóa'),
-          ),
-        ],
-      ),
+/// Widget cho Tab 2: Hiển thị danh sách các tủ đồ
+class _ClosetsListTab extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final closetsAsyncValue = ref.watch(closetsProvider);
+    return closetsAsyncValue.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(child: Text('Lỗi: $error')),
+      data: (closets) {
+        if (closets.isEmpty) {
+          return const Center(child: Text('Bạn chưa có tủ đồ nào.\nHãy bấm nút + để tạo nhé!', textAlign: TextAlign.center));
+        }
+        return ListView.builder(
+          padding: const EdgeInsets.only(top: 8),
+          itemCount: closets.length,
+          itemBuilder: (ctx, index) {
+            final closet = closets[index];
+            return ListTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: Text(closet.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => ClosetDetailPage(closet: closet)),
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 }

@@ -4,18 +4,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/outfit_filter.dart';
-import 'package:mincloset/notifiers/outfit_builder_notifier.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
 
-// Dùng ConsumerStatefulWidget để quản lý các lựa chọn tạm thời trong bottom sheet
 class FilterBottomSheet extends ConsumerStatefulWidget {
   final OutfitFilter currentFilter;
   final List<Closet> closets;
-
+  // <<< THÊM THAM SỐ HÀM CALLBACK NÀY
+  final void Function(OutfitFilter) onApplyFilter;
+  
   const FilterBottomSheet({
     super.key,
     required this.currentFilter,
     required this.closets,
+    required this.onApplyFilter, // Yêu cầu phải có
   });
 
   @override
@@ -28,7 +29,6 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
   @override
   void initState() {
     super.initState();
-    // Sao chép bộ lọc hiện tại vào một biến tạm để người dùng thay đổi
     _temporaryFilter = widget.currentFilter;
   }
 
@@ -41,7 +41,6 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
         children: [
           Text('Bộ lọc', style: Theme.of(context).textTheme.titleLarge),
           const Divider(),
-          // Lọc theo tủ đồ
           DropdownButtonFormField<String?>(
             value: _temporaryFilter.closetId,
             decoration: const InputDecoration(labelText: 'Tủ đồ'),
@@ -56,25 +55,24 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
             },
           ),
           const SizedBox(height: 16),
-          // Lọc theo màu sắc
           MultiSelectChipField(
             label: 'Màu sắc',
             allOptions: AppOptions.colors,
             initialSelections: _temporaryFilter.colors,
             onSelectionChanged: (newColors) {
-               setState(() {
-                 _temporaryFilter = _temporaryFilter.copyWith(colors: newColors);
-               });
+                setState(() {
+                  _temporaryFilter = _temporaryFilter.copyWith(colors: newColors);
+                });
             },
           ),
           const SizedBox(height: 24),
-          // Các nút hành động
           Row(
             children: [
               Expanded(
                 child: OutlinedButton(
                   onPressed: () {
-                    ref.read(outfitBuilderProvider.notifier).clearFilters();
+                    // Xóa bộ lọc bằng cách áp dụng một bộ lọc rỗng
+                    widget.onApplyFilter(const OutfitFilter());
                     Navigator.of(context).pop();
                   },
                   child: const Text('Xóa bộ lọc'),
@@ -83,9 +81,10 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
               const SizedBox(width: 16),
               Expanded(
                 child: ElevatedButton(
+                  // <<< SỬA LẠI HÀM NÀY
                   onPressed: () {
-                    // Áp dụng bộ lọc tạm thời vào state chính
-                    ref.read(outfitBuilderProvider.notifier).applyFilters(_temporaryFilter);
+                    // Gọi hàm callback và truyền bộ lọc tạm thời về
+                    widget.onApplyFilter(_temporaryFilter);
                     Navigator.of(context).pop();
                   },
                   child: const Text('Áp dụng'),

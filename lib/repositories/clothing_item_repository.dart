@@ -34,4 +34,19 @@ class ClothingItemRepository {
   Future<void> deleteItem(String id) async {
     await _dbHelper.deleteItem(id);
   }
+
+  Future<List<ClothingItem>> searchItemsInCloset(String closetId, String query) async {
+    // Nếu query rỗng, trả về tất cả item trong tủ đồ đó
+    if (query.isEmpty) {
+      return getItemsInCloset(closetId);
+    }
+    final data = await _dbHelper.searchItemsInCloset(closetId, query);
+    return data.map((map) => ClothingItem.fromMap(map)).toList();
+  }
+
+  // Thêm vào trong lớp ClothingItemRepository
+  Future<List<ClothingItem>> searchAllItems(String query) async {
+    final data = await _dbHelper.searchAllItems(query);
+    return data.map((map) => ClothingItem.fromMap(map)).toList();
+  }
 }

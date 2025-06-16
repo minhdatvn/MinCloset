@@ -1,9 +1,9 @@
-// file: lib/screens/main_screen.dart
+// lib/screens/main_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
-import 'package:mincloset/screens/pages/home_page.dart';
 import 'package:mincloset/screens/pages/closets_page.dart';
+import 'package:mincloset/screens/pages/home_page.dart';
 import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/screens/pages/profile_page.dart';
 
@@ -17,43 +17,43 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  // <<< THAY ĐỔI TRONG DANH SÁCH WIDGET
+  // <<< DANH SÁCH WIDGET ĐÃ ĐƯỢC CẬP NHẬT HOÀN CHỈNH
+  // Đảm bảo tất cả các trang đều là phiên bản cuối cùng
   static final List<Widget> _widgetOptions = <Widget>[
     const HomePage(),
     const ClosetsPage(),
-    const OutfitsHubPage(), // Thay thế OutfitBuilderPage bằng OutfitsHubPage
-    const ProfilePage(),
+    const OutfitsHubPage(), // Dùng trang Hub thay vì trang Builder
+    const ProfilePage(),    // Dùng trang Profile thật sự
   ];
 
   void _onItemTapped(int index) {
-    setState(() {_selectedIndex = index;});
+    setState(() {
+      _selectedIndex = index;
+    });
   }
-  
+
   void _navigateToAddItemScreen() {
+    // Với kiến trúc Riverpod, việc gọi setState({}) ở đây không còn cần thiết
+    // vì các trang con sẽ tự làm mới khi dữ liệu thay đổi.
     Navigator.of(context).push(
       MaterialPageRoute(builder: (ctx) => const AddItemScreen()),
-    ).then((_) {
-      // Sau khi thêm đồ xong và quay lại, refresh lại trang hiện tại
-      setState(() {});
-    });
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // Scaffold giờ đã được chuyển vào từng trang con.
-    // File này chỉ trả về widget tương ứng với tab được chọn.
     return Scaffold(
+      // Body sẽ hiển thị widget tương ứng với tab được chọn
       body: _widgetOptions.elementAt(_selectedIndex),
 
       floatingActionButton: FloatingActionButton(
         heroTag: 'main_screen_fab',
-        onPressed: _navigateToAddItemScreen, // Thêm hành động thật cho nút '+'
+        onPressed: _navigateToAddItemScreen,
         shape: const CircleBorder(),
         backgroundColor: Colors.black,
         child: const Icon(Icons.add, color: Colors.white, size: 30),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 8.0,
@@ -70,8 +70,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
     );
   }
-  
-  // Hàm này giữ nguyên
+
   Widget _buildNavItem({required IconData icon, required String label, required int index}) {
     final isSelected = _selectedIndex == index;
     final color = isSelected ? Colors.black : Colors.grey;

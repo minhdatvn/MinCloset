@@ -1,13 +1,11 @@
 // lib/screens/pages/outfit_builder_page.dart
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/outfit_builder_notifier.dart';
-import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/widgets/clothing_sticker.dart';
-import 'package:mincloset/widgets/filter_bottom_sheet.dart';
+import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:screenshot/screenshot.dart';
 
 class OutfitBuilderPage extends ConsumerStatefulWidget {
@@ -60,17 +58,12 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(outfitBuilderProvider);
     final notifier = ref.read(outfitBuilderProvider.notifier);
-    final closetsAsync = ref.watch(closetsProvider);
     
-    // <<< THAY ĐỔI Ở ĐÂY
     ref.listen(outfitBuilderProvider, (previous, next) {
-      // Khi lưu thành công
       if (next.saveSuccess && previous?.saveSuccess == false) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã lưu bộ đồ thành công!')));
-        // Tự động quay về và trả về `true` để báo hiệu
         Navigator.of(context).pop(true);
       }
-      // Khi có lỗi
       if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
       }
@@ -120,73 +113,13 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
             ),
           ),
           
-          // <<< THAY THẾ TOÀN BỘ PHẦN CHỌN ĐỒ Ở ĐÂY
-          Container(
-            padding: const EdgeInsets.only(top: 8.0),
-            color: Colors.white,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 1. HÀNG HIỂN THỊ NÚT LỌC
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton.icon(
-                        icon: const Icon(Icons.filter_list),
-                        label: Text('Lọc${state.activeFilters.isApplied ? ' (Đang áp dụng)' : ''}'),
-                        onPressed: () {
-                          // Chỉ hiển thị bottom sheet khi đã tải xong danh sách tủ đồ
-                          closetsAsync.whenData((closets) {
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true, // Cho phép bottom sheet cao hơn
-                              builder: (_) => FilterBottomSheet(
-                                currentFilter: state.activeFilters,
-                                closets: closets,
-                              ),
-                            );
-                          });
-                        },
-                      )
-                    ],
-                  ),
-                ),
-                const Divider(height: 1),
-
-                // 2. DANH SÁCH VẬT PHẨM (ĐÃ ĐƯỢC LỌC)
-                SizedBox(
-                  height: 100,
-                  child: state.isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : state.filteredItems.isEmpty
-                          ? const Center(child: Text('Không có vật phẩm nào phù hợp.'))
-                          : ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.all(8),
-                              itemCount: state.filteredItems.length,
-                              itemBuilder: (ctx, index) {
-                                final item = state.filteredItems[index];
-                                return GestureDetector(
-                                  onTap: () => notifier.addItemToCanvas(item),
-                                  child: Container(
-                                    width: 90,
-                                    margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(color: Colors.grey.shade300)
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: Image.file(File(item.imagePath), fit: BoxFit.contain)
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                )
-              ],
+          SizedBox(
+            height: 220, 
+            child: ItemBrowserView(
+              providerId: 'outfitBuilderPage', 
+              onItemTapped: (ClothingItem item) {
+                notifier.addItemToCanvas(item);
+              },
             ),
           ),
         ],

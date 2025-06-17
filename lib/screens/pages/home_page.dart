@@ -5,20 +5,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/home_page_notifier.dart';
-import 'package:mincloset/providers/database_providers.dart';
+import 'package:mincloset/notifiers/profile_page_notifier.dart'; // <<< THÊM IMPORT
+import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/states/home_page_state.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
-import 'package:mincloset/widgets/section_header.dart'; // <<< THAY ĐỔI IMPORT
+import 'package:mincloset/widgets/section_header.dart';
 
-// Provider này chỉ phục vụ cho việc lấy các món đồ đã thêm gần đây
-final recentItemsProvider = FutureProvider.autoDispose<List<ClothingItem>>((ref) async {
-  final dbHelper = ref.watch(dbHelperProvider);
-  final itemsData = await dbHelper.getRecentItems(5);
-  return itemsData.map((map) => ClothingItem.fromMap(map)).toList();
+final recentItemsProvider =
+    FutureProvider.autoDispose<List<ClothingItem>>((ref) async {
+  final itemRepo = ref.watch(clothingItemRepositoryProvider);
+  return itemRepo.getRecentItems(5);
 });
-
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -28,54 +27,79 @@ class HomePage extends ConsumerWidget {
     final homeState = ref.watch(homeProvider);
     final homeNotifier = ref.read(homeProvider.notifier);
 
+    // <<< BƯỚC 1: LẤY DỮ LIỆU `totalItems` TẠI ĐÂY
+    // Dùng .select để chỉ build lại khi giá trị này thay đổi
+    final totalItems = ref.watch(profileProvider.select((s) => s.totalItems));
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
-        title: _buildHeader(),
+        title: _buildHeader(ref),
         toolbarHeight: 80,
       ),
-      body: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildPromoCard(),
-            const SizedBox(height: 32),
-            _buildAiStylistSection(context),
-            const SizedBox(height: 32),
-            _buildRecentlyAddedSection(context, ref),
-            const SizedBox(height: 32),
-            SectionHeader(
-              title: 'Gợi ý hôm nay',
-            ),
-            const SizedBox(height: 16),
-            _buildTodaysSuggestionCard(context, homeState, homeNotifier),
-            const SizedBox(height: 32),
-          ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          // Khi kéo để làm mới, tải lại cả gợi ý và dữ liệu "Đã thêm gần đây"
+          ref.invalidate(recentItemsProvider);
+          await homeNotifier.getNewSuggestion();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // <<< BƯỚC 2: TRUYỀN `totalItems` VÀO HÀM
+              _buildPromoCard(totalItems),
+              const SizedBox(height: 32),
+              _buildAiStylistSection(context),
+              const SizedBox(height: 32),
+              _buildRecentlyAddedSection(context, ref),
+              const SizedBox(height: 32),
+              SectionHeader(
+                title: 'Gợi ý hôm nay',
+              ),
+              const SizedBox(height: 16),
+              _buildTodaysSuggestionCard(context, homeState, homeNotifier),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return const Row(
+  Widget _buildHeader(WidgetRef ref) {
+    final userName = ref.watch(profileProvider.select((state) => state.userName));
+    return Row(
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Xin chào,', style: TextStyle(fontSize: 16, color: Colors.grey)),
-            Text('MinVN', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const Text('Xin chào,',
+                style: TextStyle(fontSize: 16, color: Colors.grey)),
+            Text(userName ?? 'MinVN',
+                style:
+                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
           ],
         ),
-        Spacer(),
-        IconButton(onPressed: null, icon: Icon(Icons.notifications_outlined, size: 28)),
+        const Spacer(),
+        IconButton(
+            onPressed: null,
+            icon: const Icon(Icons.notifications_outlined, size: 28)),
       ],
     );
   }
 
-  Widget _buildPromoCard() {
+  // <<< BƯỚC 3: SỬA LẠI HÀM ĐỂ NHẬN `totalItems`
+  Widget _buildPromoCard(int totalItems) {
+    // Tính toán số item còn lại cần thêm
+    final itemsNeeded = 30 - totalItems > 0 ? 30 - totalItems : 0;
+    
+    // Tính toán phần trăm tiến độ
+    final progress = totalItems >= 30 ? 1.0 : totalItems / 30.0;
+
     return Card(
       elevation: 0,
       color: Colors.deepPurple.shade50,
@@ -84,13 +108,17 @@ class HomePage extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Thêm 30 món đồ và nhận gợi ý cho ngày mai!',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.deepPurple)),
+            Text('Thêm $itemsNeeded món đồ và nhận gợi ý cho ngày mai!',
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurple)),
             const SizedBox(height: 16),
             LinearProgressIndicator(
-              value: 1 / 30,
+              value: progress,
               backgroundColor: Colors.deepPurple.shade100,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple.shade300),
+              valueColor:
+                  AlwaysStoppedAnimation<Color>(Colors.deepPurple.shade300),
               borderRadius: BorderRadius.circular(10),
             ),
           ],
@@ -102,7 +130,7 @@ class HomePage extends ConsumerWidget {
   Widget _buildAiStylistSection(BuildContext context) {
     return Column(
       children: [
-        const SectionHeader(title: 'AI Stylist'),
+        const SectionHeader(title: 'Xưởng phối đồ'),
         const SizedBox(height: 16),
         Row(
           children: [
@@ -154,11 +182,16 @@ class HomePage extends ConsumerWidget {
     );
   }
 
+  // <<< THAY ĐỔI: Thêm hành động onTap cho mỗi vật phẩm
   Widget _buildRecentlyAddedSection(BuildContext context, WidgetRef ref) {
     final recentItemsAsync = ref.watch(recentItemsProvider);
     return Column(
       children: [
-        SectionHeader(title: 'Đã thêm gần đây', onSeeAll: () {}),
+        SectionHeader(title: 'Đã thêm gần đây', onSeeAll: () {
+          // Điều hướng đến tab "Tất cả vật phẩm" trong trang Tủ đồ
+          // Cần một cơ chế state management để điều khiển tab, ví dụ:
+          // ref.read(mainScreenTabProvider.notifier).state = 1;
+        }),
         const SizedBox(height: 16),
         SizedBox(
           height: 120,
@@ -166,10 +199,11 @@ class HomePage extends ConsumerWidget {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, stack) => const Text('Không thể tải...'),
             data: (items) {
-              // <<< THAY ĐỔI CÁCH BUILD DANH SÁCH MỘT CHÚT
+              if (items.isEmpty) {
+                return _buildAddFirstItemButton(context);
+              }
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
-                // Luôn có nút Add ở đầu
                 itemCount: items.length + 1,
                 itemBuilder: (ctx, index) {
                   if (index == 0) {
@@ -179,9 +213,22 @@ class HomePage extends ConsumerWidget {
                   return Padding(
                     padding: const EdgeInsets.only(right: 12.0),
                     child: SizedBox(
-                      // Chiều rộng được tính toán để có tỉ lệ 3:4
-                      width: 120 * (3/4), 
-                      child: RecentItemCard(item: item)
+                      width: 120 * (3 / 4),
+                      child: GestureDetector( // Bọc trong GestureDetector
+                        onTap: () async {
+                          final itemWasChanged = await Navigator.of(context).push<bool>(
+                            MaterialPageRoute(
+                              // Điều hướng đến AddItemScreen để xem/sửa
+                              builder: (context) => AddItemScreen(itemToEdit: item),
+                            ),
+                          );
+                          // Nếu có thay đổi, làm mới lại danh sách này
+                          if (itemWasChanged == true) {
+                            ref.invalidate(recentItemsProvider);
+                          }
+                        },
+                        child: RecentItemCard(item: item),
+                      ),
                     ),
                   );
                 },

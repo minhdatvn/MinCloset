@@ -1,13 +1,12 @@
 // lib/screens/pages/outfits_hub_page.dart
 
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/providers/outfit_providers.dart';
 import 'package:mincloset/screens/outfit_detail_page.dart';
 import 'package:mincloset/screens/pages/outfit_builder_page.dart';
-import 'package:mincloset/widgets/outfit_actions_menu.dart'; // <<< THÊM IMPORT NÀY
+import 'package:mincloset/widgets/outfit_actions_menu.dart';
 
 class OutfitsHubPage extends ConsumerWidget {
   const OutfitsHubPage({super.key});
@@ -24,18 +23,11 @@ class OutfitsHubPage extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Lỗi: $err')),
         data: (outfits) {
-          if (outfits.isEmpty) {
-            return const Center(
-              child: Text(
-                'Bạn chưa có bộ đồ nào.\nHãy bấm nút + để sáng tạo nhé!',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18, color: Colors.grey),
-              ),
-            );
-          }
+          // GridView giờ đây sẽ luôn hiển thị các bộ đồ + 1 ô để "Thêm mới"
           return GridView.builder(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-            itemCount: outfits.length,
+            // <<< THAY ĐỔI 1: Tăng itemCount lên 1
+            itemCount: outfits.length + 1,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               childAspectRatio: 3 / 4,
@@ -43,7 +35,14 @@ class OutfitsHubPage extends ConsumerWidget {
               mainAxisSpacing: 16,
             ),
             itemBuilder: (ctx, index) {
-              final outfit = outfits[index];
+              // <<< THAY ĐỔI 2: Thêm logic để build ô đầu tiên
+              if (index == 0) {
+                // Nếu là item đầu tiên, build Card "Thêm bộ đồ mới"
+                return _buildAddOutfitCard(context, ref);
+              }
+
+              // Các item còn lại sẽ là các bộ đồ đã lưu
+              final outfit = outfits[index - 1]; // Dùng index - 1
               return Card(
                 clipBehavior: Clip.antiAlias,
                 elevation: 4,
@@ -75,13 +74,9 @@ class OutfitsHubPage extends ConsumerWidget {
                       child: Row(
                         children: [
                           Expanded(child: Text(outfit.name, style: const TextStyle(fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis)),
-                          
-                          // <<< THAY THẾ POPUPMENUBUTTON CŨ BẰNG WIDGET DÙNG CHUNG MỚI
                           OutfitActionsMenu(
                             outfit: outfit,
                             onUpdate: () {
-                              // Khi có cập nhật từ menu (đổi tên, xóa),
-                              // làm mới lại danh sách
                               ref.invalidate(outfitsProvider);
                             },
                           ),
@@ -95,17 +90,38 @@ class OutfitsHubPage extends ConsumerWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final bool? newOutfitCreated = await Navigator.of(context).push<bool>(
-            MaterialPageRoute(builder: (context) => const OutfitBuilderPage())
-          );
-          if (newOutfitCreated == true) {
-            ref.invalidate(outfitsProvider);
-          }
-        },
-        label: const Text('Tạo bộ đồ mới'),
-        icon: const Icon(Icons.add),
+      // <<< THAY ĐỔI 3: Xóa bỏ FloatingActionButton
+    );
+  }
+
+  // <<< THÊM HÀM MỚI ĐỂ BUILD CARD "THÊM BỘ ĐỒ"
+  Widget _buildAddOutfitCard(BuildContext context, WidgetRef ref) {
+    return InkWell(
+      onTap: () async {
+        final bool? newOutfitCreated = await Navigator.of(context).push<bool>(
+          MaterialPageRoute(builder: (context) => const OutfitBuilderPage())
+        );
+        if (newOutfitCreated == true) {
+          ref.invalidate(outfitsProvider);
+        }
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.add_circle_outline, size: 40, color: Colors.grey.shade600),
+              const SizedBox(height: 8),
+              const Text(
+                'Tạo bộ đồ mới',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

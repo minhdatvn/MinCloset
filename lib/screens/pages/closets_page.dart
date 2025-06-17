@@ -5,13 +5,41 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
-import 'package:mincloset/providers/event_providers.dart'; // <<< THÊM IMPORT NÀY
+import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/pages/closet_detail_page.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:uuid/uuid.dart';
 
+// <<< BƯỚC 1: Di chuyển hàm dialog ra ngoài để có thể gọi từ bất kỳ đâu trong file
+void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
+  final nameController = TextEditingController();
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text('Tạo tủ đồ mới'),
+      content: TextField(
+        controller: nameController,
+        decoration: const InputDecoration(labelText: 'Tên tủ đồ'),
+        autofocus: true,
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
+        ElevatedButton(
+          onPressed: () async {
+            if (nameController.text.trim().isEmpty) return;
+            final newCloset = Closet(id: const Uuid().v4(), name: nameController.text.trim());
+            await ref.read(closetRepositoryProvider).insertCloset(newCloset);
+            ref.invalidate(closetsProvider);
+            if (context.mounted) Navigator.of(ctx).pop();
+          },
+          child: const Text('Lưu'),
+        ),
+      ],
+    ),
+  );
+}
 
 class ClosetsPage extends ConsumerStatefulWidget {
   const ClosetsPage({super.key});
@@ -40,21 +68,7 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tủ đồ của bạn'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_shopping_cart_outlined),
-            tooltip: 'Thêm vật phẩm mới',
-            onPressed: () async {
-              final bool? itemWasAdded = await Navigator.of(context).push<bool>(
-                MaterialPageRoute(builder: (context) => const AddItemScreen()),
-              );
-
-              if (itemWasAdded == true) {
-                ref.invalidate(itemFilterProvider('closetsPage'));
-              }
-            },
-          )
-        ],
+        // <<< BƯỚC 2: Xóa bỏ thuộc tính `actions` khỏi AppBar
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -66,63 +80,31 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
       body: TabBarView(
         controller: _tabController,
         children: [
-          // Widget cho Tab 1: Tìm kiếm toàn cục
-          _AllItemsTab(),
-          // Widget cho Tab 2: Danh sách tủ đồ
+          const _AllItemsTab(),
           _ClosetsListTab(),
         ],
       ),
-      // FAB giờ dùng để thêm tủ đồ mới
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'closets_page_fab',
-        onPressed: () => _showAddClosetDialog(context, ref),
-        tooltip: 'Tạo tủ đồ mới',
-        child: const Icon(Icons.add_business_outlined),
-      ),
-    );
-  }
-
-  void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
-    final nameController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Tạo tủ đồ mới'),
-        content: TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Tên tủ đồ'), autofocus: true),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
-          ElevatedButton(
-            onPressed: () async {
-              if (nameController.text.trim().isEmpty) return;
-              final newCloset = Closet(id: const Uuid().v4(), name: nameController.text.trim());
-              await ref.read(closetRepositoryProvider).insertCloset(newCloset);
-              ref.invalidate(closetsProvider);
-              if (context.mounted) Navigator.of(ctx).pop();
-            },
-            child: const Text('Lưu'),
-          ),
-        ],
-      ),
+      // <<< BƯỚC 3: Xóa bỏ `floatingActionButton` khỏi Scaffold
     );
   }
 }
 
 /// Widget cho Tab 1: Hiển thị tất cả vật phẩm và thanh tìm kiếm
-class _AllItemsTab extends HookConsumerWidget {
+class _AllItemsTab extends ConsumerWidget {
+  const _AllItemsTab();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // <<< BƯỚC 4: THÊM `ref.listen` VÀO ĐÂY
-    // Lắng nghe sự thay đổi của trigger provider.
-    // Tham số `previous` và `next` là giá trị cũ và mới của state trong provider.
     ref.listen<int>(itemAddedTriggerProvider, (previous, next) {
-      // Khi có tín hiệu mới (giá trị thay đổi), làm mới lại danh sách vật phẩm
-      // Bằng cách vô hiệu hóa provider của chính nó.
-      ref.invalidate(itemFilterProvider('closetsPage'));
+      if (previous != next) {
+        ref.invalidate(itemFilterProvider('closetsPage'));
+      }
     });
 
     return ItemBrowserView(
       providerId: 'closetsPage',
       onItemTapped: (item) {
+        // Hành động khi bấm vào item ở tab này là xem/sửa chi tiết
         Navigator.of(context).push<bool>(
           MaterialPageRoute(builder: (context) => AddItemScreen(itemToEdit: item)),
         ).then((wasChanged) {
@@ -137,6 +119,8 @@ class _AllItemsTab extends HookConsumerWidget {
 
 /// Widget cho Tab 2: Hiển thị danh sách các tủ đồ
 class _ClosetsListTab extends ConsumerWidget {
+  const _ClosetsListTab();
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final closetsAsyncValue = ref.watch(closetsProvider);
@@ -144,13 +128,25 @@ class _ClosetsListTab extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => Center(child: Text('Lỗi: $error')),
       data: (closets) {
-        if (closets.isEmpty) {
-          return const Center(child: Text('Bạn chưa có tủ đồ nào.\nHãy bấm nút + ở trên để tạo nhé!', textAlign: TextAlign.center));
-        }
         return ListView.builder(
           padding: const EdgeInsets.only(top: 8),
-          itemCount: closets.length,
+          // <<< BƯỚC 4: Tăng itemCount lên 1 để chứa dòng "Thêm tủ đồ"
+          itemCount: closets.length + 1,
           itemBuilder: (ctx, index) {
+            // <<< BƯỚC 5: Thêm logic để hiển thị dòng cuối cùng
+            if (index == closets.length) {
+              // Đây là dòng cuối cùng
+              return ListTile(
+                leading: const Icon(Icons.add_circle_outline, color: Colors.deepPurple),
+                title: const Text(
+                  'Thêm tủ đồ mới...',
+                  style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold),
+                ),
+                onTap: () => _showAddClosetDialog(context, ref), // Gọi hàm đã được di chuyển ra ngoài
+              );
+            }
+
+            // Các dòng bình thường hiển thị tủ đồ
             final closet = closets[index];
             return ListTile(
               leading: const Icon(Icons.inventory_2_outlined),

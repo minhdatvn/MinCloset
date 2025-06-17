@@ -1,11 +1,11 @@
 // lib/screens/main_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/pages/closets_page.dart';
 import 'package:mincloset/screens/pages/home_page.dart';
 import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/screens/pages/profile_page.dart';
+import 'package:mincloset/widgets/global_add_button.dart'; // <<< Import nút bấm độc lập
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,13 +17,11 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
-  // <<< DANH SÁCH WIDGET ĐÃ ĐƯỢC CẬP NHẬT HOÀN CHỈNH
-  // Đảm bảo tất cả các trang đều là phiên bản cuối cùng
-  static final List<Widget> _widgetOptions = <Widget>[
-    const HomePage(),
-    const ClosetsPage(),
-    const OutfitsHubPage(), // Dùng trang Hub thay vì trang Builder
-    const ProfilePage(),    // Dùng trang Profile thật sự
+  static const List<Widget> _widgetOptions = <Widget>[
+    HomePage(),
+    ClosetsPage(),
+    OutfitsHubPage(),
+    ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
@@ -32,61 +30,58 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  void _navigateToAddItemScreen() {
-    // Với kiến trúc Riverpod, việc gọi setState({}) ở đây không còn cần thiết
-    // vì các trang con sẽ tự làm mới khi dữ liệu thay đổi.
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (ctx) => const AddItemScreen()),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // Body sẽ hiển thị widget tương ứng với tab được chọn
-      body: _widgetOptions.elementAt(_selectedIndex),
-
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'main_screen_fab',
-        onPressed: _navigateToAddItemScreen,
-        shape: const CircleBorder(),
-        backgroundColor: Colors.black,
-        child: const Icon(Icons.add, color: Colors.white, size: 30),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8.0,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            _buildNavItem(icon: Icons.home, label: 'Trang chủ', index: 0),
-            _buildNavItem(icon: Icons.checkroom, label: 'Tủ đồ', index: 1),
-            const SizedBox(width: 40),
-            _buildNavItem(icon: Icons.style, label: 'Phối đồ', index: 2),
-            _buildNavItem(icon: Icons.person_outline, label: 'Cá nhân', index: 3),
-          ],
+    // <<< SỬ DỤNG STACK ĐỂ ĐẶT NÚT BẤM LÊN TRÊN GIAO DIỆN
+    return Stack(
+      // Dùng StackFit.expand để các lớp con lấp đầy màn hình
+      fit: StackFit.expand,
+      children: [
+        // LỚP DƯỚI CÙNG: Scaffold chứa các trang và thanh điều hướng
+        Scaffold(
+          body: _widgetOptions.elementAt(_selectedIndex),
+          // Dùng BottomAppBar để có thể tạo "khuyết" cho nút bấm
+          bottomNavigationBar: BottomAppBar(
+            shape: const CircularNotchedRectangle(),
+            notchMargin: 8.0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                _buildNavItem(icon: Icons.home, label: 'Trang chủ', index: 0),
+                _buildNavItem(icon: Icons.checkroom, label: 'Tủ đồ', index: 1),
+                // Khoảng trống ở giữa cho nút FAB
+                const SizedBox(width: 40), 
+                _buildNavItem(icon: Icons.style, label: 'Phối đồ', index: 2),
+                _buildNavItem(icon: Icons.person_outline, label: 'Cá nhân', index: 3),
+              ],
+            ),
+          ),
         ),
-      ),
+        // LỚP TRÊN CÙNG: Nút bấm độc lập
+        // Dùng Positioned để căn chỉnh vị trí của nút
+        Positioned(
+          bottom: 25.0, // Khoảng cách từ dưới lên
+          // Căn nút vào giữa theo chiều ngang
+          left: 0,
+          right: 0,
+          child: const Center(
+            child: GlobalAddButton(),
+          ),
+        ),
+      ],
     );
   }
 
+  // Hàm helper để tạo một item trên thanh điều hướng
   Widget _buildNavItem({required IconData icon, required String label, required int index}) {
     final isSelected = _selectedIndex == index;
-    final color = isSelected ? Colors.black : Colors.grey;
+    final color = isSelected ? Colors.deepPurple : Colors.grey;
     return InkWell(
       onTap: () => _onItemTapped(index),
       borderRadius: BorderRadius.circular(20),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color),
-            const SizedBox(height: 2),
-            Text(label, style: TextStyle(color: color, fontSize: 12, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
-          ],
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
+        child: Icon(icon, color: color, size: 28),
       ),
     );
   }

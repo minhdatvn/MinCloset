@@ -5,7 +5,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
+import 'package:mincloset/providers/event_providers.dart'; // <<< THÊM IMPORT NÀY
 import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/item_detail_page.dart';
 import 'package:mincloset/screens/pages/closet_detail_page.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
@@ -38,6 +40,21 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tủ đồ của bạn'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_shopping_cart_outlined),
+            tooltip: 'Thêm vật phẩm mới',
+            onPressed: () async {
+              final bool? itemWasAdded = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(builder: (context) => const AddItemScreen()),
+              );
+
+              if (itemWasAdded == true) {
+                ref.invalidate(itemFilterProvider('closetsPage'));
+              }
+            },
+          )
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -49,25 +66,18 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
       body: TabBarView(
         controller: _tabController,
         children: [
-          ItemBrowserView(
-            providerId: 'closetsPage',
-            onItemTapped: (item) {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => ItemDetailPage(item: item)),
-              ).then((itemWasChanged) {
-                if (itemWasChanged == true) {
-                  ref.invalidate(itemFilterProvider('closetsPage'));
-                }
-              });
-            },
-          ),
+          // Widget cho Tab 1: Tìm kiếm toàn cục
+          _AllItemsTab(),
+          // Widget cho Tab 2: Danh sách tủ đồ
           _ClosetsListTab(),
         ],
       ),
+      // FAB giờ dùng để thêm tủ đồ mới
       floatingActionButton: FloatingActionButton(
         heroTag: 'closets_page_fab',
         onPressed: () => _showAddClosetDialog(context, ref),
-        child: const Icon(Icons.add),
+        tooltip: 'Tạo tủ đồ mới',
+        child: const Icon(Icons.add_business_outlined),
       ),
     );
   }
@@ -85,10 +95,7 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
             onPressed: () async {
               if (nameController.text.trim().isEmpty) return;
               final newCloset = Closet(id: const Uuid().v4(), name: nameController.text.trim());
-              
-              // <<< THAY ĐỔI Ở ĐÂY: Bỏ `new Closet(...)` và dùng thẳng biến `newCloset`
               await ref.read(closetRepositoryProvider).insertCloset(newCloset);
-              
               ref.invalidate(closetsProvider);
               if (context.mounted) Navigator.of(ctx).pop();
             },
@@ -96,6 +103,34 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Widget cho Tab 1: Hiển thị tất cả vật phẩm và thanh tìm kiếm
+class _AllItemsTab extends HookConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // <<< BƯỚC 4: THÊM `ref.listen` VÀO ĐÂY
+    // Lắng nghe sự thay đổi của trigger provider.
+    // Tham số `previous` và `next` là giá trị cũ và mới của state trong provider.
+    ref.listen<int>(itemAddedTriggerProvider, (previous, next) {
+      // Khi có tín hiệu mới (giá trị thay đổi), làm mới lại danh sách vật phẩm
+      // Bằng cách vô hiệu hóa provider của chính nó.
+      ref.invalidate(itemFilterProvider('closetsPage'));
+    });
+
+    return ItemBrowserView(
+      providerId: 'closetsPage',
+      onItemTapped: (item) {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => ItemDetailPage(item: item)),
+        ).then((itemWasChanged) {
+          if (itemWasChanged == true) {
+            ref.invalidate(itemFilterProvider('closetsPage'));
+          }
+        });
+      },
     );
   }
 }
@@ -110,7 +145,7 @@ class _ClosetsListTab extends ConsumerWidget {
       error: (error, stack) => Center(child: Text('Lỗi: $error')),
       data: (closets) {
         if (closets.isEmpty) {
-          return const Center(child: Text('Bạn chưa có tủ đồ nào.\nHãy bấm nút + để tạo nhé!', textAlign: TextAlign.center));
+          return const Center(child: Text('Bạn chưa có tủ đồ nào.\nHãy bấm nút + ở trên để tạo nhé!', textAlign: TextAlign.center));
         }
         return ListView.builder(
           padding: const EdgeInsets.only(top: 8),

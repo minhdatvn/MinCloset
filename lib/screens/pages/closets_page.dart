@@ -1,6 +1,7 @@
 // lib/screens/pages/closets_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
@@ -9,6 +10,7 @@ import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/pages/closet_detail_page.dart';
+import 'package:mincloset/widgets/filter_bottom_sheet.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:uuid/uuid.dart';
 
@@ -90,29 +92,94 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
 }
 
 /// Widget cho Tab 1: Hiển thị tất cả vật phẩm và thanh tìm kiếm
-class _AllItemsTab extends ConsumerWidget {
+class _AllItemsTab extends HookConsumerWidget {
   const _AllItemsTab();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Định danh provider
+    const providerId = 'closetsPage';
+    final state = ref.watch(itemFilterProvider(providerId));
+    final notifier = ref.read(itemFilterProvider(providerId).notifier);
+    final searchController = useTextEditingController();
+    final closetsAsync = ref.watch(closetsProvider);
+
+    // Lắng nghe tín hiệu thêm đồ mới
     ref.listen<int>(itemAddedTriggerProvider, (previous, next) {
       if (previous != next) {
-        ref.invalidate(itemFilterProvider('closetsPage'));
+        ref.invalidate(itemFilterProvider(providerId));
       }
     });
+    
+    // Đồng bộ search bar
+    useEffect(() {
+      if (searchController.text != state.searchQuery) {
+        searchController.text = state.searchQuery;
+      }
+      return null;
+    }, [state.searchQuery]);
 
-    return ItemBrowserView(
-      providerId: 'closetsPage',
-      onItemTapped: (item) {
-        // Hành động khi bấm vào item ở tab này là xem/sửa chi tiết
-        Navigator.of(context).push<bool>(
-          MaterialPageRoute(builder: (context) => AddItemScreen(itemToEdit: item)),
-        ).then((wasChanged) {
-          if (wasChanged == true) {
-            ref.invalidate(itemFilterProvider('closetsPage'));
-          }
-        });
-      },
+
+    // <<< BỐ CỤC TÌM KIẾM VÀ LỌC ĐƯỢC CHUYỂN VỀ ĐÂY
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Tìm kiếm vật phẩm...',
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    filled: true,
+                    fillColor: Colors.grey.shade200,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  onChanged: notifier.setSearchQuery,
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: Badge(
+                  isLabelVisible: state.activeFilters.isApplied,
+                  child: const Icon(Icons.filter_list),
+                ),
+                tooltip: 'Lọc nâng cao',
+                onPressed: () {
+                  closetsAsync.whenData((closets) {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (_) => FilterBottomSheet(
+                        currentFilter: state.activeFilters,
+                        closets: closets,
+                        onApplyFilter: notifier.applyFilters,
+                      ),
+                    );
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ItemBrowserView(
+            providerId: providerId,
+            onItemTapped: (item) {
+              Navigator.of(context).push<bool>(
+                MaterialPageRoute(builder: (context) => AddItemScreen(itemToEdit: item)),
+              ).then((wasChanged) {
+                if (wasChanged == true) {
+                  ref.invalidate(itemFilterProvider(providerId));
+                }
+              });
+            },
+          ),
+        ),
+      ],
     );
   }
 }

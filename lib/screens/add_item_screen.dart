@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/constants/app_options.dart';
-import 'package:mincloset/helpers/db_helper.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
+import 'package:mincloset/providers/repository_providers.dart'; // Sử dụng repo provider
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/category_selector.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
@@ -46,17 +46,16 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   }
 
   Future<void> _loadClosets() async {
-    final dataList = await DatabaseHelper.instance.getClosets();
+    // Lấy dữ liệu thông qua repository
+    final closetsData = await ref.read(closetRepositoryProvider).getClosets();
     if (mounted) {
       setState(() {
-        _closets = dataList.map((item) => Closet.fromMap(item)).toList();
+        _closets = closetsData;
       });
     }
   }
 
-  // <<< THÊM HÀM MỚI NÀY ĐỂ HIỂN THỊ LỰA CHỌN
   void _showImageSourceActionSheet(BuildContext context) {
-    // Lấy ra notifier để có thể gọi hàm từ bên trong bottom sheet
     final notifier = ref.read(addItemProvider(widget.itemToEdit).notifier);
     
     showModalBottomSheet(
@@ -68,7 +67,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
               leading: const Icon(Icons.photo_library),
               title: const Text('Chọn từ Album'),
               onTap: () {
-                // Gọi hàm pickImage với nguồn là gallery
                 notifier.pickImage(ImageSource.gallery);
                 Navigator.of(ctx).pop();
               },
@@ -77,7 +75,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
               leading: const Icon(Icons.photo_camera),
               title: const Text('Chụp ảnh'),
               onTap: () {
-                // Gọi hàm pickImage với nguồn là camera
                 notifier.pickImage(ImageSource.camera);
                 Navigator.of(ctx).pop();
               },
@@ -110,35 +107,43 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Image Picker
+            // <<< THAY ĐỔI KHUNG ẢNH TẠI ĐÂY
             GestureDetector(
-              // <<< THAY ĐỔI Ở ĐÂY: onTap giờ sẽ gọi hàm hiển thị lựa chọn
               onTap: () => _showImageSourceActionSheet(context),
               child: AspectRatio(
-                aspectRatio: 1,
+                // 1. Đổi tỉ lệ thành 3:4
+                aspectRatio: 3 / 4,
                 child: Container(
-                  decoration: BoxDecoration(border: Border.all(color: Colors.grey), borderRadius: BorderRadius.circular(8)),
-                  child: state.image != null
-                      ? Image.file(state.image!, fit: BoxFit.cover)
-                      : (state.imagePath != null
-                          ? Image.file(File(state.imagePath!), fit: BoxFit.cover)
-                          : const Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.add_a_photo_outlined, size: 40, color: Colors.grey),
-                                SizedBox(height: 8),
-                                Text('Thêm ảnh', style: TextStyle(color: Colors.grey))
-                              ],
-                            ),
-                          )
-                        ),
+                  decoration: BoxDecoration(
+                      // 2. Thêm nền trắng và viền
+                      color: Colors.white,
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(8)),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: state.image != null
+                          ? Image.file(state.image!, fit: BoxFit.contain) // 3. Đổi sang contain
+                          : (state.imagePath != null
+                              ? Image.file(File(state.imagePath!), fit: BoxFit.contain)
+                              : const Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.add_a_photo_outlined, size: 40, color: Colors.grey),
+                                      SizedBox(height: 8),
+                                      Text('Thêm ảnh', style: TextStyle(color: Colors.grey))
+                                    ],
+                                  ),
+                                )),
+                    ),
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 16),
             
-            // ... phần còn lại của Form giữ nguyên ...
             TextFormField(
               controller: _nameController,
               decoration: const InputDecoration(labelText: 'Tên món đồ *'),

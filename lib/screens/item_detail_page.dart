@@ -1,5 +1,4 @@
 // lib/screens/item_detail_page.dart
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -75,10 +74,8 @@ class _ItemDetailPageState extends ConsumerState<ItemDetailPage> {
           ),
         ],
       ),
-      // <<< THAY THẾ onPopInvoked BẰNG onPopInvokedWithResult
       body: PopScope(
         canPop: false,
-        // Chữ ký của callback giờ có 2 tham số: didPop và result
         onPopInvokedWithResult: (bool didPop, dynamic result) {
           if (!didPop) {
             Navigator.of(context).pop(_hasChanges);
@@ -89,8 +86,28 @@ class _ItemDetailPageState extends ConsumerState<ItemDetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.file(File(currentItem.imagePath), height: MediaQuery.of(context).size.height * 0.4, width: double.infinity, fit: BoxFit.cover),
+              // <<< THAY ĐỔI KHUNG ẢNH TẠI ĐÂY
+              AspectRatio(
+                aspectRatio: 3 / 4,
+                child: Container(
+                  width: double.infinity,
+                  color: Colors.white, // Nền trắng
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Image.file(
+                      File(currentItem.imagePath),
+                      fit: BoxFit.contain, // Đổi sang contain
+                       errorBuilder: (context, error, stackTrace) {
+                        return const Center(
+                          child: Icon(Icons.broken_image_outlined, color: Colors.grey, size: 60),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 16),
+              
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(

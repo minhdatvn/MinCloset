@@ -166,16 +166,24 @@ class HomePage extends ConsumerWidget {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, stack) => const Text('Không thể tải...'),
             data: (items) {
-              if (items.isEmpty) {
-                return _buildAddFirstItemButton(context);
-              }
+              // <<< THAY ĐỔI CÁCH BUILD DANH SÁCH MỘT CHÚT
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
+                // Luôn có nút Add ở đầu
                 itemCount: items.length + 1,
                 itemBuilder: (ctx, index) {
-                  if (index == 0) return _buildAddFirstItemButton(context);
+                  if (index == 0) {
+                    return _buildAddFirstItemButton(context);
+                  }
                   final item = items[index - 1];
-                  return RecentItemCard(item: item);
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 12.0),
+                    child: SizedBox(
+                      // Chiều rộng được tính toán để có tỉ lệ 3:4
+                      width: 120 * (3/4), 
+                      child: RecentItemCard(item: item)
+                    ),
+                  );
                 },
               );
             },
@@ -185,23 +193,32 @@ class HomePage extends ConsumerWidget {
     );
   }
   
+  // <<< SỬA LẠI HOÀN TOÀN GIAO DIỆN NÚT NÀY
   Widget _buildAddFirstItemButton(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (ctx) => const AddItemScreen()),
-        );
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        width: 120,
-        margin: const EdgeInsets.only(right: 12),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.grey.shade200),
-        child: const Center(child: Icon(Icons.add, size: 40, color: Colors.grey)),
+    return Padding(
+      padding: const EdgeInsets.only(right: 12.0),
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (ctx) => const AddItemScreen()),
+          );
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          // Chiều rộng được tính toán để có tỉ lệ 3:4
+          width: 120 * (3/4), 
+          decoration: BoxDecoration(
+            // Nền trắng
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            // Thêm viền để dễ nhìn trên nền trắng
+            border: Border.all(color: Colors.grey.shade300),
+          ),
+          child: const Center(child: Icon(Icons.add, size: 40, color: Colors.black)),
+        ),
       ),
     );
   }
-
 
   Widget _buildTodaysSuggestionCard(BuildContext context, HomePageState state, HomePageNotifier notifier) {
     return Container(

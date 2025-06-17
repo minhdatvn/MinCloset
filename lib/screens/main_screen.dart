@@ -5,7 +5,7 @@ import 'package:mincloset/screens/pages/closets_page.dart';
 import 'package:mincloset/screens/pages/home_page.dart';
 import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/screens/pages/profile_page.dart';
-import 'package:mincloset/widgets/global_add_button.dart'; // <<< Import nút bấm độc lập
+import 'package:mincloset/widgets/global_add_button.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -32,15 +32,11 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // <<< SỬ DỤNG STACK ĐỂ ĐẶT NÚT BẤM LÊN TRÊN GIAO DIỆN
     return Stack(
-      // Dùng StackFit.expand để các lớp con lấp đầy màn hình
       fit: StackFit.expand,
       children: [
-        // LỚP DƯỚI CÙNG: Scaffold chứa các trang và thanh điều hướng
         Scaffold(
           body: _widgetOptions.elementAt(_selectedIndex),
-          // Dùng BottomAppBar để có thể tạo "khuyết" cho nút bấm
           bottomNavigationBar: BottomAppBar(
             shape: const CircularNotchedRectangle(),
             notchMargin: 8.0,
@@ -49,19 +45,15 @@ class _MainScreenState extends State<MainScreen> {
               children: <Widget>[
                 _buildNavItem(icon: Icons.home, label: 'Trang chủ', index: 0),
                 _buildNavItem(icon: Icons.checkroom, label: 'Tủ đồ', index: 1),
-                // Khoảng trống ở giữa cho nút FAB
-                const SizedBox(width: 40), 
+                const SizedBox(width: 40), // Khoảng trống cho nút FAB
                 _buildNavItem(icon: Icons.style, label: 'Phối đồ', index: 2),
                 _buildNavItem(icon: Icons.person_outline, label: 'Cá nhân', index: 3),
               ],
             ),
           ),
         ),
-        // LỚP TRÊN CÙNG: Nút bấm độc lập
-        // Dùng Positioned để căn chỉnh vị trí của nút
         Positioned(
-          bottom: 25.0, // Khoảng cách từ dưới lên
-          // Căn nút vào giữa theo chiều ngang
+          bottom: 20.0,
           left: 0,
           right: 0,
           child: const Center(
@@ -72,7 +64,7 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // Hàm helper để tạo một item trên thanh điều hướng
+  // <<< SỬA LẠI HÀM NÀY ĐỂ THÊM LẠI TEXT LABEL
   Widget _buildNavItem({required IconData icon, required String label, required int index}) {
     final isSelected = _selectedIndex == index;
     final color = isSelected ? Colors.deepPurple : Colors.grey;
@@ -80,8 +72,23 @@ class _MainScreenState extends State<MainScreen> {
       onTap: () => _onItemTapped(index),
       borderRadius: BorderRadius.circular(20),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-        child: Icon(icon, color: color, size: 28),
+        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+        // Dùng Column để chứa cả Icon và Text
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

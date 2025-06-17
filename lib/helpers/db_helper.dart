@@ -138,4 +138,14 @@ class DatabaseHelper {
       whereArgs: ['%$query%'],
     );
   }
+
+  Future<void> updateOutfit(Outfit outfit) async {
+  final db = await instance.database;
+  await db.update(
+    'outfits',
+    outfit.toMap(),
+    where: 'id = ?',
+    whereArgs: [outfit.id],
+  );
+}
 }

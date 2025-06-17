@@ -1,19 +1,34 @@
-// file: lib/models/outfit.dart
+// lib/models/outfit.dart
+import 'package:equatable/equatable.dart';
 
-class Outfit {
+class Outfit extends Equatable {
   final String id;
   final String name;
-  final String imagePath; // Đường dẫn tới ảnh screenshot của bộ đồ
-  final String itemIds;   // Chuỗi các ID của clothing_item, ngăn cách bởi dấu phẩy
+  final String imagePath;
+  final String itemIds;
 
-  Outfit({
+  const Outfit({
     required this.id,
     required this.name,
     required this.imagePath,
     required this.itemIds,
   });
 
-  // Chuyển đổi từ Map (đọc từ CSDL) sang đối tượng Outfit
+  // <<< THÊM PHƯƠNG THỨC `copyWith`
+  Outfit copyWith({
+    String? id,
+    String? name,
+    String? imagePath,
+    String? itemIds,
+  }) {
+    return Outfit(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      imagePath: imagePath ?? this.imagePath,
+      itemIds: itemIds ?? this.itemIds,
+    );
+  }
+
   factory Outfit.fromMap(Map<String, dynamic> map) {
     return Outfit(
       id: map['id'] as String,
@@ -23,7 +38,6 @@ class Outfit {
     );
   }
 
-  // Chuyển đổi từ đối tượng Outfit sang Map (để ghi vào CSDL)
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -32,4 +46,8 @@ class Outfit {
       'itemIds': itemIds,
     };
   }
+
+  // <<< THÊM `props` CHO EQUATABLE
+  @override
+  List<Object?> get props => [id, name, imagePath, itemIds];
 }

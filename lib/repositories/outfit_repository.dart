@@ -17,6 +17,11 @@ class OutfitRepository {
     await _dbHelper.insertOutfit(outfit);
   }
 
+
+  Future<void> updateOutfit(Outfit outfit) async {
+    await _dbHelper.updateOutfit(outfit);
+  }
+
   Future<void> deleteOutfit(String id) async {
     await _dbHelper.deleteOutfit(id);
   }

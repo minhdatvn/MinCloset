@@ -13,6 +13,7 @@ class ClothingItem extends Equatable {
   final String? material;
   final String? pattern;
 
+  // <<< SỬA LẠI HÀM KHỞI TẠO ĐỂ DÙNG THAM SỐ CÓ TÊN
   const ClothingItem({
     required this.id,
     required this.name,
@@ -26,7 +27,6 @@ class ClothingItem extends Equatable {
     this.pattern,
   });
 
-  // <<< THÊM TOÀN BỘ PHƯƠNG THỨC NÀY VÀO LỚP CỦA BẠN
   ClothingItem copyWith({
     String? id,
     String? name,
@@ -83,8 +83,6 @@ class ClothingItem extends Equatable {
     );
   }
 
-  // `props` định nghĩa các thuộc tính sẽ được dùng để so sánh
-  // hai đối tượng ClothingItem với nhau.
   @override
   List<Object?> get props => [
         id,

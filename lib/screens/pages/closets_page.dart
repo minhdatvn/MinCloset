@@ -8,10 +8,10 @@ import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/providers/event_providers.dart'; // <<< THÊM IMPORT NÀY
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
-import 'package:mincloset/screens/item_detail_page.dart';
 import 'package:mincloset/screens/pages/closet_detail_page.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:uuid/uuid.dart';
+
 
 class ClosetsPage extends ConsumerStatefulWidget {
   const ClosetsPage({super.key});
@@ -123,10 +123,10 @@ class _AllItemsTab extends HookConsumerWidget {
     return ItemBrowserView(
       providerId: 'closetsPage',
       onItemTapped: (item) {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => ItemDetailPage(item: item)),
-        ).then((itemWasChanged) {
-          if (itemWasChanged == true) {
+        Navigator.of(context).push<bool>(
+          MaterialPageRoute(builder: (context) => AddItemScreen(itemToEdit: item)),
+        ).then((wasChanged) {
+          if (wasChanged == true) {
             ref.invalidate(itemFilterProvider('closetsPage'));
           }
         });

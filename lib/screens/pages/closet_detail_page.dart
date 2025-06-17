@@ -6,7 +6,6 @@ import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/providers/database_providers.dart'; // <<< Dùng lại provider này
 import 'package:mincloset/screens/add_item_screen.dart';
-import 'package:mincloset/screens/item_detail_page.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 
 // <<< Quay trở lại dùng ConsumerWidget đơn giản, không cần Hook hay State
@@ -75,20 +74,16 @@ class ClosetDetailPage extends ConsumerWidget {
         final item = items[index];
         return GestureDetector(
           onTap: () async {
-            final itemWasChanged = await Navigator.of(context).push<bool>(
-              MaterialPageRoute(builder: (context) => ItemDetailPage(item: item)),
-            );
-            // Nếu có món đồ bị thay đổi hoặc xóa ở màn hình sau,
-            // làm mới lại danh sách này
-            if (itemWasChanged == true && context.mounted) {
-              final closetId = item.closetId; // Lấy closetId từ chính item
-              ref.invalidate(itemsInClosetProvider(closetId));
-              // Đồng thời cũng làm mới lại danh sách tìm kiếm toàn cục
-              // (Sẽ cần tạo provider cho allItems sau này)
-              // ref.invalidate(allItemsProvider); 
-            }
-          },
-          child: RecentItemCard(item: item),
+          // <<< THAY ĐỔI Ở ĐÂY: Điều hướng đến AddItemScreen thay vì ItemDetailPage
+          final itemWasChanged = await Navigator.of(context).push<bool>(
+            MaterialPageRoute(builder: (context) => AddItemScreen(itemToEdit: item)),
+          );
+          if (itemWasChanged == true && context.mounted) {
+            final closetId = item.closetId;
+            ref.invalidate(itemsInClosetProvider(closetId));
+          }
+        },
+        child: RecentItemCard(item: item),
         );
       },
     );

@@ -4,13 +4,12 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/clothing_item.dart';
-import 'package:mincloset/providers/repository_providers.dart'; // <<< THAY ĐỔI IMPORT
-import 'package:mincloset/repositories/clothing_item_repository.dart'; // <<< THÊM IMPORT NÀY
+import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:uuid/uuid.dart';
 
 class AddItemNotifier extends StateNotifier<AddItemState> {
-  // <<< THAY ĐỔI: Phụ thuộc vào Repository
   final ClothingItemRepository _clothingItemRepo;
 
   AddItemNotifier(this._clothingItemRepo, ClothingItem? itemToEdit)
@@ -18,7 +17,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
               ? AddItemState.fromClothingItem(itemToEdit)
               : const AddItemState());
 
-  // ... các hàm onNameChanged, onClosetChanged, pickImage... giữ nguyên ...
+  // Các hàm onNameChanged, onClosetChanged, pickImage... giữ nguyên
   void onNameChanged(String name) => state = state.copyWith(name: name);
   void onClosetChanged(String? closetId) => state = state.copyWith(selectedClosetId: closetId);
   void onCategoryChanged(String category) => state = state.copyWith(selectedCategoryValue: category);
@@ -30,9 +29,9 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   
   Future<void> pickImage(ImageSource source) async {
     final imagePicker = ImagePicker();
-    final pickedImage = await imagePicker.pickImage(source: source, maxWidth: 600);
-    if (pickedImage != null) {
-      state = state.copyWith(image: File(pickedImage.path));
+    final pickedFile = await imagePicker.pickImage(source: source, maxWidth: 600);
+    if (pickedFile != null) {
+      state = state.copyWith(image: File(pickedFile.path));
     }
   }
 
@@ -44,6 +43,8 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
 
     state = state.copyWith(isLoading: true, errorMessage: null);
     
+    // <<< LỖI NẰM Ở CÁCH BẠN GỌI HÀM KHỞI TẠO NÀY
+    // Hãy đảm bảo bạn sử dụng đúng các tham số có tên (named parameters)
     final clothingItem = ClothingItem(
       id: state.isEditing ? state.id : const Uuid().v4(),
       name: state.name,
@@ -58,7 +59,6 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     );
 
     try {
-      // <<< THAY ĐỔI: Gọi đến Repository
       if (state.isEditing) {
         await _clothingItemRepo.updateItem(clothingItem);
       } else {
@@ -71,8 +71,8 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   }
 }
 
+// Provider không thay đổi
 final addItemProvider = StateNotifierProvider.autoDispose.family<AddItemNotifier, AddItemState, ClothingItem?>((ref, itemToEdit) {
-  // <<< THAY ĐỔI: Inject ClothingItemRepository
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
   return AddItemNotifier(clothingItemRepo, itemToEdit);
 });

@@ -7,7 +7,7 @@ import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
-import 'package:mincloset/providers/repository_providers.dart'; // Sử dụng repo provider
+import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/category_selector.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
@@ -46,7 +46,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   }
 
   Future<void> _loadClosets() async {
-    // Lấy dữ liệu thông qua repository
     final closetsData = await ref.read(closetRepositoryProvider).getClosets();
     if (mounted) {
       setState(() {
@@ -107,15 +106,12 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // <<< THAY ĐỔI KHUNG ẢNH TẠI ĐÂY
             GestureDetector(
               onTap: () => _showImageSourceActionSheet(context),
               child: AspectRatio(
-                // 1. Đổi tỉ lệ thành 3:4
                 aspectRatio: 3 / 4,
                 child: Container(
                   decoration: BoxDecoration(
-                      // 2. Thêm nền trắng và viền
                       color: Colors.white,
                       border: Border.all(color: Colors.grey.shade300),
                       borderRadius: BorderRadius.circular(8)),
@@ -124,7 +120,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                     child: Padding(
                       padding: const EdgeInsets.all(4.0),
                       child: state.image != null
-                          ? Image.file(state.image!, fit: BoxFit.contain) // 3. Đổi sang contain
+                          ? Image.file(state.image!, fit: BoxFit.contain)
                           : (state.imagePath != null
                               ? Image.file(File(state.imagePath!), fit: BoxFit.contain)
                               : const Center(
@@ -146,22 +142,29 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
             
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Tên món đồ *'),
+              decoration: const InputDecoration(
+                labelText: 'Tên món đồ *',
+                border: OutlineInputBorder(),
+              ),
               onChanged: notifier.onNameChanged,
             ),
             const SizedBox(height: 16),
 
-            if (_closets.isNotEmpty)
+            // <<< SỬA LỖI CÚ PHÁP TẠI ĐÂY
+            // Sử dụng "collection if" để thêm có điều kiện nhiều widget
+            if (_closets.isNotEmpty) ...[
               DropdownButtonFormField<String>(
                 value: state.selectedClosetId,
                 items: _closets.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))).toList(),
                 onChanged: notifier.onClosetChanged,
-                decoration: const InputDecoration(labelText: 'Chọn tủ đồ *'),
+                decoration: const InputDecoration(
+                  labelText: 'Chọn tủ đồ *',
+                  border: OutlineInputBorder(),
+                ),
               ),
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
+            ],
             
-            const Text('Danh mục *', style: TextStyle(fontSize: 16, color: Colors.black54)),
-            const SizedBox(height: 8),
             CategorySelector(
               initialCategory: state.selectedCategoryValue,
               onCategorySelected: notifier.onCategoryChanged,

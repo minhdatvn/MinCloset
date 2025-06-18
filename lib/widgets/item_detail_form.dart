@@ -38,7 +38,6 @@ class ItemDetailForm extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final closetsAsync = ref.watch(closetsProvider);
     final nameController = TextEditingController(text: itemState.name);
-    // Di chuyển con trỏ đến cuối văn bản
     nameController.selection = TextSelection.fromPosition(TextPosition(offset: nameController.text.length));
 
     return SingleChildScrollView(
@@ -73,6 +72,7 @@ class ItemDetailForm extends ConsumerWidget {
               labelText: 'Tên món đồ *',
               border: OutlineInputBorder(),
             ),
+            maxLength: 30, // <<< THÊM GIỚI HẠN KÝ TỰ VÀO ĐÂY
             onChanged: onNameChanged,
           ),
           const SizedBox(height: 16),

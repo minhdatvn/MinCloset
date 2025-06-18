@@ -57,26 +57,13 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Thêm ${state.images.length} món đồ'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: TextButton(
-              onPressed: state.isSaving ? null : notifier.saveAll,
-              child: state.isSaving ? const CircularProgressIndicator() : const Text('Lưu tất cả'),
-            ),
-          )
-        ],
+        // <<< THAY ĐỔI 1: CẬP NHẬT TIÊU ĐỀ
+        title: Text('Thêm đồ (${state.currentIndex + 1}/${state.itemStates.length})'),
+        // <<< THAY ĐỔI 2: XÓA NÚT LƯU Ở ĐÂY
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              'Món đồ ${state.currentIndex + 1} trên ${state.itemStates.length}',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-          ),
+          // <<< THAY ĐỔI 3: XÓA BỎ WIDGET TEXT CHỈ BÁO TIẾN TRÌNH
           Expanded(
             child: PageView.builder(
               controller: _pageController,
@@ -108,15 +95,28 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
                   icon: const Icon(Icons.arrow_back),
                   label: const Text('Trước'),
                 ),
-                ElevatedButton.icon(
-                  onPressed: state.currentIndex < state.itemStates.length - 1 ? notifier.nextPage : null,
-                  icon: const Icon(Icons.arrow_forward),
-                  label: const Text('Sau'),
-                  // <<< ĐOẠN CODE ĐÃ ĐƯỢC SỬA LỖI VÀ LÀM GỌN
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                
+                // <<< THAY ĐỔI 4: HIỂN THỊ NÚT "SAU" HOẶC "LƯU TẤT CẢ" TÙY ĐIỀU KIỆN
+                if (state.currentIndex < state.itemStates.length - 1)
+                  // Nếu chưa phải trang cuối, hiển thị nút "Sau"
+                  ElevatedButton.icon(
+                    onPressed: notifier.nextPage,
+                    icon: const Icon(Icons.arrow_forward),
+                    label: const Text('Sau'),
+                  )
+                else
+                  // Nếu là trang cuối, hiển thị nút "Lưu tất cả"
+                  ElevatedButton.icon(
+                    onPressed: state.isSaving ? null : notifier.saveAll,
+                    icon: state.isSaving
+                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                        : const Icon(Icons.save),
+                    label: const Text('Lưu tất cả'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurple,
+                      foregroundColor: Colors.white,
+                    ),
                   ),
-                ),
               ],
             ),
           ),

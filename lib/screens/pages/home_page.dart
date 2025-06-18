@@ -5,8 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/home_page_notifier.dart';
-import 'package:mincloset/notifiers/profile_page_notifier.dart'; // <<< THÊM IMPORT
+import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/providers/ui_providers.dart'; // <<< THÊM IMPORT
 import 'package:mincloset/states/home_page_state.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/pages/outfits_hub_page.dart';
@@ -26,9 +27,6 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final homeState = ref.watch(homeProvider);
     final homeNotifier = ref.read(homeProvider.notifier);
-
-    // <<< BƯỚC 1: LẤY DỮ LIỆU `totalItems` TẠI ĐÂY
-    // Dùng .select để chỉ build lại khi giá trị này thay đổi
     final totalItems = ref.watch(profileProvider.select((s) => s.totalItems));
 
     return Scaffold(
@@ -40,7 +38,6 @@ class HomePage extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          // Khi kéo để làm mới, tải lại cả gợi ý và dữ liệu "Đã thêm gần đây"
           ref.invalidate(recentItemsProvider);
           await homeNotifier.getNewSuggestion();
         },
@@ -50,14 +47,13 @@ class HomePage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // <<< BƯỚC 2: TRUYỀN `totalItems` VÀO HÀM
               _buildPromoCard(totalItems),
               const SizedBox(height: 32),
               _buildAiStylistSection(context),
               const SizedBox(height: 32),
               _buildRecentlyAddedSection(context, ref),
               const SizedBox(height: 32),
-              SectionHeader(
+              const SectionHeader(
                 title: 'Gợi ý hôm nay',
               ),
               const SizedBox(height: 16),
@@ -92,14 +88,9 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  // <<< BƯỚC 3: SỬA LẠI HÀM ĐỂ NHẬN `totalItems`
   Widget _buildPromoCard(int totalItems) {
-    // Tính toán số item còn lại cần thêm
     final itemsNeeded = 30 - totalItems > 0 ? 30 - totalItems : 0;
-    
-    // Tính toán phần trăm tiến độ
     final progress = totalItems >= 30 ? 1.0 : totalItems / 30.0;
-
     return Card(
       elevation: 0,
       color: Colors.deepPurple.shade50,
@@ -157,7 +148,6 @@ class HomePage extends ConsumerWidget {
             const SizedBox(width: 16),
             Expanded(
               child: GestureDetector(
-                // <<< THAY ĐỔI Ở ĐÂY: Sửa SavedOutfitsPage thành OutfitsHubPage
                 onTap: () => Navigator.of(context)
                     .push(MaterialPageRoute(builder: (ctx) => const OutfitsHubPage())),
                 child: Container(
@@ -182,16 +172,18 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  // <<< THAY ĐỔI: Thêm hành động onTap cho mỗi vật phẩm
   Widget _buildRecentlyAddedSection(BuildContext context, WidgetRef ref) {
     final recentItemsAsync = ref.watch(recentItemsProvider);
     return Column(
       children: [
-        SectionHeader(title: 'Đã thêm gần đây', onSeeAll: () {
-          // Điều hướng đến tab "Tất cả vật phẩm" trong trang Tủ đồ
-          // Cần một cơ chế state management để điều khiển tab, ví dụ:
-          // ref.read(mainScreenTabProvider.notifier).state = 1;
-        }),
+        SectionHeader(
+          title: 'Đã thêm gần đây',
+          seeAllText: 'Xem tất cả', // <<< THAY ĐỔI 1: Đổi tên nút
+          onSeeAll: () {
+            // <<< THAY ĐỔI 2: Cập nhật provider để chuyển tab
+            ref.read(mainScreenIndexProvider.notifier).state = 1; // 1 là index của ClosetsPage
+          },
+        ),
         const SizedBox(height: 16),
         SizedBox(
           height: 120,
@@ -214,15 +206,13 @@ class HomePage extends ConsumerWidget {
                     padding: const EdgeInsets.only(right: 12.0),
                     child: SizedBox(
                       width: 120 * (3 / 4),
-                      child: GestureDetector( // Bọc trong GestureDetector
+                      child: GestureDetector(
                         onTap: () async {
                           final itemWasChanged = await Navigator.of(context).push<bool>(
                             MaterialPageRoute(
-                              // Điều hướng đến AddItemScreen để xem/sửa
                               builder: (context) => AddItemScreen(itemToEdit: item),
                             ),
                           );
-                          // Nếu có thay đổi, làm mới lại danh sách này
                           if (itemWasChanged == true) {
                             ref.invalidate(recentItemsProvider);
                           }
@@ -240,7 +230,6 @@ class HomePage extends ConsumerWidget {
     );
   }
   
-  // <<< SỬA LẠI HOÀN TOÀN GIAO DIỆN NÚT NÀY
   Widget _buildAddFirstItemButton(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(right: 12.0),
@@ -252,13 +241,10 @@ class HomePage extends ConsumerWidget {
         },
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          // Chiều rộng được tính toán để có tỉ lệ 3:4
           width: 120 * (3/4), 
           decoration: BoxDecoration(
-            // Nền trắng
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            // Thêm viền để dễ nhìn trên nền trắng
             border: Border.all(color: Colors.grey.shade300),
           ),
           child: const Center(child: Icon(Icons.add, size: 40, color: Colors.black)),

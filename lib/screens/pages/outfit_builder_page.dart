@@ -278,6 +278,7 @@ class _ItemSelectionPanel extends HookConsumerWidget {
         ),
         ItemBrowserView(
           providerId: providerId,
+          buildMode: ItemBrowserBuildMode.sliver, 
           onItemTapped: (ClothingItem item) {
             ref.read(outfitBuilderProvider.notifier).addItemToCanvas(item);
           },

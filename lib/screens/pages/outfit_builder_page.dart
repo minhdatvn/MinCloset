@@ -27,7 +27,6 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
     if (outfitName == null || outfitName.trim().isEmpty) return;
 
     notifier.deselectAllStickers();
-    // Đợi một chút để UI cập nhật (bỏ viền xanh) trước khi chụp ảnh
     await Future.delayed(const Duration(milliseconds: 50));
 
     final capturedImage = await _screenshotController.capture();
@@ -92,30 +91,39 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
       ),
       body: Stack(
         children: [
-          Screenshot(
-            controller: _screenshotController,
-            child: GestureDetector(
-              onTap: notifier.deselectAllStickers,
-              child: Container(
-                color: Colors.grey.shade200,
-                child: Stack(
-                  children: state.itemsOnCanvas.entries.map((entry) {
-                    final stickerId = entry.key;
-                    final item = entry.value;
-                    return ClothingSticker(
-                      key: ValueKey(stickerId),
-                      item: item,
-                      isSelected: stickerId == state.selectedStickerId,
-                      onSelect: () => notifier.selectSticker(stickerId),
-                      onDelete: () => notifier.deleteSticker(stickerId),
-                    );
-                  }).toList(),
+          // <<< THAY ĐỔI TỪ CENTER THÀNH ALIGN
+          Align(
+            alignment: Alignment.topCenter, // Căn canvas lên trên cùng
+            child: AspectRatio(
+              aspectRatio: 3 / 4,
+              child: Screenshot(
+                controller: _screenshotController,
+                child: GestureDetector(
+                  onTap: notifier.deselectAllStickers,
+                  child: Container(
+                    color: Colors.white,
+                    child: Stack(
+                      children: state.itemsOnCanvas.entries.map((entry) {
+                        final stickerId = entry.key;
+                        final item = entry.value;
+                        return ClothingSticker(
+                          key: ValueKey(stickerId),
+                          item: item,
+                          isSelected: stickerId == state.selectedStickerId,
+                          onSelect: () => notifier.selectSticker(stickerId),
+                          onDelete: () => notifier.deleteSticker(stickerId),
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
+          
+          // Lớp panel trượt lên trên cùng
           DraggableScrollableSheet(
-            initialChildSize: 0.35,
+            initialChildSize: 0.32,
             minChildSize: 0.2,
             maxChildSize: 0.8,
             builder: (BuildContext context, ScrollController scrollController) {
@@ -144,7 +152,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   }
 }
 
-/// Lớp Delegate để tạo Header cố định (sticky)
+// Các lớp _SliverHeaderDelegate và _ItemSelectionPanel không thay đổi so với lần trước
 class _SliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
   final double height;
@@ -168,7 +176,6 @@ class _SliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-/// Widget con mới, được cấu trúc lại để sử dụng CustomScrollView
 class _ItemSelectionPanel extends HookConsumerWidget {
   final ScrollController scrollController;
   const _ItemSelectionPanel({required this.scrollController});
@@ -188,16 +195,13 @@ class _ItemSelectionPanel extends HookConsumerWidget {
       return null;
     }, [state.searchQuery]);
 
-    // Sử dụng CustomScrollView để có thể ghim header
     return CustomScrollView(
       controller: scrollController,
       slivers: [
-        // Header chứa thanh cầm, tìm kiếm và lọc.
-        // Header này sẽ được ghim lại ở trên cùng.
         SliverPersistentHeader(
           pinned: true,
           delegate: _SliverHeaderDelegate(
-            height: 80, // Chiều cao của header
+            height: 78,
             child: Container(
               color: Theme.of(context).scaffoldBackgroundColor,
               child: Column(
@@ -266,8 +270,6 @@ class _ItemSelectionPanel extends HookConsumerWidget {
             ),
           ),
         ),
-        
-        // Phần còn lại là lưới các item, có thể cuộn được
         ItemBrowserView(
           providerId: providerId,
           onItemTapped: (ClothingItem item) {

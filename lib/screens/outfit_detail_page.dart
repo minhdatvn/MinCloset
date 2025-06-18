@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/outfit_detail_notifier.dart';
-import 'package:mincloset/widgets/outfit_actions_menu.dart'; // <<< THÊM IMPORT
+import 'package:mincloset/widgets/outfit_actions_menu.dart';
 
 class OutfitDetailPage extends ConsumerWidget {
   final Outfit outfit;
@@ -17,21 +17,18 @@ class OutfitDetailPage extends ConsumerWidget {
     final currentOutfit = ref.watch(provider);
     
     return Scaffold(
+      backgroundColor: Colors.white, // <<< THAY ĐỔI Ở ĐÂY
       appBar: AppBar(
         title: Text(currentOutfit.name),
-        // <<< THÊM NÚT MENU VÀO `actions`
         actions: [
           OutfitActionsMenu(
             outfit: currentOutfit,
             onUpdate: () {
-              // Khi có cập nhật, báo cho trang trước đó (OutfitsHubPage)
-              // bằng cách đánh dấu là có thay đổi.
-              // Logic này cần được hoàn thiện thêm trong state của trang.
             },
           ),
         ],
       ),
-      body: Center( // Đặt Center để ảnh không tràn hết màn hình
+      body: Center(
         child: InteractiveViewer(
           minScale: 1.0,
           maxScale: 4.0,

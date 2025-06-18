@@ -17,7 +17,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
               ? AddItemState.fromClothingItem(itemToEdit)
               : const AddItemState());
 
-  // Các hàm onNameChanged, onClosetChanged, pickImage... giữ nguyên
+  // Các hàm on...Changed và pickImage không đổi
   void onNameChanged(String name) => state = state.copyWith(name: name);
   void onClosetChanged(String? closetId) => state = state.copyWith(selectedClosetId: closetId);
   void onCategoryChanged(String category) => state = state.copyWith(selectedCategoryValue: category);
@@ -35,6 +35,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
   }
 
+  // <<< HÀM saveItem ĐÃ ĐƯỢC SỬA LẠI, CHỈ CÒN LOGIC LƯU
   Future<void> saveItem() async {
     if (state.name.trim().isEmpty || state.selectedCategoryValue.isEmpty || state.selectedClosetId == null || (state.image == null && state.imagePath == null)) {
         state = state.copyWith(errorMessage: 'Vui lòng điền đủ thông tin bắt buộc!');
@@ -43,8 +44,6 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
 
     state = state.copyWith(isLoading: true, errorMessage: null);
     
-    // <<< LỖI NẰM Ở CÁCH BẠN GỌI HÀM KHỞI TẠO NÀY
-    // Hãy đảm bảo bạn sử dụng đúng các tham số có tên (named parameters)
     final clothingItem = ClothingItem(
       id: state.isEditing ? state.id : const Uuid().v4(),
       name: state.name,
@@ -67,6 +66,23 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       state = state.copyWith(isLoading: false, isSuccess: true);
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: 'Lỗi khi lưu: $e');
+    }
+  }
+
+  // <<< HÀM deleteItem ĐÃ ĐƯỢC VIẾT LẠI ĐẦY ĐỦ
+  Future<void> deleteItem() async {
+    // Chỉ thực hiện xóa nếu đang ở chế độ chỉnh sửa
+    if (!state.isEditing) return;
+
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      // Gọi đến repository để xóa
+      await _clothingItemRepo.deleteItem(state.id);
+      // Đặt cờ isSuccess = true để báo hiệu cho UI biết cần pop màn hình
+      state = state.copyWith(isLoading: false, isSuccess: true);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, errorMessage: 'Lỗi khi xóa: $e');
     }
   }
 }

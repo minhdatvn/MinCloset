@@ -84,6 +84,33 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
+  // <<< HÀM MỚI ĐỂ HIỂN THỊ DIALOG XÁC NHẬN XÓA
+  Future<void> _showDeleteConfirmationDialog() async {
+    // Chỉ hiển thị dialog nếu đang ở chế độ sửa
+    if (widget.itemToEdit == null) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Xác nhận xóa'),
+        content: Text('Bạn có chắc chắn muốn xóa vĩnh viễn món đồ "${widget.itemToEdit!.name}" không?'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Xóa'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      // Nếu người dùng xác nhận, gọi hàm deleteItem trong notifier
+      await ref.read(addItemProvider(widget.itemToEdit).notifier).deleteItem();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = addItemProvider(widget.itemToEdit);
@@ -94,13 +121,26 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
       if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
       }
+      // isSuccess giờ được dùng cho cả Lưu và Xóa thành công
       if (next.isSuccess) {
-        Navigator.of(context).pop(true);
+        Navigator.of(context).pop(true); // Trả về true để báo hiệu có thay đổi
       }
     });
 
     return Scaffold(
-      appBar: AppBar(title: Text(state.isEditing ? 'Sửa món đồ' : 'Thêm đồ mới')),
+      appBar: AppBar(
+        title: Text(state.isEditing ? 'Sửa món đồ' : 'Thêm đồ mới'),
+        // <<< THÊM `actions` VÀO APPBAR
+        actions: [
+          // Chỉ hiển thị nút xóa khi đang ở chế độ chỉnh sửa
+          if (state.isEditing)
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              onPressed: _showDeleteConfirmationDialog,
+              tooltip: 'Xóa món đồ',
+            ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -150,8 +190,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
             ),
             const SizedBox(height: 16),
 
-            // <<< SỬA LỖI CÚ PHÁP TẠI ĐÂY
-            // Sử dụng "collection if" để thêm có điều kiện nhiều widget
             if (_closets.isNotEmpty) ...[
               DropdownButtonFormField<String>(
                 value: state.selectedClosetId,

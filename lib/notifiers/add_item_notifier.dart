@@ -4,20 +4,22 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/clothing_item.dart';
-import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
+import 'package:mincloset/screens/add_item_screen.dart'; // <<< THÊM IMPORT NÀY
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:uuid/uuid.dart';
 
 class AddItemNotifier extends StateNotifier<AddItemState> {
   final ClothingItemRepository _clothingItemRepo;
 
-  AddItemNotifier(this._clothingItemRepo, ClothingItem? itemToEdit)
-      : super(itemToEdit != null
-              ? AddItemState.fromClothingItem(itemToEdit)
-              : const AddItemState());
+  // <<< SỬA LẠI HÀM KHỞI TẠO ĐỂ NHẬN ARGS
+  AddItemNotifier(this._clothingItemRepo, AddItemScreenArgs args)
+      : super(
+          args.itemToEdit != null
+              ? AddItemState.fromClothingItem(args.itemToEdit!)
+              : AddItemState(image: args.newImage != null ? File(args.newImage!.path) : null)
+        );
 
-  // Các hàm on...Changed và pickImage không đổi
   void onNameChanged(String name) => state = state.copyWith(name: name);
   void onClosetChanged(String? closetId) => state = state.copyWith(selectedClosetId: closetId);
   void onCategoryChanged(String category) => state = state.copyWith(selectedCategoryValue: category);
@@ -35,7 +37,6 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
   }
 
-  // <<< HÀM saveItem ĐÃ ĐƯỢC SỬA LẠI, CHỈ CÒN LOGIC LƯU
   Future<void> saveItem() async {
     if (state.name.trim().isEmpty || state.selectedCategoryValue.isEmpty || state.selectedClosetId == null || (state.image == null && state.imagePath == null)) {
         state = state.copyWith(errorMessage: 'Vui lòng điền đủ thông tin bắt buộc!');
@@ -69,26 +70,14 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
   }
 
-  // <<< HÀM deleteItem ĐÃ ĐƯỢC VIẾT LẠI ĐẦY ĐỦ
   Future<void> deleteItem() async {
-    // Chỉ thực hiện xóa nếu đang ở chế độ chỉnh sửa
     if (!state.isEditing) return;
-
     state = state.copyWith(isLoading: true, errorMessage: null);
-
     try {
-      // Gọi đến repository để xóa
       await _clothingItemRepo.deleteItem(state.id);
-      // Đặt cờ isSuccess = true để báo hiệu cho UI biết cần pop màn hình
       state = state.copyWith(isLoading: false, isSuccess: true);
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: 'Lỗi khi xóa: $e');
     }
   }
 }
-
-// Provider không thay đổi
-final addItemProvider = StateNotifierProvider.autoDispose.family<AddItemNotifier, AddItemState, ClothingItem?>((ref, itemToEdit) {
-  final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
-  return AddItemNotifier(clothingItemRepo, itemToEdit);
-});

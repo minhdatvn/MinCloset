@@ -1,61 +1,50 @@
 // lib/screens/add_item_screen.dart
-import 'dart:io';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/models/clothing_item.dart';
-import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
-import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/providers/repository_providers.dart'; // <<< THÊM IMPORT THIẾU
 import 'package:mincloset/states/add_item_state.dart';
-import 'package:mincloset/widgets/category_selector.dart';
-import 'package:mincloset/widgets/multi_select_chip_field.dart';
+import 'package:mincloset/widgets/item_detail_form.dart';
 
-class AddItemScreen extends ConsumerStatefulWidget {
-  final String? preselectedClosetId;
+// <<< BƯỚC 1: TẠO LỚP ARGS ĐỂ ĐÓNG GÓI THAM SỐ
+@immutable
+class AddItemScreenArgs extends Equatable {
   final ClothingItem? itemToEdit;
+  final XFile? newImage;
 
-  const AddItemScreen({super.key, this.preselectedClosetId, this.itemToEdit});
+  const AddItemScreenArgs({this.itemToEdit, this.newImage});
 
   @override
-  ConsumerState<AddItemScreen> createState() => _AddItemScreenState();
+  List<Object?> get props => [itemToEdit, newImage];
 }
 
-class _AddItemScreenState extends ConsumerState<AddItemScreen> {
-  late final TextEditingController _nameController;
-  List<Closet> _closets = [];
+// <<< BƯỚC 2: ĐỊNH NGHĨA LẠI PROVIDER CHO ĐÚNG
+final addItemProvider = StateNotifierProvider.autoDispose
+    .family<AddItemNotifier, AddItemState, AddItemScreenArgs>((ref, args) {
+  final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
+  return AddItemNotifier(clothingItemRepo, args);
+});
 
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.itemToEdit?.name ?? '');
-    _loadClosets();
 
-    if (widget.itemToEdit == null && widget.preselectedClosetId != null) {
-      Future.microtask(() => ref
-          .read(addItemProvider(widget.itemToEdit).notifier)
-          .onClosetChanged(widget.preselectedClosetId));
-    }
-  }
+class AddItemScreen extends ConsumerWidget {
+  final String? preselectedClosetId;
+  final ClothingItem? itemToEdit;
+  final XFile? newImage;
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    super.dispose();
-  }
+  const AddItemScreen({
+    super.key,
+    this.preselectedClosetId,
+    this.itemToEdit,
+    this.newImage,
+  });
 
-  Future<void> _loadClosets() async {
-    final closetsData = await ref.read(closetRepositoryProvider).getClosets();
-    if (mounted) {
-      setState(() {
-        _closets = closetsData;
-      });
-    }
-  }
-
-  void _showImageSourceActionSheet(BuildContext context) {
-    final notifier = ref.read(addItemProvider(widget.itemToEdit).notifier);
+  void _showImageSourceActionSheet(BuildContext context, WidgetRef ref) {
+    // Tạo args để truyền vào provider khi gọi notifier
+    final args = AddItemScreenArgs(itemToEdit: itemToEdit, newImage: newImage);
+    final notifier = ref.read(addItemProvider(args).notifier);
     
     showModalBottomSheet(
       context: context,
@@ -84,16 +73,15 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  // <<< HÀM MỚI ĐỂ HIỂN THỊ DIALOG XÁC NHẬN XÓA
-  Future<void> _showDeleteConfirmationDialog() async {
-    // Chỉ hiển thị dialog nếu đang ở chế độ sửa
-    if (widget.itemToEdit == null) return;
+  Future<void> _showDeleteConfirmationDialog(BuildContext context, WidgetRef ref) async {
+    if (itemToEdit == null) return;
+    final args = AddItemScreenArgs(itemToEdit: itemToEdit, newImage: newImage);
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Xác nhận xóa'),
-        content: Text('Bạn có chắc chắn muốn xóa vĩnh viễn món đồ "${widget.itemToEdit!.name}" không?'),
+        content: Text('Bạn có chắc chắn muốn xóa vĩnh viễn món đồ "${itemToEdit!.name}" không?'),
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Hủy')),
           TextButton(
@@ -106,148 +94,69 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
 
     if (confirmed == true) {
-      // Nếu người dùng xác nhận, gọi hàm deleteItem trong notifier
-      await ref.read(addItemProvider(widget.itemToEdit).notifier).deleteItem();
+      await ref.read(addItemProvider(args).notifier).deleteItem();
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    final provider = addItemProvider(widget.itemToEdit);
+  Widget build(BuildContext context, WidgetRef ref) {
+    // <<< BƯỚC 3: SỬA LẠI CÁCH GỌI PROVIDER
+    final args = AddItemScreenArgs(itemToEdit: itemToEdit, newImage: newImage);
+    final provider = addItemProvider(args);
     final state = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
+
+    if (itemToEdit == null && preselectedClosetId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifier.onClosetChanged(preselectedClosetId);
+      });
+    }
     
     ref.listen<AddItemState>(provider, (previous, next) {
       if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
       }
-      // isSuccess giờ được dùng cho cả Lưu và Xóa thành công
       if (next.isSuccess) {
-        Navigator.of(context).pop(true); // Trả về true để báo hiệu có thay đổi
+        Navigator.of(context).pop(true);
       }
     });
 
     return Scaffold(
       appBar: AppBar(
         title: Text(state.isEditing ? 'Sửa món đồ' : 'Thêm đồ mới'),
-        // <<< THÊM `actions` VÀO APPBAR
         actions: [
-          // Chỉ hiển thị nút xóa khi đang ở chế độ chỉnh sửa
+          if (!state.isEditing)
+            IconButton(
+              icon: const Icon(Icons.add_a_photo_outlined),
+              onPressed: () => _showImageSourceActionSheet(context, ref),
+              tooltip: 'Chọn ảnh khác',
+            ),
           if (state.isEditing)
             IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.red),
-              onPressed: _showDeleteConfirmationDialog,
+              onPressed: () => _showDeleteConfirmationDialog(context, ref),
               tooltip: 'Xóa món đồ',
             ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: ItemDetailForm(
+        itemState: state,
+        onNameChanged: notifier.onNameChanged,
+        onClosetChanged: notifier.onClosetChanged,
+        onCategoryChanged: notifier.onCategoryChanged,
+        onColorsChanged: notifier.onColorsChanged,
+        onSeasonsChanged: notifier.onSeasonsChanged,
+        onOccasionsChanged: notifier.onOccasionsChanged,
+        onMaterialsChanged: notifier.onMaterialsChanged,
+        onPatternsChanged: notifier.onPatternsChanged,
+      ),
+      bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            GestureDetector(
-              onTap: () => _showImageSourceActionSheet(context),
-              child: AspectRatio(
-                aspectRatio: 3 / 4,
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(8)),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: state.image != null
-                          ? Image.file(state.image!, fit: BoxFit.contain)
-                          : (state.imagePath != null
-                              ? Image.file(File(state.imagePath!), fit: BoxFit.contain)
-                              : const Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.add_a_photo_outlined, size: 40, color: Colors.grey),
-                                      SizedBox(height: 8),
-                                      Text('Thêm ảnh', style: TextStyle(color: Colors.grey))
-                                    ],
-                                  ),
-                                )),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            
-            TextFormField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Tên món đồ *',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: notifier.onNameChanged,
-            ),
-            const SizedBox(height: 16),
-
-            if (_closets.isNotEmpty) ...[
-              DropdownButtonFormField<String>(
-                value: state.selectedClosetId,
-                items: _closets.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))).toList(),
-                onChanged: notifier.onClosetChanged,
-                decoration: const InputDecoration(
-                  labelText: 'Chọn tủ đồ *',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-            ],
-            
-            CategorySelector(
-              initialCategory: state.selectedCategoryValue,
-              onCategorySelected: notifier.onCategoryChanged,
-            ),
-            const Divider(height: 32),
-            
-            MultiSelectChipField(
-              label: 'Màu sắc',
-              allOptions: AppOptions.colors,
-              initialSelections: state.selectedColors,
-              onSelectionChanged: notifier.onColorsChanged,
-            ),
-            MultiSelectChipField(
-              label: 'Mùa',
-              allOptions: AppOptions.seasons,
-              initialSelections: state.selectedSeasons,
-              onSelectionChanged: notifier.onSeasonsChanged,
-            ),
-             MultiSelectChipField(
-              label: 'Mục đích',
-              allOptions: AppOptions.occasions,
-              initialSelections: state.selectedOccasions,
-              onSelectionChanged: notifier.onOccasionsChanged,
-            ),
-             MultiSelectChipField(
-              label: 'Chất liệu',
-              allOptions: AppOptions.materials,
-              initialSelections: state.selectedMaterials,
-              onSelectionChanged: notifier.onMaterialsChanged,
-            ),
-             MultiSelectChipField(
-              label: 'Họa tiết',
-              allOptions: AppOptions.patterns,
-              initialSelections: state.selectedPatterns,
-              onSelectionChanged: notifier.onPatternsChanged,
-            ),
-            
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: state.isLoading ? null : notifier.saveItem,
-              icon: state.isLoading ? const SizedBox.shrink() : const Icon(Icons.save),
-              label: state.isLoading ? const CircularProgressIndicator(color: Colors.white) : Text(state.isEditing ? 'Cập nhật' : 'Lưu'),
-              style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12), backgroundColor: Colors.deepPurple, foregroundColor: Colors.white),
-            ),
-          ],
+        child: ElevatedButton.icon(
+          onPressed: state.isLoading ? null : notifier.saveItem,
+          icon: state.isLoading ? const SizedBox.shrink() : const Icon(Icons.save),
+          label: state.isLoading ? const CircularProgressIndicator(color: Colors.white) : Text(state.isEditing ? 'Cập nhật' : 'Lưu'),
+          style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12), backgroundColor: Colors.deepPurple, foregroundColor: Colors.white),
         ),
       ),
     );

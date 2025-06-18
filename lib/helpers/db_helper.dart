@@ -1,4 +1,4 @@
-// file: lib/helpers/db_helper.dart
+// lib/helpers/db_helper.dart
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:path/path.dart' as path;
 import 'package:mincloset/models/closet.dart';
@@ -29,7 +29,6 @@ class DatabaseHelper {
         imagePath TEXT, closetId TEXT, season TEXT, occasion TEXT,
         material TEXT, pattern TEXT
       )""");
-    // Thêm bảng outfits mới
     await db.execute("""CREATE TABLE outfits (
         id TEXT PRIMARY KEY,
         name TEXT,
@@ -38,7 +37,7 @@ class DatabaseHelper {
       )""");
   }
 
-  // === CÁC HÀM CŨ GIỮ NGUYÊN (insertCloset, getClosets, ...) ===
+  // === CÁC HÀM LIÊN QUAN ĐẾN CLOSET ===
   Future<void> insertCloset(Map<String, dynamic> data) async {
     final db = await instance.database;
     await db.insert('closets', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
@@ -62,11 +61,21 @@ class DatabaseHelper {
     });
   }
 
+  // === CÁC HÀM LIÊN QUAN ĐẾN CLOTHING ITEM ===
   Future<void> insertItem(Map<String, dynamic> data) async {
     final db = await instance.database;
     await db.insert('clothing_items', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
   }
   
+  Future<void> insertBatchItems(List<Map<String, dynamic>> itemsData) async {
+    final db = await instance.database;
+    final batch = db.batch();
+    for (final itemMap in itemsData) {
+      batch.insert('clothing_items', itemMap, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+    }
+    await batch.commit(noResult: true);
+  }
+
   Future<List<Map<String, dynamic>>> getItemsInCloset(String closetId) async {
     final db = await instance.database;
     return db.query('clothing_items', where: 'closetId = ?', whereArgs: [closetId]);
@@ -92,16 +101,32 @@ class DatabaseHelper {
     return db.query('clothing_items', orderBy: 'id DESC', limit: limit);
   }
 
-  // === CÁC HÀM MỚI CHO OUTFIT ===
+  Future<List<Map<String, dynamic>>> searchItemsInCloset(String closetId, String query) async {
+    final db = await instance.database;
+    return db.query(
+      'clothing_items',
+      where: 'closetId = ? AND name LIKE ?',
+      whereArgs: [closetId, '%$query%'],
+    );
+  }
 
-  /// Thêm một bộ đồ mới vào CSDL
+  Future<List<Map<String, dynamic>>> searchAllItems(String query) async {
+    final db = await instance.database;
+    if (query.isEmpty) return getAllItems();
+    return db.query(
+      'clothing_items',
+      where: 'name LIKE ?',
+      whereArgs: ['%$query%'],
+    );
+  }
+
+  // === CÁC HÀM MỚI CHO OUTFIT ===
   Future<void> insertOutfit(Outfit outfit) async {
     final db = await instance.database;
     await db.insert('outfits', outfit.toMap(),
         conflictAlgorithm: sql.ConflictAlgorithm.replace);
   }
 
-  /// Lấy tất cả các bộ đồ từ CSDL
   Future<List<Outfit>> getOutfits() async {
     final db = await instance.database;
     final maps = await db.query('outfits', orderBy: 'id DESC');
@@ -111,41 +136,18 @@ class DatabaseHelper {
     return List.generate(maps.length, (i) => Outfit.fromMap(maps[i]));
   }
 
-  /// Xóa một bộ đồ khỏi CSDL bằng ID
   Future<void> deleteOutfit(String id) async {
     final db = await instance.database;
     await db.delete('outfits', where: 'id = ?', whereArgs: [id]);
   }
 
-  ///Tìm trong tủ đồ
-  Future<List<Map<String, dynamic>>> searchItemsInCloset(String closetId, String query) async {
-    final db = await instance.database;
-    // Dùng LIKE với ký tự '%' để tìm kiếm các tên chứa chuỗi query
-    return db.query(
-      'clothing_items',
-      where: 'closetId = ? AND name LIKE ?',
-      whereArgs: [closetId, '%$query%'],
-    );
-  }
-
-  ///Tìm tất cả
-  Future<List<Map<String, dynamic>>> searchAllItems(String query) async {
-    final db = await instance.database;
-    if (query.isEmpty) return getAllItems();
-    return db.query(
-      'clothing_items',
-      where: 'name LIKE ?', // Bỏ điều kiện `closetId`
-      whereArgs: ['%$query%'],
-    );
-  }
-
   Future<void> updateOutfit(Outfit outfit) async {
-  final db = await instance.database;
-  await db.update(
-    'outfits',
-    outfit.toMap(),
-    where: 'id = ?',
-    whereArgs: [outfit.id],
-  );
-}
+    final db = await instance.database;
+    await db.update(
+      'outfits',
+      outfit.toMap(),
+      where: 'id = ?',
+      whereArgs: [outfit.id],
+    );
+  }
 }

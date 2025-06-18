@@ -27,9 +27,15 @@ class ClothingItemRepository {
     await _dbHelper.insertItem(item.toMap());
   }
 
+  Future<void> insertBatchItems(List<ClothingItem> items) async {
+    final itemsData = items.map((item) => item.toMap()).toList();
+    await _dbHelper.insertBatchItems(itemsData);
+  }
+
   Future<void> updateItem(ClothingItem item) async {
     await _dbHelper.updateItem(item);
   }
+
 
   Future<void> deleteItem(String id) async {
     await _dbHelper.deleteItem(id);

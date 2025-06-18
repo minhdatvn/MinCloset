@@ -9,11 +9,13 @@ import 'package:mincloset/widgets/recent_item_card.dart';
 class ItemBrowserView extends ConsumerWidget {
   final String providerId;
   final void Function(ClothingItem) onItemTapped;
+  final Map<String, int> itemCounts; // Giữ nguyên tham số
 
   const ItemBrowserView({
     super.key,
     required this.providerId,
     required this.onItemTapped,
+    this.itemCounts = const {}, // <<< THAY ĐỔI Ở ĐÂY: Chuyển thành optional và đặt giá trị mặc định
   });
 
   @override
@@ -44,7 +46,6 @@ class ItemBrowserView extends ConsumerWidget {
       );
     }
 
-    // Bọc SliverGrid trong SliverPadding để có khoảng cách
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       sliver: SliverGrid.builder(
@@ -57,9 +58,13 @@ class ItemBrowserView extends ConsumerWidget {
         ),
         itemBuilder: (ctx, index) {
           final item = state.filteredItems[index];
+          final count = itemCounts[item.id] ?? 0;
           return GestureDetector(
             onTap: () => onItemTapped(item),
-            child: RecentItemCard(item: item),
+            child: RecentItemCard(
+              item: item,
+              count: count,
+            ),
           );
         },
       ),

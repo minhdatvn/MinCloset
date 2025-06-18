@@ -11,6 +11,7 @@ import 'package:mincloset/widgets/filter_bottom_sheet.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:screenshot/screenshot.dart';
 
+// Lớp OutfitBuilderPage không có gì thay đổi
 class OutfitBuilderPage extends ConsumerStatefulWidget {
   const OutfitBuilderPage({super.key});
 
@@ -91,9 +92,8 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
       ),
       body: Stack(
         children: [
-          // <<< THAY ĐỔI TỪ CENTER THÀNH ALIGN
           Align(
-            alignment: Alignment.topCenter, // Căn canvas lên trên cùng
+            alignment: Alignment.topCenter,
             child: AspectRatio(
               aspectRatio: 3 / 4,
               child: Screenshot(
@@ -120,8 +120,6 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
               ),
             ),
           ),
-          
-          // Lớp panel trượt lên trên cùng
           DraggableScrollableSheet(
             initialChildSize: 0.32,
             minChildSize: 0.2,
@@ -152,7 +150,6 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   }
 }
 
-// Các lớp _SliverHeaderDelegate và _ItemSelectionPanel không thay đổi so với lần trước
 class _SliverHeaderDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
   final double height;
@@ -183,17 +180,26 @@ class _ItemSelectionPanel extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     const providerId = 'outfitBuilderPage';
-    final state = ref.watch(itemFilterProvider(providerId));
-    final notifier = ref.read(itemFilterProvider(providerId).notifier);
+    final filterState = ref.watch(itemFilterProvider(providerId));
+    final filterNotifier = ref.read(itemFilterProvider(providerId).notifier);
     final searchController = useTextEditingController();
     final closetsAsync = ref.watch(closetsProvider);
 
+    // <<< BƯỚC 1: LẤY DỮ LIỆU TỪ OUTFITBUILDERPROVIDER
+    final canvasItems = ref.watch(outfitBuilderProvider.select((state) => state.itemsOnCanvas.values));
+
+    // <<< BƯỚC 2: TÍNH TOÁN SỐ LƯỢNG
+    final Map<String, int> itemCounts = {};
+    for (final item in canvasItems) {
+      itemCounts[item.id] = (itemCounts[item.id] ?? 0) + 1;
+    }
+
     useEffect(() {
-      if (searchController.text != state.searchQuery) {
-        searchController.text = state.searchQuery;
+      if (searchController.text != filterState.searchQuery) {
+        searchController.text = filterState.searchQuery;
       }
       return null;
-    }, [state.searchQuery]);
+    }, [filterState.searchQuery]);
 
     return CustomScrollView(
       controller: scrollController,
@@ -234,13 +240,13 @@ class _ItemSelectionPanel extends HookConsumerWidget {
                               fillColor: Colors.grey.shade100,
                               contentPadding: EdgeInsets.zero,
                             ),
-                            onChanged: notifier.setSearchQuery,
+                            onChanged: filterNotifier.setSearchQuery,
                           ),
                         ),
                         const SizedBox(width: 8),
                         IconButton(
                           icon: Badge(
-                            isLabelVisible: state.activeFilters.isApplied,
+                            isLabelVisible: filterState.activeFilters.isApplied,
                             child: const Icon(Icons.filter_list),
                           ),
                           tooltip: 'Lọc nâng cao',
@@ -253,9 +259,9 @@ class _ItemSelectionPanel extends HookConsumerWidget {
                                 builder: (_) => Padding(
                                   padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
                                   child: FilterBottomSheet(
-                                    currentFilter: state.activeFilters,
+                                    currentFilter: filterState.activeFilters,
                                     closets: closets,
-                                    onApplyFilter: notifier.applyFilters,
+                                    onApplyFilter: filterNotifier.applyFilters,
                                   ),
                                 ),
                               );
@@ -275,6 +281,8 @@ class _ItemSelectionPanel extends HookConsumerWidget {
           onItemTapped: (ClothingItem item) {
             ref.read(outfitBuilderProvider.notifier).addItemToCanvas(item);
           },
+          // <<< BƯỚC 3: TRUYỀN MAP SỐ ĐẾM XUỐNG
+          itemCounts: itemCounts,
         ),
       ],
     );

@@ -90,10 +90,8 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
             )
         ],
       ),
-      // <<< SỬA LẠI HOÀN TOÀN BỐ CỤC BODY BẰNG STACK
       body: Stack(
         children: [
-          // LỚP NỀN: CANVAS PHỐI ĐỒ
           Screenshot(
             controller: _screenshotController,
             child: GestureDetector(
@@ -116,12 +114,10 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
               ),
             ),
           ),
-
-          // LỚP NỔI: KHU VỰC CHỌN ĐỒ CÓ THỂ KÉO
           DraggableScrollableSheet(
-            initialChildSize: 0.35, // Chiều cao ban đầu
-            minChildSize: 0.2,     // Chiều cao nhỏ nhất
-            maxChildSize: 0.8,     // Chiều cao lớn nhất khi kéo lên
+            initialChildSize: 0.35,
+            minChildSize: 0.2,
+            maxChildSize: 0.8,
             builder: (BuildContext context, ScrollController scrollController) {
               return Container(
                 decoration: BoxDecoration(
@@ -138,7 +134,6 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                     ),
                   ],
                 ),
-                // Sử dụng một widget con mới để chứa toàn bộ logic của panel
                 child: _ItemSelectionPanel(scrollController: scrollController),
               );
             },
@@ -149,14 +144,37 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   }
 }
 
-/// Widget con mới, chứa thanh tìm kiếm, nút lọc và lưới item
+/// Lớp Delegate để tạo Header cố định (sticky)
+class _SliverHeaderDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+  final double height;
+
+  _SliverHeaderDelegate({required this.child, required this.height});
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return SizedBox.expand(child: child);
+  }
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  bool shouldRebuild(covariant _SliverHeaderDelegate oldDelegate) {
+    return oldDelegate.height != height || oldDelegate.child != child;
+  }
+}
+
+/// Widget con mới, được cấu trúc lại để sử dụng CustomScrollView
 class _ItemSelectionPanel extends HookConsumerWidget {
   final ScrollController scrollController;
   const _ItemSelectionPanel({required this.scrollController});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Định danh provider cho trang này
     const providerId = 'outfitBuilderPage';
     final state = ref.watch(itemFilterProvider(providerId));
     final notifier = ref.read(itemFilterProvider(providerId).notifier);
@@ -170,76 +188,91 @@ class _ItemSelectionPanel extends HookConsumerWidget {
       return null;
     }, [state.searchQuery]);
 
-    return Column(
-      children: [
-        // Thanh ngang để người dùng biết có thể kéo
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: Container(
-            width: 40,
-            height: 5,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(10),
+    // Sử dụng CustomScrollView để có thể ghim header
+    return CustomScrollView(
+      controller: scrollController,
+      slivers: [
+        // Header chứa thanh cầm, tìm kiếm và lọc.
+        // Header này sẽ được ghim lại ở trên cùng.
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: _SliverHeaderDelegate(
+            height: 80, // Chiều cao của header
+            child: Container(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Center(
+                      child: Container(
+                        width: 40,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: searchController,
+                            decoration: InputDecoration(
+                              hintText: 'Tìm kiếm vật phẩm...',
+                              prefixIcon: const Icon(Icons.search),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                              filled: true,
+                              fillColor: Colors.grey.shade100,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                            onChanged: notifier.setSearchQuery,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: Badge(
+                            isLabelVisible: state.activeFilters.isApplied,
+                            child: const Icon(Icons.filter_list),
+                          ),
+                          tooltip: 'Lọc nâng cao',
+                          onPressed: () {
+                            closetsAsync.whenData((closets) {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                builder: (_) => Padding(
+                                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                                  child: FilterBottomSheet(
+                                    currentFilter: state.activeFilters,
+                                    closets: closets,
+                                    onApplyFilter: notifier.applyFilters,
+                                  ),
+                                ),
+                              );
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-        // Thanh tìm kiếm và nút lọc
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Tìm kiếm vật phẩm...',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                    filled: true,
-                    fillColor: Colors.grey.shade100,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  onChanged: notifier.setSearchQuery,
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                icon: Badge(
-                  isLabelVisible: state.activeFilters.isApplied,
-                  child: const Icon(Icons.filter_list),
-                ),
-                tooltip: 'Lọc nâng cao',
-                onPressed: () {
-                  closetsAsync.whenData((closets) {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      backgroundColor: Colors.transparent,
-                      builder: (_) => Padding(
-                        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                        child: FilterBottomSheet(
-                          currentFilter: state.activeFilters,
-                          closets: closets,
-                          onApplyFilter: notifier.applyFilters,
-                        ),
-                      ),
-                    );
-                  });
-                },
-              ),
-            ],
-          ),
-        ),
-        // Lưới các item
-        Expanded(
-          child: ItemBrowserView(
-            providerId: providerId,
-            onItemTapped: (ClothingItem item) {
-              ref.read(outfitBuilderProvider.notifier).addItemToCanvas(item);
-            },
-            scrollController: scrollController,
-          ),
+        
+        // Phần còn lại là lưới các item, có thể cuộn được
+        ItemBrowserView(
+          providerId: providerId,
+          onItemTapped: (ClothingItem item) {
+            ref.read(outfitBuilderProvider.notifier).addItemToCanvas(item);
+          },
         ),
       ],
     );

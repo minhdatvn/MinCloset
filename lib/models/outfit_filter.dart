@@ -7,6 +7,8 @@ class OutfitFilter extends Equatable {
   final Set<String> colors;
   final Set<String> seasons;
   final Set<String> occasions;
+  final Set<String> materials; // <<< THÊM MỚI
+  final Set<String> patterns;  // <<< THÊM MỚI
 
   const OutfitFilter({
     this.closetId,
@@ -14,10 +16,19 @@ class OutfitFilter extends Equatable {
     this.colors = const {},
     this.seasons = const {},
     this.occasions = const {},
+    this.materials = const {}, // <<< THÊM MỚI
+    this.patterns = const {},  // <<< THÊM MỚI
   });
 
   // Hàm kiểm tra xem có bộ lọc nào đang được áp dụng không
-  bool get isApplied => closetId != null || category != null || colors.isNotEmpty || seasons.isNotEmpty || occasions.isNotEmpty;
+  bool get isApplied =>
+      closetId != null ||
+      category != null ||
+      colors.isNotEmpty ||
+      seasons.isNotEmpty ||
+      occasions.isNotEmpty ||
+      materials.isNotEmpty || // <<< THÊM MỚI
+      patterns.isNotEmpty;   // <<< THÊM MỚI
 
   // Hàm copyWith để dễ dàng tạo đối tượng mới
   OutfitFilter copyWith({
@@ -26,6 +37,8 @@ class OutfitFilter extends Equatable {
     Set<String>? colors,
     Set<String>? seasons,
     Set<String>? occasions,
+    Set<String>? materials, // <<< THÊM MỚI
+    Set<String>? patterns,  // <<< THÊM MỚI
   }) {
     return OutfitFilter(
       closetId: closetId ?? this.closetId,
@@ -33,9 +46,12 @@ class OutfitFilter extends Equatable {
       colors: colors ?? this.colors,
       seasons: seasons ?? this.seasons,
       occasions: occasions ?? this.occasions,
+      materials: materials ?? this.materials, // <<< THÊM MỚI
+      patterns: patterns ?? this.patterns,   // <<< THÊM MỚI
     );
   }
 
   @override
-  List<Object?> get props => [closetId, category, colors, seasons, occasions];
+  List<Object?> get props =>
+      [closetId, category, colors, seasons, occasions, materials, patterns];
 }

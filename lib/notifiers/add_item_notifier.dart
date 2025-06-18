@@ -38,10 +38,24 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   }
 
   Future<void> saveItem() async {
-    if (state.name.trim().isEmpty || state.selectedCategoryValue.isEmpty || state.selectedClosetId == null || (state.image == null && state.imagePath == null)) {
-        state = state.copyWith(errorMessage: 'Vui lòng điền đủ thông tin bắt buộc!');
-        return;
+    // <<< THAY ĐỔI LOGIC VALIDATION Ở ĐÂY
+    if (state.image == null && state.imagePath == null) {
+      state = state.copyWith(errorMessage: 'Vui lòng thêm ảnh cho món đồ.');
+      return;
     }
+    if (state.name.trim().isEmpty) {
+      state = state.copyWith(errorMessage: 'Vui lòng nhập tên món đồ.');
+      return;
+    }
+    if (state.selectedClosetId == null) {
+      state = state.copyWith(errorMessage: 'Vui lòng chọn tủ đồ.');
+      return;
+    }
+    if (state.selectedCategoryValue.isEmpty) {
+      state = state.copyWith(errorMessage: 'Vui lòng chọn danh mục cho món đồ.');
+      return;
+    }
+    // Hết phần validation
 
     state = state.copyWith(isLoading: true, errorMessage: null);
     

@@ -58,7 +58,7 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
     return Scaffold(
       appBar: AppBar(
         // <<< THAY ĐỔI 1: CẬP NHẬT TIÊU ĐỀ
-        title: Text('Thêm đồ (${state.currentIndex + 1}/${state.itemStates.length})'),
+        title: Text('Thêm món đồ (${state.currentIndex + 1}/${state.itemStates.length})'),
         // <<< THAY ĐỔI 2: XÓA NÚT LƯU Ở ĐÂY
       ),
       body: Column(

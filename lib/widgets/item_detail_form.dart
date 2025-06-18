@@ -72,7 +72,7 @@ class ItemDetailForm extends ConsumerWidget {
               labelText: 'Tên món đồ *',
               border: OutlineInputBorder(),
             ),
-            maxLength: 30, // <<< THÊM GIỚI HẠN KÝ TỰ VÀO ĐÂY
+            maxLength: 30,
             onChanged: onNameChanged,
           ),
           const SizedBox(height: 16),
@@ -97,7 +97,7 @@ class ItemDetailForm extends ConsumerWidget {
             initialCategory: itemState.selectedCategoryValue,
             onCategorySelected: onCategoryChanged,
           ),
-          const Divider(height: 32),
+          // <<< THAY ĐỔI Ở ĐÂY: XÓA BỎ DÒNG DIVIDER
           MultiSelectChipField(
             label: 'Màu sắc',
             allOptions: AppOptions.colors,

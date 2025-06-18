@@ -57,7 +57,7 @@ class _CategorySelectorState extends State<CategorySelector> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Danh mục *', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black54)),
+                const Text('Danh mục *', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,)),
                 Expanded(
                   child: _buildSummaryView(),
                 ),

@@ -20,6 +20,7 @@ class ItemDetailForm extends ConsumerWidget {
   final Function(Set<String>) onOccasionsChanged;
   final Function(Set<String>) onMaterialsChanged;
   final Function(Set<String>) onPatternsChanged;
+  final ScrollController? scrollController; // Thêm tham số này
 
   const ItemDetailForm({
     super.key,
@@ -32,6 +33,7 @@ class ItemDetailForm extends ConsumerWidget {
     required this.onOccasionsChanged,
     required this.onMaterialsChanged,
     required this.onPatternsChanged,
+    this.scrollController, // Thêm vào constructor
   });
 
   @override
@@ -41,29 +43,49 @@ class ItemDetailForm extends ConsumerWidget {
     nameController.selection = TextSelection.fromPosition(TextPosition(offset: nameController.text.length));
 
     return SingleChildScrollView(
+      controller: scrollController, // Gán controller vào đây
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AspectRatio(
-            aspectRatio: 3 / 4,
-            child: Container(
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: Colors.grey.shade300),
-                  borderRadius: BorderRadius.circular(8)),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: itemState.image != null
-                      ? Image.file(itemState.image!, fit: BoxFit.contain)
-                      : (itemState.imagePath != null
-                          ? Image.file(File(itemState.imagePath!), fit: BoxFit.contain)
-                          : const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 60)),
+          // <<< BỌC ẢNH TRONG STACK ĐỂ HIỂN THỊ LOADING
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              AspectRatio(
+                aspectRatio: 3 / 4,
+                child: Container(
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: Colors.grey.shade300),
+                      borderRadius: BorderRadius.circular(8)),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: itemState.image != null
+                          ? Image.file(itemState.image!, fit: BoxFit.contain)
+                          : (itemState.imagePath != null
+                              ? Image.file(File(itemState.imagePath!), fit: BoxFit.contain)
+                              : const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 60)),
+                    ),
+                  ),
                 ),
               ),
-            ),
+              // Lớp phủ loading
+              if (itemState.isAnalyzing)
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -97,7 +119,6 @@ class ItemDetailForm extends ConsumerWidget {
             initialCategory: itemState.selectedCategoryValue,
             onCategorySelected: onCategoryChanged,
           ),
-          // <<< THAY ĐỔI Ở ĐÂY: XÓA BỎ DÒNG DIVIDER
           MultiSelectChipField(
             label: 'Màu sắc',
             allOptions: AppOptions.colors,

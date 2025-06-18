@@ -16,40 +16,40 @@ class AppOptions {
     'Áo': [
       'Áo thun (T-shirts)', 'Áo dài tay (Long Sleeve)', 'Áo ba lỗ (Sleeveless)',
       'Áo Polo', 'Áo hai dây (Tanks & Camis)', 'Áo crop-top', 'Áo kiểu (Blouses)',
-      'Sơ mi (Shirts)', 'Áo nỉ (Sweatshirts)', 'Áo hoodie', 'Áo len (Sweaters)',
+      'Sơ mi (Shirts)', 'Áo nỉ (Sweatshirts)', 'Áo hoodie', 'Áo len (Sweaters)', 'Khác',
     ],
     'Quần': [
       'Quần jeans', 'Quần tây (Trousers)', 'Quần âu (Dress Pants)', 
-      'Quần thể thao (Track Pants)', 'Quần legging', 'Quần short'
+      'Quần thể thao (Track Pants)', 'Quần legging', 'Quần short', 'Khác',
     ],
     'Váy đầm/Jumpsuit': [
       'Váy ngắn (Mini Skirts)', 'Váy midi (Midi Skirts)', 'Váy dài (Maxi Skirts)',
       'Váy ngày (Day Dresses)', 'Váy thun (T-shirt Dresses)', 'Váy sơ mi (Shirt Dresses)',
       'Váy nỉ (Sweatshirt Dresses)', 'Váy len (Sweater Dresses)', 'Váy khoác (Jacket Dresses)',
-      'Váy yếm (Suspender Dresses)', 'Jumpsuits', 'Váy tiệc (Party Dresses)',
+      'Váy yếm (Suspender Dresses)', 'Jumpsuits', 'Váy tiệc (Party Dresses)', 'Khác',
     ],
     'Áo khoác': [
       'Áo khoác dáng dài (Coats)', 'Áo măng tô (Trench Coats)', 'Áo lông (Fur Coats)',
       'Áo khoác da cừu (Shearling Coats)', 'Áo blazer', 'Áo khoác (Jackets)',
       'Áo khoác mỏng (Blousons)', 'Varsity Jackets', 'Trucker Jackets', 'Biker Jackets',
       'Áo cardigan', 'Áo hoodie khóa kéo', 'Field Jackets', 'Áo khoác thể thao',
-      'Fleece Jackets', 'Áo phao (Puffer/Down Jackets)', 'Áo gile (Vests)'
+      'Fleece Jackets', 'Áo phao (Puffer/Down Jackets)', 'Áo gile (Vests)', 'Khác',
     ],
     'Giày': [
       'Sneakers', 'Giày lười (Slip Ons)', 'Giày thể thao (Sports Shoes)',
       'Giày đi bộ đường dài (Hiking Shoes)', 'Bốt (Boots)', 'Combat Boots',
       'Ugg Boots', 'Loafers & Mules', 'Giày thuyền (Boat Shoes)', 'Giày bệt (Flat Shoes)',
-      'Giày cao gót (Heels)', 'Sandal', 'Sandal cao gót', 'Dép lê (Slides)'
+      'Giày cao gót (Heels)', 'Sandal', 'Sandal cao gót', 'Dép lê (Slides)', 'Khác',
     ],
     'Túi xách': [
       'Túi tote', 'Túi đeo vai (Shoulder)', 'Túi đeo chéo (Crossbody)',
       'Túi đeo hông (Waist)', 'Túi vải (Canvas)', 'Ba lô (Backpacks)',
       'Túi du lịch (Duffel)', 'Ví cầm tay (Clutch)', 'Cặp xách (Briefcases)',
-      'Túi dây rút (Drawstring)', 'Vali (Suitcases)'
+      'Túi dây rút (Drawstring)', 'Vali (Suitcases)', 'Khác',
     ],
     'Mũ': [
       'Mũ lưỡi trai (Cap)', 'Mũ rộng vành (Hats)', 'Mũ len (Beanies)',
-      'Mũ nồi (Berets)', 'Mũ phớt (Fedoras)', 'Mũ che nắng (Sun Hats)'
+      'Mũ nồi (Berets)', 'Mũ phớt (Fedoras)', 'Mũ che nắng (Sun Hats)', 'Khác',
     ],
     'Khác': [], // Để trống danh sách con cho mục "Khác"
   };
@@ -124,6 +124,7 @@ class AppOptions {
     OptionWithImage(name: 'Denim', imagePath: 'assets/images/materials/denim.png'),
     OptionWithImage(name: 'Da (Leather)', imagePath: 'assets/images/materials/leather.png'),
     OptionWithImage(name: 'Len (Wool)', imagePath: 'assets/images/materials/wool.png'),
+    OptionWithImage(name: 'Khác', imagePath: 'assets/images/materials/other.png'),
     // ... Thêm các chất liệu khác của bạn vào đây
   ];
 
@@ -134,6 +135,7 @@ class AppOptions {
     OptionWithImage(name: 'Chấm bi (Dotted)', imagePath: 'assets/images/patterns/dotted.png'),
     OptionWithImage(name: 'Da thú (Animal)', imagePath: 'assets/images/patterns/animal.png'),
     OptionWithImage(name: 'Hoa (Floral)', imagePath: 'assets/images/patterns/floral.png'),
+    OptionWithImage(name: 'Khác', imagePath: 'assets/images/patterns/other.png'),
     // ... Thêm các họa tiết khác của bạn vào đây
   ];
 }

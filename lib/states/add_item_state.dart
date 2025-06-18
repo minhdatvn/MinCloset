@@ -20,8 +20,9 @@ class AddItemState {
   final Set<String> selectedPatterns;
 
   // Trạng thái của UI
-  final bool isLoading;
+  final bool isLoading; // Dùng khi lưu
   final bool isEditing;
+  final bool isAnalyzing; // <<< THÊM TRƯỜNG MỚI ĐỂ THEO DÕI TRẠNG THÁI CỦA AI
   final String? errorMessage;
   final bool isSuccess; // Cờ để báo hiệu lưu thành công
 
@@ -39,6 +40,7 @@ class AddItemState {
     this.selectedPatterns = const {},
     this.isLoading = false,
     this.isEditing = false,
+    this.isAnalyzing = false, // <<< KHỞI TẠO GIÁ TRỊ MẶC ĐỊNH
     this.errorMessage,
     this.isSuccess = false,
   });
@@ -77,6 +79,7 @@ class AddItemState {
     Set<String>? selectedPatterns,
     bool? isLoading,
     bool? isEditing,
+    bool? isAnalyzing, // <<< THÊM VÀO HÀM COPYWITH
     String? errorMessage,
     bool? isSuccess,
   }) {
@@ -94,6 +97,7 @@ class AddItemState {
       selectedPatterns: selectedPatterns ?? this.selectedPatterns,
       isLoading: isLoading ?? this.isLoading,
       isEditing: isEditing ?? this.isEditing,
+      isAnalyzing: isAnalyzing ?? this.isAnalyzing, // <<< THÊM VÀO ĐÂY
       errorMessage: errorMessage ?? this.errorMessage,
       isSuccess: isSuccess ?? this.isSuccess,
     );

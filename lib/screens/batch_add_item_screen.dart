@@ -5,7 +5,6 @@ import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
 
-// Chuyển thành StatefulWidget để quản lý PageController
 class BatchAddItemScreen extends ConsumerStatefulWidget {
   const BatchAddItemScreen({super.key});
 
@@ -19,7 +18,6 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
   @override
   void initState() {
     super.initState();
-    // Khởi tạo PageController với index ban đầu từ provider
     _pageController = PageController(initialPage: ref.read(batchAddItemProvider).currentIndex);
   }
 
@@ -35,16 +33,13 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
     final state = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
 
-    // Lắng nghe các thay đổi từ notifier
     ref.listen<BatchAddItemState>(provider, (previous, next) {
       if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
       }
       if (next.saveSuccess) {
-        // Pop màn hình này và trả về true để báo hiệu đã thêm đồ thành công
         Navigator.of(context).pop(true);
       }
-      // Đồng bộ PageController khi currentIndex thay đổi trong Notifier (ví dụ khi có lỗi)
       if (next.currentIndex != previous?.currentIndex && next.currentIndex != _pageController.page?.round()) {
         _pageController.animateToPage(
           next.currentIndex,
@@ -54,7 +49,6 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
       }
     });
 
-    // Nếu không có item state nào (trường hợp hiếm), hiển thị lỗi
     if (state.itemStates.isEmpty) {
       return const Scaffold(
         body: Center(
@@ -73,12 +67,11 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
             child: PageView.builder(
               controller: _pageController,
               itemCount: state.itemStates.length,
-              // Xóa bỏ logic gọi AI ở đây, chỉ cập nhật index
               onPageChanged: notifier.setCurrentIndex,
               itemBuilder: (context, index) {
                 final currentItemState = state.itemStates[index];
                 return ItemDetailForm(
-                  key: ValueKey('item_form_$index'), // Thêm key để đảm bảo widget được rebuild đúng
+                  key: ValueKey('item_form_$index'),
                   itemState: currentItemState,
                   onNameChanged: (val) => notifier.updateItemDetails(index, currentItemState.copyWith(name: val)),
                   onClosetChanged: (val) => notifier.updateItemDetails(index, currentItemState.copyWith(selectedClosetId: val)),
@@ -92,7 +85,6 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
               },
             ),
           ),
-          // Thanh điều hướng dưới cùng không thay đổi
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -102,12 +94,18 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
                   onPressed: state.currentIndex > 0 ? notifier.previousPage : null,
                   icon: const Icon(Icons.arrow_back),
                   label: const Text('Trước'),
+                  // Nút này không phải nút hành động chính, có thể giữ màu đen
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.onSurface,
+                    foregroundColor: Theme.of(context).colorScheme.surface,
+                  )
                 ),
                 if (state.currentIndex < state.itemStates.length - 1)
                   ElevatedButton.icon(
                     onPressed: notifier.nextPage,
                     icon: const Icon(Icons.arrow_forward),
                     label: const Text('Sau'),
+                    // Đây là nút hành động chính trên trang này
                   )
                 else
                   ElevatedButton.icon(
@@ -116,10 +114,7 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                         : const Icon(Icons.save),
                     label: const Text('Lưu tất cả'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
-                    ),
+                    // <<< ĐÃ XÓA BỎ STYLE CỤC BỘ Ở ĐÂY >>>
                   ),
               ],
             ),

@@ -2,17 +2,22 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/home_page_notifier.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/repository_providers.dart';
-import 'package:mincloset/providers/ui_providers.dart'; // <<< THÊM IMPORT
-import 'package:mincloset/states/home_page_state.dart';
+import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
+import 'package:mincloset/screens/analysis_loading_screen.dart';
+import 'package:mincloset/screens/pages/outfit_builder_page.dart';
+import 'package:mincloset/states/home_page_state.dart';
 import 'package:mincloset/screens/pages/outfits_hub_page.dart';
+import 'package:mincloset/widgets/action_card.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:mincloset/widgets/section_header.dart';
+import 'package:mincloset/widgets/stats_overview_card.dart';
 
 final recentItemsProvider =
     FutureProvider.autoDispose<List<ClothingItem>>((ref) async {
@@ -23,17 +28,28 @@ final recentItemsProvider =
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
+  Future<void> _pickAndAnalyzeImage(BuildContext context) async {
+    final navigator = Navigator.of(context);
+    final imagePicker = ImagePicker();
+    final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+       if (navigator.mounted) {
+         navigator.push(
+            MaterialPageRoute(builder: (ctx) => AnalysisLoadingScreen(images: [pickedFile])),
+         );
+       }
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final homeState = ref.watch(homeProvider);
     final homeNotifier = ref.read(homeProvider.notifier);
-    final totalItems = ref.watch(profileProvider.select((s) => s.totalItems));
+    final profileState = ref.watch(profileProvider);
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 0,
-        title: _buildHeader(ref),
+        title: _buildHeader(context, ref),
         toolbarHeight: 80,
       ),
       body: RefreshIndicator(
@@ -47,7 +63,11 @@ class HomePage extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildPromoCard(totalItems),
+              StatsOverviewCard(
+                totalItems: profileState.totalItems,
+                totalClosets: profileState.totalClosets,
+                totalOutfits: profileState.totalOutfits,
+              ),
               const SizedBox(height: 32),
               _buildAiStylistSection(context),
               const SizedBox(height: 32),
@@ -66,7 +86,7 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(WidgetRef ref) {
+  Widget _buildHeader(BuildContext context, WidgetRef ref) {
     final userName = ref.watch(profileProvider.select((state) => state.userName));
     return Row(
       children: [
@@ -76,45 +96,14 @@ class HomePage extends ConsumerWidget {
             const Text('Xin chào,',
                 style: TextStyle(fontSize: 16, color: Colors.grey)),
             Text(userName ?? 'MinVN',
-                style:
-                    const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                style: Theme.of(context).appBarTheme.titleTextStyle),
           ],
         ),
         const Spacer(),
         IconButton(
-            onPressed: null,
+            onPressed: () { /* TODO: Implement notifications */ },
             icon: const Icon(Icons.notifications_outlined, size: 28)),
       ],
-    );
-  }
-
-  Widget _buildPromoCard(int totalItems) {
-    final itemsNeeded = 30 - totalItems > 0 ? 30 - totalItems : 0;
-    final progress = totalItems >= 30 ? 1.0 : totalItems / 30.0;
-    return Card(
-      elevation: 0,
-      color: Colors.deepPurple.shade50,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Thêm $itemsNeeded món đồ và nhận gợi ý cho ngày mai!',
-                style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.deepPurple)),
-            const SizedBox(height: 16),
-            LinearProgressIndicator(
-              value: progress,
-              backgroundColor: Colors.deepPurple.shade100,
-              valueColor:
-                  AlwaysStoppedAnimation<Color>(Colors.deepPurple.shade300),
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -125,46 +114,18 @@ class HomePage extends ConsumerWidget {
         const SizedBox(height: 16),
         Row(
           children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (ctx) => const OutfitsHubPage())),
-                child: Container(
-                  height: 100,
-                  padding: const EdgeInsets.all(12),
-                  decoration:
-                      BoxDecoration(color: Colors.blue.shade400, borderRadius: BorderRadius.circular(16)),
-                  child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Icon(Icons.auto_awesome, color: Colors.white),
-                        Text('Bắt đầu phối đồ',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))
-                      ]),
-                ),
-              ),
+            ActionCard(
+              label: 'Bắt đầu phối đồ',
+              icon: Icons.auto_awesome_outlined,
+              onTap: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (ctx) => const OutfitBuilderPage())),
             ),
             const SizedBox(width: 16),
-            Expanded(
-              child: GestureDetector(
-                onTap: () => Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (ctx) => const OutfitsHubPage())),
-                child: Container(
-                  height: 100,
-                  padding: const EdgeInsets.all(12),
-                  decoration:
-                      BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(16)),
-                  child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Icon(Icons.collections_bookmark_outlined, color: Colors.black),
-                        Text('Bộ đồ đã lưu',
-                            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold))
-                      ]),
-                ),
-              ),
+            ActionCard(
+              label: 'Bộ đồ đã lưu',
+              icon: Icons.collections_bookmark_outlined,
+              onTap: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (ctx) => const OutfitsHubPage())),
             ),
           ],
         ),
@@ -178,10 +139,9 @@ class HomePage extends ConsumerWidget {
       children: [
         SectionHeader(
           title: 'Đã thêm gần đây',
-          seeAllText: 'Xem tất cả', // <<< THAY ĐỔI 1: Đổi tên nút
+          seeAllText: 'Xem tất cả',
           onSeeAll: () {
-            // <<< THAY ĐỔI 2: Cập nhật provider để chuyển tab
-            ref.read(mainScreenIndexProvider.notifier).state = 1; // 1 là index của ClosetsPage
+            ref.read(mainScreenIndexProvider.notifier).state = 1;
           },
         ),
         const SizedBox(height: 16),
@@ -208,14 +168,13 @@ class HomePage extends ConsumerWidget {
                       width: 120 * (3 / 4),
                       child: GestureDetector(
                         onTap: () async {
-                          final itemWasChanged = await Navigator.of(context).push<bool>(
+                          await Navigator.of(context).push<bool>(
                             MaterialPageRoute(
+                              // <<< SỬA LỖI: Bỏ `const` ở đây >>>
                               builder: (context) => AddItemScreen(itemToEdit: item),
                             ),
                           );
-                          if (itemWasChanged == true) {
-                            ref.invalidate(recentItemsProvider);
-                          }
+                          ref.invalidate(recentItemsProvider);
                         },
                         child: RecentItemCard(item: item),
                       ),
@@ -234,30 +193,27 @@ class HomePage extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 12.0),
       child: InkWell(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (ctx) => const AddItemScreen()),
-          );
-        },
+        onTap: () => _pickAndAnalyzeImage(context),
         borderRadius: BorderRadius.circular(12),
         child: Container(
           width: 120 * (3/4), 
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
-          child: const Center(child: Icon(Icons.add, size: 40, color: Colors.black)),
+          child: Icon(Icons.add, size: 40, color: Theme.of(context).colorScheme.onSurface),
         ),
       ),
     );
   }
 
   Widget _buildTodaysSuggestionCard(BuildContext context, HomePageState state, HomePageNotifier notifier) {
+    final theme = Theme.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(16)),
+      decoration: BoxDecoration(color: theme.colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -293,7 +249,7 @@ class HomePage extends ConsumerWidget {
                 label: const Text('Gợi ý mới'),
                 onPressed: state.isLoading ? null : notifier.getNewSuggestion,
                 style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: theme.colorScheme.primary,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                 ),
               ),

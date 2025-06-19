@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/states/profile_page_state.dart';
-import 'package:mincloset/widgets/stats_pie_chart.dart'; // <<< THÊM IMPORT CHO BIỂU ĐỒ
+import 'package:mincloset/widgets/stats_pie_chart.dart';
+import 'package:mincloset/widgets/stats_overview_card.dart'; // <<< THÊM IMPORT NÀY
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
@@ -65,7 +66,6 @@ class ProfilePage extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // --- Phần thông tin cá nhân ---
           GestureDetector(
             onTap: () {
               notifier.updateAvatar();
@@ -83,10 +83,14 @@ class ProfilePage extends ConsumerWidget {
                       ? const Icon(Icons.person, size: 50, color: Colors.grey) 
                       : null,
                 ),
-                const CircleAvatar(
-                  radius: 16,
-                  backgroundColor: Colors.black54,
-                  child: Icon(Icons.edit, size: 18, color: Colors.white),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2)
+                  ),
+                  child: const Icon(Icons.edit, size: 16, color: Colors.white),
                 ),
               ],
             ),
@@ -109,7 +113,6 @@ class ProfilePage extends ConsumerWidget {
           ),
           const Divider(height: 48),
 
-          // --- Phần cài đặt ---
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.settings_outlined),
@@ -125,27 +128,18 @@ class ProfilePage extends ConsumerWidget {
 
           const SizedBox(height: 24),
 
-          // --- Phần thống kê ---
           Text('Tổng quan Tủ đồ', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          Card(
-            elevation: 0,
-            color: Colors.grey.shade100,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildStatItem('Vật phẩm', state.totalItems.toString()),
-                  _buildStatItem('Tủ đồ', state.totalClosets.toString()),
-                  _buildStatItem('Bộ đồ', state.totalOutfits.toString()),
-                ],
-              ),
-            ),
+          
+          // <<< SỬA ĐỔI Ở ĐÂY: Thay thế Card cũ bằng widget mới >>>
+          StatsOverviewCard(
+            totalItems: state.totalItems,
+            totalClosets: state.totalClosets,
+            totalOutfits: state.totalOutfits,
           ),
+
           const SizedBox(height: 24),
 
-          // <<< THAY THẾ WIDGET PLACEHOLDER BẰNG BIỂU ĐỒ THẬT
           Text('Phân tích', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           StatsPieChart(
@@ -162,8 +156,8 @@ class ProfilePage extends ConsumerWidget {
     );
   }
 
-  // Hàm helper để hiển thị dialog đổi tên
   void _showEditNameDialog(BuildContext context, ProfilePageNotifier notifier, String currentName) {
+    // ... logic không đổi
     final nameController = TextEditingController(text: currentName);
     showDialog(
       context: context,
@@ -190,18 +184,6 @@ class ProfilePage extends ConsumerWidget {
           ],
         );
       },
-    );
-  }
-
-  // Hàm helper để build một ô thống kê
-  Widget _buildStatItem(String label, String value) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 4),
-        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 16)),
-      ],
     );
   }
 }

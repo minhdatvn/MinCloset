@@ -120,7 +120,10 @@ class _CategorySelectorState extends State<CategorySelector> {
   }
 
   Widget _buildSelectionView() {
+    final theme = Theme.of(context);
+
     if (_selectedMainCategory == null) {
+      // Giao diện chọn danh mục chính
       return Wrap(
         spacing: 8.0,
         runSpacing: 4.0,
@@ -129,26 +132,27 @@ class _CategorySelectorState extends State<CategorySelector> {
             avatar: Icon(AppOptions.categoryIcons[mainCategory], size: 18),
             label: Text(mainCategory),
             onPressed: () => _selectMainCategory(mainCategory),
+            backgroundColor: Colors.white,
+            shape: StadiumBorder(
+              side: BorderSide(color: theme.colorScheme.onSurface, width: 1),
+            ),
           );
         }).toList(),
       );
     }
 
+    // Giao diện chọn danh mục con
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Chip(
           label: Text(_selectedMainCategory!),
-          labelStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurple),
-          backgroundColor: Colors.deepPurple.withAlpha(40),
-          shape: StadiumBorder(
-            side: BorderSide(
-              // <<< SỬA LỖI Ở ĐÂY >>>
-              color: Colors.deepPurple.withAlpha((255 * 0.5).round()),
-              width: 1.5,
-            ),
+          labelStyle: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
-          deleteIcon: const Icon(Icons.close, size: 18, color: Colors.deepPurple),
+          backgroundColor: theme.colorScheme.primary,
+          deleteIcon: const Icon(Icons.close, size: 18, color: Colors.white),
           onDeleted: () {
             setState(() {
               _selectedMainCategory = null;
@@ -164,7 +168,13 @@ class _CategorySelectorState extends State<CategorySelector> {
           children: AppOptions.categories[_selectedMainCategory]!.map((subCategory) {
             final isSelected = _selectedSubCategory == subCategory;
             return FilterChip(
-              label: Text(subCategory),
+              label: Text(
+                subCategory,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : theme.colorScheme.onSurface,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               selected: isSelected,
               onSelected: (selected) {
                 if (selected) {
@@ -172,11 +182,12 @@ class _CategorySelectorState extends State<CategorySelector> {
                 }
               },
               showCheckmark: false,
-              selectedColor: Colors.deepPurple.withAlpha(40),
+              backgroundColor: Colors.white,
+              selectedColor: theme.colorScheme.primary,
               shape: StadiumBorder(
                 side: BorderSide(
-                  color: isSelected ? Colors.deepPurple : Colors.grey.shade400,
-                  width: isSelected ? 1.5 : 1,
+                  color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
+                  width: 1,
                 ),
               ),
             );

@@ -1,15 +1,14 @@
 // lib/screens/main_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'; // <<< THÊM IMPORT
-import 'package:mincloset/providers/ui_providers.dart'; // <<< THÊM IMPORT
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/screens/pages/closets_page.dart';
 import 'package:mincloset/screens/pages/home_page.dart';
 import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/screens/pages/profile_page.dart';
 import 'package:mincloset/widgets/global_add_button.dart';
 
-// <<< CHUYỂN THÀNH CONSUMERSTATEFULWIDGET
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
@@ -18,8 +17,6 @@ class MainScreen extends ConsumerStatefulWidget {
 }
 
 class _MainScreenState extends ConsumerState<MainScreen> {
-  // Bỏ biến _selectedIndex cục bộ
-
   static const List<Widget> _widgetOptions = <Widget>[
     HomePage(),
     ClosetsPage(),
@@ -28,68 +25,95 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   ];
 
   void _onItemTapped(int index) {
-    // Thay vì setState, chúng ta cập nhật provider
     ref.read(mainScreenIndexProvider.notifier).state = index;
   }
 
   @override
   Widget build(BuildContext context) {
-    // "Theo dõi" provider để lấy ra index hiện tại
     final selectedIndex = ref.watch(mainScreenIndexProvider);
 
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Scaffold(
-          // Sử dụng selectedIndex từ provider
-          body: _widgetOptions.elementAt(selectedIndex),
-          bottomNavigationBar: BottomAppBar(
-            shape: const CircularNotchedRectangle(),
-            notchMargin: 8.0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                _buildNavItem(icon: Icons.home, label: 'Trang chủ', index: 0, selectedIndex: selectedIndex),
-                _buildNavItem(icon: Icons.checkroom, label: 'Tủ đồ', index: 1, selectedIndex: selectedIndex),
-                const SizedBox(width: 40), // Khoảng trống cho nút FAB
-                _buildNavItem(icon: Icons.style, label: 'Trang phục', index: 2, selectedIndex: selectedIndex),
-                _buildNavItem(icon: Icons.person_outline, label: 'Cá nhân', index: 3, selectedIndex: selectedIndex),
-              ],
+    return Scaffold(
+      body: _widgetOptions.elementAt(selectedIndex),
+      floatingActionButton: const GlobalAddButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.white,
+        surfaceTintColor: Colors.white,
+        elevation: 4,
+        // <<< SỬA LỖI: Tăng chiều cao lên một chút nữa >>>
+        height: 70, 
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 8.0,
+        padding: const EdgeInsets.symmetric(horizontal: 8.0), // Thêm padding cho thanh bar
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            _buildNavItem(
+              context: context,
+              icon: Icons.home_filled, 
+              label: 'Trang chủ', 
+              index: 0, 
+              selectedIndex: selectedIndex
             ),
-          ),
+            _buildNavItem(
+              context: context,
+              icon: Icons.checkroom_outlined, 
+              label: 'Tủ đồ', 
+              index: 1, 
+              selectedIndex: selectedIndex
+            ),
+            const SizedBox(width: 48), // Tăng khoảng trống cho nút FAB
+            _buildNavItem(
+              context: context,
+              icon: Icons.style_outlined, 
+              label: 'Trang phục', 
+              index: 2, 
+              selectedIndex: selectedIndex
+            ),
+            _buildNavItem(
+              context: context,
+              icon: Icons.person_outline, 
+              label: 'Cá nhân', 
+              index: 3, 
+              selectedIndex: selectedIndex
+            ),
+          ],
         ),
-        Positioned(
-          bottom: 20.0,
-          left: 0,
-          right: 0,
-          child: const Center(
-            child: GlobalAddButton(),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
-  Widget _buildNavItem({required IconData icon, required String label, required int index, required int selectedIndex}) {
+  Widget _buildNavItem({
+    required BuildContext context,
+    required IconData icon, 
+    required String label, 
+    required int index, 
+    required int selectedIndex
+  }) {
+    final theme = Theme.of(context);
     final isSelected = selectedIndex == index;
-    final color = isSelected ? Colors.deepPurple : Colors.grey;
-    return InkWell(
-      onTap: () => _onItemTapped(index),
-      borderRadius: BorderRadius.circular(20),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0),
+    final color = isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface.withAlpha(130);
+    
+    // Bọc trong Expanded để các mục chiếm không gian bằng nhau
+    return Expanded(
+      child: InkWell(
+        onTap: () => _onItemTapped(index),
+        borderRadius: BorderRadius.circular(16),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 28),
-            const SizedBox(height: 2),
+            // <<< SỬA LỖI: Giảm nhẹ kích thước icon và khoảng cách >>>
+            Icon(icon, color: color, size: 24),
+            const SizedBox(height: 4),
             Text(
               label,
               style: TextStyle(
                 color: color,
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontSize: 11, // Giảm nhẹ font size
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),

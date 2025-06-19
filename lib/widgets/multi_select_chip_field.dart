@@ -143,6 +143,8 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
 
   Widget _buildColorGrid() {
     final colorMap = widget.allOptions as Map<String, Color>;
+    final theme = Theme.of(context);
+
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -169,7 +171,8 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
                   color: color,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: isSelected ? Colors.deepPurple : Colors.grey.shade300,
+                    // <<< SỬA ĐỔI: Viền xám nhạt cho trạng thái chưa chọn >>>
+                    color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline,
                     width: isSelected ? 2.5 : 1,
                   ),
                 ),
@@ -182,20 +185,19 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
   }
 
   Widget _buildOtherOptionsWrap() {
+    final theme = Theme.of(context);
+
     return Wrap(
       spacing: 8.0,
       runSpacing: 4.0,
       alignment: WrapAlignment.center,
       children: (widget.allOptions as Iterable).map((option) {
-        // <<< SỬA LỖI Ở ĐÂY >>>
-        // 1. Kiểm tra kiểu của `option` để lấy ra `name` một cách an toàn
         final String name = option is OptionWithImage ? option.name : option as String;
-        
-        // 2. Sử dụng biến `name` đã được chuẩn hóa ở tất cả các vị trí bên dưới
         final isSelected = _selectedOptions.contains(name);
         
         final avatar = option is OptionWithImage
           ? CircleAvatar(
+              backgroundColor: Colors.transparent,
               child: Image.asset(
                 option.imagePath,
                 errorBuilder: (context, error, stackTrace) {
@@ -207,15 +209,22 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
 
         return FilterChip(
           avatar: avatar,
-          label: Text(name),
+          label: Text(
+            name,
+            style: TextStyle(
+              color: isSelected ? Colors.white : theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           selected: isSelected,
           onSelected: (_) => _handleSelection(name),
           showCheckmark: false,
-          selectedColor: Colors.deepPurple.withAlpha(40),
+          backgroundColor: Colors.white,
+          selectedColor: theme.colorScheme.primary,
           shape: StadiumBorder(
             side: BorderSide(
-              color: isSelected ? Colors.deepPurple : Colors.grey.shade400,
-              width: isSelected ? 1.5 : 1,
+              color: isSelected ? theme.colorScheme.primary : theme.colorScheme.onSurface,
+              width: 1,
             ),
           ),
         );

@@ -14,13 +14,11 @@ import 'package:mincloset/widgets/item_detail_form.dart';
 class AddItemScreenArgs extends Equatable {
   final ClothingItem? itemToEdit;
   final XFile? newImage;
-  // <<< SỬA LỖI 1: THÊM TRƯỜNG CÒN THIẾU >>>
   final AddItemState? preAnalyzedState; 
 
   const AddItemScreenArgs({this.itemToEdit, this.newImage, this.preAnalyzedState});
 
   @override
-  // <<< CẬP NHẬT PROPS >>>
   List<Object?> get props => [itemToEdit, newImage, preAnalyzedState];
 }
 
@@ -162,8 +160,10 @@ class AddItemScreen extends ConsumerWidget {
         child: ElevatedButton.icon(
           onPressed: state.isLoading ? null : notifier.saveItem,
           icon: state.isLoading ? const SizedBox.shrink() : const Icon(Icons.save),
-          label: state.isLoading ? const CircularProgressIndicator(color: Colors.white) : Text(state.isEditing ? 'Cập nhật' : 'Lưu'),
-          style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12), backgroundColor: Colors.deepPurple, foregroundColor: Colors.white),
+          label: state.isLoading 
+              ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3,)) 
+              : Text(state.isEditing ? 'Cập nhật' : 'Lưu'),
+          // <<< ĐÃ XÓA BỎ STYLE CỤC BỘ Ở ĐÂY >>>
         ),
       ),
     );

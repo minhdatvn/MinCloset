@@ -66,11 +66,10 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
             child: Row(
               children: [
                 Text(widget.label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(width: 16), // Thêm khoảng cách nhỏ
-                // <<< THAY ĐỔI Ở ĐÂY: Dùng Expanded để đẩy cụm tóm tắt về bên phải
+                const SizedBox(width: 16),
                 Expanded(
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end, // Căn phải
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       _buildSummaryView(isColorSelector),
                       const SizedBox(width: 4),
@@ -105,7 +104,7 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
       final visibleColors = _selectedOptions.take(maxCircles).toList();
 
       return Row(
-        mainAxisSize: MainAxisSize.min, // Để Row chỉ chiếm không gian cần thiết
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           ...visibleColors.map((name) {
@@ -132,7 +131,6 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
         ],
       );
     }
-    // Bọc Text trong Flexible để nó không đẩy các widget khác
     return Flexible(
       child: Text(
         _selectedOptions.join(', '),
@@ -162,7 +160,6 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
 
         return Tooltip(
           message: name,
-          showDuration: const Duration(seconds: 2),
           child: GestureDetector(
             onTap: () => _handleSelection(name),
             child: AspectRatio(
@@ -173,10 +170,9 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: isSelected ? Colors.deepPurple : Colors.grey.shade300,
-                    width: isSelected ? 3 : 1,
+                    width: isSelected ? 2.5 : 1,
                   ),
                 ),
-                child: isSelected ? const Icon(Icons.check, color: Colors.white, size: 20) : null,
               ),
             ),
           ),
@@ -189,10 +185,16 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
     return Wrap(
       spacing: 8.0,
       runSpacing: 4.0,
-      alignment: WrapAlignment.center, // Căn giữa các chip
+      alignment: WrapAlignment.center,
       children: (widget.allOptions as Iterable).map((option) {
+        // <<< SỬA LỖI Ở ĐÂY >>>
+        // 1. Kiểm tra kiểu của `option` để lấy ra `name` một cách an toàn
         final String name = option is OptionWithImage ? option.name : option as String;
-        final Widget? avatar = option is OptionWithImage
+        
+        // 2. Sử dụng biến `name` đã được chuẩn hóa ở tất cả các vị trí bên dưới
+        final isSelected = _selectedOptions.contains(name);
+        
+        final avatar = option is OptionWithImage
           ? CircleAvatar(
               child: Image.asset(
                 option.imagePath,
@@ -206,10 +208,16 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
         return FilterChip(
           avatar: avatar,
           label: Text(name),
-          selected: _selectedOptions.contains(name),
+          selected: isSelected,
           onSelected: (_) => _handleSelection(name),
-          selectedColor: Colors.deepPurple.withAlpha(51),
-          checkmarkColor: Colors.deepPurple,
+          showCheckmark: false,
+          selectedColor: Colors.deepPurple.withAlpha(40),
+          shape: StadiumBorder(
+            side: BorderSide(
+              color: isSelected ? Colors.deepPurple : Colors.grey.shade400,
+              width: isSelected ? 1.5 : 1,
+            ),
+          ),
         );
       }).toList(),
     );

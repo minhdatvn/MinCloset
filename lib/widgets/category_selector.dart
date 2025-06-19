@@ -137,10 +137,18 @@ class _CategorySelectorState extends State<CategorySelector> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InputChip(
+        Chip(
           label: Text(_selectedMainCategory!),
-          labelStyle: const TextStyle(fontWeight: FontWeight.bold),
-          selected: true,
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurple),
+          backgroundColor: Colors.deepPurple.withAlpha(40),
+          shape: StadiumBorder(
+            side: BorderSide(
+              // <<< SỬA LỖI Ở ĐÂY >>>
+              color: Colors.deepPurple.withAlpha((255 * 0.5).round()),
+              width: 1.5,
+            ),
+          ),
+          deleteIcon: const Icon(Icons.close, size: 18, color: Colors.deepPurple),
           onDeleted: () {
             setState(() {
               _selectedMainCategory = null;
@@ -148,23 +156,29 @@ class _CategorySelectorState extends State<CategorySelector> {
             });
             widget.onCategorySelected('');
           },
-          deleteIcon: const Icon(Icons.close, size: 18),
         ),
         const Divider(height: 16),
         Wrap(
           spacing: 8.0,
           runSpacing: 4.0,
           children: AppOptions.categories[_selectedMainCategory]!.map((subCategory) {
+            final isSelected = _selectedSubCategory == subCategory;
             return FilterChip(
               label: Text(subCategory),
-              selected: _selectedSubCategory == subCategory,
+              selected: isSelected,
               onSelected: (selected) {
                 if (selected) {
                   _selectSubCategory(subCategory);
                 }
               },
-              selectedColor: Colors.deepPurple.withAlpha(51),
-              checkmarkColor: Colors.deepPurple,
+              showCheckmark: false,
+              selectedColor: Colors.deepPurple.withAlpha(40),
+              shape: StadiumBorder(
+                side: BorderSide(
+                  color: isSelected ? Colors.deepPurple : Colors.grey.shade400,
+                  width: isSelected ? 1.5 : 1,
+                ),
+              ),
             );
           }).toList(),
         ),

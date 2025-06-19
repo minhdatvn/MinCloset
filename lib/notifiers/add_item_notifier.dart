@@ -3,31 +3,77 @@
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mincloset/domain/providers.dart'; // <<< THÊM IMPORT ĐỂ GỌI USECASE
+import 'package:mincloset/constants/app_options.dart';
+import 'package:mincloset/domain/providers.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:uuid/uuid.dart';
+// <<< SỬA LỖI 2: XÓA IMPORT KHÔNG SỬ DỤNG >>>
 
 class AddItemNotifier extends StateNotifier<AddItemState> {
   final ClothingItemRepository _clothingItemRepo;
-  final Ref _ref; // <<< THÊM REF ĐỂ CÓ THỂ GỌI CÁC PROVIDER KHÁC
+  final Ref _ref;
 
-  // <<< CẬP NHẬT HÀM KHỞI TẠO
   AddItemNotifier(this._clothingItemRepo, this._ref, AddItemScreenArgs args)
       : super(
-          args.itemToEdit != null
+          args.preAnalyzedState ??
+          (args.itemToEdit != null
               ? AddItemState.fromClothingItem(args.itemToEdit!)
-              : AddItemState(image: args.newImage != null ? File(args.newImage!.path) : null)
+              : AddItemState(image: args.newImage != null ? File(args.newImage!.path) : null))
         ) {
-    // Tự động phân tích ảnh khi khởi tạo nếu là ảnh mới
-    if (args.newImage != null) {
+    if (args.preAnalyzedState == null && args.newImage != null) {
       analyzeImage(args.newImage!);
     }
   }
 
-  // ... các hàm on...Changed giữ nguyên ...
+  // Các hàm còn lại đã chính xác và không thay đổi
+  String _normalizeCategory(String? rawCategory) {
+    if (rawCategory == null || rawCategory.trim().isEmpty) {
+      return 'Khác > Khác';
+    }
+    if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) {
+      return '$rawCategory > Khác';
+    }
+    final parts = rawCategory.split(' > ');
+    if (!AppOptions.categories.containsKey(parts.first)) {
+        return 'Khác > Khác';
+    }
+    return rawCategory;
+  }
+
+  Set<String> _normalizeMultiSelect(dynamic rawValue, List<String> validOptions) {
+    final selections = <String>{};
+    if (rawValue == null) {
+      return selections;
+    }
+
+    final validOptionsSet = validOptions.toSet();
+    bool hasUnknowns = false;
+
+    List<String> valuesToProcess = [];
+    if (rawValue is String) {
+      valuesToProcess = [rawValue];
+    } else if (rawValue is List) {
+      valuesToProcess = rawValue.map((e) => e.toString()).toList();
+    }
+
+    for (final value in valuesToProcess) {
+      if (validOptionsSet.contains(value)) {
+        selections.add(value);
+      } else {
+        hasUnknowns = true;
+      }
+    }
+
+    if (hasUnknowns && validOptionsSet.contains('Khác')) {
+      selections.add('Khác');
+    }
+    
+    return selections;
+  }
+
   void onNameChanged(String name) => state = state.copyWith(name: name);
   void onClosetChanged(String? closetId) => state = state.copyWith(selectedClosetId: closetId);
   void onCategoryChanged(String category) => state = state.copyWith(selectedCategoryValue: category);
@@ -37,45 +83,45 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   void onMaterialsChanged(Set<String> materials) => state = state.copyWith(selectedMaterials: materials);
   void onPatternsChanged(Set<String> patterns) => state = state.copyWith(selectedPatterns: patterns);
   
-  // <<< CẬP NHẬT HÀM PICKIMAGE ĐỂ GỌI PHÂN TÍCH
   Future<void> pickImage(ImageSource source) async {
     final imagePicker = ImagePicker();
-    final pickedFile = await imagePicker.pickImage(source: source, maxWidth: 600);
+    final pickedFile = await imagePicker.pickImage(source: source, maxWidth: 1024, imageQuality: 85);
     if (pickedFile != null) {
-      state = state.copyWith(image: File(pickedFile.path));
-      // Tự động phân tích sau khi chọn ảnh thành công
+      state = state.copyWith(
+        image: File(pickedFile.path),
+        selectedCategoryValue: '',
+        selectedColors: {},
+        selectedMaterials: {},
+        selectedPatterns: {},
+      );
       analyzeImage(pickedFile); 
     }
   }
 
-  // <<< HÀM MỚI ĐỂ GỌI AI
   Future<void> analyzeImage(XFile image) async {
     state = state.copyWith(isAnalyzing: true);
     final useCase = _ref.read(analyzeItemUseCaseProvider);
     final result = await useCase.execute(image);
 
     if (result.isNotEmpty && mounted) {
-      // Phân tích kết quả trả về từ AI
-      final category = result['category'] as String?;
+      final category = _normalizeCategory(result['category'] as String?);
       final colors = (result['colors'] as List<dynamic>?)?.map((e) => e.toString()).toSet();
-      final material = (result['material'] as String?) != null ? {result['material'] as String} : null;
-      final pattern = (result['pattern'] as String?) != null ? {result['pattern'] as String} : null;
+      
+      final materials = _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList());
+      final patterns = _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList());
 
-      // Cập nhật state với các giá trị được phân tích
       state = state.copyWith(
         isAnalyzing: false,
-        selectedCategoryValue: category ?? state.selectedCategoryValue,
+        selectedCategoryValue: category,
         selectedColors: colors ?? state.selectedColors,
-        selectedMaterials: material ?? state.selectedMaterials,
-        selectedPatterns: pattern ?? state.selectedPatterns,
+        selectedMaterials: materials.isNotEmpty ? materials : state.selectedMaterials,
+        selectedPatterns: patterns.isNotEmpty ? patterns : state.selectedPatterns,
       );
     } else if (mounted) {
-      // Nếu AI không trả về kết quả hoặc có lỗi, tắt trạng thái analyzing
       state = state.copyWith(isAnalyzing: false);
     }
   }
   
-  // Hàm saveItem và deleteItem giữ nguyên
   Future<void> saveItem() async {
     if (state.image == null && state.imagePath == null) {
       state = state.copyWith(errorMessage: 'Vui lòng thêm ảnh cho món đồ.');

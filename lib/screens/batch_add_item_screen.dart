@@ -1,15 +1,13 @@
 // lib/screens/batch_add_item_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
 
+// Chuyển thành StatefulWidget để quản lý PageController
 class BatchAddItemScreen extends ConsumerStatefulWidget {
-  final List<XFile> images;
-  const BatchAddItemScreen({super.key, required this.images});
+  const BatchAddItemScreen({super.key});
 
   @override
   ConsumerState<BatchAddItemScreen> createState() => _BatchAddItemScreenState();
@@ -21,7 +19,8 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    // Khởi tạo PageController với index ban đầu từ provider
+    _pageController = PageController(initialPage: ref.read(batchAddItemProvider).currentIndex);
   }
 
   @override
@@ -32,46 +31,54 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = batchAddItemProvider(widget.images);
+    final provider = batchAddItemProvider;
     final state = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
 
-    ref.listen<int>(provider.select((s) => s.currentIndex), (previous, next) {
-      if (next != _pageController.page?.round()) {
-        _pageController.animateToPage(
-          next,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
-      }
-    });
-    
+    // Lắng nghe các thay đổi từ notifier
     ref.listen<BatchAddItemState>(provider, (previous, next) {
       if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
       }
       if (next.saveSuccess) {
+        // Pop màn hình này và trả về true để báo hiệu đã thêm đồ thành công
         Navigator.of(context).pop(true);
+      }
+      // Đồng bộ PageController khi currentIndex thay đổi trong Notifier (ví dụ khi có lỗi)
+      if (next.currentIndex != previous?.currentIndex && next.currentIndex != _pageController.page?.round()) {
+        _pageController.animateToPage(
+          next.currentIndex,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
       }
     });
 
+    // Nếu không có item state nào (trường hợp hiếm), hiển thị lỗi
+    if (state.itemStates.isEmpty) {
+      return const Scaffold(
+        body: Center(
+          child: Text('Không có dữ liệu ảnh để hiển thị.'),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        // <<< THAY ĐỔI 1: CẬP NHẬT TIÊU ĐỀ
         title: Text('Thêm món đồ (${state.currentIndex + 1}/${state.itemStates.length})'),
-        // <<< THAY ĐỔI 2: XÓA NÚT LƯU Ở ĐÂY
       ),
       body: Column(
         children: [
-          // <<< THAY ĐỔI 3: XÓA BỎ WIDGET TEXT CHỈ BÁO TIẾN TRÌNH
           Expanded(
             child: PageView.builder(
               controller: _pageController,
               itemCount: state.itemStates.length,
+              // Xóa bỏ logic gọi AI ở đây, chỉ cập nhật index
               onPageChanged: notifier.setCurrentIndex,
               itemBuilder: (context, index) {
                 final currentItemState = state.itemStates[index];
                 return ItemDetailForm(
+                  key: ValueKey('item_form_$index'), // Thêm key để đảm bảo widget được rebuild đúng
                   itemState: currentItemState,
                   onNameChanged: (val) => notifier.updateItemDetails(index, currentItemState.copyWith(name: val)),
                   onClosetChanged: (val) => notifier.updateItemDetails(index, currentItemState.copyWith(selectedClosetId: val)),
@@ -85,6 +92,7 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
               },
             ),
           ),
+          // Thanh điều hướng dưới cùng không thay đổi
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -95,17 +103,13 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
                   icon: const Icon(Icons.arrow_back),
                   label: const Text('Trước'),
                 ),
-                
-                // <<< THAY ĐỔI 4: HIỂN THỊ NÚT "SAU" HOẶC "LƯU TẤT CẢ" TÙY ĐIỀU KIỆN
                 if (state.currentIndex < state.itemStates.length - 1)
-                  // Nếu chưa phải trang cuối, hiển thị nút "Sau"
                   ElevatedButton.icon(
                     onPressed: notifier.nextPage,
                     icon: const Icon(Icons.arrow_forward),
                     label: const Text('Sau'),
                   )
                 else
-                  // Nếu là trang cuối, hiển thị nút "Lưu tất cả"
                   ElevatedButton.icon(
                     onPressed: state.isSaving ? null : notifier.saveAll,
                     icon: state.isSaving

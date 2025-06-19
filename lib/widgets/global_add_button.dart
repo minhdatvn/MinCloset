@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/providers/event_providers.dart';
-import 'package:mincloset/screens/add_item_screen.dart';
-import 'package:mincloset/screens/batch_add_item_screen.dart';
+import 'package:mincloset/screens/analysis_loading_screen.dart';
 
 class GlobalAddButton extends ConsumerStatefulWidget {
   const GlobalAddButton({super.key});
@@ -19,7 +18,6 @@ class _GlobalAddButtonState extends ConsumerState<GlobalAddButton> {
     return FloatingActionButton(
       heroTag: 'global_add_fab',
       onPressed: () {
-        // <<< GỌI HÀM HIỂN THỊ BOTTOM SHEET
         _showImageSourceActionSheet(context);
       },
       shape: const CircleBorder(),
@@ -28,7 +26,6 @@ class _GlobalAddButtonState extends ConsumerState<GlobalAddButton> {
     );
   }
 
-  // <<< TÁCH LOGIC RA CÁC HÀM RIÊNG BIỆT CHO RÕ RÀNG
   void _showImageSourceActionSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -39,16 +36,16 @@ class _GlobalAddButtonState extends ConsumerState<GlobalAddButton> {
               leading: const Icon(Icons.photo_camera_outlined),
               title: const Text('Chụp ảnh mới'),
               onTap: () {
-                Navigator.of(ctx).pop(); // Đóng bottom sheet
-                _pickImageFromCamera();
+                Navigator.of(ctx).pop();
+                _pickAndAnalyzeImages(ImageSource.camera);
               },
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
               title: const Text('Chọn từ Album'),
               onTap: () {
-                Navigator.of(ctx).pop(); // Đóng bottom sheet
-                _pickMultiImageFromGallery();
+                Navigator.of(ctx).pop();
+                _pickAndAnalyzeImages(ImageSource.gallery);
               },
             ),
           ],
@@ -57,36 +54,28 @@ class _GlobalAddButtonState extends ConsumerState<GlobalAddButton> {
     );
   }
 
-  Future<void> _pickImageFromCamera() async {
-    final navigator = Navigator.of(context);
-    
-    final imagePicker = ImagePicker();
-    final XFile? pickedFile = await imagePicker.pickImage(
-      source: ImageSource.camera,
-      maxWidth: 1024,
-      imageQuality: 85,
-    );
-
-    if (!mounted || pickedFile == null) return;
-
-    final itemsWereAdded = await navigator.push<bool>(
-      MaterialPageRoute(builder: (ctx) => AddItemScreen(newImage: pickedFile)),
-    );
-    
-    if (itemsWereAdded == true) {
-      ref.read(itemAddedTriggerProvider.notifier).state++;
-    }
-  }
-
-  Future<void> _pickMultiImageFromGallery() async {
+  Future<void> _pickAndAnalyzeImages(ImageSource source) async {
     final navigator = Navigator.of(context);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-
     final imagePicker = ImagePicker();
-    final List<XFile> pickedFiles = await imagePicker.pickMultiImage(
-      maxWidth: 1024,
-      imageQuality: 85,
-    );
+    
+    List<XFile> pickedFiles = [];
+
+    if (source == ImageSource.gallery) {
+      pickedFiles = await imagePicker.pickMultiImage(
+        maxWidth: 1024,
+        imageQuality: 85,
+      );
+    } else {
+      final singleFile = await imagePicker.pickImage(
+        source: ImageSource.camera,
+        maxWidth: 1024,
+        imageQuality: 85,
+      );
+      if (singleFile != null) {
+        pickedFiles.add(singleFile);
+      }
+    }
 
     if (!mounted || pickedFiles.isEmpty) return;
 
@@ -98,19 +87,9 @@ class _GlobalAddButtonState extends ConsumerState<GlobalAddButton> {
       );
     }
     
-    bool? itemsWereAdded = false;
-
-    if (!mounted) return;
-
-    if (filesToProcess.length == 1) {
-      itemsWereAdded = await navigator.push<bool>(
-        MaterialPageRoute(builder: (ctx) => AddItemScreen(newImage: filesToProcess.first)),
-      );
-    } else {
-      itemsWereAdded = await navigator.push<bool>(
-        MaterialPageRoute(builder: (ctx) => BatchAddItemScreen(images: filesToProcess)),
-      );
-    }
+    final itemsWereAdded = await navigator.push<bool>(
+      MaterialPageRoute(builder: (ctx) => AnalysisLoadingScreen(images: filesToProcess)),
+    );
 
     if (itemsWereAdded == true) {
       ref.read(itemAddedTriggerProvider.notifier).state++;

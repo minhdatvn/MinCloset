@@ -9,40 +9,43 @@ import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
 
+
 @immutable
 class AddItemScreenArgs extends Equatable {
   final ClothingItem? itemToEdit;
   final XFile? newImage;
+  // <<< SỬA LỖI 1: THÊM TRƯỜNG CÒN THIẾU >>>
+  final AddItemState? preAnalyzedState; 
 
-  const AddItemScreenArgs({this.itemToEdit, this.newImage});
+  const AddItemScreenArgs({this.itemToEdit, this.newImage, this.preAnalyzedState});
 
   @override
-  List<Object?> get props => [itemToEdit, newImage];
+  // <<< CẬP NHẬT PROPS >>>
+  List<Object?> get props => [itemToEdit, newImage, preAnalyzedState];
 }
 
-// <<< CẬP NHẬT PROVIDER ĐỂ TRUYỀN REF VÀO NOTIFIER
 final addItemProvider = StateNotifierProvider.autoDispose
     .family<AddItemNotifier, AddItemState, AddItemScreenArgs>((ref, args) {
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
-  // Truyền ref vào Notifier để nó có thể gọi các provider khác
   return AddItemNotifier(clothingItemRepo, ref, args);
 });
-
 
 class AddItemScreen extends ConsumerWidget {
   final String? preselectedClosetId;
   final ClothingItem? itemToEdit;
   final XFile? newImage;
+  final AddItemState? preAnalyzedState;
 
   const AddItemScreen({
     super.key,
     this.preselectedClosetId,
     this.itemToEdit,
     this.newImage,
+    this.preAnalyzedState,
   });
 
   void _showImageSourceActionSheet(BuildContext context, WidgetRef ref) {
-    final args = AddItemScreenArgs(itemToEdit: itemToEdit, newImage: newImage);
+    final args = AddItemScreenArgs(itemToEdit: itemToEdit, newImage: newImage, preAnalyzedState: preAnalyzedState);
     final notifier = ref.read(addItemProvider(args).notifier);
     
     showModalBottomSheet(
@@ -74,7 +77,7 @@ class AddItemScreen extends ConsumerWidget {
 
   Future<void> _showDeleteConfirmationDialog(BuildContext context, WidgetRef ref) async {
     if (itemToEdit == null) return;
-    final args = AddItemScreenArgs(itemToEdit: itemToEdit, newImage: newImage);
+    final args = AddItemScreenArgs(itemToEdit: itemToEdit, newImage: newImage, preAnalyzedState: preAnalyzedState);
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -99,16 +102,17 @@ class AddItemScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final args = AddItemScreenArgs(itemToEdit: itemToEdit, newImage: newImage);
+    final args = AddItemScreenArgs(
+        itemToEdit: itemToEdit,
+        newImage: newImage,
+        preAnalyzedState: preAnalyzedState,
+    );
     final provider = addItemProvider(args);
     final state = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
 
-    // Thiết lập tủ đồ được chọn sẵn (nếu có)
-    // Dùng addPostFrameCallback để đảm bảo không gọi setState trong lúc build
     if (itemToEdit == null && preselectedClosetId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        // Chỉ gọi nếu chưa có giá trị nào được chọn
         if (ref.read(provider).selectedClosetId == null) {
           notifier.onClosetChanged(preselectedClosetId);
         }
@@ -128,7 +132,6 @@ class AddItemScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(state.isEditing ? 'Sửa món đồ' : 'Thêm đồ mới'),
         actions: [
-          // Chỉ cho phép đổi ảnh khi đang sửa, hoặc khi chưa có ảnh lúc thêm mới
           if (state.isEditing || state.image == null)
             IconButton(
               icon: const Icon(Icons.add_a_photo_outlined),

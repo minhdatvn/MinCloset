@@ -6,7 +6,8 @@ import 'package:mincloset/states/add_item_state.dart';
 
 @immutable
 class BatchAddItemState extends Equatable {
-  final List<XFile> images;
+  final bool isLoading; // Cờ cho màn hình chờ
+  final bool analysisSuccess; // Cờ báo hiệu phân tích xong
   final List<AddItemState> itemStates;
   final int currentIndex;
   final bool isSaving;
@@ -14,7 +15,8 @@ class BatchAddItemState extends Equatable {
   final String? errorMessage;
 
   const BatchAddItemState({
-    this.images = const [],
+    this.isLoading = false,
+    this.analysisSuccess = false,
     this.itemStates = const [],
     this.currentIndex = 0,
     this.isSaving = false,
@@ -23,7 +25,9 @@ class BatchAddItemState extends Equatable {
   });
 
   BatchAddItemState copyWith({
-    List<XFile>? images,
+    bool? isLoading,
+    bool? analysisSuccess,
+    List<XFile>? images, // Xóa bỏ images vì không còn lưu trực tiếp
     List<AddItemState>? itemStates,
     int? currentIndex,
     bool? isSaving,
@@ -32,7 +36,8 @@ class BatchAddItemState extends Equatable {
     bool clearError = false,
   }) {
     return BatchAddItemState(
-      images: images ?? this.images,
+      isLoading: isLoading ?? this.isLoading,
+      analysisSuccess: analysisSuccess ?? this.analysisSuccess,
       itemStates: itemStates ?? this.itemStates,
       currentIndex: currentIndex ?? this.currentIndex,
       isSaving: isSaving ?? this.isSaving,
@@ -43,7 +48,8 @@ class BatchAddItemState extends Equatable {
 
   @override
   List<Object?> get props => [
-        images,
+        isLoading,
+        analysisSuccess,
         itemStates,
         currentIndex,
         isSaving,

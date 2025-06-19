@@ -25,10 +25,29 @@ class _CategorySelectorState extends State<CategorySelector> {
   @override
   void initState() {
     super.initState();
-    if (widget.initialCategory != null && widget.initialCategory!.contains(' > ')) {
-      final parts = widget.initialCategory!.split(' > ');
-      _selectedMainCategory = parts[0];
-      _selectedSubCategory = parts[1];
+    _updateCategoryFromWidget(widget.initialCategory);
+  }
+
+  @override
+  void didUpdateWidget(covariant CategorySelector oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialCategory != oldWidget.initialCategory) {
+      _updateCategoryFromWidget(widget.initialCategory);
+    }
+  }
+
+  void _updateCategoryFromWidget(String? categoryValue) {
+    if (categoryValue != null && categoryValue.contains(' > ')) {
+      final parts = categoryValue.split(' > ');
+      setState(() {
+        _selectedMainCategory = parts[0];
+        _selectedSubCategory = parts[1];
+      });
+    } else {
+      setState(() {
+        _selectedMainCategory = null;
+        _selectedSubCategory = null;
+      });
     }
   }
 
@@ -107,7 +126,6 @@ class _CategorySelectorState extends State<CategorySelector> {
         runSpacing: 4.0,
         children: AppOptions.categories.keys.map((mainCategory) {
           return ActionChip(
-            // <<< LỖI 1 ĐƯỢC SỬA Ở ĐÂY: Lấy icon từ map mới `categoryIcons`
             avatar: Icon(AppOptions.categoryIcons[mainCategory], size: 18),
             label: Text(mainCategory),
             onPressed: () => _selectMainCategory(mainCategory),
@@ -136,7 +154,6 @@ class _CategorySelectorState extends State<CategorySelector> {
         Wrap(
           spacing: 8.0,
           runSpacing: 4.0,
-          // <<< LỖI 2 ĐƯỢC SỬA Ở ĐÂY: Lặp trực tiếp trên List, bỏ `.keys`
           children: AppOptions.categories[_selectedMainCategory]!.map((subCategory) {
             return FilterChip(
               label: Text(subCategory),

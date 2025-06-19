@@ -118,24 +118,28 @@ class AppOptions {
 
   // Danh sách cho các lựa chọn có hình ảnh
   static const List<OptionWithImage> materials = [
-    OptionWithImage(name: 'Cotton', imagePath: 'assets/images/materials/cotton.png'),
-    OptionWithImage(name: 'Polyester', imagePath: 'assets/images/materials/polyester.png'),
-    OptionWithImage(name: 'Nylon', imagePath: 'assets/images/materials/nylon.png'),
-    OptionWithImage(name: 'Denim', imagePath: 'assets/images/materials/denim.png'),
-    OptionWithImage(name: 'Da (Leather)', imagePath: 'assets/images/materials/leather.png'),
-    OptionWithImage(name: 'Len (Wool)', imagePath: 'assets/images/materials/wool.png'),
-    OptionWithImage(name: 'Khác', imagePath: 'assets/images/materials/other.png'),
+    OptionWithImage(name: 'Cotton', imagePath: 'assets/images/materials/cotton.webp'),
+    OptionWithImage(name: 'Lanh', imagePath: 'assets/images/materials/linen.webp'),
+    OptionWithImage(name: 'Len', imagePath: 'assets/images/materials/wool.webp'),
+    OptionWithImage(name: 'Lụa', imagePath: 'assets/images/materials/silk.webp'),
+    OptionWithImage(name: 'Polyester', imagePath: 'assets/images/materials/polyester.webp'),
+    OptionWithImage(name: 'Nylon', imagePath: 'assets/images/materials/nylon.webp'),
+    OptionWithImage(name: 'Denim', imagePath: 'assets/images/materials/denim.webp'),
+    OptionWithImage(name: 'Da', imagePath: 'assets/images/materials/leather.webp'),
+    OptionWithImage(name: 'Khác', imagePath: 'assets/images/materials/other.webp'),
     // ... Thêm các chất liệu khác của bạn vào đây
   ];
 
   static const List<OptionWithImage> patterns = [
-    OptionWithImage(name: 'Trơn (Solid)', imagePath: 'assets/images/patterns/solid.png'),
-    OptionWithImage(name: 'Kẻ sọc (Striped)', imagePath: 'assets/images/patterns/striped.png'),
-    OptionWithImage(name: 'Đồ họa (Graphic)', imagePath: 'assets/images/patterns/graphic.png'),
-    OptionWithImage(name: 'Chấm bi (Dotted)', imagePath: 'assets/images/patterns/dotted.png'),
-    OptionWithImage(name: 'Da thú (Animal)', imagePath: 'assets/images/patterns/animal.png'),
-    OptionWithImage(name: 'Hoa (Floral)', imagePath: 'assets/images/patterns/floral.png'),
-    OptionWithImage(name: 'Khác', imagePath: 'assets/images/patterns/other.png'),
+    OptionWithImage(name: 'Trơn', imagePath: 'assets/images/patterns/solid.webp'),
+    OptionWithImage(name: 'Kẻ sọc', imagePath: 'assets/images/patterns/striped.webp'),
+    OptionWithImage(name: 'Carô', imagePath: 'assets/images/patterns/checks.webp'),
+    OptionWithImage(name: 'Chấm bi', imagePath: 'assets/images/patterns/dots.webp'),
+    OptionWithImage(name: 'Chevron', imagePath: 'assets/images/patterns/chevron.webp'),
+    OptionWithImage(name: 'Động vật', imagePath: 'assets/images/patterns/animal.webp'),
+    OptionWithImage(name: 'Hoa', imagePath: 'assets/images/patterns/floral.webp'),
+    OptionWithImage(name: 'Chữ', imagePath: 'assets/images/patterns/typography.webp'),
+    OptionWithImage(name: 'Khác', imagePath: 'assets/images/patterns/other.webp'),
     // ... Thêm các họa tiết khác của bạn vào đây
   ];
 }

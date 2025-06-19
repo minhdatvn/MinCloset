@@ -25,6 +25,8 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
       final weatherRepo = _ref.read(weatherRepositoryProvider);
       final weatherData = await weatherRepo.getWeather('Da Nang');
       
+      if (!mounted) return;
+
       state = state.copyWith(
         isLoading: false,
         weather: weatherData,
@@ -32,6 +34,7 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
         suggestionTimestamp: lastTimestamp,
       );
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, errorMessage: "Không thể tải dữ liệu thời tiết.");
     }
   }
@@ -52,18 +55,24 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
       await prefs.setString('last_suggestion_timestamp', DateTime.now().toIso8601String());
 
       // 4. Cập nhật state cho UI
-      state = state.copyWith(
-        isLoading: false,
-        weather: result['weather'],
-        suggestion: result['suggestion'],
-        suggestionTimestamp: DateTime.now(),
-      );
+      if (mounted) {
+        state = state.copyWith(
+          isLoading: false,
+          weather: result['weather'],
+          suggestion: result['suggestion'],
+          suggestionTimestamp: DateTime.now(),
+        );
+      }
     } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: 'Không thể nhận gợi ý. Vui lòng thử lại.',
-        suggestionTimestamp: DateTime.now(),
-      );
+      // <<< VÀ ĐẶC BIỆT LÀ TRONG KHỐI CATCH
+      // Đây chính là nơi gây ra lỗi trong ảnh chụp màn hình của bạn.
+      if (mounted) {
+        state = state.copyWith(
+          isLoading: false,
+          errorMessage: 'Không thể nhận gợi ý. Vui lòng thử lại.',
+          suggestionTimestamp: DateTime.now(),
+        );
+      }
     }
   }
 }

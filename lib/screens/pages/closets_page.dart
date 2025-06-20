@@ -14,7 +14,6 @@ import 'package:mincloset/widgets/filter_bottom_sheet.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:uuid/uuid.dart';
 
-// <<< BƯỚC 1: Di chuyển hàm dialog ra ngoài để có thể gọi từ bất kỳ đâu trong file
 void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
   final nameController = TextEditingController();
   showDialog(
@@ -70,7 +69,6 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tủ đồ của bạn'),
-        // <<< BƯỚC 2: Xóa bỏ thuộc tính `actions` khỏi AppBar
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -83,35 +81,30 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
         controller: _tabController,
         children: [
           const _AllItemsTab(),
-          _ClosetsListTab(),
+          const _ClosetsListTab(),
         ],
       ),
-      // <<< BƯỚC 3: Xóa bỏ `floatingActionButton` khỏi Scaffold
     );
   }
 }
 
-/// Widget cho Tab 1: Hiển thị tất cả vật phẩm và thanh tìm kiếm
 class _AllItemsTab extends HookConsumerWidget {
   const _AllItemsTab();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Định danh provider
     const providerId = 'closetsPage';
     final state = ref.watch(itemFilterProvider(providerId));
     final notifier = ref.read(itemFilterProvider(providerId).notifier);
     final searchController = useTextEditingController();
     final closetsAsync = ref.watch(closetsProvider);
 
-    // Lắng nghe tín hiệu thêm đồ mới
     ref.listen<int>(itemAddedTriggerProvider, (previous, next) {
       if (previous != next) {
         ref.invalidate(itemFilterProvider(providerId));
       }
     });
     
-    // Đồng bộ search bar
     useEffect(() {
       if (searchController.text != state.searchQuery) {
         searchController.text = state.searchQuery;
@@ -120,7 +113,6 @@ class _AllItemsTab extends HookConsumerWidget {
     }, [state.searchQuery]);
 
 
-    // <<< BỐ CỤC TÌM KIẾM VÀ LỌC ĐƯỢC CHUYỂN VỀ ĐÂY
     return Column(
       children: [
         Padding(
@@ -135,8 +127,7 @@ class _AllItemsTab extends HookConsumerWidget {
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                     filled: true,
-                    fillColor: Colors.grey.shade200,
-                    contentPadding: EdgeInsets.zero,
+                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
                   onChanged: notifier.setSearchQuery,
                 ),
@@ -184,36 +175,41 @@ class _AllItemsTab extends HookConsumerWidget {
   }
 }
 
-/// Widget cho Tab 2: Hiển thị danh sách các tủ đồ
 class _ClosetsListTab extends ConsumerWidget {
   const _ClosetsListTab();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final closetsAsyncValue = ref.watch(closetsProvider);
+    // <<< Lấy theme từ context >>>
+    final theme = Theme.of(context);
+
     return closetsAsyncValue.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => Center(child: Text('Lỗi: $error')),
       data: (closets) {
         return ListView.builder(
           padding: const EdgeInsets.only(top: 8),
-          // <<< BƯỚC 4: Tăng itemCount lên 1 để chứa dòng "Thêm tủ đồ"
           itemCount: closets.length + 1,
           itemBuilder: (ctx, index) {
-            // <<< BƯỚC 5: Thêm logic để hiển thị dòng cuối cùng
             if (index == closets.length) {
-              // Đây là dòng cuối cùng
+              // <<< SỬA ĐỔI Ở ĐÂY >>>
               return ListTile(
-                leading: const Icon(Icons.add_circle_outline, color: Colors.deepPurple),
-                title: const Text(
-                  'Thêm tủ đồ mới...',
-                  style: TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold),
+                leading: Icon(
+                  Icons.add_circle_outline, 
+                  color: theme.colorScheme.primary // Lấy màu từ theme
                 ),
-                onTap: () => _showAddClosetDialog(context, ref), // Gọi hàm đã được di chuyển ra ngoài
+                title: Text(
+                  'Thêm tủ đồ mới...',
+                  style: TextStyle(
+                    color: theme.colorScheme.primary, // Lấy màu từ theme
+                    fontWeight: FontWeight.bold
+                  ),
+                ),
+                onTap: () => _showAddClosetDialog(context, ref),
               );
             }
 
-            // Các dòng bình thường hiển thị tủ đồ
             final closet = closets[index];
             return ListTile(
               leading: const Icon(Icons.inventory_2_outlined),

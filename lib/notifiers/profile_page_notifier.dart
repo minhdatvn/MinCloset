@@ -14,7 +14,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   }
 
   Future<void> loadInitialData() async {
-    // Không cần set isLoading ở đây nữa vì state mặc định đã là true
+    state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final prefs = await SharedPreferences.getInstance();
       final closetRepo = _ref.read(closetRepositoryProvider);
@@ -33,17 +33,41 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
 
       final colorDist = <String, int>{};
       final categoryDist = <String, int>{};
+      // <<< KHAI BÁO 2 BIẾN MỚI >>>
+      final seasonDist = <String, int>{};
+      final occasionDist = <String, int>{};
+
       for (final item in allItems) {
+        // Xử lý màu sắc
         final colors = item.color.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
         for (final color in colors) {
           colorDist[color] = (colorDist[color] ?? 0) + 1;
         }
+        // Xử lý danh mục
         final mainCategory = item.category.split('>').first.trim();
-        categoryDist[mainCategory] = (categoryDist[mainCategory] ?? 0) + 1;
+        if (mainCategory.isNotEmpty) {
+          categoryDist[mainCategory] = (categoryDist[mainCategory] ?? 0) + 1;
+        }
+
+        // <<< THÊM LOGIC TÍNH TOÁN MỚI >>>
+        // Xử lý mùa
+        if (item.season != null && item.season!.isNotEmpty) {
+          final seasons = item.season!.split(',').map((e) => e.trim());
+          for (final season in seasons) {
+            seasonDist[season] = (seasonDist[season] ?? 0) + 1;
+          }
+        }
+        // Xử lý mục đích
+        if (item.occasion != null && item.occasion!.isNotEmpty) {
+          final occasions = item.occasion!.split(',').map((e) => e.trim());
+          for (final occasion in occasions) {
+            occasionDist[occasion] = (occasionDist[occasion] ?? 0) + 1;
+          }
+        }
       }
 
       state = state.copyWith(
-        isLoading: false, // <<< Tải xong, đặt isLoading=false
+        isLoading: false,
         userName: userName,
         avatarPath: avatarPath,
         cityMode: cityMode,
@@ -53,10 +77,12 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
         totalOutfits: allOutfits.length,
         colorDistribution: colorDist,
         categoryDistribution: categoryDist,
+        // <<< TRUYỀN DỮ LIỆU MỚI VÀO STATE >>>
+        seasonDistribution: seasonDist,
+        occasionDistribution: occasionDist,
       );
     } catch (e, s) {
       logger.e("Lỗi khi tải dữ liệu trang cá nhân", error: e, stackTrace: s);
-      // <<< Cập nhật state với thông báo lỗi
       state = state.copyWith(
         isLoading: false,
         errorMessage: "Không thể tải dữ liệu. Vui lòng thử lại.",
@@ -64,6 +90,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     }
   }
 
+  // ... các hàm còn lại không đổi
   Future<void> updateUserName(String name) async {
     if (name.trim().isEmpty) return;
     final prefs = await SharedPreferences.getInstance();
@@ -79,7 +106,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       final path = pickedFile.path;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_avatar_path', path);
-      // Cập nhật state để UI build lại với ảnh mới
       state = state.copyWith(avatarPath: path);
     }
   }

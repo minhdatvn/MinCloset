@@ -15,14 +15,21 @@ class GlobalAddButton extends ConsumerStatefulWidget {
 class _GlobalAddButtonState extends ConsumerState<GlobalAddButton> {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return FloatingActionButton(
       heroTag: 'global_add_fab',
       onPressed: () {
         _showImageSourceActionSheet(context);
       },
       shape: const CircleBorder(),
-      backgroundColor: Colors.black,
-      child: const Icon(Icons.add, color: Colors.white, size: 30),
+      // <<< SỬA ĐỔI Ở ĐÂY >>>
+      backgroundColor: theme.colorScheme.primary, // Lấy màu Mocha Mousse từ theme
+      child: Icon(
+        Icons.add, 
+        color: theme.colorScheme.onPrimary, // Lấy màu trắng (trên nền primary) từ theme
+        size: 30
+      ),
     );
   }
 

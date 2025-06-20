@@ -6,7 +6,7 @@ enum CityMode { auto, manual }
 
 @immutable
 class ProfilePageState extends Equatable {
-  final bool isLoading; // <<< THÊM TRƯỜNG NÀY
+  final bool isLoading;
   final String? userName;
   final String? avatarPath;
   final CityMode cityMode;
@@ -16,10 +16,13 @@ class ProfilePageState extends Equatable {
   final int totalOutfits;
   final Map<String, int> colorDistribution;
   final Map<String, int> categoryDistribution;
-  final String? errorMessage; // <<< THÊM TRƯỜNG NÀY ĐỂ BÁO LỖI
+  // <<< THÊM 2 TRƯỜNG MỚI >>>
+  final Map<String, int> seasonDistribution;
+  final Map<String, int> occasionDistribution;
+  final String? errorMessage;
 
   const ProfilePageState({
-    this.isLoading = true, // <<< Mặc định là đang tải khi mới khởi tạo
+    this.isLoading = true,
     this.userName,
     this.avatarPath,
     this.cityMode = CityMode.auto,
@@ -29,11 +32,14 @@ class ProfilePageState extends Equatable {
     this.totalOutfits = 0,
     this.colorDistribution = const {},
     this.categoryDistribution = const {},
+    // <<< KHỞI TẠO GIÁ TRỊ MẶC ĐỊNH >>>
+    this.seasonDistribution = const {},
+    this.occasionDistribution = const {},
     this.errorMessage,
   });
 
   ProfilePageState copyWith({
-    bool? isLoading, // <<< THÊM VÀO ĐÂY
+    bool? isLoading,
     String? userName,
     String? avatarPath,
     CityMode? cityMode,
@@ -43,10 +49,13 @@ class ProfilePageState extends Equatable {
     int? totalOutfits,
     Map<String, int>? colorDistribution,
     Map<String, int>? categoryDistribution,
+    // <<< THÊM VÀO HÀM COPYWITH >>>
+    Map<String, int>? seasonDistribution,
+    Map<String, int>? occasionDistribution,
     String? errorMessage,
   }) {
     return ProfilePageState(
-      isLoading: isLoading ?? this.isLoading, // <<< THÊM VÀO ĐÂY
+      isLoading: isLoading ?? this.isLoading,
       userName: userName ?? this.userName,
       avatarPath: avatarPath ?? this.avatarPath,
       cityMode: cityMode ?? this.cityMode,
@@ -56,13 +65,16 @@ class ProfilePageState extends Equatable {
       totalOutfits: totalOutfits ?? this.totalOutfits,
       colorDistribution: colorDistribution ?? this.colorDistribution,
       categoryDistribution: categoryDistribution ?? this.categoryDistribution,
+      // <<< CẬP NHẬT Ở ĐÂY >>>
+      seasonDistribution: seasonDistribution ?? this.seasonDistribution,
+      occasionDistribution: occasionDistribution ?? this.occasionDistribution,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
   @override
   List<Object?> get props => [
-        isLoading, // <<< THÊM VÀO ĐÂY
+        isLoading,
         userName,
         avatarPath,
         cityMode,
@@ -72,6 +84,9 @@ class ProfilePageState extends Equatable {
         totalOutfits,
         colorDistribution,
         categoryDistribution,
+        // <<< THÊM VÀO PROPS >>>
+        seasonDistribution,
+        occasionDistribution,
         errorMessage
       ];
 }

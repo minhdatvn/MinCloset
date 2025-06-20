@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 // 1. Định nghĩa các màu sắc cốt lõi của bạn
-const Color mochaMousse = Color(0xFF755D4C); // Màu nhấn chính (Màu của năm 2025)
+const Color mochaMousse = Color(0xFF644D3C); // Màu nhấn chính (Màu của năm 2025)
 const Color almostBlack = Color(0xFF1C1C1E); // Màu đen tuyền cho chữ và các yếu tố chính
 const Color lightGray = Color(0xFFF2F2F7);   // Màu xám rất nhạt cho nền của các thẻ
 const Color midGray = Color(0xFFE5E5EA);     // Màu xám cho đường viền

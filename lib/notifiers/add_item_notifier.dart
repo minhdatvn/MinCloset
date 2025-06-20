@@ -12,6 +12,7 @@ import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/states/add_item_state.dart';
 
+
 class ItemNotifierArgs extends Equatable {
   final String tempId;
   final ClothingItem? itemToEdit;
@@ -25,15 +26,11 @@ class ItemNotifierArgs extends Equatable {
     this.preAnalyzedState,
   });
   
-  // <<< THAY ĐỔI DUY NHẤT VÀ QUAN TRỌNG NHẤT LÀ Ở ĐÂY >>>
-  // Chúng ta chỉ định rằng việc so sánh bằng nhau chỉ dựa trên `tempId`.
-  // Các trường khác chỉ là dữ liệu để truyền vào lúc khởi tạo.
   @override
   List<Object?> get props => [tempId];
 }
 
 
-// Các phần còn lại của file giữ nguyên, không cần thay đổi
 class AddItemNotifier extends StateNotifier<AddItemState> {
   final ClothingItemRepository _clothingItemRepo;
   final Ref _ref;
@@ -53,42 +50,27 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
   }
 
+  // ... Tất cả các hàm khác trong class này giữ nguyên, không cần thay đổi ...
   String _normalizeCategory(String? rawCategory) {
-    if (rawCategory == null || rawCategory.trim().isEmpty) {
-      return 'Khác > Khác';
-    }
-    if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) {
-      return '$rawCategory > Khác';
-    }
+    if (rawCategory == null || rawCategory.trim().isEmpty) { return 'Khác > Khác'; }
+    if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) { return '$rawCategory > Khác'; }
     final parts = rawCategory.split(' > ');
-    if (!AppOptions.categories.containsKey(parts.first)) {
-      return 'Khác > Khác';
-    }
+    if (!AppOptions.categories.containsKey(parts.first)) { return 'Khác > Khác'; }
     return rawCategory;
   }
   Set<String> _normalizeMultiSelect(dynamic rawValue, List<String> validOptions) {
     final selections = <String>{};
-    if (rawValue == null) {
-      return selections;
-    }
+    if (rawValue == null) { return selections; }
     final validOptionsSet = validOptions.toSet();
     bool hasUnknowns = false;
     List<String> valuesToProcess = [];
-    if (rawValue is String) {
-      valuesToProcess = [rawValue];
-    } else if (rawValue is List) {
-      valuesToProcess = rawValue.map((e) => e.toString()).toList();
-    }
+    if (rawValue is String) { valuesToProcess = [rawValue]; } 
+    else if (rawValue is List) { valuesToProcess = rawValue.map((e) => e.toString()).toList(); }
     for (final value in valuesToProcess) {
-      if (validOptionsSet.contains(value)) {
-        selections.add(value);
-      } else {
-        hasUnknowns = true;
-      }
+      if (validOptionsSet.contains(value)) { selections.add(value); } 
+      else { hasUnknowns = true; }
     }
-    if (hasUnknowns && validOptionsSet.contains('Khác')) {
-      selections.add('Khác');
-    }
+    if (hasUnknowns && validOptionsSet.contains('Khác')) { selections.add('Khác'); }
     return selections;
   }
   void onNameChanged(String name) => state = state.copyWith(name: name);
@@ -121,34 +103,27 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       state = state.copyWith(isAnalyzing: false);
     }
   }
-  
   Future<void> saveItem() async {
     if (state.image == null && state.imagePath == null) {
       state = state.copyWith(errorMessage: 'Vui lòng thêm ảnh cho món đồ.');
       return;
     }
-
     state = state.copyWith(isLoading: true, errorMessage: null);
-
     final validateRequiredUseCase = _ref.read(validateRequiredFieldsUseCaseProvider);
     final requiredResult = validateRequiredUseCase.executeForSingle(state);
-
     if (!requiredResult.success) {
       state = state.copyWith(isLoading: false, errorMessage: requiredResult.errorMessage);
       return;
     }
-
     final validateNameUseCase = _ref.read(validateItemNameUseCaseProvider);
     final nameValidationResult = await validateNameUseCase.forSingleItem(
       name: state.name,
       existingId: state.isEditing ? state.id : null,
     );
-
     if (!nameValidationResult.success) {
       state = state.copyWith(isLoading: false, errorMessage: nameValidationResult.errorMessage);
       return;
     }
-
     final clothingItem = ClothingItem(
       id: state.isEditing ? state.id : const Uuid().v4(),
       name: state.name.trim(),
@@ -161,7 +136,6 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       material: state.selectedMaterials.join(', '),
       pattern: state.selectedPatterns.join(', '),
     );
-
     try {
       if (state.isEditing) {
         await _clothingItemRepo.updateItem(clothingItem);
@@ -173,7 +147,6 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       state = state.copyWith(isLoading: false, errorMessage: 'Lỗi khi lưu: $e');
     }
   }
-
   Future<void> deleteItem() async {
     if (!state.isEditing) {
       return;
@@ -188,7 +161,8 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   }
 }
 
-final addItemProvider = StateNotifierProvider.autoDispose
+// <<< THAY ĐỔI DUY NHẤT TRONG FILE NÀY LÀ XÓA BỎ ".autoDispose" >>>
+final addItemProvider = StateNotifierProvider
     .family<AddItemNotifier, AddItemState, ItemNotifierArgs>((ref, args) {
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
   return AddItemNotifier(clothingItemRepo, ref, args);

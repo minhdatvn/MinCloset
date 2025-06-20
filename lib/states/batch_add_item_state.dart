@@ -1,49 +1,53 @@
 // lib/states/batch_add_item_state.dart
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mincloset/notifiers/add_item_notifier.dart'; // <<< THÊM IMPORT
+import 'package:mincloset/notifiers/add_item_notifier.dart';
 
 @immutable
 class BatchAddItemState extends Equatable {
   final bool isLoading;
   final bool analysisSuccess;
-
-  // <<< THAY ĐỔI: Lưu toàn bộ đối tượng Args để đảm bảo dữ liệu được truyền đi
   final List<ItemNotifierArgs> itemArgsList;
-
   final int currentIndex;
   final bool isSaving;
   final bool saveSuccess;
-  final String? errorMessage;
+  
+  // <<< THAY ĐỔI: Tách thành 2 trạng thái lỗi riêng biệt >>>
+  final String? analysisErrorMessage;
+  final String? saveErrorMessage;
 
   const BatchAddItemState({
     this.isLoading = false,
     this.analysisSuccess = false,
-    this.itemArgsList = const [], // <<< THAY ĐỔI
+    this.itemArgsList = const [],
     this.currentIndex = 0,
     this.isSaving = false,
     this.saveSuccess = false,
-    this.errorMessage,
+    this.analysisErrorMessage,
+    this.saveErrorMessage,
   });
 
   BatchAddItemState copyWith({
     bool? isLoading,
     bool? analysisSuccess,
-    List<ItemNotifierArgs>? itemArgsList, // <<< THAY ĐỔI
+    List<ItemNotifierArgs>? itemArgsList,
     int? currentIndex,
     bool? isSaving,
     bool? saveSuccess,
-    String? errorMessage,
-    bool clearError = false,
+    String? analysisErrorMessage,
+    String? saveErrorMessage,
+    bool clearAnalysisError = false,
+    bool clearSaveError = false,
   }) {
     return BatchAddItemState(
       isLoading: isLoading ?? this.isLoading,
       analysisSuccess: analysisSuccess ?? this.analysisSuccess,
-      itemArgsList: itemArgsList ?? this.itemArgsList, // <<< THAY ĐỔI
+      itemArgsList: itemArgsList ?? this.itemArgsList,
       currentIndex: currentIndex ?? this.currentIndex,
       isSaving: isSaving ?? this.isSaving,
       saveSuccess: saveSuccess ?? this.saveSuccess,
-      errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
+      analysisErrorMessage: clearAnalysisError ? null : analysisErrorMessage ?? this.analysisErrorMessage,
+      saveErrorMessage: clearSaveError ? null : saveErrorMessage ?? this.saveErrorMessage,
     );
   }
 
@@ -51,10 +55,11 @@ class BatchAddItemState extends Equatable {
   List<Object?> get props => [
         isLoading,
         analysisSuccess,
-        itemArgsList, // <<< THAY ĐỔI
+        itemArgsList,
         currentIndex,
         isSaving,
         saveSuccess,
-        errorMessage,
+        analysisErrorMessage,
+        saveErrorMessage,
       ];
 }

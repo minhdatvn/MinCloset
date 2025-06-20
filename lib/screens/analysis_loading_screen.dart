@@ -9,12 +9,10 @@ import 'package:mincloset/states/batch_add_item_state.dart';
 
 class AnalysisLoadingScreen extends ConsumerStatefulWidget {
   final List<XFile> images;
-
   const AnalysisLoadingScreen({super.key, required this.images});
 
   @override
-  ConsumerState<AnalysisLoadingScreen> createState() =>
-      _AnalysisLoadingScreenState();
+  ConsumerState<AnalysisLoadingScreen> createState() => _AnalysisLoadingScreenState();
 }
 
 class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
@@ -33,40 +31,26 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
     final navigator = Navigator.of(context);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
+    // <<< THAY ĐỔI: Listener chỉ phản ứng với lỗi phân tích >>>
     ref.listen<BatchAddItemState>(batchAddItemProvider, (previous, next) async {
       if (!mounted) return;
 
+      // Xử lý khi phân tích thành công
       if (next.analysisSuccess && previous?.analysisSuccess == false) {
-        // <<< THAY ĐỔI: Lấy ra danh sách args
         final analyzedItemArgs = ref.read(batchAddItemProvider).itemArgsList;
         bool? result;
 
         if (analyzedItemArgs.length == 1) {
-          result = await navigator.push<bool>(
-            MaterialPageRoute(
-              builder: (context) => AddItemScreen(
-                // Lấy preAnalyzedState từ args
-                preAnalyzedState: analyzedItemArgs.first.preAnalyzedState,
-              ),
-            ),
-          );
+          result = await navigator.push<bool>(MaterialPageRoute(builder: (context) => AddItemScreen(preAnalyzedState: analyzedItemArgs.first.preAnalyzedState)));
         } else if (analyzedItemArgs.length > 1) {
-          result = await navigator.push<bool>(
-            MaterialPageRoute(
-              builder: (context) => const BatchAddItemScreen(),
-            ),
-          );
+          result = await navigator.push<bool>(MaterialPageRoute(builder: (context) => const BatchAddItemScreen()));
         }
-
-        if (mounted) {
-          navigator.pop(result);
-        }
+        if (mounted) { navigator.pop(result); }
       }
       
-      else if (next.errorMessage != null && previous?.errorMessage == null) {
-        scaffoldMessenger.showSnackBar(
-          SnackBar(content: Text('Lỗi phân tích: ${next.errorMessage}')),
-        );
+      // Xử lý khi chỉ có lỗi phân tích
+      else if (next.analysisErrorMessage != null && previous?.analysisErrorMessage == null) {
+        scaffoldMessenger.showSnackBar(SnackBar(content: Text('Lỗi phân tích: ${next.analysisErrorMessage}')));
         navigator.pop(false);
       }
     });
@@ -79,17 +63,12 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
+              const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
               const SizedBox(height: 24),
               Text(
                 'A.I đang xem hình ảnh của bạn để nhập sẵn thông tin. Sau khi kết thúc bạn có thể tự chỉnh sửa.',
                 textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(color: Colors.white, height: 1.5),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, height: 1.5),
               ),
             ],
           ),

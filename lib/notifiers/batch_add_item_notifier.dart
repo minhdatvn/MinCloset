@@ -19,145 +19,123 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
   BatchAddItemNotifier(this._clothingItemRepo, this._ref)
       : super(const BatchAddItemState());
 
-  // <<< SỬA LỖI LINTER Ở ĐÂY >>>
+  // ... các hàm helper giữ nguyên ...
   String _normalizeCategory(String? rawCategory) {
-    if (rawCategory == null || rawCategory.trim().isEmpty) {
-      return 'Khác > Khác';
-    }
-    if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) {
-      return '$rawCategory > Khác';
-    }
+    if (rawCategory == null || rawCategory.trim().isEmpty) { return 'Khác > Khác'; }
+    if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) { return '$rawCategory > Khác'; }
     final parts = rawCategory.split(' > ');
-    if (!AppOptions.categories.containsKey(parts.first)) {
-      return 'Khác > Khác';
-    }
+    if (!AppOptions.categories.containsKey(parts.first)) { return 'Khác > Khác'; }
     return rawCategory;
   }
-
-  // <<< SỬA LỖI LINTER Ở ĐÂY >>>
   Set<String> _normalizeMultiSelect(dynamic rawValue, List<String> validOptions) {
     final selections = <String>{};
-    if (rawValue == null) {
-      return selections;
-    }
+    if (rawValue == null) { return selections; }
     final validOptionsSet = validOptions.toSet();
     bool hasUnknowns = false;
     List<String> valuesToProcess = [];
-    if (rawValue is String) {
-      valuesToProcess = [rawValue];
-    } else if (rawValue is List) {
-      valuesToProcess = rawValue.map((e) => e.toString()).toList();
-    }
+    if (rawValue is String) { valuesToProcess = [rawValue]; } 
+    else if (rawValue is List) { valuesToProcess = rawValue.map((e) => e.toString()).toList(); }
     for (final value in valuesToProcess) {
-      if (validOptionsSet.contains(value)) {
-        selections.add(value);
-      } else {
-        hasUnknowns = true;
-      }
+      if (validOptionsSet.contains(value)) { selections.add(value); } 
+      else { hasUnknowns = true; }
     }
-    if (hasUnknowns && validOptionsSet.contains('Khác')) {
-      selections.add('Khác');
-    }
+    if (hasUnknowns && validOptionsSet.contains('Khác')) { selections.add('Khác'); }
     return selections;
   }
-  
-  // Các hàm còn lại giữ nguyên
   Future<void> analyzeAllImages(List<XFile> images) async {
-    state = state.copyWith(isLoading: true, clearError: true);
+    state = state.copyWith(isLoading: true, clearAnalysisError: true);
     final useCase = _ref.read(analyzeItemUseCaseProvider);
     final analysisTasks = images.map((image) => useCase.execute(image)).toList();
-
     try {
       final results = await Future.wait(analysisTasks);
       final List<ItemNotifierArgs> itemArgsList = [];
-      
       for (int i = 0; i < images.length; i++) {
         final result = results[i];
         final imageFile = images[i];
         final tempId = const Uuid().v4();
-
         final preAnalyzedState = AddItemState(
-          id: tempId,
-          name: result['name'] as String? ?? '',
-          image: File(imageFile.path),
+          id: tempId, name: result['name'] as String? ?? '', image: File(imageFile.path),
           selectedCategoryValue: _normalizeCategory(result['category'] as String?),
           selectedColors: (result['colors'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ?? {},
           selectedMaterials: _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList()),
           selectedPatterns: _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList()),
         );
-
-        final args = ItemNotifierArgs(
-          tempId: tempId,
-          preAnalyzedState: preAnalyzedState,
-        );
-        
+        final args = ItemNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState);
         itemArgsList.add(args);
         _ref.read(addItemProvider(args));
       }
-
-      state = state.copyWith(
-        isLoading: false,
-        itemArgsList: itemArgsList,
-        analysisSuccess: true,
-      );
+      state = state.copyWith(isLoading: false, itemArgsList: itemArgsList, analysisSuccess: true);
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: e.toString());
+      state = state.copyWith(isLoading: false, analysisErrorMessage: e.toString());
     }
   }
   
-  void setCurrentIndex(int index) => state = state.copyWith(currentIndex: index);
+  void setCurrentIndex(int index) {
+    // Chỉ cập nhật index, không cần validation ở đây vì đây là hành động của người dùng (vuốt tay)
+    state = state.copyWith(currentIndex: index, clearSaveError: true);
+  }
+
+  // <<< THAY ĐỔI LOGIC Ở ĐÂY >>>
   void nextPage() {
-    if (state.currentIndex < state.itemArgsList.length - 1) {
-      state = state.copyWith(currentIndex: state.currentIndex + 1);
+    // 1. Lấy state của item hiện tại
+    final currentItemArgs = state.itemArgsList[state.currentIndex];
+    final currentItemState = _ref.read(addItemProvider(currentItemArgs));
+    
+    // 2. Kiểm tra các trường bắt buộc của item hiện tại
+    final validationResult = _ref.read(validateRequiredFieldsUseCaseProvider).executeForSingle(currentItemState);
+
+    if (validationResult.success) {
+      // 3a. Nếu hợp lệ, cho phép chuyển trang
+      if (state.currentIndex < state.itemArgsList.length - 1) {
+        state = state.copyWith(
+          currentIndex: state.currentIndex + 1,
+          clearSaveError: true // Xóa lỗi cũ khi chuyển trang thành công
+        );
+      }
+    } else {
+      // 3b. Nếu không hợp lệ, hiển thị lỗi và không chuyển trang
+      state = state.copyWith(saveErrorMessage: validationResult.errorMessage);
     }
   }
+
   void previousPage() {
+    // Không cần validation khi quay lại trang trước
     if (state.currentIndex > 0) {
-      state = state.copyWith(currentIndex: state.currentIndex - 1);
+      state = state.copyWith(
+        currentIndex: state.currentIndex - 1,
+        clearSaveError: true
+      );
     }
   }
 
   Future<void> saveAll() async {
-    state = state.copyWith(isSaving: true, clearError: true);
-
-    final List<AddItemState> itemStates = state.itemArgsList.map((args) {
-        return _ref.read(addItemProvider(args));
-    }).toList();
-
+    state = state.copyWith(isSaving: true, clearSaveError: true);
+    final List<AddItemState> itemStates = state.itemArgsList.map((args) => _ref.read(addItemProvider(args))).toList();
     final validateRequiredUseCase = _ref.read(validateRequiredFieldsUseCaseProvider);
     final requiredResult = validateRequiredUseCase.executeForBatch(itemStates);
     if (!requiredResult.success) {
-      state = state.copyWith(isSaving: false, errorMessage: requiredResult.errorMessage, currentIndex: requiredResult.errorIndex);
+      state = state.copyWith(isSaving: false, saveErrorMessage: requiredResult.errorMessage, currentIndex: requiredResult.errorIndex);
       return;
     }
-
     final validateNameUseCase = _ref.read(validateItemNameUseCaseProvider);
     final nameValidationResult = await validateNameUseCase.forBatch(itemStates);
     if (!nameValidationResult.success) {
-      state = state.copyWith(isSaving: false, errorMessage: nameValidationResult.errorMessage, currentIndex: nameValidationResult.errorIndex);
+      state = state.copyWith(isSaving: false, saveErrorMessage: nameValidationResult.errorMessage, currentIndex: nameValidationResult.errorIndex);
       return;
     }
-
     final List<ClothingItem> itemsToSave = itemStates.map((itemState) {
       return ClothingItem(
-        id: const Uuid().v4(),
-        name: itemState.name.trim(),
-        category: itemState.selectedCategoryValue,
-        closetId: itemState.selectedClosetId!,
-        imagePath: itemState.image!.path,
-        color: itemState.selectedColors.join(', '),
-        season: itemState.selectedSeasons.join(', '),
-        occasion: itemState.selectedOccasions.join(', '),
-        material: itemState.selectedMaterials.join(', '),
-        pattern: itemState.selectedPatterns.join(', '),
+        id: const Uuid().v4(), name: itemState.name.trim(), category: itemState.selectedCategoryValue,
+        closetId: itemState.selectedClosetId!, imagePath: itemState.image!.path, color: itemState.selectedColors.join(', '),
+        season: itemState.selectedSeasons.join(', '), occasion: itemState.selectedOccasions.join(', '),
+        material: itemState.selectedMaterials.join(', '), pattern: itemState.selectedPatterns.join(', '),
       );
     }).toList();
-
     try {
       await _clothingItemRepo.insertBatchItems(itemsToSave);
       state = state.copyWith(isSaving: false, saveSuccess: true);
     } catch (e) {
-      state = state.copyWith(isSaving: false, errorMessage: "Lỗi khi lưu: $e");
+      state = state.copyWith(isSaving: false, saveErrorMessage: "Lỗi khi lưu: $e");
     }
   }
 }

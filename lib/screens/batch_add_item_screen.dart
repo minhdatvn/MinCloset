@@ -8,7 +8,6 @@ import 'package:mincloset/widgets/item_detail_form.dart';
 
 class BatchAddItemScreen extends ConsumerStatefulWidget {
   const BatchAddItemScreen({super.key});
-
   @override
   ConsumerState<BatchAddItemScreen> createState() => _BatchAddItemScreenState();
 }
@@ -32,22 +31,31 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(batchAddItemProvider);
     final notifier = ref.read(batchAddItemProvider.notifier);
-    // <<< THAY ĐỔI: Lấy ra danh sách args
     final itemArgsList = state.itemArgsList;
 
+    // <<< THAY ĐỔI LOGIC LISTENER ĐỂ MẠNH MẼ HƠN >>>
     ref.listen<BatchAddItemState>(batchAddItemProvider, (previous, next) {
-      if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
-      }
-      if (next.saveSuccess) {
+      // 1. Xử lý thành công
+      if (next.saveSuccess && !previous!.saveSuccess) {
         Navigator.of(context).pop(true);
+        return;
       }
-      if (previous?.currentIndex != next.currentIndex && next.currentIndex != _pageController.page?.round()) {
-        _pageController.animateToPage(
-          next.currentIndex,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        );
+      
+      // 2. Xử lý hiển thị lỗi
+      if (next.saveErrorMessage != null && next.saveErrorMessage != previous?.saveErrorMessage) {
+        ScaffoldMessenger.of(context).removeCurrentSnackBar(); // Xóa snackbar cũ nếu có
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.saveErrorMessage!)));
+      }
+
+      // 3. Xử lý đồng bộ PageController (luôn chạy khi index thay đổi)
+      if (previous != null && next.currentIndex != previous.currentIndex) {
+        if (_pageController.hasClients && _pageController.page?.round() != next.currentIndex) {
+          _pageController.animateToPage(
+            next.currentIndex,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
       }
     });
 
@@ -56,18 +64,15 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Thêm món đồ (${state.currentIndex + 1}/${itemArgsList.length})'),
-      ),
+      appBar: AppBar(title: Text('Thêm món đồ (${state.currentIndex + 1}/${itemArgsList.length})')),
       body: Column(
         children: [
           Expanded(
             child: PageView.builder(
               controller: _pageController,
               itemCount: itemArgsList.length,
-              onPageChanged: notifier.setCurrentIndex,
+              onPageChanged: notifier.setCurrentIndex, // Người dùng vuốt tay
               itemBuilder: (context, index) {
-                // <<< THAY ĐỔI: Lấy ra args tại vị trí index
                 final itemArgs = itemArgsList[index];
                 return ItemFormPage(key: ValueKey(itemArgs.tempId), providerArgs: itemArgs);
               },
@@ -88,11 +93,8 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
                   )
                 ),
                 if (state.currentIndex < itemArgsList.length - 1)
-                  ElevatedButton.icon(
-                    onPressed: notifier.nextPage,
-                    icon: const Icon(Icons.arrow_forward),
-                    label: const Text('Sau'),
-                  )
+                  // Nút "Sau" giờ sẽ gọi hàm nextPage đã có validation
+                  ElevatedButton.icon(onPressed: notifier.nextPage, icon: const Icon(Icons.arrow_forward), label: const Text('Sau'))
                 else
                   ElevatedButton.icon(
                     onPressed: state.isSaving ? null : notifier.saveAll,
@@ -110,14 +112,13 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
   }
 }
 
+// ItemFormPage không thay đổi
 class ItemFormPage extends ConsumerWidget {
-  // <<< THAY ĐỔI: Nhận vào một đối tượng ItemNotifierArgs
   final ItemNotifierArgs providerArgs;
   const ItemFormPage({super.key, required this.providerArgs});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // <<< THAY ĐỔI: Sử dụng trực tiếp providerArgs nhận được
     final itemState = ref.watch(addItemProvider(providerArgs));
     final itemNotifier = ref.read(addItemProvider(providerArgs).notifier);
 

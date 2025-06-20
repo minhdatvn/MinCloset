@@ -1,5 +1,4 @@
 // lib/notifiers/add_item_notifier.dart
-
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,11 +9,11 @@ import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:uuid/uuid.dart';
-// <<< SỬA LỖI 2: XÓA IMPORT KHÔNG SỬ DỤNG >>>
 
 class AddItemNotifier extends StateNotifier<AddItemState> {
   final ClothingItemRepository _clothingItemRepo;
   final Ref _ref;
+  // <<< SỬA LỖI: XÓA BỎ TRƯỜNG `_originalName` KHÔNG SỬ DỤNG >>>
 
   AddItemNotifier(this._clothingItemRepo, this._ref, AddItemScreenArgs args)
       : super(
@@ -27,8 +26,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       analyzeImage(args.newImage!);
     }
   }
-
-  // Các hàm còn lại đã chính xác và không thay đổi
+  
   String _normalizeCategory(String? rawCategory) {
     if (rawCategory == null || rawCategory.trim().isEmpty) {
       return 'Khác > Khác';
@@ -82,7 +80,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   void onOccasionsChanged(Set<String> occasions) => state = state.copyWith(selectedOccasions: occasions);
   void onMaterialsChanged(Set<String> materials) => state = state.copyWith(selectedMaterials: materials);
   void onPatternsChanged(Set<String> patterns) => state = state.copyWith(selectedPatterns: patterns);
-  
+
   Future<void> pickImage(ImageSource source) async {
     final imagePicker = ImagePicker();
     final pickedFile = await imagePicker.pickImage(source: source, maxWidth: 1024, imageQuality: 85);
@@ -106,12 +104,13 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     if (result.isNotEmpty && mounted) {
       final category = _normalizeCategory(result['category'] as String?);
       final colors = (result['colors'] as List<dynamic>?)?.map((e) => e.toString()).toSet();
-      
       final materials = _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList());
       final patterns = _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList());
+      final suggestedName = result['name'] as String?;
 
       state = state.copyWith(
         isAnalyzing: false,
+        name: suggestedName ?? state.name,
         selectedCategoryValue: category,
         selectedColors: colors ?? state.selectedColors,
         selectedMaterials: materials.isNotEmpty ? materials : state.selectedMaterials,
@@ -127,7 +126,8 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       state = state.copyWith(errorMessage: 'Vui lòng thêm ảnh cho món đồ.');
       return;
     }
-    if (state.name.trim().isEmpty) {
+    final trimmedName = state.name.trim();
+    if (trimmedName.isEmpty) {
       state = state.copyWith(errorMessage: 'Vui lòng nhập tên món đồ.');
       return;
     }
@@ -139,12 +139,26 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       state = state.copyWith(errorMessage: 'Vui lòng chọn danh mục cho món đồ.');
       return;
     }
-
-    state = state.copyWith(isLoading: true, errorMessage: null);
     
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    final bool nameExists = await _clothingItemRepo.itemNameExists(
+      trimmedName, 
+      state.selectedClosetId!,
+      currentItemId: state.isEditing ? state.id : null,
+    );
+
+    if (nameExists) {
+      state = state.copyWith(
+        isLoading: false, 
+        errorMessage: 'Tên "$trimmedName" đã được sử dụng. Bạn vui lòng chọn tên khác. Có thể thêm số vào sau tên (ví dụ: Áo 1, Áo 2,...) để dễ phân biệt'
+      );
+      return;
+    }
+
     final clothingItem = ClothingItem(
       id: state.isEditing ? state.id : const Uuid().v4(),
-      name: state.name,
+      name: trimmedName,
       category: state.selectedCategoryValue,
       closetId: state.selectedClosetId!,
       imagePath: state.image?.path ?? state.imagePath!,

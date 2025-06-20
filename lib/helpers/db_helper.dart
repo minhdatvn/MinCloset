@@ -6,6 +6,7 @@ import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit.dart';
 
 class DatabaseHelper {
+  // ... các hàm khác không đổi ...
   sql.Database? _database;
   static final DatabaseHelper instance = DatabaseHelper._init();
   DatabaseHelper._init();
@@ -118,6 +119,27 @@ class DatabaseHelper {
       where: 'name LIKE ?',
       whereArgs: ['%$query%'],
     );
+  }
+
+  // <<< THÊM HÀM MỚI Ở ĐÂY >>>
+  Future<bool> itemNameExistsInCloset(String name, String closetId, {String? currentItemId}) async {
+    final db = await instance.database;
+    // Chỉnh sửa câu truy vấn để loại trừ item hiện tại (khi chỉnh sửa)
+    String whereClause = 'name = ? AND closetId = ?';
+    List<dynamic> whereArgs = [name, closetId];
+
+    if (currentItemId != null) {
+      whereClause += ' AND id != ?';
+      whereArgs.add(currentItemId);
+    }
+    
+    final result = await db.query(
+      'clothing_items',
+      where: whereClause,
+      whereArgs: whereArgs,
+      limit: 1, // Chỉ cần tìm 1 là đủ
+    );
+    return result.isNotEmpty;
   }
 
   // === CÁC HÀM MỚI CHO OUTFIT ===

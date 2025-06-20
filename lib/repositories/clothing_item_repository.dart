@@ -42,7 +42,6 @@ class ClothingItemRepository {
   }
 
   Future<List<ClothingItem>> searchItemsInCloset(String closetId, String query) async {
-    // Nếu query rỗng, trả về tất cả item trong tủ đồ đó
     if (query.isEmpty) {
       return getItemsInCloset(closetId);
     }
@@ -50,9 +49,12 @@ class ClothingItemRepository {
     return data.map((map) => ClothingItem.fromMap(map)).toList();
   }
 
-  // Thêm vào trong lớp ClothingItemRepository
   Future<List<ClothingItem>> searchAllItems(String query) async {
     final data = await _dbHelper.searchAllItems(query);
     return data.map((map) => ClothingItem.fromMap(map)).toList();
+  }
+
+  Future<bool> itemNameExists(String name, String closetId, {String? currentItemId}) {
+    return _dbHelper.itemNameExistsInCloset(name, closetId, currentItemId: currentItemId);
   }
 }

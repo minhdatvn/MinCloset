@@ -3,16 +3,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mincloset/models/closet.dart';
+import 'package:mincloset/notifiers/closets_page_notifier.dart'; // <<< THÊM IMPORT MỚI
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/providers/event_providers.dart';
-import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/pages/closet_detail_page.dart';
 import 'package:mincloset/widgets/filter_bottom_sheet.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
-import 'package:uuid/uuid.dart';
 
 void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
   final nameController = TextEditingController();
@@ -29,11 +27,11 @@ void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
         TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
         ElevatedButton(
           onPressed: () async {
-            if (nameController.text.trim().isEmpty) return;
-            final newCloset = Closet(id: const Uuid().v4(), name: nameController.text.trim());
-            await ref.read(closetRepositoryProvider).insertCloset(newCloset);
-            ref.invalidate(closetsProvider);
-            if (context.mounted) Navigator.of(ctx).pop();
+            // <<< THAY ĐỔI Ở ĐÂY: Gọi đến notifier thay vì repository >>>
+            final success = await ref.read(closetsPageProvider.notifier).addCloset(nameController.text);
+            if (success && context.mounted) {
+              Navigator.of(ctx).pop();
+            }
           },
           child: const Text('Lưu'),
         ),
@@ -181,7 +179,6 @@ class _ClosetsListTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final closetsAsyncValue = ref.watch(closetsProvider);
-    // <<< Lấy theme từ context >>>
     final theme = Theme.of(context);
 
     return closetsAsyncValue.when(
@@ -193,16 +190,15 @@ class _ClosetsListTab extends ConsumerWidget {
           itemCount: closets.length + 1,
           itemBuilder: (ctx, index) {
             if (index == closets.length) {
-              // <<< SỬA ĐỔI Ở ĐÂY >>>
               return ListTile(
                 leading: Icon(
                   Icons.add_circle_outline, 
-                  color: theme.colorScheme.primary // Lấy màu từ theme
+                  color: theme.colorScheme.primary
                 ),
                 title: Text(
                   'Thêm tủ đồ mới...',
                   style: TextStyle(
-                    color: theme.colorScheme.primary, // Lấy màu từ theme
+                    color: theme.colorScheme.primary,
                     fontWeight: FontWeight.bold
                   ),
                 ),

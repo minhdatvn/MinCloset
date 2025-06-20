@@ -17,14 +17,13 @@ class OutfitDetailPage extends ConsumerWidget {
     final currentOutfit = ref.watch(provider);
     
     return Scaffold(
-      backgroundColor: Colors.white, // <<< THAY ĐỔI Ở ĐÂY
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(currentOutfit.name),
         actions: [
+          // <<< THAY ĐỔI Ở ĐÂY: Thuộc tính `onUpdate` đã được xóa bỏ >>>
           OutfitActionsMenu(
             outfit: currentOutfit,
-            onUpdate: () {
-            },
           ),
         ],
       ),

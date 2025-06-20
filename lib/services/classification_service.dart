@@ -20,14 +20,14 @@ class ClassificationService {
     final imageBytes = await image.readAsBytes();
     final dataPart = DataPart('image/jpeg', imageBytes);
 
-    // Chuyển đổi các danh sách lựa chọn thành chuỗi JSON để đưa vào prompt
     final categoriesJson = jsonEncode(AppOptions.categories);
     final colorsJson = jsonEncode(AppOptions.colors.keys.toList());
     final materialsJson = jsonEncode(AppOptions.materials.map((e) => e.name).toList());
     final patternsJson = jsonEncode(AppOptions.patterns.map((e) => e.name).toList());
 
+    // <<< SỬA ĐỔI PROMPT Ở ĐÂY >>>
     final prompt = TextPart("""
-      Bạn là một chuyên gia phân loại thời trang. Dựa vào hình ảnh được cung cấp, hãy phân tích và trả về một đối tượng JSON duy nhất có các key sau: "category", "colors", "material", "pattern".
+      Bạn là một chuyên gia phân loại thời trang. Dựa vào hình ảnh được cung cấp, hãy phân tích và trả về một đối tượng JSON duy nhất có các key sau: "name", "category", "colors", "material", "pattern".
 
       1. "category": Phân tích theo 2 bước. Đầu tiên, xác định danh mục chính (Tầng 1). Sau đó, tìm danh mục con phù hợp nhất (Tầng 2) trong danh sách tương ứng được cung cấp. Trả về kết quả dưới dạng chuỗi "Danh mục chính > Danh mục con". Nếu không tìm thấy danh mục con phù hợp, hãy dùng "Khác" làm danh mục con. Nếu không xác định được cả danh mục chính, trả về "Khác > Khác". Cấu trúc danh mục: $categoriesJson
 
@@ -36,6 +36,8 @@ class ClassificationService {
       3. "material": CHỈ CHỌN MỘT chất liệu gần đúng nhất từ danh sách sau: $materialsJson. Nếu không chắc chắn, trả về "Khác".
 
       4. "pattern": CHỈ CHỌN MỘT họa tiết gần đúng nhất từ danh sách sau: $patternsJson. Nếu không chắc chắn, trả về "Khác".
+
+      5. "name": Dựa vào các thuộc tính đã phân tích (đặc biệt là danh mục và màu sắc chính), hãy đặt một cái tên ngắn gọn, mô tả cho vật phẩm bằng tiếng Việt (ví dụ: 'Áo thun cotton trắng', 'Giày sneaker da đen'). Tên không quá 30 ký tự.
       """);
       
     try {
@@ -44,7 +46,6 @@ class ClassificationService {
       ]);
       
       if (response.text != null) {
-        // Làm sạch chuỗi JSON trả về từ AI
         final cleanJsonString = response.text!
             .replaceAll(RegExp(r'```json\n?'), '')
             .replaceAll(RegExp(r'```'), '')
@@ -61,7 +62,6 @@ class ClassificationService {
         error: e,
         stackTrace: s,
       );
-      // Trả về một map rỗng nếu có lỗi để không làm crash app
       return {};
     }
   }

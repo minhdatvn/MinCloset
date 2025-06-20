@@ -1,7 +1,5 @@
 // lib/widgets/item_detail_form.dart
-
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/constants/app_options.dart';
@@ -10,7 +8,8 @@ import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/category_selector.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
 
-class ItemDetailForm extends ConsumerWidget {
+// <<< CHUYỂN THÀNH `ConsumerStatefulWidget` >>>
+class ItemDetailForm extends ConsumerStatefulWidget {
   final AddItemState itemState;
   final Function(String) onNameChanged;
   final Function(String?) onClosetChanged;
@@ -20,7 +19,7 @@ class ItemDetailForm extends ConsumerWidget {
   final Function(Set<String>) onOccasionsChanged;
   final Function(Set<String>) onMaterialsChanged;
   final Function(Set<String>) onPatternsChanged;
-  final ScrollController? scrollController; // Thêm tham số này
+  final ScrollController? scrollController;
 
   const ItemDetailForm({
     super.key,
@@ -33,22 +32,51 @@ class ItemDetailForm extends ConsumerWidget {
     required this.onOccasionsChanged,
     required this.onMaterialsChanged,
     required this.onPatternsChanged,
-    this.scrollController, // Thêm vào constructor
+    this.scrollController,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ItemDetailForm> createState() => _ItemDetailFormState();
+}
+
+class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
+  // <<< QUẢN LÝ `TextEditingController` TRONG STATE >>>
+  late final TextEditingController _nameController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.itemState.name);
+  }
+
+  @override
+  void didUpdateWidget(covariant ItemDetailForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Cập nhật text trong controller nếu state từ notifier thay đổi
+    if (widget.itemState.name != oldWidget.itemState.name) {
+      _nameController.text = widget.itemState.name;
+      // Di chuyển con trỏ về cuối
+      _nameController.selection = TextSelection.fromPosition(
+          TextPosition(offset: _nameController.text.length));
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final closetsAsync = ref.watch(closetsProvider);
-    final nameController = TextEditingController(text: itemState.name);
-    nameController.selection = TextSelection.fromPosition(TextPosition(offset: nameController.text.length));
 
     return SingleChildScrollView(
-      controller: scrollController, // Gán controller vào đây
+      controller: widget.scrollController,
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // <<< BỌC ẢNH TRONG STACK ĐỂ HIỂN THỊ LOADING
           Stack(
             alignment: Alignment.center,
             children: [
@@ -63,21 +91,20 @@ class ItemDetailForm extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(8),
                     child: Padding(
                       padding: const EdgeInsets.all(4.0),
-                      child: itemState.image != null
-                          ? Image.file(itemState.image!, fit: BoxFit.contain)
-                          : (itemState.imagePath != null
-                              ? Image.file(File(itemState.imagePath!), fit: BoxFit.contain)
+                      child: widget.itemState.image != null
+                          ? Image.file(widget.itemState.image!, fit: BoxFit.contain)
+                          : (widget.itemState.imagePath != null
+                              ? Image.file(File(widget.itemState.imagePath!), fit: BoxFit.contain)
                               : const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 60)),
                     ),
                   ),
                 ),
               ),
-              // Lớp phủ loading
-              if (itemState.isAnalyzing)
+              if (widget.itemState.isAnalyzing)
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.5),
+                      color: Colors.black.withValues(alpha:0.5),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Center(
@@ -87,24 +114,25 @@ class ItemDetailForm extends ConsumerWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
+          // <<< SỬ DỤNG CONTROLLER TỪ STATE >>>
           TextFormField(
-            controller: nameController,
+            controller: _nameController,
             decoration: const InputDecoration(
               labelText: 'Tên món đồ *',
               border: OutlineInputBorder(),
             ),
             maxLength: 30,
-            onChanged: onNameChanged,
+            onChanged: widget.onNameChanged,
           ),
           const SizedBox(height: 16),
           closetsAsync.when(
             data: (closets) {
               if (closets.isEmpty) return const SizedBox.shrink();
               return DropdownButtonFormField<String>(
-                value: itemState.selectedClosetId,
+                value: widget.itemState.selectedClosetId,
                 items: closets.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))).toList(),
-                onChanged: onClosetChanged,
+                onChanged: widget.onClosetChanged,
                 decoration: const InputDecoration(
                   labelText: 'Chọn tủ đồ *',
                   border: OutlineInputBorder(),
@@ -116,38 +144,38 @@ class ItemDetailForm extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           CategorySelector(
-            initialCategory: itemState.selectedCategoryValue,
-            onCategorySelected: onCategoryChanged,
+            initialCategory: widget.itemState.selectedCategoryValue,
+            onCategorySelected: widget.onCategoryChanged,
           ),
           MultiSelectChipField(
             label: 'Màu sắc',
             allOptions: AppOptions.colors,
-            initialSelections: itemState.selectedColors,
-            onSelectionChanged: onColorsChanged,
+            initialSelections: widget.itemState.selectedColors,
+            onSelectionChanged: widget.onColorsChanged,
           ),
           MultiSelectChipField(
             label: 'Mùa',
             allOptions: AppOptions.seasons,
-            initialSelections: itemState.selectedSeasons,
-            onSelectionChanged: onSeasonsChanged,
+            initialSelections: widget.itemState.selectedSeasons,
+            onSelectionChanged: widget.onSeasonsChanged,
           ),
           MultiSelectChipField(
             label: 'Mục đích',
             allOptions: AppOptions.occasions,
-            initialSelections: itemState.selectedOccasions,
-            onSelectionChanged: onOccasionsChanged,
+            initialSelections: widget.itemState.selectedOccasions,
+            onSelectionChanged: widget.onOccasionsChanged,
           ),
           MultiSelectChipField(
             label: 'Chất liệu',
             allOptions: AppOptions.materials,
-            initialSelections: itemState.selectedMaterials,
-            onSelectionChanged: onMaterialsChanged,
+            initialSelections: widget.itemState.selectedMaterials,
+            onSelectionChanged: widget.onMaterialsChanged,
           ),
           MultiSelectChipField(
             label: 'Họa tiết',
             allOptions: AppOptions.patterns,
-            initialSelections: itemState.selectedPatterns,
-            onSelectionChanged: onPatternsChanged,
+            initialSelections: widget.itemState.selectedPatterns,
+            onSelectionChanged: widget.onPatternsChanged,
           ),
         ],
       ),

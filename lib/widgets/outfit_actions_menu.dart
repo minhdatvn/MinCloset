@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/outfit_detail_notifier.dart';
-import 'package:mincloset/providers/repository_providers.dart';
 import 'package:share_plus/share_plus.dart';
 
 // Dùng ConsumerWidget để có thể truy cập `ref`
@@ -104,7 +103,8 @@ class OutfitActionsMenu extends ConsumerWidget {
     );
 
     if (confirmed == true) {
-      await ref.read(outfitRepositoryProvider).deleteOutfit(outfit.id);
+      // <<< THAY ĐỔI Ở ĐÂY: Gọi đến notifier thay vì repository >>>
+      await ref.read(outfitDetailProvider(outfit).notifier).deleteOutfit();
       onUpdateCallback?.call();
       if (context.mounted) {
          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Đã xóa bộ đồ "${outfit.name}".')));

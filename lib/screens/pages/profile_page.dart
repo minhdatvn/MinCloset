@@ -8,7 +8,6 @@ import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/widgets/stats_pie_chart.dart';
 import 'package:mincloset/widgets/stats_overview_card.dart';
 
-// <<< CHUYỂN `ProfilePage` THÀNH `ConsumerStatefulWidget` ĐỂ QUẢN LÝ STATE CỦA `PageController` >>>
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
 
@@ -17,9 +16,7 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
-  // Controller cho PageView
-  final PageController _pageController = PageController();
-  // State để theo dõi trang đang được chọn
+  final PageController _pageController = PageController(viewportFraction: 0.85); // <<< SỬA ĐỔI Ở ĐÂY
   int _activePageIndex = 0;
 
   @override
@@ -54,10 +51,30 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
 
     if (state.errorMessage != null) {
-      return Center( /* Error UI không đổi */ );
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 60),
+              const SizedBox(height: 16),
+              Text(
+                state.errorMessage!,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => notifier.loadInitialData(),
+                child: const Text('Thử lại'),
+              )
+            ],
+          ),
+        ),
+      );
     }
     
-    // <<< TẠO DANH SÁCH CÁC BIỂU ĐỒ ĐỂ DÙNG TRONG PAGEVIEW >>>
     final List<Widget> statCharts = [
       if (state.categoryDistribution.isNotEmpty)
         StatsPieChart(title: 'Theo Danh mục', dataMap: state.categoryDistribution),
@@ -135,9 +152,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
           const SizedBox(height: 24),
 
-          // <<< THAY ĐỔI LỚN BẮT ĐẦU TỪ ĐÂY >>>
-
-          // 1. Đổi tên tiêu đề
+          // <<< SỬA ĐỔI GIAO DIỆN Ở ĐÂY >>>
           Text('Thống kê', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           
@@ -146,22 +161,27 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           else
             Column(
               children: [
-                // 2. PageView để trượt ngang các biểu đồ
                 SizedBox(
-                  height: 300, // Giới hạn chiều cao cho PageView
-                  child: PageView(
+                  height: 300,
+                  child: PageView.builder(
                     controller: _pageController,
+                    itemCount: statCharts.length,
                     onPageChanged: (int page) {
                       setState(() {
                         _activePageIndex = page;
                       });
                     },
-                    children: statCharts,
+                    itemBuilder: (context, index) {
+                      // Thêm padding để tạo khoảng cách giữa các thẻ
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: statCharts[index],
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(height: 16),
                 
-                // 3. Dấu chấm chỉ báo trang hiện tại
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List<Widget>.generate(statCharts.length, (index) {

@@ -2,8 +2,9 @@
 
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/models/clothing_item.dart'; // <<< THÊM DÒNG IMPORT QUAN TRỌNG NÀY
+import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit_filter.dart';
+import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/states/item_filter_state.dart';
@@ -11,10 +12,17 @@ import 'package:mincloset/utils/logger.dart';
 
 class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
   final ClothingItemRepository _repo;
+  final Ref _ref;
   Timer? _debounce;
 
-  ItemFilterNotifier(this._repo) : super(const ItemFilterState()) {
+  ItemFilterNotifier(this._repo, this._ref) : super(const ItemFilterState()) {
     _loadAllItems();
+
+    _ref.listen<int>(itemAddedTriggerProvider, (previous, next) {
+      if (previous != next) {
+        _loadAllItems();
+      }
+    });
   }
 
   Future<void> _loadAllItems() async {
@@ -24,6 +32,7 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
       if (mounted) {
         state = state.copyWith(
             allItems: items, filteredItems: items, isLoading: false);
+        _runFilter();
       }
     } catch (e, s) {
       logger.e("Lỗi khi tải tất cả vật phẩm", error: e, stackTrace: s);
@@ -53,7 +62,9 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
   }
 
   void _runFilterWithDebounce() {
-    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    if (_debounce?.isActive ?? false) {
+      _debounce!.cancel();
+    }
     _debounce = Timer(const Duration(milliseconds: 400), _runFilter);
   }
 
@@ -71,12 +82,17 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
       if (filters.colors.isNotEmpty) {
         results.retainWhere((item) => filters.colors.any((color) => item.color.contains(color)));
       }
+      
+      // <<< SỬA LỖI TẠI ĐÂY >>>
       if (filters.seasons.isNotEmpty) {
-        results.retainWhere((item) => filters.seasons.any((season) => item.season?.contains(season) ?? false));
+        // Sử dụng biến `s` (hoặc tên bất kỳ) cho mỗi phần tử trong `filters.seasons`
+        results.retainWhere((item) => filters.seasons.any((s) => item.season?.contains(s) ?? false));
       }
       if (filters.occasions.isNotEmpty) {
-        results.retainWhere((item) => filters.occasions.any((occasion) => item.occasion?.contains(occasion) ?? false));
+        // Sử dụng biến `o` (hoặc tên bất kỳ) cho mỗi phần tử trong `filters.occasions`
+        results.retainWhere((item) => filters.occasions.any((o) => item.occasion?.contains(o) ?? false));
       }
+      // <<< KẾT THÚC SỬA LỖI >>>
     }
 
     if (state.searchQuery.isNotEmpty) {
@@ -98,5 +114,5 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
 final itemFilterProvider = StateNotifierProvider.autoDispose
     .family<ItemFilterNotifier, ItemFilterState, String>((ref, id) {
   final repo = ref.watch(clothingItemRepositoryProvider);
-  return ItemFilterNotifier(repo);
+  return ItemFilterNotifier(repo, ref);
 });

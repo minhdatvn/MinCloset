@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/home_page_notifier.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
+import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
@@ -19,8 +20,14 @@ import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:mincloset/widgets/section_header.dart';
 import 'package:mincloset/widgets/stats_overview_card.dart';
 
+// <<< THAY ĐỔI QUAN TRỌNG TẠI ĐÂY >>>
 final recentItemsProvider =
     FutureProvider.autoDispose<List<ClothingItem>>((ref) async {
+  // Bằng cách "watch" trigger ở đây, Riverpod biết rằng provider này
+  // phụ thuộc vào trigger. Khi trigger thay đổi, provider này sẽ tự động
+  // bị vô hiệu hóa và chạy lại.
+  ref.watch(itemAddedTriggerProvider);
+
   final itemRepo = ref.watch(clothingItemRepositoryProvider);
   return itemRepo.getRecentItems(5);
 });
@@ -45,6 +52,7 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final homeState = ref.watch(homeProvider);
     final homeNotifier = ref.read(homeProvider.notifier);
+    // profileProvider sẽ được làm mới tự động từ notifier của nó
     final profileState = ref.watch(profileProvider);
 
     return Scaffold(
@@ -101,7 +109,7 @@ class HomePage extends ConsumerWidget {
         ),
         const Spacer(),
         IconButton(
-            onPressed: () { /* TODO: Implement notifications */ },
+            onPressed: () {},
             icon: const Icon(Icons.notifications_outlined, size: 28)),
       ],
     );
@@ -134,6 +142,7 @@ class HomePage extends ConsumerWidget {
   }
 
   Widget _buildRecentlyAddedSection(BuildContext context, WidgetRef ref) {
+    // Bây giờ, widget này chỉ cần watch provider. Mọi logic làm mới đã được xử lý tự động.
     final recentItemsAsync = ref.watch(recentItemsProvider);
     return Column(
       children: [
@@ -167,14 +176,14 @@ class HomePage extends ConsumerWidget {
                     child: SizedBox(
                       width: 120 * (3 / 4),
                       child: GestureDetector(
-                        onTap: () async {
-                          await Navigator.of(context).push<bool>(
+                        onTap: () {
+                          // Việc invalidate ở đây không còn cần thiết cho việc tự làm mới,
+                          // nhưng có thể giữ lại để làm mới ngay lập tức sau khi sửa xong.
+                          Navigator.of(context).push<bool>(
                             MaterialPageRoute(
-                              // <<< SỬA LỖI: Bỏ `const` ở đây >>>
                               builder: (context) => AddItemScreen(itemToEdit: item),
                             ),
                           );
-                          ref.invalidate(recentItemsProvider);
                         },
                         child: RecentItemCard(item: item),
                       ),

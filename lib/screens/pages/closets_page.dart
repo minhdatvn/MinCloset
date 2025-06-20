@@ -3,10 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mincloset/notifiers/closets_page_notifier.dart'; // <<< THÊM IMPORT MỚI
+import 'package:mincloset/notifiers/closets_page_notifier.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
-import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/pages/closet_detail_page.dart';
 import 'package:mincloset/widgets/filter_bottom_sheet.dart';
@@ -27,7 +26,6 @@ void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
         TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
         ElevatedButton(
           onPressed: () async {
-            // <<< THAY ĐỔI Ở ĐÂY: Gọi đến notifier thay vì repository >>>
             final success = await ref.read(closetsPageProvider.notifier).addCloset(nameController.text);
             if (success && context.mounted) {
               Navigator.of(ctx).pop();
@@ -97,11 +95,7 @@ class _AllItemsTab extends HookConsumerWidget {
     final searchController = useTextEditingController();
     final closetsAsync = ref.watch(closetsProvider);
 
-    ref.listen<int>(itemAddedTriggerProvider, (previous, next) {
-      if (previous != next) {
-        ref.invalidate(itemFilterProvider(providerId));
-      }
-    });
+    // <<< XÓA BỎ HOÀN TOÀN KHỐI LỆNH ref.listen TẠI ĐÂY >>>
     
     useEffect(() {
       if (searchController.text != state.searchQuery) {
@@ -161,9 +155,8 @@ class _AllItemsTab extends HookConsumerWidget {
               Navigator.of(context).push<bool>(
                 MaterialPageRoute(builder: (context) => AddItemScreen(itemToEdit: item)),
               ).then((wasChanged) {
-                if (wasChanged == true) {
-                  ref.invalidate(itemFilterProvider(providerId));
-                }
+                // `then` ở đây không còn cần thiết cho việc refresh
+                // nhưng vẫn có thể giữ lại nếu có logic khác
               });
             },
           ),

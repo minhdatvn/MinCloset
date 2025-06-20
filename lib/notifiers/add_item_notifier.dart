@@ -27,51 +27,29 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
   }
 
+  // ... (Các hàm không liên quan đến save giữ nguyên)
   String _normalizeCategory(String? rawCategory) {
-    if (rawCategory == null || rawCategory.trim().isEmpty) {
-      return 'Khác > Khác';
-    }
-    if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) {
-      return '$rawCategory > Khác';
-    }
+    if (rawCategory == null || rawCategory.trim().isEmpty) return 'Khác > Khác';
+    if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) return '$rawCategory > Khác';
     final parts = rawCategory.split(' > ');
-    if (!AppOptions.categories.containsKey(parts.first)) {
-        return 'Khác > Khác';
-    }
+    if (!AppOptions.categories.containsKey(parts.first)) return 'Khác > Khác';
     return rawCategory;
   }
-
   Set<String> _normalizeMultiSelect(dynamic rawValue, List<String> validOptions) {
     final selections = <String>{};
-    if (rawValue == null) {
-      return selections;
-    }
-
+    if (rawValue == null) return selections;
     final validOptionsSet = validOptions.toSet();
     bool hasUnknowns = false;
-
     List<String> valuesToProcess = [];
-    if (rawValue is String) {
-      valuesToProcess = [rawValue];
-    } else if (rawValue is List) {
-      valuesToProcess = rawValue.map((e) => e.toString()).toList();
-    }
-
+    if (rawValue is String) valuesToProcess = [rawValue];
+    else if (rawValue is List) valuesToProcess = rawValue.map((e) => e.toString()).toList();
     for (final value in valuesToProcess) {
-      if (validOptionsSet.contains(value)) {
-        selections.add(value);
-      } else {
-        hasUnknowns = true;
-      }
+      if (validOptionsSet.contains(value)) selections.add(value);
+      else hasUnknowns = true;
     }
-
-    if (hasUnknowns && validOptionsSet.contains('Khác')) {
-      selections.add('Khác');
-    }
-    
+    if (hasUnknowns && validOptionsSet.contains('Khác')) selections.add('Khác');
     return selections;
   }
-
   void onNameChanged(String name) => state = state.copyWith(name: name);
   void onClosetChanged(String? closetId) => state = state.copyWith(selectedClosetId: closetId);
   void onCategoryChanged(String category) => state = state.copyWith(selectedCategoryValue: category);
@@ -80,72 +58,59 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   void onOccasionsChanged(Set<String> occasions) => state = state.copyWith(selectedOccasions: occasions);
   void onMaterialsChanged(Set<String> materials) => state = state.copyWith(selectedMaterials: materials);
   void onPatternsChanged(Set<String> patterns) => state = state.copyWith(selectedPatterns: patterns);
-  
   Future<void> pickImage(ImageSource source) async {
     final imagePicker = ImagePicker();
     final pickedFile = await imagePicker.pickImage(source: source, maxWidth: 1024, imageQuality: 85);
     if (pickedFile != null) {
-      state = state.copyWith(
-        image: File(pickedFile.path),
-        selectedCategoryValue: '',
-        selectedColors: {},
-        selectedMaterials: {},
-        selectedPatterns: {},
-      );
-      analyzeImage(pickedFile); 
+      state = state.copyWith(image: File(pickedFile.path), selectedCategoryValue: '', selectedColors: {}, selectedMaterials: {}, selectedPatterns: {});
+      analyzeImage(pickedFile);
     }
   }
-
   Future<void> analyzeImage(XFile image) async {
     state = state.copyWith(isAnalyzing: true);
     final useCase = _ref.read(analyzeItemUseCaseProvider);
     final result = await useCase.execute(image);
-
     if (result.isNotEmpty && mounted) {
       final category = _normalizeCategory(result['category'] as String?);
       final colors = (result['colors'] as List<dynamic>?)?.map((e) => e.toString()).toSet();
-      
       final materials = _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList());
       final patterns = _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList());
-
-      // <<< THAY ĐỔI Ở ĐÂY: Cập nhật tên từ kết quả của AI >>>
-      state = state.copyWith(
-        isAnalyzing: false,
-        name: result['name'] as String? ?? state.name, // Lấy tên gợi ý
-        selectedCategoryValue: category,
-        selectedColors: colors ?? state.selectedColors,
-        selectedMaterials: materials.isNotEmpty ? materials : state.selectedMaterials,
-        selectedPatterns: patterns.isNotEmpty ? patterns : state.selectedPatterns,
-      );
+      state = state.copyWith(isAnalyzing: false, name: result['name'] as String? ?? state.name, selectedCategoryValue: category, selectedColors: colors ?? state.selectedColors, selectedMaterials: materials.isNotEmpty ? materials : state.selectedMaterials, selectedPatterns: patterns.isNotEmpty ? patterns : state.selectedPatterns);
     } else if (mounted) {
       state = state.copyWith(isAnalyzing: false);
     }
   }
   
+  // <<< THAY ĐỔI LỚN: Cập nhật hàm saveItem để gọi UseCase >>>
   Future<void> saveItem() async {
-    // ... (Phần logic save không đổi)
+    // 1. Kiểm tra các trường cơ bản
     if (state.image == null && state.imagePath == null) {
       state = state.copyWith(errorMessage: 'Vui lòng thêm ảnh cho món đồ.');
       return;
     }
-    if (state.name.trim().isEmpty) {
-      state = state.copyWith(errorMessage: 'Vui lòng nhập tên món đồ.');
-      return;
-    }
-    if (state.selectedClosetId == null) {
-      state = state.copyWith(errorMessage: 'Vui lòng chọn tủ đồ.');
-      return;
-    }
-    if (state.selectedCategoryValue.isEmpty) {
-      state = state.copyWith(errorMessage: 'Vui lòng chọn danh mục cho món đồ.');
+    if (state.name.trim().isEmpty || state.selectedClosetId == null || state.selectedCategoryValue.isEmpty) {
+      state = state.copyWith(errorMessage: 'Vui lòng điền đầy đủ các trường bắt buộc (*).');
       return;
     }
 
     state = state.copyWith(isLoading: true, errorMessage: null);
-    
+
+    // 2. Gọi UseCase để xác thực tên
+    final validateUseCase = _ref.read(validateItemNameUseCaseProvider);
+    final validationResult = await validateUseCase.forSingleItem(
+      name: state.name,
+      existingId: state.isEditing ? state.id : null,
+    );
+
+    if (!validationResult.success) {
+      state = state.copyWith(isLoading: false, errorMessage: validationResult.errorMessage);
+      return; // Dừng lại nếu tên không hợp lệ
+    }
+
+    // 3. Nếu hợp lệ, tiến hành lưu
     final clothingItem = ClothingItem(
       id: state.isEditing ? state.id : const Uuid().v4(),
-      name: state.name,
+      name: state.name.trim(),
       category: state.selectedCategoryValue,
       closetId: state.selectedClosetId!,
       imagePath: state.image?.path ?? state.imagePath!,

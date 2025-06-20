@@ -1,6 +1,7 @@
-// file: lib/services/suggestion_service.dart
+// lib/services/suggestion_service.dart
 
-import 'package:flutter_dotenv/flutter_dotenv.dart'; // Thêm import
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/utils/logger.dart';
@@ -8,11 +9,11 @@ import 'package:mincloset/utils/logger.dart';
 class SuggestionService {
   final String _apiKey = dotenv.env['GEMINI_API_KEY'] ?? 'API_KEY_NOT_FOUND';
 
-  // <<< THÊM `required String cityName` VÀO ĐÂY
-  Future<String> getOutfitSuggestion({
+  // <<< THAY ĐỔI: HÀM NÀY GIỜ TRẢ VỀ Map<String, String> >>>
+  Future<Map<String, String>> getOutfitSuggestion({
     required Map<String, dynamic> weather,
     required List<ClothingItem> items,
-    required String cityName, 
+    required String cityName,
   }) async {
     final model = GenerativeModel(
       model: 'gemini-1.5-flash-latest',
@@ -23,30 +24,52 @@ class SuggestionService {
     final condition = weather['weather'][0]['description'];
     final wardrobeString = items.map((item) => '- ${item.name} (${item.category}, màu ${item.color})').join('\n');
 
-    // <<< THAY THẾ "Đà Nẵng" BẰNG BIẾN `cityName`
+    // <<< THAY ĐỔI: Cập nhật prompt để yêu cầu trả về JSON >>>
     final prompt = """
-      Bạn là 'MinCloset', một trợ lý thời trang AI thân thiện và sành điệu.
-      Người dùng đang ở $cityName, Việt Nam. Thời tiết hiện tại là $temp°C và $condition.
-
-      Đây là tủ đồ của người dùng:
+      Bạn là 'MinCloset', một trợ lý thời trang AI sành điệu.
+      Người dùng đang ở $cityName. Thời tiết hiện tại là $temp°C và $condition.
+      Tủ đồ của người dùng:
       $wardrobeString
 
-      Dựa vào thời tiết và tủ đồ có sẵn, hãy gợi ý MỘT bộ trang phục hoàn chỉnh và thời trang nhất. Chỉ được sử dụng các món đồ có trong danh sách.
-      Hãy trả lời bằng tiếng Việt. Cấu trúc câu trả lời thật rõ ràng: bắt đầu bằng các món đồ được gợi ý, sau đó giải thích ngắn gọn lý do tại sao bộ đồ đó phù hợp.
+      Dựa vào thời tiết và tủ đồ, hãy gợi ý MỘT bộ trang phục hoàn chỉnh và thời trang nhất. Chỉ được sử dụng các món đồ có trong danh sách.
+      Hãy trả lời bằng một đối tượng JSON duy nhất có 2 keys:
+      1. "suggestion": Một chuỗi liệt kê các món đồ được chọn. Ví dụ: "Áo thun trắng + Quần jeans xanh + Giày sneaker".
+      2. "reason": Một chuỗi giải thích ngắn gọn (1-2 câu) tại sao bộ đồ đó phù hợp.
+
+      Chỉ trả về đối tượng JSON, không có bất kỳ văn bản nào khác.
       """;
 
-    // 4. Gửi prompt và nhận kết quả
     try {
       final content = [Content.text(prompt)];
       final response = await model.generateContent(content);
-      return response.text ?? "Xin lỗi, tôi chưa nghĩ ra được gợi ý nào phù hợp.";
-    } catch (e, s) { // Thêm 's' để lấy StackTrace
+
+      if (response.text != null) {
+        final cleanJsonString = response.text!
+            .replaceAll(RegExp(r'```json\n?'), '')
+            .replaceAll(RegExp(r'```'), '')
+            .trim();
+        
+        logger.i("Phản hồi gợi ý từ AI (đã làm sạch): $cleanJsonString");
+        final decodedJson = json.decode(cleanJsonString) as Map<String, dynamic>;
+
+        return {
+          'suggestion': decodedJson['suggestion'] as String? ?? '',
+          'reason': decodedJson['reason'] as String? ?? ''
+        };
+      }
+      throw Exception('AI response is null or invalid.');
+
+    } catch (e, s) {
       logger.e(
-        'Lỗi khi gọi Gemini API', // Tin nhắn chính
-        error: e,     // Đối tượng lỗi
-        stackTrace: s, // Stack trace để biết lỗi xảy ra ở đâu
+        'Lỗi khi gọi Gemini API cho gợi ý',
+        error: e,
+        stackTrace: s,
       );
-      return "Đã có lỗi xảy ra khi kết nối với AI. Vui lòng thử lại.";
+      // Trả về map rỗng để báo hiệu lỗi
+      return {
+        'suggestion': 'Đã có lỗi xảy ra khi kết nối với AI.',
+        'reason': 'Vui lòng thử lại.'
+      };
     }
   }
 }

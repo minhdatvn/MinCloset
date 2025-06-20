@@ -1,7 +1,7 @@
 // lib/screens/batch_add_item_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
+import 'package:mincloset/notifiers/batch_add_item_notifier.dart'; // <<< THÊM IMPORT CÒN THIẾU Ở ĐÂY
 import 'package:mincloset/states/batch_add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
 
@@ -94,7 +94,6 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
                   onPressed: state.currentIndex > 0 ? notifier.previousPage : null,
                   icon: const Icon(Icons.arrow_back),
                   label: const Text('Trước'),
-                  // Nút này không phải nút hành động chính, có thể giữ màu đen
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.onSurface,
                     foregroundColor: Theme.of(context).colorScheme.surface,
@@ -105,7 +104,6 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
                     onPressed: notifier.nextPage,
                     icon: const Icon(Icons.arrow_forward),
                     label: const Text('Sau'),
-                    // Đây là nút hành động chính trên trang này
                   )
                 else
                   ElevatedButton.icon(
@@ -114,7 +112,6 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                         : const Icon(Icons.save),
                     label: const Text('Lưu tất cả'),
-                    // <<< ĐÃ XÓA BỎ STYLE CỤC BỘ Ở ĐÂY >>>
                   ),
               ],
             ),

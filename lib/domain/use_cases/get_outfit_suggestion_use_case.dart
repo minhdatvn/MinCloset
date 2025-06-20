@@ -28,7 +28,6 @@ class GetOutfitSuggestionUseCase {
       return prefs.getString('manual_city') ?? 'Da Nang';
     }
 
-    // Xử lý logic cho chế độ "auto"
     try {
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
@@ -46,23 +45,20 @@ class GetOutfitSuggestionUseCase {
       );
       List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
       return placemarks.first.locality ?? 'Da Nang';
-    } catch (e, s) { // <<< THAY ĐỔI: Bắt cả StackTrace (s)
-      // <<< THAY ĐỔI: Dùng logger.e thay cho print()
+    } catch (e, s) {
       logger.e(
         "Lỗi khi lấy vị trí tự động",
         error: e,
         stackTrace: s,
       );
-      // Nếu có lỗi, quay về thành phố mặc định
       return 'Da Nang';
     }
   }
 
+  // <<< THAY ĐỔI: Hàm này trả về một Map chứa cả weather và suggestion text >>>
   Future<Map<String, dynamic>> execute() async {
-    // 1. Lấy tên thành phố (đã có từ bước trước)
     final city = await _getCityForWeather();
 
-    // 2. Gọi API và CSDL song song
     final results = await Future.wait([
       _weatherRepo.getWeather(city),
       _clothingItemRepo.getAllItems(),
@@ -78,12 +74,15 @@ class GetOutfitSuggestionUseCase {
       };
     }
 
-    // <<< THAY ĐỔI Ở ĐÂY: Truyền `city` vào hàm getOutfitSuggestion
-    final suggestionText = await _suggestionRepo.getOutfitSuggestion(
+    // <<< THAY ĐỔI: Xử lý kết quả JSON từ Repository >>>
+    final suggestionMap = await _suggestionRepo.getOutfitSuggestion(
       weather: weatherData,
       items: items,
-      cityName: city, // Truyền tên thành phố đã xác định vào
+      cityName: city,
     );
+
+    // Ghép kết quả lại thành một chuỗi hoàn chỉnh để hiển thị
+    final suggestionText = "${suggestionMap['suggestion']}\n\n${suggestionMap['reason']}";
 
     return {
       'weather': weatherData,

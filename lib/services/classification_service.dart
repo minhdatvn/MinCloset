@@ -25,19 +25,15 @@ class ClassificationService {
     final materialsJson = jsonEncode(AppOptions.materials.map((e) => e.name).toList());
     final patternsJson = jsonEncode(AppOptions.patterns.map((e) => e.name).toList());
 
-    // <<< SỬA ĐỔI PROMPT Ở ĐÂY >>>
+    // <<< THAY ĐỔI PROMPT Ở ĐÂY >>>
     final prompt = TextPart("""
       Bạn là một chuyên gia phân loại thời trang. Dựa vào hình ảnh được cung cấp, hãy phân tích và trả về một đối tượng JSON duy nhất có các key sau: "name", "category", "colors", "material", "pattern".
 
-      1. "category": Phân tích theo 2 bước. Đầu tiên, xác định danh mục chính (Tầng 1). Sau đó, tìm danh mục con phù hợp nhất (Tầng 2) trong danh sách tương ứng được cung cấp. Trả về kết quả dưới dạng chuỗi "Danh mục chính > Danh mục con". Nếu không tìm thấy danh mục con phù hợp, hãy dùng "Khác" làm danh mục con. Nếu không xác định được cả danh mục chính, trả về "Khác > Khác". Cấu trúc danh mục: $categoriesJson
-
-      2. "colors": Trả về một MẢNG CHỨA CÁC CHUỖI TÊN MÀU có trong ảnh. Cố gắng xác định tất cả các màu có thể từ danh sách sau: $colorsJson
-
-      3. "material": CHỈ CHỌN MỘT chất liệu gần đúng nhất từ danh sách sau: $materialsJson. Nếu không chắc chắn, trả về "Khác".
-
-      4. "pattern": CHỈ CHỌN MỘT họa tiết gần đúng nhất từ danh sách sau: $patternsJson. Nếu không chắc chắn, trả về "Khác".
-
-      5. "name": Dựa vào các thuộc tính đã phân tích (đặc biệt là danh mục và màu sắc chính), hãy đặt một cái tên ngắn gọn, mô tả cho vật phẩm bằng tiếng Việt (ví dụ: 'Áo thun cotton trắng', 'Giày sneaker da đen'). Tên không quá 30 ký tự.
+      1. "name": Gợi ý một tên ngắn gọn, mô tả bằng tiếng Việt cho món đồ (tối đa 5 từ). Ví dụ: "Áo thun trắng cơ bản", "Quần jeans xanh bạc".
+      2. "category": Phân tích theo 2 bước. Đầu tiên, xác định danh mục chính (Tầng 1). Sau đó, tìm danh mục con phù hợp nhất (Tầng 2) trong danh sách tương ứng được cung cấp. Trả về kết quả dưới dạng chuỗi "Danh mục chính > Danh mục con". Nếu không tìm thấy danh mục con phù hợp, hãy dùng "Khác" làm danh mục con. Nếu không xác định được cả danh mục chính, trả về "Khác > Khác". Cấu trúc danh mục: $categoriesJson
+      3. "colors": Trả về một MẢNG CHỨA CÁC CHUỖI TÊN MÀU có trong ảnh. Cố gắng xác định tất cả các màu có thể từ danh sách sau: $colorsJson
+      4. "material": CHỈ CHỌN MỘT chất liệu gần đúng nhất từ danh sách sau: $materialsJson. Nếu không chắc chắn, trả về "Khác".
+      5. "pattern": CHỈ CHỌN MỘT họa tiết gần đúng nhất từ danh sách sau: $patternsJson. Nếu không chắc chắn, trả về "Khác".
       """);
       
     try {

@@ -32,8 +32,6 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
     return rawCategory;
   }
 
-  /// <<< HÀM HELPER MỚI VÀ THÔNG MINH HƠN >>>
-  /// Xử lý giá trị đa lựa chọn (material, pattern) từ AI
   Set<String> _normalizeMultiSelect(dynamic rawValue, List<String> validOptions) {
     final selections = <String>{};
     if (rawValue == null) {
@@ -86,12 +84,12 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
         final category = _normalizeCategory(result['category'] as String?);
         final colors = (result['colors'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ?? {};
         
-        // <<< ÁP DỤNG HÀM XỬ LÝ MỚI >>>
         final materials = _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList());
         final patterns = _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList());
 
         analyzedItemStates.add(
           AddItemState(
+            name: result['name'] as String? ?? '',
             image: File(imageFile.path),
             selectedCategoryValue: category,
             selectedColors: colors,
@@ -112,7 +110,6 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
     }
   }
 
-  // Các hàm còn lại không thay đổi
   void updateItemDetails(int index, AddItemState updatedDetails) {
     if (index < 0 || index >= state.itemStates.length) return;
 
@@ -138,7 +135,6 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
   }
 
   Future<void> saveAll() async {
-    // Logic lưu không thay đổi
     state = state.copyWith(isSaving: true, clearError: true);
 
     final List<ClothingItem> itemsToSave = [];
@@ -192,6 +188,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
   }
 }
 
+// <<< PHẦN BỊ THIẾU ĐÃ ĐƯỢC THÊM VÀO ĐÂY >>>
 final batchAddItemProvider = StateNotifierProvider.autoDispose<BatchAddItemNotifier, BatchAddItemState>((ref) {
   final repo = ref.watch(clothingItemRepositoryProvider);
   return BatchAddItemNotifier(repo, ref);

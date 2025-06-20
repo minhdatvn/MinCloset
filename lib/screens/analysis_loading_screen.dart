@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
+import 'package:mincloset/notifiers/batch_add_item_notifier.dart'; // <<< THÊM IMPORT CÒN THIẾU Ở ĐÂY
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/batch_add_item_screen.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
@@ -31,14 +31,12 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
   @override
   Widget build(BuildContext context) {
     ref.listen<BatchAddItemState>(batchAddItemProvider, (previous, next) {
-      // <<< LOGIC ĐƯỢC ĐƠN GIẢN HÓA Ở ĐÂY >>>
       if (!mounted) return;
 
       if (next.analysisSuccess) {
         final analyzedStates = ref.read(batchAddItemProvider).itemStates;
 
         if (analyzedStates.length == 1) {
-          // Chỉ cần thay thế, không cần await hay pop
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => AddItemScreen(
@@ -47,7 +45,6 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
             ),
           );
         } else if (analyzedStates.length > 1) {
-          // Tương tự, chỉ cần thay thế
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => const BatchAddItemScreen(),
@@ -64,7 +61,6 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
       }
     });
 
-    // Giao diện không đổi
     return Scaffold(
       backgroundColor: Colors.black.withAlpha((255 * 0.85).round()),
       body: Center(

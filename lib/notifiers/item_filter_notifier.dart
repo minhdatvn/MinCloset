@@ -18,6 +18,7 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
   ItemFilterNotifier(this._repo, this._ref) : super(const ItemFilterState()) {
     _loadAllItems();
 
+    // Lắng nghe tín hiệu để tự động tải lại danh sách vật phẩm
     _ref.listen<int>(itemAddedTriggerProvider, (previous, next) {
       if (previous != next) {
         _loadAllItems();
@@ -32,6 +33,8 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
       if (mounted) {
         state = state.copyWith(
             allItems: items, filteredItems: items, isLoading: false);
+        // Sau khi tải lại danh sách gốc, chạy lại bộ lọc hiện tại
+        // để đảm bảo danh sách hiển thị được cập nhật đúng.
         _runFilter();
       }
     } catch (e, s) {
@@ -42,7 +45,7 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
       }
     }
   }
-  
+
   void setSearchQuery(String query) {
     state = state.copyWith(searchQuery: query);
     _runFilterWithDebounce();
@@ -77,26 +80,26 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
         results.retainWhere((item) => item.closetId == filters.closetId);
       }
       if (filters.category != null) {
-        results.retainWhere((item) => item.category.startsWith(filters.category!));
+        results
+            .retainWhere((item) => item.category.startsWith(filters.category!));
       }
       if (filters.colors.isNotEmpty) {
-        results.retainWhere((item) => filters.colors.any((color) => item.color.contains(color)));
+        results.retainWhere(
+            (item) => filters.colors.any((color) => item.color.contains(color)));
       }
-      
-      // <<< SỬA LỖI TẠI ĐÂY >>>
       if (filters.seasons.isNotEmpty) {
-        // Sử dụng biến `s` (hoặc tên bất kỳ) cho mỗi phần tử trong `filters.seasons`
-        results.retainWhere((item) => filters.seasons.any((s) => item.season?.contains(s) ?? false));
+        results.retainWhere((item) =>
+            filters.seasons.any((s) => item.season?.contains(s) ?? false));
       }
       if (filters.occasions.isNotEmpty) {
-        // Sử dụng biến `o` (hoặc tên bất kỳ) cho mỗi phần tử trong `filters.occasions`
-        results.retainWhere((item) => filters.occasions.any((o) => item.occasion?.contains(o) ?? false));
+        results.retainWhere((item) =>
+            filters.occasions.any((o) => item.occasion?.contains(o) ?? false));
       }
-      // <<< KẾT THÚC SỬA LỖI >>>
     }
 
     if (state.searchQuery.isNotEmpty) {
-      results.retainWhere((item) => item.name.toLowerCase().contains(state.searchQuery.toLowerCase()));
+      results.retainWhere(
+          (item) => item.name.toLowerCase().contains(state.searchQuery.toLowerCase()));
     }
 
     if (mounted) {

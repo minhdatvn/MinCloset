@@ -23,13 +23,8 @@ class _GlobalAddButtonState extends ConsumerState<GlobalAddButton> {
         _showImageSourceActionSheet(context);
       },
       shape: const CircleBorder(),
-      // <<< SỬA ĐỔI Ở ĐÂY >>>
-      backgroundColor: theme.colorScheme.primary, // Lấy màu Mocha Mousse từ theme
-      child: Icon(
-        Icons.add, 
-        color: theme.colorScheme.onPrimary, // Lấy màu trắng (trên nền primary) từ theme
-        size: 30
-      ),
+      backgroundColor: theme.colorScheme.primary,
+      child: Icon(Icons.add, color: theme.colorScheme.onPrimary, size: 30),
     );
   }
 
@@ -65,7 +60,7 @@ class _GlobalAddButtonState extends ConsumerState<GlobalAddButton> {
     final navigator = Navigator.of(context);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final imagePicker = ImagePicker();
-    
+
     List<XFile> pickedFiles = [];
 
     if (source == ImageSource.gallery) {
@@ -90,12 +85,14 @@ class _GlobalAddButtonState extends ConsumerState<GlobalAddButton> {
     if (pickedFiles.length > 10) {
       filesToProcess = pickedFiles.take(10).toList();
       scaffoldMessenger.showSnackBar(
-        const SnackBar(content: Text('Đã chọn tối đa 10 ảnh. Các ảnh thừa đã được bỏ qua.')),
+        const SnackBar(
+            content: Text('Đã chọn tối đa 10 ảnh. Các ảnh thừa đã được bỏ qua.')),
       );
     }
-    
+
     final itemsWereAdded = await navigator.push<bool>(
-      MaterialPageRoute(builder: (ctx) => AnalysisLoadingScreen(images: filesToProcess)),
+      MaterialPageRoute(
+          builder: (ctx) => AnalysisLoadingScreen(images: filesToProcess)),
     );
 
     if (itemsWereAdded == true) {

@@ -23,10 +23,14 @@ void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
         autofocus: true,
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
+        TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Hủy')),
         ElevatedButton(
           onPressed: () async {
-            final success = await ref.read(closetsPageProvider.notifier).addCloset(nameController.text);
+            final success = await ref
+                .read(closetsPageProvider.notifier)
+                .addCloset(nameController.text);
             if (success && context.mounted) {
               Navigator.of(ctx).pop();
             }
@@ -45,7 +49,8 @@ class ClosetsPage extends ConsumerStatefulWidget {
   ConsumerState<ClosetsPage> createState() => _ClosetsPageState();
 }
 
-class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProviderStateMixin {
+class _ClosetsPageState extends ConsumerState<ClosetsPage>
+    with SingleTickerProviderStateMixin {
   late final TabController _tabController;
 
   @override
@@ -95,15 +100,12 @@ class _AllItemsTab extends HookConsumerWidget {
     final searchController = useTextEditingController();
     final closetsAsync = ref.watch(closetsProvider);
 
-    // <<< XÓA BỎ HOÀN TOÀN KHỐI LỆNH ref.listen TẠI ĐÂY >>>
-    
     useEffect(() {
       if (searchController.text != state.searchQuery) {
         searchController.text = state.searchQuery;
       }
       return null;
     }, [state.searchQuery]);
-
 
     return Column(
       children: [
@@ -117,9 +119,12 @@ class _AllItemsTab extends HookConsumerWidget {
                   decoration: InputDecoration(
                     hintText: 'Tìm kiếm vật phẩm...',
                     prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none),
                     filled: true,
-                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    fillColor:
+                        Theme.of(context).colorScheme.surfaceContainerHighest,
                   ),
                   onChanged: notifier.setSearchQuery,
                 ),
@@ -153,11 +158,9 @@ class _AllItemsTab extends HookConsumerWidget {
             providerId: providerId,
             onItemTapped: (item) {
               Navigator.of(context).push<bool>(
-                MaterialPageRoute(builder: (context) => AddItemScreen(itemToEdit: item)),
-              ).then((wasChanged) {
-                // `then` ở đây không còn cần thiết cho việc refresh
-                // nhưng vẫn có thể giữ lại nếu có logic khác
-              });
+                MaterialPageRoute(
+                    builder: (context) => AddItemScreen(itemToEdit: item)),
+              );
             },
           ),
         ),
@@ -184,16 +187,13 @@ class _ClosetsListTab extends ConsumerWidget {
           itemBuilder: (ctx, index) {
             if (index == closets.length) {
               return ListTile(
-                leading: Icon(
-                  Icons.add_circle_outline, 
-                  color: theme.colorScheme.primary
-                ),
+                leading:
+                    Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),
                 title: Text(
                   'Thêm tủ đồ mới...',
                   style: TextStyle(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.bold
-                  ),
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.bold),
                 ),
                 onTap: () => _showAddClosetDialog(context, ref),
               );
@@ -202,11 +202,13 @@ class _ClosetsListTab extends ConsumerWidget {
             final closet = closets[index];
             return ListTile(
               leading: const Icon(Icons.inventory_2_outlined),
-              title: Text(closet.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+              title:
+                  Text(closet.name, style: const TextStyle(fontWeight: FontWeight.bold)),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => ClosetDetailPage(closet: closet)),
+                  MaterialPageRoute(
+                      builder: (context) => ClosetDetailPage(closet: closet)),
                 );
               },
             );

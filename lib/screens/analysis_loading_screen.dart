@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mincloset/notifiers/batch_add_item_notifier.dart'; // <<< THÊM IMPORT CÒN THIẾU Ở ĐÂY
+import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/batch_add_item_screen.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
@@ -30,14 +30,21 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<BatchAddItemState>(batchAddItemProvider, (previous, next) {
+    // <<< THAY ĐỔI 1: Lấy ra Navigator và ScaffoldMessenger trước khi lắng nghe >>>
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+    ref.listen<BatchAddItemState>(batchAddItemProvider, (previous, next) async {
+      // Vẫn giữ kiểm tra `mounted` ở đầu để đảm bảo an toàn
       if (!mounted) return;
 
       if (next.analysisSuccess) {
         final analyzedStates = ref.read(batchAddItemProvider).itemStates;
+        bool? result;
 
         if (analyzedStates.length == 1) {
-          Navigator.of(context).pushReplacement(
+          // <<< THAY ĐỔI 2: Sử dụng `navigator` đã được lấy ra trước đó >>>
+          result = await navigator.push<bool>(
             MaterialPageRoute(
               builder: (context) => AddItemScreen(
                 preAnalyzedState: analyzedStates.first,
@@ -45,19 +52,24 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
             ),
           );
         } else if (analyzedStates.length > 1) {
-          Navigator.of(context).pushReplacement(
+          result = await navigator.push<bool>(
             MaterialPageRoute(
               builder: (context) => const BatchAddItemScreen(),
             ),
           );
         }
+
+        if (mounted) {
+          navigator.pop(result);
+        }
       }
       
       else if (next.errorMessage != null && previous?.errorMessage == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        // <<< THAY ĐỔI 3: Sử dụng `scaffoldMessenger` và `navigator` đã được lấy ra >>>
+        scaffoldMessenger.showSnackBar(
           SnackBar(content: Text('Lỗi phân tích: ${next.errorMessage}')),
         );
-        Navigator.of(context).pop(false);
+        navigator.pop(false);
       }
     });
 

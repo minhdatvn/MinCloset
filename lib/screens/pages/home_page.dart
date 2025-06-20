@@ -20,12 +20,8 @@ import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:mincloset/widgets/section_header.dart';
 import 'package:mincloset/widgets/stats_overview_card.dart';
 
-// <<< THAY ĐỔI QUAN TRỌNG TẠI ĐÂY >>>
 final recentItemsProvider =
     FutureProvider.autoDispose<List<ClothingItem>>((ref) async {
-  // Bằng cách "watch" trigger ở đây, Riverpod biết rằng provider này
-  // phụ thuộc vào trigger. Khi trigger thay đổi, provider này sẽ tự động
-  // bị vô hiệu hóa và chạy lại.
   ref.watch(itemAddedTriggerProvider);
 
   final itemRepo = ref.watch(clothingItemRepositoryProvider);
@@ -35,15 +31,20 @@ final recentItemsProvider =
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
-  Future<void> _pickAndAnalyzeImage(BuildContext context) async {
+  Future<void> _pickAndAnalyzeImage(BuildContext context, WidgetRef ref) async {
     final navigator = Navigator.of(context);
     final imagePicker = ImagePicker();
     final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
+
     if (pickedFile != null) {
        if (navigator.mounted) {
-         navigator.push(
+         final itemWasAdded = await navigator.push<bool>(
             MaterialPageRoute(builder: (ctx) => AnalysisLoadingScreen(images: [pickedFile])),
          );
+         
+         if (itemWasAdded == true) {
+            ref.read(itemAddedTriggerProvider.notifier).state++;
+         }
        }
     }
   }
@@ -52,7 +53,6 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final homeState = ref.watch(homeProvider);
     final homeNotifier = ref.read(homeProvider.notifier);
-    // profileProvider sẽ được làm mới tự động từ notifier của nó
     final profileState = ref.watch(profileProvider);
 
     return Scaffold(
@@ -109,7 +109,7 @@ class HomePage extends ConsumerWidget {
         ),
         const Spacer(),
         IconButton(
-            onPressed: () {},
+            onPressed: () { /* TODO: Implement notifications */ },
             icon: const Icon(Icons.notifications_outlined, size: 28)),
       ],
     );
@@ -142,7 +142,6 @@ class HomePage extends ConsumerWidget {
   }
 
   Widget _buildRecentlyAddedSection(BuildContext context, WidgetRef ref) {
-    // Bây giờ, widget này chỉ cần watch provider. Mọi logic làm mới đã được xử lý tự động.
     final recentItemsAsync = ref.watch(recentItemsProvider);
     return Column(
       children: [
@@ -161,14 +160,14 @@ class HomePage extends ConsumerWidget {
             error: (err, stack) => const Text('Không thể tải...'),
             data: (items) {
               if (items.isEmpty) {
-                return _buildAddFirstItemButton(context);
+                return _buildAddFirstItemButton(context, ref);
               }
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: items.length + 1,
                 itemBuilder: (ctx, index) {
                   if (index == 0) {
-                    return _buildAddFirstItemButton(context);
+                    return _buildAddFirstItemButton(context, ref);
                   }
                   final item = items[index - 1];
                   return Padding(
@@ -177,8 +176,6 @@ class HomePage extends ConsumerWidget {
                       width: 120 * (3 / 4),
                       child: GestureDetector(
                         onTap: () {
-                          // Việc invalidate ở đây không còn cần thiết cho việc tự làm mới,
-                          // nhưng có thể giữ lại để làm mới ngay lập tức sau khi sửa xong.
                           Navigator.of(context).push<bool>(
                             MaterialPageRoute(
                               builder: (context) => AddItemScreen(itemToEdit: item),
@@ -198,11 +195,11 @@ class HomePage extends ConsumerWidget {
     );
   }
   
-  Widget _buildAddFirstItemButton(BuildContext context) {
+  Widget _buildAddFirstItemButton(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.only(right: 12.0),
       child: InkWell(
-        onTap: () => _pickAndAnalyzeImage(context),
+        onTap: () => _pickAndAnalyzeImage(context, ref),
         borderRadius: BorderRadius.circular(12),
         child: Container(
           width: 120 * (3/4), 

@@ -1,15 +1,15 @@
 // lib/notifiers/profile_page_notifier.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/states/profile_page_state.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/utils/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   final Ref _ref;
-  
+
   ProfilePageNotifier(this._ref) : super(const ProfilePageState()) {
     // Tải dữ liệu lần đầu
     loadInitialData();
@@ -33,7 +33,8 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       final userName = prefs.getString('user_name') ?? 'Người dùng MinCloset';
       final avatarPath = prefs.getString('user_avatar_path');
       final cityModeString = prefs.getString('city_mode') ?? 'auto';
-      final cityMode = cityModeString == 'auto' ? CityMode.auto : CityMode.manual;
+      final cityMode =
+          cityModeString == 'auto' ? CityMode.auto : CityMode.manual;
       final manualCity = prefs.getString('manual_city') ?? 'Da Nang';
 
       final allItems = await itemRepo.getAllItems();
@@ -52,7 +53,8 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
         }
         final mainCategory = item.category.split('>').first.trim();
         if (mainCategory.isNotEmpty) {
-          categoryDist[mainCategory] = (categoryDist[mainCategory] ?? 0) + 1;
+          categoryDist[mainCategory] =
+              (categoryDist[mainCategory] ?? 0) + 1;
         }
         if (item.season != null && item.season!.isNotEmpty) {
           final seasons = item.season!.split(',').map((e) => e.trim());
@@ -92,9 +94,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   }
 
   Future<void> updateUserName(String name) async {
-    if (name.trim().isEmpty) {
-      return;
-    }
+    if (name.trim().isEmpty) return;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_name', name.trim());
     state = state.copyWith(userName: name.trim());
@@ -124,6 +124,8 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   }
 }
 
-final profileProvider = StateNotifierProvider.autoDispose<ProfilePageNotifier, ProfilePageState>((ref) {
+final profileProvider =
+    StateNotifierProvider.autoDispose<ProfilePageNotifier, ProfilePageState>(
+        (ref) {
   return ProfilePageNotifier(ref);
 });

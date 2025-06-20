@@ -175,12 +175,17 @@ class HomePage extends ConsumerWidget {
                     child: SizedBox(
                       width: 120 * (3 / 4),
                       child: GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).push<bool>(
+                        // <<< SỬA LỖI TẠI ĐÂY >>>
+                        onTap: () async {
+                          final wasChanged = await Navigator.of(context).push<bool>(
                             MaterialPageRoute(
                               builder: (context) => AddItemScreen(itemToEdit: item),
                             ),
                           );
+                          // Nếu có sự thay đổi (sửa/xóa), gửi tín hiệu làm mới
+                          if (wasChanged == true) {
+                            ref.read(itemAddedTriggerProvider.notifier).state++;
+                          }
                         },
                         child: RecentItemCard(item: item),
                       ),

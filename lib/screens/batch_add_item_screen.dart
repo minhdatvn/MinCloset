@@ -1,7 +1,8 @@
 // lib/screens/batch_add_item_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/notifiers/batch_add_item_notifier.dart'; // <<< THÊM IMPORT CÒN THIẾU Ở ĐÂY
+import 'package:mincloset/notifiers/add_item_notifier.dart';
+import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
 
@@ -29,18 +30,19 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = batchAddItemProvider;
-    final state = ref.watch(provider);
-    final notifier = ref.read(provider.notifier);
+    final state = ref.watch(batchAddItemProvider);
+    final notifier = ref.read(batchAddItemProvider.notifier);
+    // <<< THAY ĐỔI: Lấy ra danh sách args
+    final itemArgsList = state.itemArgsList;
 
-    ref.listen<BatchAddItemState>(provider, (previous, next) {
+    ref.listen<BatchAddItemState>(batchAddItemProvider, (previous, next) {
       if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
       }
       if (next.saveSuccess) {
         Navigator.of(context).pop(true);
       }
-      if (next.currentIndex != previous?.currentIndex && next.currentIndex != _pageController.page?.round()) {
+      if (previous?.currentIndex != next.currentIndex && next.currentIndex != _pageController.page?.round()) {
         _pageController.animateToPage(
           next.currentIndex,
           duration: const Duration(milliseconds: 300),
@@ -49,39 +51,25 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
       }
     });
 
-    if (state.itemStates.isEmpty) {
-      return const Scaffold(
-        body: Center(
-          child: Text('Không có dữ liệu ảnh để hiển thị.'),
-        ),
-      );
+    if (itemArgsList.isEmpty) {
+      return const Scaffold(body: Center(child: Text('Không có dữ liệu ảnh để hiển thị.')));
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Thêm món đồ (${state.currentIndex + 1}/${state.itemStates.length})'),
+        title: Text('Thêm món đồ (${state.currentIndex + 1}/${itemArgsList.length})'),
       ),
       body: Column(
         children: [
           Expanded(
             child: PageView.builder(
               controller: _pageController,
-              itemCount: state.itemStates.length,
+              itemCount: itemArgsList.length,
               onPageChanged: notifier.setCurrentIndex,
               itemBuilder: (context, index) {
-                final currentItemState = state.itemStates[index];
-                return ItemDetailForm(
-                  key: ValueKey('item_form_$index'),
-                  itemState: currentItemState,
-                  onNameChanged: (val) => notifier.updateItemDetails(index, currentItemState.copyWith(name: val)),
-                  onClosetChanged: (val) => notifier.updateItemDetails(index, currentItemState.copyWith(selectedClosetId: val)),
-                  onCategoryChanged: (val) => notifier.updateItemDetails(index, currentItemState.copyWith(selectedCategoryValue: val)),
-                  onColorsChanged: (val) => notifier.updateItemDetails(index, currentItemState.copyWith(selectedColors: val)),
-                  onSeasonsChanged: (val) => notifier.updateItemDetails(index, currentItemState.copyWith(selectedSeasons: val)),
-                  onOccasionsChanged: (val) => notifier.updateItemDetails(index, currentItemState.copyWith(selectedOccasions: val)),
-                  onMaterialsChanged: (val) => notifier.updateItemDetails(index, currentItemState.copyWith(selectedMaterials: val)),
-                  onPatternsChanged: (val) => notifier.updateItemDetails(index, currentItemState.copyWith(selectedPatterns: val)),
-                );
+                // <<< THAY ĐỔI: Lấy ra args tại vị trí index
+                final itemArgs = itemArgsList[index];
+                return ItemFormPage(key: ValueKey(itemArgs.tempId), providerArgs: itemArgs);
               },
             ),
           ),
@@ -99,7 +87,7 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
                     foregroundColor: Theme.of(context).colorScheme.surface,
                   )
                 ),
-                if (state.currentIndex < state.itemStates.length - 1)
+                if (state.currentIndex < itemArgsList.length - 1)
                   ElevatedButton.icon(
                     onPressed: notifier.nextPage,
                     icon: const Icon(Icons.arrow_forward),
@@ -118,6 +106,31 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class ItemFormPage extends ConsumerWidget {
+  // <<< THAY ĐỔI: Nhận vào một đối tượng ItemNotifierArgs
+  final ItemNotifierArgs providerArgs;
+  const ItemFormPage({super.key, required this.providerArgs});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // <<< THAY ĐỔI: Sử dụng trực tiếp providerArgs nhận được
+    final itemState = ref.watch(addItemProvider(providerArgs));
+    final itemNotifier = ref.read(addItemProvider(providerArgs).notifier);
+
+    return ItemDetailForm(
+      itemState: itemState,
+      onNameChanged: itemNotifier.onNameChanged,
+      onClosetChanged: itemNotifier.onClosetChanged,
+      onCategoryChanged: itemNotifier.onCategoryChanged,
+      onColorsChanged: itemNotifier.onColorsChanged,
+      onSeasonsChanged: itemNotifier.onSeasonsChanged,
+      onOccasionsChanged: itemNotifier.onOccasionsChanged,
+      onMaterialsChanged: itemNotifier.onMaterialsChanged,
+      onPatternsChanged: itemNotifier.onPatternsChanged,
     );
   }
 }

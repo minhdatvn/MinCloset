@@ -30,28 +30,27 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // <<< THAY ĐỔI 1: Lấy ra Navigator và ScaffoldMessenger trước khi lắng nghe >>>
     final navigator = Navigator.of(context);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     ref.listen<BatchAddItemState>(batchAddItemProvider, (previous, next) async {
-      // Vẫn giữ kiểm tra `mounted` ở đầu để đảm bảo an toàn
       if (!mounted) return;
 
-      if (next.analysisSuccess) {
-        final analyzedStates = ref.read(batchAddItemProvider).itemStates;
+      if (next.analysisSuccess && previous?.analysisSuccess == false) {
+        // <<< THAY ĐỔI: Lấy ra danh sách args
+        final analyzedItemArgs = ref.read(batchAddItemProvider).itemArgsList;
         bool? result;
 
-        if (analyzedStates.length == 1) {
-          // <<< THAY ĐỔI 2: Sử dụng `navigator` đã được lấy ra trước đó >>>
+        if (analyzedItemArgs.length == 1) {
           result = await navigator.push<bool>(
             MaterialPageRoute(
               builder: (context) => AddItemScreen(
-                preAnalyzedState: analyzedStates.first,
+                // Lấy preAnalyzedState từ args
+                preAnalyzedState: analyzedItemArgs.first.preAnalyzedState,
               ),
             ),
           );
-        } else if (analyzedStates.length > 1) {
+        } else if (analyzedItemArgs.length > 1) {
           result = await navigator.push<bool>(
             MaterialPageRoute(
               builder: (context) => const BatchAddItemScreen(),
@@ -65,7 +64,6 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
       }
       
       else if (next.errorMessage != null && previous?.errorMessage == null) {
-        // <<< THAY ĐỔI 3: Sử dụng `scaffoldMessenger` và `navigator` đã được lấy ra >>>
         scaffoldMessenger.showSnackBar(
           SnackBar(content: Text('Lỗi phân tích: ${next.errorMessage}')),
         );

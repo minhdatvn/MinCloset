@@ -1,33 +1,58 @@
 // lib/notifiers/add_item_notifier.dart
 
 import 'dart:io';
+import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/domain/providers.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
-import 'package:mincloset/screens/add_item_screen.dart';
+import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/states/add_item_state.dart';
-import 'package:uuid/uuid.dart';
 
+class ItemNotifierArgs extends Equatable {
+  final String tempId;
+  final ClothingItem? itemToEdit;
+  final XFile? newImage;
+  final AddItemState? preAnalyzedState;
+
+  const ItemNotifierArgs({
+    required this.tempId,
+    this.itemToEdit,
+    this.newImage,
+    this.preAnalyzedState,
+  });
+  
+  // <<< THAY ĐỔI DUY NHẤT VÀ QUAN TRỌNG NHẤT LÀ Ở ĐÂY >>>
+  // Chúng ta chỉ định rằng việc so sánh bằng nhau chỉ dựa trên `tempId`.
+  // Các trường khác chỉ là dữ liệu để truyền vào lúc khởi tạo.
+  @override
+  List<Object?> get props => [tempId];
+}
+
+
+// Các phần còn lại của file giữ nguyên, không cần thay đổi
 class AddItemNotifier extends StateNotifier<AddItemState> {
   final ClothingItemRepository _clothingItemRepo;
   final Ref _ref;
 
-  AddItemNotifier(this._clothingItemRepo, this._ref, AddItemScreenArgs args)
+  AddItemNotifier(this._clothingItemRepo, this._ref, ItemNotifierArgs args)
       : super(
           args.preAnalyzedState ??
           (args.itemToEdit != null
               ? AddItemState.fromClothingItem(args.itemToEdit!)
-              : AddItemState(image: args.newImage != null ? File(args.newImage!.path) : null))
+              : AddItemState(
+                  id: args.tempId,
+                  image: args.newImage != null ? File(args.newImage!.path) : null
+                ))
         ) {
     if (args.preAnalyzedState == null && args.newImage != null) {
       analyzeImage(args.newImage!);
     }
   }
 
-  // --- Các hàm onNameChanged, onClosetChanged, analyzeImage... giữ nguyên ---
   String _normalizeCategory(String? rawCategory) {
     if (rawCategory == null || rawCategory.trim().isEmpty) {
       return 'Khác > Khác';
@@ -97,9 +122,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
   }
   
-  // <<< THAY ĐỔI LOGIC TẠI ĐÂY >>>
   Future<void> saveItem() async {
-    // 1. Kiểm tra ảnh (logic này không thuộc validation chung)
     if (state.image == null && state.imagePath == null) {
       state = state.copyWith(errorMessage: 'Vui lòng thêm ảnh cho món đồ.');
       return;
@@ -107,7 +130,6 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
 
     state = state.copyWith(isLoading: true, errorMessage: null);
 
-    // 2. Gọi UseCase để kiểm tra các trường bắt buộc
     final validateRequiredUseCase = _ref.read(validateRequiredFieldsUseCaseProvider);
     final requiredResult = validateRequiredUseCase.executeForSingle(state);
 
@@ -116,7 +138,6 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       return;
     }
 
-    // 3. Gọi UseCase để kiểm tra trùng tên
     final validateNameUseCase = _ref.read(validateItemNameUseCaseProvider);
     final nameValidationResult = await validateNameUseCase.forSingleItem(
       name: state.name,
@@ -128,7 +149,6 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       return;
     }
 
-    // 4. Nếu tất cả hợp lệ, tiến hành lưu
     final clothingItem = ClothingItem(
       id: state.isEditing ? state.id : const Uuid().v4(),
       name: state.name.trim(),
@@ -167,3 +187,9 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
   }
 }
+
+final addItemProvider = StateNotifierProvider.autoDispose
+    .family<AddItemNotifier, AddItemState, ItemNotifierArgs>((ref, args) {
+  final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
+  return AddItemNotifier(clothingItemRepo, ref, args);
+});

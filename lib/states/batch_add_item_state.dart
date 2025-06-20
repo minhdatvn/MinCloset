@@ -1,14 +1,16 @@
 // lib/states/batch_add_item_state.dart
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:mincloset/states/add_item_state.dart';
+import 'package:mincloset/notifiers/add_item_notifier.dart'; // <<< THÊM IMPORT
 
 @immutable
 class BatchAddItemState extends Equatable {
-  final bool isLoading; // Cờ cho màn hình chờ
-  final bool analysisSuccess; // Cờ báo hiệu phân tích xong
-  final List<AddItemState> itemStates;
+  final bool isLoading;
+  final bool analysisSuccess;
+
+  // <<< THAY ĐỔI: Lưu toàn bộ đối tượng Args để đảm bảo dữ liệu được truyền đi
+  final List<ItemNotifierArgs> itemArgsList;
+
   final int currentIndex;
   final bool isSaving;
   final bool saveSuccess;
@@ -17,7 +19,7 @@ class BatchAddItemState extends Equatable {
   const BatchAddItemState({
     this.isLoading = false,
     this.analysisSuccess = false,
-    this.itemStates = const [],
+    this.itemArgsList = const [], // <<< THAY ĐỔI
     this.currentIndex = 0,
     this.isSaving = false,
     this.saveSuccess = false,
@@ -27,8 +29,7 @@ class BatchAddItemState extends Equatable {
   BatchAddItemState copyWith({
     bool? isLoading,
     bool? analysisSuccess,
-    List<XFile>? images, // Xóa bỏ images vì không còn lưu trực tiếp
-    List<AddItemState>? itemStates,
+    List<ItemNotifierArgs>? itemArgsList, // <<< THAY ĐỔI
     int? currentIndex,
     bool? isSaving,
     bool? saveSuccess,
@@ -38,7 +39,7 @@ class BatchAddItemState extends Equatable {
     return BatchAddItemState(
       isLoading: isLoading ?? this.isLoading,
       analysisSuccess: analysisSuccess ?? this.analysisSuccess,
-      itemStates: itemStates ?? this.itemStates,
+      itemArgsList: itemArgsList ?? this.itemArgsList, // <<< THAY ĐỔI
       currentIndex: currentIndex ?? this.currentIndex,
       isSaving: isSaving ?? this.isSaving,
       saveSuccess: saveSuccess ?? this.saveSuccess,
@@ -50,7 +51,7 @@ class BatchAddItemState extends Equatable {
   List<Object?> get props => [
         isLoading,
         analysisSuccess,
-        itemStates,
+        itemArgsList, // <<< THAY ĐỔI
         currentIndex,
         isSaving,
         saveSuccess,

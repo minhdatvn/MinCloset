@@ -1,34 +1,17 @@
 // lib/screens/add_item_screen.dart
-import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/clothing_item.dart';
-import 'package:mincloset/notifiers/add_item_notifier.dart';
-import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/notifiers/add_item_notifier.dart'; // Import lớp Args và provider từ đây
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
+import 'package:uuid/uuid.dart';
 
+// <<< BƯỚC 1: XÓA BỎ HOÀN TOÀN KHỐI ĐỊNH NGHĨA "addItemProvider" KHỎI ĐÂY >>>
+// final addItemProvider = StateNotifierProvider.autoDispose ... <--- DÒNG NÀY VÀ CÁC DÒNG LIÊN QUAN ĐÃ ĐƯỢC XÓA
 
-@immutable
-class AddItemScreenArgs extends Equatable {
-  final ClothingItem? itemToEdit;
-  final XFile? newImage;
-  final AddItemState? preAnalyzedState; 
-
-  const AddItemScreenArgs({this.itemToEdit, this.newImage, this.preAnalyzedState});
-
-  @override
-  List<Object?> get props => [itemToEdit, newImage, preAnalyzedState];
-}
-
-final addItemProvider = StateNotifierProvider.autoDispose
-    .family<AddItemNotifier, AddItemState, AddItemScreenArgs>((ref, args) {
-  final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
-  return AddItemNotifier(clothingItemRepo, ref, args);
-});
-
-class AddItemScreen extends ConsumerWidget {
+class AddItemScreen extends ConsumerStatefulWidget {
   final String? preselectedClosetId;
   final ClothingItem? itemToEdit;
   final XFile? newImage;
@@ -42,9 +25,28 @@ class AddItemScreen extends ConsumerWidget {
     this.preAnalyzedState,
   });
 
-  void _showImageSourceActionSheet(BuildContext context, WidgetRef ref) {
-    final args = AddItemScreenArgs(itemToEdit: itemToEdit, newImage: newImage, preAnalyzedState: preAnalyzedState);
-    final notifier = ref.read(addItemProvider(args).notifier);
+  @override
+  ConsumerState<AddItemScreen> createState() => _AddItemScreenState();
+}
+
+class _AddItemScreenState extends ConsumerState<AddItemScreen> {
+  late final String _tempId;
+  late final ItemNotifierArgs _providerArgs;
+
+  @override
+  void initState() {
+    super.initState();
+    _tempId = widget.itemToEdit?.id ?? widget.preAnalyzedState?.id ?? const Uuid().v4();
+    _providerArgs = ItemNotifierArgs(
+      tempId: _tempId,
+      itemToEdit: widget.itemToEdit,
+      newImage: widget.newImage,
+      preAnalyzedState: widget.preAnalyzedState,
+    );
+  }
+
+  void _showImageSourceActionSheet(BuildContext context) {
+    final notifier = ref.read(addItemProvider(_providerArgs).notifier);
     
     showModalBottomSheet(
       context: context,
@@ -73,15 +75,14 @@ class AddItemScreen extends ConsumerWidget {
     );
   }
 
-  Future<void> _showDeleteConfirmationDialog(BuildContext context, WidgetRef ref) async {
-    if (itemToEdit == null) return;
-    final args = AddItemScreenArgs(itemToEdit: itemToEdit, newImage: newImage, preAnalyzedState: preAnalyzedState);
+  Future<void> _showDeleteConfirmationDialog(BuildContext context) async {
+    if (widget.itemToEdit == null) return;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Xác nhận xóa'),
-        content: Text('Bạn có chắc chắn muốn xóa vĩnh viễn món đồ "${itemToEdit!.name}" không?'),
+        content: Text('Bạn có chắc chắn muốn xóa vĩnh viễn món đồ "${widget.itemToEdit!.name}" không?'),
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Hủy')),
           TextButton(
@@ -94,25 +95,20 @@ class AddItemScreen extends ConsumerWidget {
     );
 
     if (confirmed == true) {
-      await ref.read(addItemProvider(args).notifier).deleteItem();
+      await ref.read(addItemProvider(_providerArgs).notifier).deleteItem();
     }
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final args = AddItemScreenArgs(
-        itemToEdit: itemToEdit,
-        newImage: newImage,
-        preAnalyzedState: preAnalyzedState,
-    );
-    final provider = addItemProvider(args);
+  Widget build(BuildContext context) {
+    final provider = addItemProvider(_providerArgs);
     final state = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
 
-    if (itemToEdit == null && preselectedClosetId != null) {
+    if (widget.itemToEdit == null && widget.preselectedClosetId != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (ref.read(provider).selectedClosetId == null) {
-          notifier.onClosetChanged(preselectedClosetId);
+          notifier.onClosetChanged(widget.preselectedClosetId);
         }
       });
     }
@@ -133,13 +129,13 @@ class AddItemScreen extends ConsumerWidget {
           if (state.isEditing || state.image == null)
             IconButton(
               icon: const Icon(Icons.add_a_photo_outlined),
-              onPressed: () => _showImageSourceActionSheet(context, ref),
+              onPressed: () => _showImageSourceActionSheet(context),
               tooltip: 'Chọn ảnh khác',
             ),
           if (state.isEditing)
             IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.red),
-              onPressed: () => _showDeleteConfirmationDialog(context, ref),
+              onPressed: () => _showDeleteConfirmationDialog(context),
               tooltip: 'Xóa món đồ',
             ),
         ],
@@ -163,7 +159,6 @@ class AddItemScreen extends ConsumerWidget {
           label: state.isLoading 
               ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3,)) 
               : Text(state.isEditing ? 'Cập nhật' : 'Lưu'),
-          // <<< ĐÃ XÓA BỎ STYLE CỤC BỘ Ở ĐÂY >>>
         ),
       ),
     );

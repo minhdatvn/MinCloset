@@ -1,9 +1,8 @@
 // lib/domain/use_cases/validate_item_name_use_case.dart
 
-import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/domain/models/validation_result.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/states/add_item_state.dart';
-import 'package:mincloset/domain/models/validation_result.dart';
 
 class ValidateItemNameUseCase {
   final ClothingItemRepository _repo;

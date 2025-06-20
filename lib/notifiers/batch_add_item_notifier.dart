@@ -18,27 +18,43 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
   BatchAddItemNotifier(this._clothingItemRepo, this._ref)
       : super(const BatchAddItemState());
 
-  // ... (Các hàm không liên quan đến save giữ nguyên)
+  // --- Các hàm khác không liên quan đến save giữ nguyên ---
   String _normalizeCategory(String? rawCategory) {
-    if (rawCategory == null || rawCategory.trim().isEmpty) return 'Khác > Khác';
-    if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) return '$rawCategory > Khác';
+    if (rawCategory == null || rawCategory.trim().isEmpty) {
+      return 'Khác > Khác';
+    }
+    if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) {
+      return '$rawCategory > Khác';
+    }
     final parts = rawCategory.split(' > ');
-    if (!AppOptions.categories.containsKey(parts.first)) return 'Khác > Khác';
+    if (!AppOptions.categories.containsKey(parts.first)) {
+      return 'Khác > Khác';
+    }
     return rawCategory;
   }
   Set<String> _normalizeMultiSelect(dynamic rawValue, List<String> validOptions) {
     final selections = <String>{};
-    if (rawValue == null) return selections;
+    if (rawValue == null) {
+      return selections;
+    }
     final validOptionsSet = validOptions.toSet();
     bool hasUnknowns = false;
     List<String> valuesToProcess = [];
-    if (rawValue is String) valuesToProcess = [rawValue];
-    else if (rawValue is List) valuesToProcess = rawValue.map((e) => e.toString()).toList();
-    for (final value in valuesToProcess) {
-      if (validOptionsSet.contains(value)) selections.add(value);
-      else hasUnknowns = true;
+    if (rawValue is String) {
+      valuesToProcess = [rawValue];
+    } else if (rawValue is List) {
+      valuesToProcess = rawValue.map((e) => e.toString()).toList();
     }
-    if (hasUnknowns && validOptionsSet.contains('Khác')) selections.add('Khác');
+    for (final value in valuesToProcess) {
+      if (validOptionsSet.contains(value)) {
+        selections.add(value);
+      } else {
+        hasUnknowns = true;
+      }
+    }
+    if (hasUnknowns && validOptionsSet.contains('Khác')) {
+      selections.add('Khác');
+    }
     return selections;
   }
   Future<void> analyzeAllImages(List<XFile> images) async {
@@ -79,7 +95,9 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
     }
   }
   void updateItemDetails(int index, AddItemState updatedDetails) {
-    if (index < 0 || index >= state.itemStates.length) return;
+    if (index < 0 || index >= state.itemStates.length) {
+      return;
+    }
     final newStates = List<AddItemState>.from(state.itemStates);
     newStates[index] = updatedDetails;
     state = state.copyWith(itemStates: newStates);
@@ -97,35 +115,35 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
       state = state.copyWith(currentIndex: state.currentIndex - 1);
     }
   }
-  
-  // <<< THAY ĐỔI LỚN: Cập nhật hàm saveAll để gọi UseCase >>>
+
+  // <<< THAY ĐỔI LOGIC TẠI ĐÂY >>>
   Future<void> saveAll() async {
     state = state.copyWith(isSaving: true, clearError: true);
 
-    // 1. Kiểm tra các trường cơ bản
-    for (int i = 0; i < state.itemStates.length; i++) {
-      final itemState = state.itemStates[i];
-      if (itemState.name.trim().isEmpty || itemState.selectedClosetId == null || itemState.selectedCategoryValue.isEmpty) {
-        state = state.copyWith(
-          isSaving: false,
-          errorMessage: 'Vui lòng điền đầy đủ các trường bắt buộc (*) cho món đồ ${i + 1}.',
-          currentIndex: i,
-        );
-        return;
-      }
-    }
+    // 1. Gọi UseCase để kiểm tra các trường bắt buộc
+    final validateRequiredUseCase = _ref.read(validateRequiredFieldsUseCaseProvider);
+    final requiredResult = validateRequiredUseCase.executeForBatch(state.itemStates);
 
-    // 2. Gọi UseCase để xác thực toàn bộ batch
-    final validateUseCase = _ref.read(validateItemNameUseCaseProvider);
-    final validationResult = await validateUseCase.forBatch(state.itemStates);
-
-    if (!validationResult.success) {
+    if (!requiredResult.success) {
       state = state.copyWith(
         isSaving: false,
-        errorMessage: validationResult.errorMessage,
-        currentIndex: validationResult.errorIndex, // Chuyển đến trang bị lỗi
+        errorMessage: requiredResult.errorMessage,
+        currentIndex: requiredResult.errorIndex,
       );
-      return; // Dừng lại nếu có lỗi
+      return;
+    }
+
+    // 2. Gọi UseCase để xác thực toàn bộ batch (kiểm tra trùng tên)
+    final validateNameUseCase = _ref.read(validateItemNameUseCaseProvider);
+    final nameValidationResult = await validateNameUseCase.forBatch(state.itemStates);
+
+    if (!nameValidationResult.success) {
+      state = state.copyWith(
+        isSaving: false,
+        errorMessage: nameValidationResult.errorMessage,
+        currentIndex: nameValidationResult.errorIndex,
+      );
+      return;
     }
 
     // 3. Nếu tất cả hợp lệ, tiến hành lưu

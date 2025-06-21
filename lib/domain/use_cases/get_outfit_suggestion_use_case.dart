@@ -1,4 +1,4 @@
-// lib/domain/use_cases/get_out_suggestion_use_case.dart
+// lib/domain/use_cases/get_outfit_suggestion_use_case.dart
 
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -20,7 +20,8 @@ class GetOutfitSuggestionUseCase {
     this._suggestionRepo,
   );
 
-  Future<Map<String, dynamic>> _getWeatherForSuggestion() async {
+  // <<< HÀM ĐÃ ĐƯỢC SỬA TỪ PRIVATE THÀNH PUBLIC >>>
+  Future<Map<String, dynamic>> getWeatherForSuggestion() async {
     final prefs = await SharedPreferences.getInstance();
     final cityModeString = prefs.getString('city_mode') ?? 'auto';
     final cityMode = CityMode.values.byName(cityModeString);
@@ -44,16 +45,12 @@ class GetOutfitSuggestionUseCase {
         }
       } else {
         logger.i('Lấy thời tiết theo vị trí tự động...');
-        // <<< SỬA LỖI GÂY TREO Ở ĐÂY >>>
-        // 1. Kiểm tra xem dịch vụ vị trí có được bật không
         final serviceEnabled = await Geolocator.isLocationServiceEnabled();
         if (!serviceEnabled) {
           logger.w('Dịch vụ vị trí đang tắt, quay về mặc định.');
-          // Ném lỗi để khối catch bên dưới xử lý và dùng thành phố mặc định
           throw Exception('Location services are disabled.');
         }
 
-        // 2. Xử lý quyền truy cập
         LocationPermission permission = await Geolocator.checkPermission();
         if (permission == LocationPermission.denied) {
           permission = await Geolocator.requestPermission();
@@ -65,7 +62,6 @@ class GetOutfitSuggestionUseCase {
           throw Exception('Location permissions are denied.');
         }
         
-        // 3. Nếu mọi thứ ổn, mới lấy vị trí
         Position position = await Geolocator.getCurrentPosition(
             desiredAccuracy: LocationAccuracy.high);
         weatherData = await _weatherRepo.getWeatherByCoords(
@@ -84,7 +80,8 @@ class GetOutfitSuggestionUseCase {
   }
 
   Future<Map<String, dynamic>> execute() async {
-    final weatherData = await _getWeatherForSuggestion();
+    // <<< CẬP NHẬT LỜI GỌI HÀM Ở ĐÂY >>>
+    final weatherData = await getWeatherForSuggestion();
     final items = await _clothingItemRepo.getAllItems();
 
     if (items.isEmpty) {

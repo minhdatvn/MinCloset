@@ -28,24 +28,8 @@ final recentItemsProvider =
   return itemRepo.getRecentItems(5);
 });
 
-// <<< THAY ĐỔI 3: Chuyển thành ConsumerStatefulWidget >>>
-class HomePage extends ConsumerStatefulWidget {
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
-
-  @override
-  ConsumerState<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends ConsumerState<HomePage> {
-  // <<< THAY ĐỔI 4: Gọi hàm tải dữ liệu trong initState >>>
-  @override
-  void initState() {
-    super.initState();
-    // Dùng addPostFrameCallback để đảm bảo widget đã build xong
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(homeProvider.notifier).getNewSuggestion();
-    });
-  }
 
   Future<void> _pickAndAnalyzeImage(BuildContext context, WidgetRef ref) async {
     final navigator = Navigator.of(context);
@@ -66,8 +50,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    // Từ đây code không thay đổi, chỉ cần thay `WidgetRef ref` trong `build` thành `ref`
+  Widget build(BuildContext context, WidgetRef ref) {
     final homeState = ref.watch(homeProvider);
     final homeNotifier = ref.read(homeProvider.notifier);
     final profileState = ref.watch(profileProvider);
@@ -79,8 +62,9 @@ class _HomePageState extends ConsumerState<HomePage> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
+          // Khi làm mới, chỉ cần invalidate provider của các item gần đây
           ref.invalidate(recentItemsProvider);
-          await homeNotifier.getNewSuggestion();
+          // <<< DÒNG GỌI getNewSuggestion ĐÃ ĐƯỢC XÓA Ở ĐÂY >>>
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -111,7 +95,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  // Các hàm build UI con không thay đổi
   Widget _buildHeader(BuildContext context, WidgetRef ref) {
     final userName = ref.watch(profileProvider.select((state) => state.userName));
     return Row(

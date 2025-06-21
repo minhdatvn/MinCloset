@@ -23,10 +23,11 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   void initState() {
     super.initState();
-    // Dùng addPostFrameCallback để đảm bảo các provider đã sẵn sàng
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(profileProvider.notifier).loadInitialData();
-      ref.read(homeProvider.notifier).getNewSuggestion();
+      // <<< SỬA LẠI DÒNG NÀY >>>
+      // Thay vì lấy gợi ý mới, chỉ tải gợi ý đã lưu
+      ref.read(homeProvider.notifier).loadSavedSuggestion();
     });
   }
 

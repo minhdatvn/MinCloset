@@ -14,13 +14,13 @@ class SaveOutfitUseCase {
 
   SaveOutfitUseCase(this._outfitRepo);
 
-  // Phương thức execute nhận tất cả dữ liệu cần thiết
+  // <<< THÊM isFixed VÀO HÀM EXECUTE >>>
   Future<void> execute({
     required String name,
+    required bool isFixed,
     required Map<String, ClothingItem> itemsOnCanvas,
     required Uint8List capturedImage,
   }) async {
-    // Di chuyển toàn bộ logic lưu trữ từ Notifier vào đây
     final directory = await getApplicationDocumentsDirectory();
     final imagePath = p.join(directory.path, '${const Uuid().v4()}.png');
     await File(imagePath).writeAsBytes(capturedImage);
@@ -32,9 +32,9 @@ class SaveOutfitUseCase {
       name: name,
       imagePath: imagePath,
       itemIds: itemIds,
+      isFixed: isFixed, // <<< GÁN GIÁ TRỊ isFixed
     );
-
-    // Gọi đến Repository để lưu vào CSDL
+    
     await _outfitRepo.insertOutfit(newOutfit);
   }
 }

@@ -12,6 +12,15 @@ class ClothingItemRepository {
     final data = await _dbHelper.getAllItems();
     return data.map((map) => ClothingItem.fromMap(map)).toList();
   }
+  
+  // <<< THÊM HÀM MỚI Ở ĐÂY >>>
+  Future<ClothingItem?> getItemById(String id) async {
+    final map = await _dbHelper.getItemById(id);
+    if (map != null) {
+      return ClothingItem.fromMap(map);
+    }
+    return null;
+  }
 
   Future<List<ClothingItem>> getItemsInCloset(String closetId) async {
     final data = await _dbHelper.getItemsInCloset(closetId);
@@ -35,7 +44,6 @@ class ClothingItemRepository {
   Future<void> updateItem(ClothingItem item) async {
     await _dbHelper.updateItem(item);
   }
-
 
   Future<void> deleteItem(String id) async {
     await _dbHelper.deleteItem(id);

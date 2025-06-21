@@ -11,7 +11,6 @@ import 'package:mincloset/widgets/filter_bottom_sheet.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:screenshot/screenshot.dart';
 
-// Lớp OutfitBuilderPage không có gì thay đổi
 class OutfitBuilderPage extends ConsumerStatefulWidget {
   const OutfitBuilderPage({super.key});
 
@@ -22,39 +21,93 @@ class OutfitBuilderPage extends ConsumerStatefulWidget {
 class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   final _screenshotController = ScreenshotController();
 
+  // <<< CẬP NHẬT HÀM LƯU >>>
   Future<void> _saveOutfit() async {
     final notifier = ref.read(outfitBuilderProvider.notifier);
-    final outfitName = await _showNameOutfitDialog();
-    if (outfitName == null || outfitName.trim().isEmpty) return;
+    // Lấy kết quả từ dialog, giờ đây là một Map
+    final result = await _showNameOutfitDialog();
+
+    // Nếu người dùng nhấn Hủy hoặc không nhập tên, result sẽ là null
+    if (result == null) return;
+    
+    final String name = result['name'] as String;
+    final bool isFixed = result['isFixed'] as bool;
+
+    if (name.trim().isEmpty) return;
 
     notifier.deselectAllStickers();
     await Future.delayed(const Duration(milliseconds: 50));
 
     final capturedImage = await _screenshotController.capture();
     if (capturedImage != null) {
-      await notifier.saveOutfit(outfitName, capturedImage);
+      // Truyền thêm cờ isFixed vào hàm saveOutfit của notifier
+      await notifier.saveOutfit(name, isFixed, capturedImage);
     }
   }
 
-  Future<String?> _showNameOutfitDialog() {
+  // <<< CẬP NHẬT HỘP THOẠI LƯU >>>
+  Future<Map<String, dynamic>?> _showNameOutfitDialog() {
     final nameController = TextEditingController();
-    return showDialog<String>(
+    bool isFixed = false; // Trạng thái ban đầu của switch
+
+    return showDialog<Map<String, dynamic>>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Đặt tên cho bộ đồ'),
-        content: TextField(
-          controller: nameController,
-          decoration: const InputDecoration(hintText: 'Ví dụ: Dạo phố cuối tuần'),
-          autofocus: true,
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
-          ElevatedButton(
-            onPressed: () => Navigator.of(ctx).pop(nameController.text),
-            child: const Text('Lưu'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        // Sử dụng StatefulBuilder để dialog có thể tự cập nhật trạng thái của Switch
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Lưu bộ đồ'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min, // Giúp Column co lại vừa với nội dung
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration:
+                        const InputDecoration(hintText: 'Ví dụ: Dạo phố cuối tuần'),
+                    autofocus: true,
+                  ),
+                  const SizedBox(height: 16),
+                  // SwitchListTile để có tiêu đề và nút switch tiện lợi
+                  SwitchListTile(
+                    title: const Text(
+                      'Bộ đồ cố định',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: const Text(
+                      'Các món đồ sẽ luôn được gợi ý cùng nhau (dùng cho đồng phục, suit...).',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    value: isFixed,
+                    onChanged: (newValue) {
+                      // Cập nhật trạng thái của Switch khi người dùng tương tác
+                      setState(() {
+                        isFixed = newValue;
+                      });
+                    },
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(),
+                    child: const Text('Hủy')),
+                ElevatedButton(
+                  onPressed: () {
+                    // Trả về một Map chứa cả tên và trạng thái của switch
+                    Navigator.of(ctx).pop({
+                      'name': nameController.text.trim(),
+                      'isFixed': isFixed,
+                    });
+                  },
+                  child: const Text('Lưu'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -185,10 +238,8 @@ class _ItemSelectionPanel extends HookConsumerWidget {
     final searchController = useTextEditingController();
     final closetsAsync = ref.watch(closetsProvider);
 
-    // <<< BƯỚC 1: LẤY DỮ LIỆU TỪ OUTFITBUILDERPROVIDER
     final canvasItems = ref.watch(outfitBuilderProvider.select((state) => state.itemsOnCanvas.values));
 
-    // <<< BƯỚC 2: TÍNH TOÁN SỐ LƯỢNG
     final Map<String, int> itemCounts = {};
     for (final item in canvasItems) {
       itemCounts[item.id] = (itemCounts[item.id] ?? 0) + 1;
@@ -278,11 +329,10 @@ class _ItemSelectionPanel extends HookConsumerWidget {
         ),
         ItemBrowserView(
           providerId: providerId,
-          buildMode: ItemBrowserBuildMode.sliver, 
+          buildMode: ItemBrowserBuildMode.sliver,
           onItemTapped: (ClothingItem item) {
             ref.read(outfitBuilderProvider.notifier).addItemToCanvas(item);
           },
-          // <<< BƯỚC 3: TRUYỀN MAP SỐ ĐẾM XUỐNG
           itemCounts: itemCounts,
         ),
       ],

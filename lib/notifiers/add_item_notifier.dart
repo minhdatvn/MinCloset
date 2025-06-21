@@ -159,9 +159,15 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       state = state.copyWith(isLoading: false, errorMessage: 'Lỗi khi xóa: $e');
     }
   }
+
+  void resetState() {
+    // Chỉ reset các cờ trạng thái, không xóa dữ liệu form
+    if (state.isSuccess || state.errorMessage != null) {
+       state = state.copyWith(isSuccess: false, errorMessage: null);
+    }
+  }
 }
 
-// <<< THAY ĐỔI DUY NHẤT TRONG FILE NÀY LÀ XÓA BỎ ".autoDispose" >>>
 final addItemProvider = StateNotifierProvider
     .family<AddItemNotifier, AddItemState, ItemNotifierArgs>((ref, args) {
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);

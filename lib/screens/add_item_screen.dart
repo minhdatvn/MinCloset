@@ -3,13 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/clothing_item.dart';
-import 'package:mincloset/notifiers/add_item_notifier.dart'; // Import lớp Args và provider từ đây
+import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
 import 'package:uuid/uuid.dart';
-
-// <<< BƯỚC 1: XÓA BỎ HOÀN TOÀN KHỐI ĐỊNH NGHĨA "addItemProvider" KHỎI ĐÂY >>>
-// final addItemProvider = StateNotifierProvider.autoDispose ... <--- DÒNG NÀY VÀ CÁC DÒNG LIÊN QUAN ĐÃ ĐƯỢC XÓA
 
 class AddItemScreen extends ConsumerStatefulWidget {
   final String? preselectedClosetId;
@@ -43,6 +40,17 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
       newImage: widget.newImage,
       preAnalyzedState: widget.preAnalyzedState,
     );
+  }
+
+  // <<< THÊM PHƯƠNG THỨC dispose ĐỂ GỌI resetState >>>
+  @override
+  void dispose() {
+    // Dọn dẹp trạng thái của notifier khi màn hình bị hủy.
+    // Dùng Future.microtask để đảm bảo nó được gọi sau khi quá trình build hoàn tất.
+    Future.microtask(() {
+      ref.read(addItemProvider(_providerArgs).notifier).resetState();
+    });
+    super.dispose();
   }
 
   void _showImageSourceActionSheet(BuildContext context) {

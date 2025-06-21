@@ -136,7 +136,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     final List<Widget> statPages = [];
     if (state.categoryDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage('Theo Danh mục', state.categoryDistribution));
+      statPages.add(_buildStatPage('Danh mục', state.categoryDistribution));
     }
     if (state.colorDistribution.isNotEmpty) {
       final sortedColorEntries = state.colorDistribution.entries.toList()
@@ -145,13 +145,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           .map((entry) => AppOptions.colors[entry.key] ?? Colors.grey)
           .toList();
       final sortedColorMap = Map.fromEntries(sortedColorEntries);
-      statPages.add(_buildStatPage('Theo Màu sắc', sortedColorMap, specificColors: dynamicColors));
+      statPages.add(_buildStatPage('Màu sắc', sortedColorMap, specificColors: dynamicColors));
     }
     if (state.seasonDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage('Theo Mùa', state.seasonDistribution));
+      statPages.add(_buildStatPage('Mùa', state.seasonDistribution));
     }
     if (state.occasionDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage('Theo Mục đích', state.occasionDistribution));
+      statPages.add(_buildStatPage('Mục đích', state.occasionDistribution));
     }
 
     return RefreshIndicator(

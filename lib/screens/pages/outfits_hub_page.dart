@@ -23,10 +23,8 @@ class OutfitsHubPage extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Lỗi: $err')),
         data: (outfits) {
-          // GridView giờ đây sẽ luôn hiển thị các bộ đồ + 1 ô để "Thêm mới"
           return GridView.builder(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-            // <<< THAY ĐỔI 1: Tăng itemCount lên 1
             itemCount: outfits.length + 1,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
@@ -35,14 +33,11 @@ class OutfitsHubPage extends ConsumerWidget {
               mainAxisSpacing: 16,
             ),
             itemBuilder: (ctx, index) {
-              // <<< THAY ĐỔI 2: Thêm logic để build ô đầu tiên
               if (index == 0) {
-                // Nếu là item đầu tiên, build Card "Thêm bộ đồ mới"
                 return _buildAddOutfitCard(context, ref);
               }
 
-              // Các item còn lại sẽ là các bộ đồ đã lưu
-              final outfit = outfits[index - 1]; // Dùng index - 1
+              final outfit = outfits[index - 1];
               return Card(
                 clipBehavior: Clip.antiAlias,
                 elevation: 4,
@@ -51,22 +46,42 @@ class OutfitsHubPage extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
-                      child: GestureDetector(
-                        onTap: () async {
-                          final bool? outfitWasChanged = await Navigator.of(context).push<bool>(
-                            MaterialPageRoute(builder: (_) => OutfitDetailPage(outfit: outfit)),
-                          );
-                          if (outfitWasChanged == true) {
-                            ref.invalidate(outfitsProvider);
-                          }
-                        },
-                        child: Image.file(
-                          File(outfit.imagePath),
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Center(child: Icon(Icons.broken_image, color: Colors.grey, size: 40));
-                          },
-                        ),
+                      // <<< BỌC HÌNH ẢNH TRONG STACK ĐỂ THÊM ICON >>>
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          GestureDetector(
+                            onTap: () async {
+                              final bool? outfitWasChanged = await Navigator.of(context).push<bool>(
+                                MaterialPageRoute(builder: (_) => OutfitDetailPage(outfit: outfit)),
+                              );
+                              if (outfitWasChanged == true) {
+                                ref.invalidate(outfitsProvider);
+                              }
+                            },
+                            child: Image.file(
+                              File(outfit.imagePath),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Center(child: Icon(Icons.broken_image, color: Colors.grey, size: 40));
+                              },
+                            ),
+                          ),
+                          // <<< THÊM ICON KHÓA NẾU LÀ BỘ ĐỒ CỐ ĐỊNH >>>
+                          if (outfit.isFixed)
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: Container(
+                                padding: const EdgeInsets.all(5),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withAlpha(153),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.lock_outline, color: Colors.white, size: 16),
+                              ),
+                            )
+                        ],
                       ),
                     ),
                     Padding(
@@ -90,11 +105,9 @@ class OutfitsHubPage extends ConsumerWidget {
           );
         },
       ),
-      // <<< THAY ĐỔI 3: Xóa bỏ FloatingActionButton
     );
   }
 
-  // <<< THÊM HÀM MỚI ĐỂ BUILD CARD "THÊM BỘ ĐỒ"
   Widget _buildAddOutfitCard(BuildContext context, WidgetRef ref) {
     return InkWell(
       onTap: () async {

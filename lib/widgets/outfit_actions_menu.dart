@@ -5,10 +5,8 @@ import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/outfit_detail_notifier.dart';
 import 'package:share_plus/share_plus.dart';
 
-// Dùng ConsumerWidget để có thể truy cập `ref`
 class OutfitActionsMenu extends ConsumerWidget {
   final Outfit outfit;
-  // Thêm callback để báo hiệu cho trang cha khi có thay đổi (xóa/sửa)
   final VoidCallback? onUpdate;
 
   const OutfitActionsMenu({
@@ -31,24 +29,31 @@ class OutfitActionsMenu extends ConsumerWidget {
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'edit',
-          child: ListTile(leading: Icon(Icons.edit_outlined), title: Text('Đổi tên')),
+          enabled: !outfit.isFixed,
+          child: ListTile(
+            leading: Icon(Icons.edit_outlined, color: outfit.isFixed ? Colors.grey : null),
+            title: const Text('Đổi tên'),
+          ),
         ),
         const PopupMenuItem<String>(
           value: 'share',
           child: ListTile(leading: Icon(Icons.share_outlined), title: Text('Chia sẻ')),
         ),
         const PopupMenuDivider(),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'delete',
-          child: ListTile(leading: Icon(Icons.delete_outline, color: Colors.red), title: Text('Xóa', style: TextStyle(color: Colors.red))),
+          enabled: !outfit.isFixed,
+          child: ListTile(
+            leading: Icon(Icons.delete_outline, color: outfit.isFixed ? Colors.grey : Colors.red),
+            title: Text('Xóa', style: TextStyle(color: outfit.isFixed ? Colors.grey : Colors.red)),
+          ),
         ),
       ],
     );
   }
 
-  // Các hàm logic được đóng gói gọn gàng ở đây
   void _showEditOutfitNameDialog(BuildContext context, WidgetRef ref, Outfit currentOutfit, VoidCallback? onUpdateCallback) {
     final nameController = TextEditingController(text: currentOutfit.name);
     showDialog(
@@ -60,10 +65,11 @@ class OutfitActionsMenu extends ConsumerWidget {
           TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
           ElevatedButton(
             onPressed: () async {
+              final navigator = Navigator.of(ctx);
               if (nameController.text.trim().isEmpty) return;
               await ref.read(outfitDetailProvider(currentOutfit).notifier).updateName(nameController.text.trim());
-              onUpdateCallback?.call(); // Gọi callback để trang cha cập nhật
-              if (context.mounted) Navigator.of(ctx).pop();
+              onUpdateCallback?.call();
+              navigator.pop();
             },
             child: const Text('Lưu'),
           ),
@@ -74,10 +80,12 @@ class OutfitActionsMenu extends ConsumerWidget {
 
   Future<void> _shareOutfit(BuildContext context, Outfit outfit) async {
     try {
-      await SharePlus.instance.share(ShareParams(
+      // <<< SỬA LỖI CUỐI CÙNG: QUAY LẠI DÙNG `Share` VÀ THÊM `IGNORE` >>>
+      // ignore: deprecated_member_use_from_same_package
+      await Share.shareXFiles(
+        [XFile(outfit.imagePath)],
         text: 'Cùng xem bộ đồ "${outfit.name}" của tôi trên MinCloset nhé!',
-        files: [XFile(outfit.imagePath)],
-      ));
+      );
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Không thể chia sẻ: $e')));
@@ -103,15 +111,14 @@ class OutfitActionsMenu extends ConsumerWidget {
     );
 
     if (confirmed == true) {
-      // <<< THAY ĐỔI Ở ĐÂY: Gọi đến notifier thay vì repository >>>
+      final navigator = Navigator.of(context);
+      final scaffoldMessenger = ScaffoldMessenger.of(context);
       await ref.read(outfitDetailProvider(outfit).notifier).deleteOutfit();
       onUpdateCallback?.call();
-      if (context.mounted) {
-         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Đã xóa bộ đồ "${outfit.name}".')));
-         // Nếu đang ở trang chi tiết, tự động quay về
-         if (Navigator.of(context).canPop()) {
-            Navigator.of(context).pop(true);
-         }
+      
+      scaffoldMessenger.showSnackBar(SnackBar(content: Text('Đã xóa bộ đồ "${outfit.name}".')));
+      if (navigator.canPop()) {
+         navigator.pop(true);
       }
     }
   }

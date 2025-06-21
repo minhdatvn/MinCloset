@@ -6,7 +6,6 @@ import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit.dart';
 
 class DatabaseHelper {
-  // ... các hàm khác không đổi ...
   sql.Database? _database;
   static final DatabaseHelper instance = DatabaseHelper._init();
   DatabaseHelper._init();
@@ -20,6 +19,7 @@ class DatabaseHelper {
   Future<sql.Database> _initDB(String filePath) async {
     final dbPath = await sql.getDatabasesPath();
     final finalPath = path.join(dbPath, filePath);
+    // <<< GIỮ NGUYÊN VERSION 1 VÀ BỎ QUA onUpgrade >>>
     return await sql.openDatabase(finalPath, version: 1, onCreate: _createDB);
   }
 
@@ -30,15 +30,20 @@ class DatabaseHelper {
         imagePath TEXT, closetId TEXT, season TEXT, occasion TEXT,
         material TEXT, pattern TEXT
       )""");
+    
+    // <<< THÊM CỘT is_fixed VÀO BẢNG outfits >>>
     await db.execute("""CREATE TABLE outfits (
         id TEXT PRIMARY KEY,
         name TEXT,
         imagePath TEXT,
-        itemIds TEXT
+        itemIds TEXT,
+        is_fixed INTEGER NOT NULL DEFAULT 0
       )""");
   }
 
-  // === CÁC HÀM LIÊN QUAN ĐẾN CLOSET ===
+  // <<< HÀM _onUpgrade ĐÃ ĐƯỢC LOẠI BỎ >>>
+
+  // === CÁC HÀM KHÁC GIỮ NGUYÊN ===
   Future<void> insertCloset(Map<String, dynamic> data) async {
     final db = await instance.database;
     await db.insert('closets', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
@@ -62,7 +67,6 @@ class DatabaseHelper {
     });
   }
 
-  // === CÁC HÀM LIÊN QUAN ĐẾN CLOTHING ITEM ===
   Future<void> insertItem(Map<String, dynamic> data) async {
     final db = await instance.database;
     await db.insert('clothing_items', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
@@ -121,10 +125,8 @@ class DatabaseHelper {
     );
   }
 
-  // <<< THÊM HÀM MỚI Ở ĐÂY >>>
   Future<bool> itemNameExistsInCloset(String name, String closetId, {String? currentItemId}) async {
     final db = await instance.database;
-    // Chỉnh sửa câu truy vấn để loại trừ item hiện tại (khi chỉnh sửa)
     String whereClause = 'name = ? AND closetId = ?';
     List<dynamic> whereArgs = [name, closetId];
 
@@ -137,12 +139,11 @@ class DatabaseHelper {
       'clothing_items',
       where: whereClause,
       whereArgs: whereArgs,
-      limit: 1, // Chỉ cần tìm 1 là đủ
+      limit: 1,
     );
     return result.isNotEmpty;
   }
 
-  // === CÁC HÀM MỚI CHO OUTFIT ===
   Future<void> insertOutfit(Outfit outfit) async {
     final db = await instance.database;
     await db.insert('outfits', outfit.toMap(),
@@ -151,7 +152,7 @@ class DatabaseHelper {
 
   Future<List<Outfit>> getOutfits() async {
     final db = await instance.database;
-    final maps = await db.query('outfits', orderBy: 'id DESC');
+    final maps = await db.query('outfits');
     if (maps.isEmpty) {
       return [];
     }
@@ -171,5 +172,25 @@ class DatabaseHelper {
       where: 'id = ?',
       whereArgs: [outfit.id],
     );
+  }
+
+  Future<List<Map<String, dynamic>>> getFixedOutfits() async {
+    final db = await instance.database;
+    return db.query('outfits', where: 'is_fixed = ?', whereArgs: [1]);
+  }
+
+  // <<< THÊM HÀM MỚI Ở ĐÂY >>>
+  Future<Map<String, dynamic>?> getItemById(String id) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      'clothing_items',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (maps.isNotEmpty) {
+      return maps.first;
+    }
+    return null;
   }
 }

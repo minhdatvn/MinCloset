@@ -7,7 +7,7 @@ class StatsPieChart extends StatefulWidget {
   final Map<String, int> dataMap;
   final bool showChartTitle;
   final List<Color>? colors;
-  final double? size; // <<< THÊM MỚI: Tham số để nhận kích thước từ bên ngoài
+  final double? size;
 
   const StatsPieChart({
     super.key,
@@ -15,7 +15,7 @@ class StatsPieChart extends StatefulWidget {
     required this.dataMap,
     this.showChartTitle = true,
     this.colors,
-    this.size, // <<< THÊM MỚI
+    this.size,
   });
 
   @override
@@ -38,6 +38,8 @@ class _StatsPieChartState extends State<StatsPieChart> {
 
     final pieChart = PieChart(
       PieChartData(
+        // <<< THAY ĐỔI 1: XOAY BIỂU ĐỒ ĐỂ BẮT ĐẦU TỪ HƯỚNG 12 GIỜ >>>
+        startDegreeOffset: -90,
         pieTouchData: PieTouchData(
           touchCallback: (FlTouchEvent event, pieTouchResponse) {
             setState(() {
@@ -47,13 +49,14 @@ class _StatsPieChartState extends State<StatsPieChart> {
                 touchedIndex = -1;
                 return;
               }
-              touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+              touchedIndex =
+                  pieTouchResponse.touchedSection!.touchedSectionIndex;
             });
           },
         ),
         borderData: FlBorderData(show: false),
-        sectionsSpace: 2,
-        centerSpaceRadius: widget.size != null ? (widget.size! * 0.25) : 25, // Tính toán lỗ trống dựa trên size
+        sectionsSpace: 0,
+        centerSpaceRadius: widget.size != null ? (widget.size! * 0.3) : 25,
         sections: _buildChartSections(),
       ),
     );
@@ -79,20 +82,27 @@ class _StatsPieChartState extends State<StatsPieChart> {
   }
 
   List<PieChartSectionData> _buildChartSections() {
+    // <<< THAY ĐỔI 2: SẮP XẾP DỮ LIỆU TRƯỚC KHI VẼ >>>
+    // Chuyển map thành list và sắp xếp theo giá trị giảm dần
+    final sortedEntries = widget.dataMap.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
     final total = widget.dataMap.values.fold(0, (sum, item) => sum + item);
     final colors = widget.colors ?? _defaultChartColors;
     int index = 0;
 
-    // <<< THAY ĐỔI LỚN: Bán kính giờ đây được tính toán động >>>
-    // Nếu có size từ bên ngoài, tính toán bán kính dựa trên size đó.
-    // Nếu không, dùng giá trị mặc định.
-    final double baseRadius = widget.size != null ? (widget.size! / 2) * 0.8 : 50.0;
-    final double touchedRadius = widget.size != null ? (widget.size! / 2) * 0.9 : 60.0;
-    final double titleFontSize = widget.size != null ? (widget.size! / 8) : 14.0;
-
-    return widget.dataMap.entries.map((entry) {
+    // Duyệt qua danh sách đã được sắp xếp
+    return sortedEntries.map((entry) {
       final isTouched = index == touchedIndex;
-      final radius = isTouched ? touchedRadius : baseRadius;
+      
+      final double radius = isTouched 
+          ? (widget.size! / 2 * 1.0) 
+          : (widget.size! / 2 * 0.85);
+      
+      final double titleFontSize = isTouched 
+          ? (widget.size! / 7)
+          : (widget.size! / 9);
+
       final percentage = (entry.value / total * 100);
       final color = colors[index % colors.length];
       index++;
@@ -105,8 +115,7 @@ class _StatsPieChartState extends State<StatsPieChart> {
         titleStyle: TextStyle(
           fontSize: titleFontSize,
           fontWeight: FontWeight.bold,
-          color: Colors.white,
-          shadows: const [Shadow(color: Colors.black, blurRadius: 2)],
+          color: const Color(0xffffffff),
         ),
       );
     }).toList();

@@ -4,22 +4,25 @@ import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/domain/use_cases/save_outfit_use_case.dart';
 import 'package:mincloset/models/clothing_item.dart';
-import 'package:mincloset/models/outfit_filter.dart'; // <<< THÊM IMPORT CHO MODEL MỚI
+import 'package:mincloset/models/outfit_filter.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
+import 'package:mincloset/repositories/outfit_repository.dart'; // <<< THÊM IMPORT
 import 'package:mincloset/states/outfit_builder_state.dart';
 import 'package:mincloset/domain/providers.dart';
 
 
 class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
   final ClothingItemRepository _clothingItemRepo;
+  final OutfitRepository _outfitRepo; // <<< THÊM REPO MỚI
   final SaveOutfitUseCase _saveOutfitUseCase;
   int _stickerCounter = 0;
 
-  OutfitBuilderNotifier(this._clothingItemRepo, this._saveOutfitUseCase) : super(const OutfitBuilderState()) {
+  OutfitBuilderNotifier(this._clothingItemRepo, this._outfitRepo, this._saveOutfitUseCase) : super(const OutfitBuilderState()) {
     loadAvailableItems();
   }
 
+  // ... các hàm loadAvailableItems, applyFilters, clearFilters, addItemToCanvas, ... giữ nguyên ...
   Future<void> loadAvailableItems() async {
     state = state.copyWith(isLoading: true);
     try {
@@ -34,13 +37,9 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
     }
   }
 
-  // <<< XÓA HÀM `filterByCategory` CŨ VÀ THAY BẰNG 2 HÀM MỚI DƯỚI ĐÂY
-
-  /// Áp dụng một bộ lọc mới cho danh sách vật phẩm.
   void applyFilters(OutfitFilter filters) {
     List<ClothingItem> newFilteredList = List.from(state.allItems);
 
-    // Tuần tự áp dụng từng điều kiện lọc
     if (filters.closetId != null) {
       newFilteredList.retainWhere((item) => item.closetId == filters.closetId);
     }
@@ -63,7 +62,6 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
     );
   }
 
-  /// Xóa tất cả các bộ lọc và hiển thị lại toàn bộ vật phẩm.
   void clearFilters() {
     state = state.copyWith(
       activeFilters: const OutfitFilter(),
@@ -71,7 +69,6 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
     );
   }
 
-  // Các hàm còn lại giữ nguyên
   void addItemToCanvas(ClothingItem item) {
     final newStickerId = 'sticker_${_stickerCounter++}';
     final newCanvasItems = Map<String, ClothingItem>.from(state.itemsOnCanvas);
@@ -98,15 +95,42 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
     state = state.copyWith(itemsOnCanvas: newCanvasItems, clearSelectedSticker: true);
   }
 
-  Future<void> saveOutfit(String name, Uint8List capturedImage) async {
+  // <<< CẬP NHẬT HOÀN TOÀN HÀM saveOutfit >>>
+  Future<void> saveOutfit(String name, bool isFixed, Uint8List capturedImage) async {
     if (state.itemsOnCanvas.isEmpty) {
       state = state.copyWith(errorMessage: 'Vui lòng thêm ít nhất một món đồ để lưu!');
       return;
     }
     state = state.copyWith(isSaving: true, saveSuccess: false, errorMessage: null);
+
+    // --- LOGIC KIỂM TRA RÀNG BUỘC ---
+    if (isFixed) {
+      final currentItemIds = state.itemsOnCanvas.values.map((item) => item.id).toSet();
+      final existingFixedOutfits = await _outfitRepo.getFixedOutfits();
+      
+      for (final fixedOutfit in existingFixedOutfits) {
+        final existingItemIds = fixedOutfit.itemIds.split(',').toSet();
+        final intersection = currentItemIds.intersection(existingItemIds);
+
+        if (intersection.isNotEmpty) {
+          final conflictingItemId = intersection.first;
+          final conflictingItem = await _clothingItemRepo.getItemById(conflictingItemId); // Giả sử có hàm này
+          final conflictingItemName = conflictingItem?.name ?? 'Một vật phẩm';
+          
+          state = state.copyWith(
+            isSaving: false,
+            errorMessage: "Lỗi: '$conflictingItemName' đã thuộc một Bộ đồ cố định khác.",
+          );
+          return;
+        }
+      }
+    }
+    // --- KẾT THÚC LOGIC KIỂM TRA ---
+
     try {
       await _saveOutfitUseCase.execute(
         name: name,
+        isFixed: isFixed, // Truyền cờ isFixed
         itemsOnCanvas: state.itemsOnCanvas,
         capturedImage: capturedImage,
       );
@@ -117,9 +141,10 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
   }
 }
 
-// Provider không thay đổi
+// <<< CẬP NHẬT PROVIDER ĐỂ TRUYỀN ĐỦ REPOSITORY >>>
 final outfitBuilderProvider = StateNotifierProvider.autoDispose<OutfitBuilderNotifier, OutfitBuilderState>((ref) {
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
+  final outfitRepo = ref.watch(outfitRepositoryProvider); // Lấy outfit repo
   final saveOutfitUseCase = ref.watch(saveOutfitUseCaseProvider);
-  return OutfitBuilderNotifier(clothingItemRepo, saveOutfitUseCase);
+  return OutfitBuilderNotifier(clothingItemRepo, outfitRepo, saveOutfitUseCase);
 });

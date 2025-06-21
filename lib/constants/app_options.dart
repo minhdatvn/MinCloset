@@ -142,4 +142,16 @@ class AppOptions {
     OptionWithImage(name: 'Khác', imagePath: 'assets/images/patterns/other.webp'),
     // ... Thêm các họa tiết khác của bạn vào đây
   ];
+
+  static const List<String> personalStyles = [
+    'Tối giản',
+    'Cổ điển',
+    'Năng động',
+    'Đường phố',
+    'Công sở',
+    'Lãng mạn',
+    'Phóng khoáng',
+    'Cá tính',
+    'Khác',
+  ];
 }

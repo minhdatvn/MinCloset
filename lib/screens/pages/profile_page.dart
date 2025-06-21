@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/screens/edit_profile_screen.dart';
 import 'package:mincloset/screens/settings_page.dart';
@@ -17,8 +18,14 @@ class ProfilePage extends ConsumerStatefulWidget {
 }
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
-  final PageController _pageController = PageController(viewportFraction: 0.85);
+  final PageController _pageController = PageController(viewportFraction: 0.9);
   int _activePageIndex = 0;
+
+  final List<Color> _chartColors = const [
+    Color(0xFF0288D1), Color(0xFF388E3C), Color(0xFFFBC02D),
+    Color(0xFFE64A19), Color(0xFF512DA8), Color(0xFFD81B60),
+    Color(0xFF00796B),
+  ];
 
   @override
   void dispose() {
@@ -27,6 +34,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   Widget _buildProfileHeader(ProfilePageState state) {
+    // ... widget này không thay đổi ...
     return InkWell(
       onTap: () {
         Navigator.of(context).push(
@@ -38,29 +46,48 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Row(
           children: [
-            GestureDetector(
-              onTap: ref.read(profileProvider.notifier).updateAvatar,
-              child: CircleAvatar(
-                radius: 40,
-                backgroundColor: Colors.grey.shade200,
-                backgroundImage:
-                    state.avatarPath != null ? FileImage(File(state.avatarPath!)) : null,
-                child: state.avatarPath == null
-                    ? const Icon(Icons.person, size: 40, color: Colors.grey)
-                    : null,
-              ),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.grey.shade200,
+                  backgroundImage: state.avatarPath != null ? FileImage(File(state.avatarPath!)) : null,
+                  child: state.avatarPath == null
+                      ? const Icon(Icons.person, size: 40, color: Colors.grey)
+                      : null,
+                ),
+                Positioned(
+                  bottom: -2,
+                  right: -2,
+                  child: GestureDetector(
+                    onTap: () => ref.read(profileProvider.notifier).updateAvatar(),
+                    child: Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2)),
+                      child: const Icon(Icons.edit, size: 16, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(width: 16),
             Expanded(
               child: SizedBox(
-                height: 80, // Chiều cao bằng với avatar để căn chỉnh
+                height: 80,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       state.userName ?? 'Chưa có tên',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(fontWeight: FontWeight.bold),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -79,13 +106,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  // <<< CÁC WIDGET _buildInfoCard VÀ _buildInfoRow ĐÃ ĐƯỢC XÓA BỎ >>>
-
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(profileProvider);
     final notifier = ref.read(profileProvider.notifier);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Trang cá nhân'),
@@ -107,22 +131,28 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
 
     if (state.errorMessage != null) {
-      // Widget xử lý lỗi không thay đổi
-      return Center(
-          child: Text(state.errorMessage!)
-      );
+      return Center(child: Text(state.errorMessage!));
     }
 
-    final List<Widget> statCharts = [
-      if (state.categoryDistribution.isNotEmpty)
-        StatsPieChart(title: 'Theo Danh mục', dataMap: state.categoryDistribution),
-      if (state.colorDistribution.isNotEmpty)
-        StatsPieChart(title: 'Theo Màu sắc', dataMap: state.colorDistribution),
-      if (state.seasonDistribution.isNotEmpty)
-        StatsPieChart(title: 'Theo Mùa', dataMap: state.seasonDistribution),
-      if (state.occasionDistribution.isNotEmpty)
-        StatsPieChart(title: 'Theo Mục đích', dataMap: state.occasionDistribution),
-    ];
+    final List<Widget> statPages = [];
+    if (state.categoryDistribution.isNotEmpty) {
+      statPages.add(_buildStatPage('Theo Danh mục', state.categoryDistribution));
+    }
+    if (state.colorDistribution.isNotEmpty) {
+      final sortedColorEntries = state.colorDistribution.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      final dynamicColors = sortedColorEntries
+          .map((entry) => AppOptions.colors[entry.key] ?? Colors.grey)
+          .toList();
+      final sortedColorMap = Map.fromEntries(sortedColorEntries);
+      statPages.add(_buildStatPage('Theo Màu sắc', sortedColorMap, specificColors: dynamicColors));
+    }
+    if (state.seasonDistribution.isNotEmpty) {
+      statPages.add(_buildStatPage('Theo Mùa', state.seasonDistribution));
+    }
+    if (state.occasionDistribution.isNotEmpty) {
+      statPages.add(_buildStatPage('Theo Mục đích', state.occasionDistribution));
+    }
 
     return RefreshIndicator(
       onRefresh: notifier.loadInitialData,
@@ -133,7 +163,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _buildProfileHeader(state),
-            // <<< DÒNG GỌI _buildInfoCard(state) ĐÃ ĐƯỢC XÓA Ở ĐÂY >>>
             const Divider(height: 32),
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -153,28 +182,28 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             const SizedBox(height: 24),
             Text('Thống kê', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
-            if (statCharts.isEmpty)
-              const Center(child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 32.0),
-                child: Text('Chưa có dữ liệu để thống kê.'),
-              ))
+            if (statPages.isEmpty)
+              const Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 32.0),
+                  child: Text('Chưa có dữ liệu để thống kê.'),
+                ),
+              )
             else
               Column(
                 children: [
                   SizedBox(
-                    height: 300,
+                    height: 180,
                     child: PageView.builder(
                       controller: _pageController,
-                      itemCount: statCharts.length,
+                      itemCount: statPages.length,
                       onPageChanged: (int page) {
-                        setState(() {
-                          _activePageIndex = page;
-                        });
+                        setState(() { _activePageIndex = page; });
                       },
                       itemBuilder: (context, index) {
                         return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: statCharts[index],
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: statPages[index],
                         );
                       },
                     ),
@@ -182,7 +211,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: List<Widget>.generate(statCharts.length, (index) {
+                    children: List<Widget>.generate(statPages.length, (index) {
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -199,6 +228,99 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                 ],
               )
+          ],
+        ),
+      ),
+    );
+  }
+
+  // <<< HÀM ĐƯỢC THIẾT KẾ LẠI HOÀN CHỈNH >>>
+  Widget _buildStatPage(String title, Map<String, int> dataMap, {List<Color>? specificColors}) {
+    final totalValue = dataMap.values.fold(0, (sum, item) => sum + item);
+    final sortedEntries = dataMap.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final topEntries = sortedEntries.take(4);
+
+    const double chartSize = 90;
+
+    return Card(
+      elevation: 0,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Expanded(
+              // 1. Center widget để căn giữa toàn bộ nội dung (chart + chú giải)
+              child: Center(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min, // 2. Row chỉ chiếm không gian cần thiết
+                  children: [
+                    // --- BIỂU ĐỒ TRÒN ---
+                    SizedBox(
+                      width: chartSize,
+                      height: chartSize,
+                      child: StatsPieChart(
+                        title: '',
+                        dataMap: dataMap,
+                        showChartTitle: false,
+                        colors: specificColors ?? _chartColors,
+                        size: chartSize,
+                      ),
+                    ),
+                    const SizedBox(width: 24),
+                    // --- KHU VỰC CHÚ GIẢI ---
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: topEntries.map((entry) {
+                        final percentage = (entry.value / totalValue * 100);
+                        final color = (specificColors ?? _chartColors)[sortedEntries.indexOf(entry) % (specificColors ?? _chartColors).length];
+                        
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2.0),
+                          child: Row(
+                            children: [
+                              // Chấm màu hình vuông bo góc
+                              Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: color,
+                                  borderRadius: BorderRadius.circular(3.0),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              // 3. Kết hợp Tên và % trong cùng một Text
+                              RichText(
+                                text: TextSpan(
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                  children: [
+                                    TextSpan(text: '${entry.key} '),
+                                    TextSpan(
+                                      text: '${percentage.toStringAsFixed(0)}%',
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

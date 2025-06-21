@@ -6,21 +6,20 @@ import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 
-// <<< BƯỚC 1: ĐỊNH NGHĨA ENUM CHO CHẾ ĐỘ BUILD
 enum ItemBrowserBuildMode { box, sliver }
 
 class ItemBrowserView extends ConsumerWidget {
   final String providerId;
   final void Function(ClothingItem) onItemTapped;
   final Map<String, int> itemCounts;
-  final ItemBrowserBuildMode buildMode; // <<< THÊM THAM SỐ BUILD MODE
+  final ItemBrowserBuildMode buildMode;
 
   const ItemBrowserView({
     super.key,
     required this.providerId,
     required this.onItemTapped,
     this.itemCounts = const {},
-    this.buildMode = ItemBrowserBuildMode.box, // Mặc định là box
+    this.buildMode = ItemBrowserBuildMode.box,
   });
 
   @override
@@ -28,15 +27,13 @@ class ItemBrowserView extends ConsumerWidget {
     final provider = itemFilterProvider(providerId);
     final state = ref.watch(provider);
 
-    // Dùng chung phần logic kiểm tra loading/empty
     if (state.isLoading && state.filteredItems.isEmpty) {
-      final loadingWidget = Center(
+      final loadingWidget = const Center(
         child: Padding(
-          padding: const EdgeInsets.all(32.0),
+          padding: EdgeInsets.all(32.0),
           child: CircularProgressIndicator(),
         ),
       );
-      // Trả về widget phù hợp với build mode
       return buildMode == ItemBrowserBuildMode.sliver
           ? SliverToBoxAdapter(child: loadingWidget)
           : loadingWidget;
@@ -58,9 +55,7 @@ class ItemBrowserView extends ConsumerWidget {
           : emptyWidget;
     }
 
-    // <<< BƯỚC 2: RẼ NHÁNH ĐỂ BUILD GIAO DIỆN PHÙ HỢP
     if (buildMode == ItemBrowserBuildMode.sliver) {
-      // TRƯỜNG HỢP DÙNG CHO OUTFIT BUILDER PAGE (TRẢ VỀ SLIVER)
       return SliverPadding(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         sliver: SliverGrid.builder(
@@ -75,6 +70,8 @@ class ItemBrowserView extends ConsumerWidget {
             final item = state.filteredItems[index];
             final count = itemCounts[item.id] ?? 0;
             return GestureDetector(
+              // <<< THAY ĐỔI Ở ĐÂY
+              key: ValueKey('item_card_${item.id}'),
               onTap: () => onItemTapped(item),
               child: RecentItemCard(item: item, count: count),
             );
@@ -82,7 +79,6 @@ class ItemBrowserView extends ConsumerWidget {
         ),
       );
     } else {
-      // TRƯỜNG HỢP DÙNG CHO CLOSETS PAGE (TRẢ VỀ BOX)
       return GridView.builder(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         itemCount: state.filteredItems.length,
@@ -96,6 +92,8 @@ class ItemBrowserView extends ConsumerWidget {
           final item = state.filteredItems[index];
           final count = itemCounts[item.id] ?? 0;
           return GestureDetector(
+            // <<< VÀ THAY ĐỔI Ở ĐÂY
+            key: ValueKey('item_card_${item.id}'),
             onTap: () => onItemTapped(item),
             child: RecentItemCard(item: item, count: count),
           );

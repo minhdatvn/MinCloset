@@ -5,112 +5,127 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/screens/pages/closets_page.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:path_provider/path_provider.dart';
 
-// Helper classes
+// --- CÁC LỚP MOCK VÀ FAKE ---
 class MockClothingItemRepository extends Mock implements ClothingItemRepository {}
 class FakeClothingItem extends Fake implements ClothingItem {}
 
-// Helper function to create a dummy image file for testing
-Future<File> createDummyImage(String name) async {
-  final directory = await getTemporaryDirectory();
-  final file = File('${directory.path}/$name');
-  await file.writeAsBytes(Uint8List(0));
+// --- HÀM HELPER TẠO ẢNH GIẢ ---
+Future<File> createDummyImage(String fileName) async {
+  final directory = Directory('test/temp_test_images');
+  final file = File('${directory.path}/$fileName');
+  final Uint8List transparentImage = Uint8List.fromList([
+    0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D,
+    0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+    0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89, 0x00, 0x00, 0x00,
+    0x0A, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00,
+    0x05, 0x00, 0x01, 0x0D, 0x0A, 0x2D, 0xB4, 0x00, 0x00, 0x00, 0x00, 0x49,
+    0x45, 0x4E, 0x44, 0xAE, 0x42, 0x60, 0x82
+  ]);
+  await file.writeAsBytes(transparentImage);
   return file;
 }
 
+
 void main() {
-  late MockClothingItemRepository mockClothingItemRepository;
-
+  // --- THIẾT LẬP MÔI TRƯỜNG TEST ---
   setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
     registerFallbackValue(FakeClothingItem());
+    Directory('test/temp_test_images').createSync(recursive: true);
   });
 
-  setUp(() {
+  tearDownAll(() {
+    try {
+      final dir = Directory('test/temp_test_images');
+      if (dir.existsSync()) {
+        dir.deleteSync(recursive: true);
+      }
+    } catch (e) {
+      // Bỏ qua lỗi
+    }
+  });
+
+  late MockClothingItemRepository mockClothingItemRepository;
+  late ClothingItem initialItem;
+  late File dummyImageFile;
+
+  setUp(() async {
     mockClothingItemRepository = MockClothingItemRepository();
+    dummyImageFile = await createDummyImage('test_image.png');
+    initialItem = ClothingItem(
+      id: 'item-123',
+      name: 'Áo phông cũ',
+      category: 'Áo > Áo thun',
+      closetId: 'closet-1',
+      imagePath: dummyImageFile.path,
+      color: 'Trắng',
+    );
+    
+    when(() => mockClothingItemRepository.getAllItems()).thenAnswer((_) async => [initialItem]);
+    when(() => mockClothingItemRepository.updateItem(any())).thenAnswer((_) async {});
   });
 
-  // This helper now pumps ONLY the ClosetsPage
   Future<void> pumpClosetsPage(WidgetTester tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           clothingItemRepositoryProvider.overrideWithValue(mockClothingItemRepository),
-          // We also need to mock closetsProvider as ClosetsPage depends on it
-          closetsProvider.overrideWith((ref) => []),
+          closetsProvider.overrideWith((ref) => Future.value([
+            Closet(id: 'closet-1', name: 'Tủ đồ của tôi')
+          ])),
         ],
         child: const MaterialApp(
-          // We need a TabController for the ClosetsPage
           home: DefaultTabController(
             length: 2,
-            child: Scaffold(
-              body: ClosetsPage(),
-            ),
+            child: Scaffold(body: ClosetsPage()),
           ),
         ),
       ),
     );
   }
 
-  testWidgets('Full item edit flow starting from ClosetsPage', (WidgetTester tester) async {
-    // ARRANGE
-    final dummyImageFile = await createDummyImage('test_image.png');
-    addTearDown(() async {
-      if (await dummyImageFile.exists()) await dummyImageFile.delete();
-    });
-
-    final initialItem = ClothingItem(
-      id: 'item-123',
-      name: 'Old T-Shirt',
-      category: 'Top',
-      closetId: 'closet-1',
-      imagePath: dummyImageFile.path,
-      color: 'White',
-    );
-
-    // Mock the necessary repository calls for this specific flow
-    when(() => mockClothingItemRepository.getAllItems()).thenAnswer((_) async => [initialItem]);
-    when(() => mockClothingItemRepository.updateItem(any())).thenAnswer((_) async {});
-    when(() => mockClothingItemRepository.searchItemsInCloset(any(), any())).thenAnswer((_) async => []);
-
-    // PUMP THE WIDGET
+  // --- KỊCH BẢN TEST HOÀN CHỈNH ---
+  testWidgets('Luồng chỉnh sửa vật phẩm từ trang Tủ đồ', (WidgetTester tester) async {
+    // ---- SẮP XẾP (ARRANGE) ----
     await pumpClosetsPage(tester);
-    // This pumpAndSettle will now be very fast as it doesn't load HomePage
-    await tester.pumpAndSettle();
+    await tester.pump();
 
-    // ACTION & ASSERT
-    // 1. Verify the item is visible on the 'All Items' tab
-    expect(find.text('Old T-Shirt'), findsOneWidget);
+    // ---- HÀNH ĐỘNG (ACT) & KIỂM CHỨNG (ASSERT) ----
 
-    // 2. Tap on the item to edit it
-    await tester.tap(find.text('Old T-Shirt'));
-    await tester.pumpAndSettle();
+    final itemCardFinder = find.byKey(const ValueKey('item_card_item-123'));
+    expect(itemCardFinder, findsOneWidget);
 
-    // 3. Verify we are on the edit screen
-    expect(find.text('Edit Item'), findsOneWidget);
+    await tester.tap(itemCardFinder);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1)); 
 
-    // 4. Edit the name field
-    const newItemName = 'New Branded T-Shirt';
+    expect(find.text('Sửa món đồ'), findsOneWidget);
+    expect(find.widgetWithText(TextFormField, 'Áo phông cũ'), findsOneWidget);
+
+    const newItemName = 'Áo phông hàng hiệu mới';
     await tester.enterText(find.byType(TextFormField).first, newItemName);
     await tester.pump();
 
-    // 5. Tap the save button
-    await tester.tap(find.byIcon(Icons.save));
-    await tester.pumpAndSettle();
+    // SỬA LỖI Ở ĐÂY: Tìm nút bấm bằng text "Cập nhật"
+    await tester.tap(find.text('Cập nhật'));
+    
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1)); 
 
-    // 6. Verify we are back on the ClosetsPage
-    expect(find.text('All Items'), findsOneWidget);
+    expect(find.text('Tất cả vật phẩm'), findsOneWidget);
 
-    // 7. Verify that `updateItem` was called with the correct data
     final captured = verify(() => mockClothingItemRepository.updateItem(captureAny())).captured;
     expect(captured.length, 1);
     final savedItem = captured.first as ClothingItem;
+    
     expect(savedItem.name, newItemName);
     expect(savedItem.id, initialItem.id);
   });

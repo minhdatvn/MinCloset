@@ -1,7 +1,8 @@
 // lib/screens/main_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/notifiers/home_page_notifier.dart'; // <<< THÊM IMPORT
+import 'package:mincloset/notifiers/profile_page_notifier.dart'; // <<< THÊM IMPORT
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/screens/pages/closets_page.dart';
 import 'package:mincloset/screens/pages/home_page.dart';
@@ -9,6 +10,7 @@ import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/screens/pages/profile_page.dart';
 import 'package:mincloset/widgets/global_add_button.dart';
 
+// <<< THAY ĐỔI 2: Chuyển thành ConsumerStatefulWidget >>>
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
@@ -17,6 +19,17 @@ class MainScreen extends ConsumerStatefulWidget {
 }
 
 class _MainScreenState extends ConsumerState<MainScreen> {
+  // <<< THAY ĐỔI 3: Thêm initState để tải dữ liệu ban đầu >>>
+  @override
+  void initState() {
+    super.initState();
+    // Dùng addPostFrameCallback để đảm bảo các provider đã sẵn sàng
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(profileProvider.notifier).loadInitialData();
+      ref.read(homeProvider.notifier).getNewSuggestion();
+    });
+  }
+
   static const List<Widget> _widgetOptions = <Widget>[
     HomePage(),
     ClosetsPage(),
@@ -34,14 +47,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
 
     return Scaffold(
       body: _widgetOptions.elementAt(selectedIndex),
-      // <<< THAY ĐỔI BẮT ĐẦU TỪ ĐÂY >>>
       floatingActionButton: Transform.translate(
-        // Offset nhận vào (dx, dy). dx là chiều ngang, dy là chiều dọc.
-        // Giá trị dy dương sẽ đẩy nút xuống. Bạn có thể tùy chỉnh giá trị 18 này.
         offset: const Offset(0, 18),
         child: const GlobalAddButton(),
       ),
-      // <<< KẾT THÚC THAY ĐỔI >>>
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
@@ -57,14 +66,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             _buildNavItem(
               context: context,
               icon: Icons.home_filled,
-              label: 'Trang chủ',
+              label: 'Home',
               index: 0,
               selectedIndex: selectedIndex,
             ),
             _buildNavItem(
               context: context,
               icon: Icons.checkroom_outlined,
-              label: 'Tủ đồ',
+              label: 'Closets',
               index: 1,
               selectedIndex: selectedIndex,
             ),
@@ -72,14 +81,14 @@ class _MainScreenState extends ConsumerState<MainScreen> {
             _buildNavItem(
               context: context,
               icon: Icons.style_outlined,
-              label: 'Trang phục',
+              label: 'Outfits',
               index: 2,
               selectedIndex: selectedIndex,
             ),
             _buildNavItem(
               context: context,
               icon: Icons.person_outline,
-              label: 'Cá nhân',
+              label: 'Profile',
               index: 3,
               selectedIndex: selectedIndex,
             ),

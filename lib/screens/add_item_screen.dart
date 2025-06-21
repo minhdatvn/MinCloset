@@ -107,6 +107,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
     if (confirmed == true) {
       // Lấy navigator ra trước khi gọi await
+      // ignore: use_build_context_synchronously
       final navigator = Navigator.of(context);
       final success = await ref.read(addItemProvider(_providerArgs).notifier).deleteItem();
       

@@ -1,4 +1,5 @@
 // lib/notifiers/profile_page_notifier.dart
+// lib/notifiers/profile_page_notifier.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/city_suggestion.dart';
@@ -13,7 +14,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   final Ref _ref;
 
   ProfilePageNotifier(this._ref) : super(const ProfilePageState()) {
-    loadInitialData();
     _ref.listen<int>(itemAddedTriggerProvider, (previous, next) {
       if (previous != next) {
         loadInitialData();

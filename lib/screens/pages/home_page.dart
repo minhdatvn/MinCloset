@@ -28,8 +28,24 @@ final recentItemsProvider =
   return itemRepo.getRecentItems(5);
 });
 
-class HomePage extends ConsumerWidget {
+// <<< THAY ĐỔI 3: Chuyển thành ConsumerStatefulWidget >>>
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
+
+  @override
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  // <<< THAY ĐỔI 4: Gọi hàm tải dữ liệu trong initState >>>
+  @override
+  void initState() {
+    super.initState();
+    // Dùng addPostFrameCallback để đảm bảo widget đã build xong
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(homeProvider.notifier).getNewSuggestion();
+    });
+  }
 
   Future<void> _pickAndAnalyzeImage(BuildContext context, WidgetRef ref) async {
     final navigator = Navigator.of(context);
@@ -50,7 +66,8 @@ class HomePage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    // Từ đây code không thay đổi, chỉ cần thay `WidgetRef ref` trong `build` thành `ref`
     final homeState = ref.watch(homeProvider);
     final homeNotifier = ref.read(homeProvider.notifier);
     final profileState = ref.watch(profileProvider);
@@ -82,7 +99,7 @@ class HomePage extends ConsumerWidget {
               _buildRecentlyAddedSection(context, ref),
               const SizedBox(height: 32),
               const SectionHeader(
-                title: 'Gợi ý hôm nay',
+                title: 'Todays suggestion',
               ),
               const SizedBox(height: 16),
               _buildTodaysSuggestionCard(context, homeState, homeNotifier),
@@ -94,6 +111,7 @@ class HomePage extends ConsumerWidget {
     );
   }
 
+  // Các hàm build UI con không thay đổi
   Widget _buildHeader(BuildContext context, WidgetRef ref) {
     final userName = ref.watch(profileProvider.select((state) => state.userName));
     return Row(
@@ -118,19 +136,19 @@ class HomePage extends ConsumerWidget {
   Widget _buildAiStylistSection(BuildContext context) {
     return Column(
       children: [
-        const SectionHeader(title: 'Xưởng phối đồ'),
+        const SectionHeader(title: 'AI Stylist'),
         const SizedBox(height: 16),
         Row(
           children: [
             ActionCard(
-              label: 'Bắt đầu phối đồ',
+              label: 'Start an Outfit',
               icon: Icons.auto_awesome_outlined,
               onTap: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (ctx) => const OutfitBuilderPage())),
             ),
             const SizedBox(width: 16),
             ActionCard(
-              label: 'Bộ đồ đã lưu',
+              label: 'Saved Outfits',
               icon: Icons.collections_bookmark_outlined,
               onTap: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (ctx) => const OutfitsHubPage())),
@@ -146,8 +164,8 @@ class HomePage extends ConsumerWidget {
     return Column(
       children: [
         SectionHeader(
-          title: 'Đã thêm gần đây',
-          seeAllText: 'Xem tất cả',
+          title: 'Recently Added',
+          seeAllText: 'See all',
           onSeeAll: () {
             ref.read(mainScreenIndexProvider.notifier).state = 1;
           },
@@ -157,7 +175,7 @@ class HomePage extends ConsumerWidget {
           height: 120,
           child: recentItemsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => const Text('Không thể tải...'),
+            error: (err, stack) => const Text('Cannot load...'),
             data: (items) {
               if (items.isEmpty) {
                 return _buildAddFirstItemButton(context, ref);
@@ -175,14 +193,12 @@ class HomePage extends ConsumerWidget {
                     child: SizedBox(
                       width: 120 * (3 / 4),
                       child: GestureDetector(
-                        // <<< SỬA LỖI TẠI ĐÂY >>>
                         onTap: () async {
                           final wasChanged = await Navigator.of(context).push<bool>(
                             MaterialPageRoute(
                               builder: (context) => AddItemScreen(itemToEdit: item),
                             ),
                           );
-                          // Nếu có sự thay đổi (sửa/xóa), gửi tín hiệu làm mới
                           if (wasChanged == true) {
                             ref.read(itemAddedTriggerProvider.notifier).state++;
                           }
@@ -239,25 +255,25 @@ class HomePage extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              state.weather!['name'],
+                              state.weather!['name'] as String,
                               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                Icon(_getWeatherIcon(state.weather!['weather'][0]['icon']), color: Colors.orange.shade700, size: 32),
+                                Icon(_getWeatherIcon(state.weather!['weather'][0]['icon'] as String), color: Colors.orange.shade700, size: 32),
                                 const SizedBox(width: 8),
-                                Text('${state.weather!['main']['temp'].toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                                Text('${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ],
                         )
-                      : const SizedBox(height: 60, child: Center(child: Text("Không có dữ liệu thời tiết.")))
+                      : const SizedBox(height: 60, child: Center(child: Text("No weather data.")))
                     )
               ),
               TextButton.icon(
                 icon: const Icon(Icons.auto_awesome, size: 18),
-                label: const Text('Gợi ý mới'),
+                label: const Text('New Suggestion'),
                 onPressed: state.isLoading ? null : notifier.getNewSuggestion,
                 style: TextButton.styleFrom(
                   foregroundColor: theme.colorScheme.primary,
@@ -276,7 +292,7 @@ class HomePage extends ConsumerWidget {
             ))
           else
             Text(
-              state.suggestion ?? 'Nhấn nút "Gợi ý mới" để MinCloset tư vấn cho bạn nhé!',
+              state.suggestion ?? 'Press "New Suggestion" and let MinCloset advise you!',
               style: const TextStyle(fontSize: 16, height: 1.5),
             ),
           
@@ -285,7 +301,7 @@ class HomePage extends ConsumerWidget {
             Align(
               alignment: Alignment.centerRight,
               child: Text(
-                'Cập nhật lúc: ${DateFormat('HH:mm, dd/MM/yyyy').format(state.suggestionTimestamp!)}',
+                'Updated at: ${DateFormat('HH:mm, dd/MM/yyyy').format(state.suggestionTimestamp!)}',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey.shade700,

@@ -1,11 +1,12 @@
 // lib/states/add_item_state.dart
 import 'dart:io';
+import 'package:equatable/equatable.dart'; // <<< THÊM IMPORT
 import 'package:flutter/foundation.dart';
 import 'package:mincloset/models/clothing_item.dart';
 
-// Dùng @immutable để đảm bảo lớp này là bất biến
 @immutable
-class AddItemState {
+// <<< THAY ĐỔI 1: Kế thừa từ Equatable >>>
+class AddItemState extends Equatable {
   // Trạng thái của các trường trong form
   final String id;
   final String name;
@@ -20,11 +21,11 @@ class AddItemState {
   final Set<String> selectedPatterns;
 
   // Trạng thái của UI
-  final bool isLoading; // Dùng khi lưu
+  final bool isLoading;
   final bool isEditing;
-  final bool isAnalyzing; // <<< THÊM TRƯỜNG MỚI ĐỂ THEO DÕI TRẠNG THÁI CỦA AI
+  final bool isAnalyzing;
   final String? errorMessage;
-  final bool isSuccess; // Cờ để báo hiệu lưu thành công
+  final bool isSuccess;
 
   const AddItemState({
     this.id = '',
@@ -40,12 +41,12 @@ class AddItemState {
     this.selectedPatterns = const {},
     this.isLoading = false,
     this.isEditing = false,
-    this.isAnalyzing = false, // <<< KHỞI TẠO GIÁ TRỊ MẶC ĐỊNH
+    this.isAnalyzing = false,
     this.errorMessage,
     this.isSuccess = false,
   });
 
-  // Tạo trạng thái ban đầu khi chỉnh sửa một item có sẵn
+  // factory và copyWith không thay đổi
   factory AddItemState.fromClothingItem(ClothingItem item) {
     Set<String> stringToSet(String? s) => (s == null || s.isEmpty) ? {} : s.split(', ').toSet();
 
@@ -64,7 +65,6 @@ class AddItemState {
     );
   }
 
-  // Hàm copyWith quen thuộc
   AddItemState copyWith({
     String? id,
     String? name,
@@ -79,7 +79,7 @@ class AddItemState {
     Set<String>? selectedPatterns,
     bool? isLoading,
     bool? isEditing,
-    bool? isAnalyzing, // <<< THÊM VÀO HÀM COPYWITH
+    bool? isAnalyzing,
     String? errorMessage,
     bool? isSuccess,
   }) {
@@ -97,9 +97,30 @@ class AddItemState {
       selectedPatterns: selectedPatterns ?? this.selectedPatterns,
       isLoading: isLoading ?? this.isLoading,
       isEditing: isEditing ?? this.isEditing,
-      isAnalyzing: isAnalyzing ?? this.isAnalyzing, // <<< THÊM VÀO ĐÂY
+      isAnalyzing: isAnalyzing ?? this.isAnalyzing,
       errorMessage: errorMessage ?? this.errorMessage,
       isSuccess: isSuccess ?? this.isSuccess,
     );
   }
+
+  // <<< THAY ĐỔI 2: Thêm getter 'props' để định nghĩa các thuộc tính so sánh >>>
+  @override
+  List<Object?> get props => [
+        id,
+        name,
+        image,
+        imagePath,
+        selectedClosetId,
+        selectedCategoryValue,
+        selectedColors,
+        selectedSeasons,
+        selectedOccasions,
+        selectedMaterials,
+        selectedPatterns,
+        isLoading,
+        isEditing,
+        isAnalyzing,
+        errorMessage,
+        isSuccess,
+      ];
 }

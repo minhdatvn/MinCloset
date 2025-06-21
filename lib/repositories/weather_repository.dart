@@ -9,4 +9,9 @@ class WeatherRepository {
   Future<Map<String, dynamic>> getWeather(String city) {
     return _weatherService.getWeather(city);
   }
+
+  // <<< THÊM PHƯƠNG THỨC NÀY >>>
+  Future<Map<String, dynamic>> getWeatherByCoords(double lat, double lon) {
+    return _weatherService.getWeatherByCoords(lat, lon);
+  }
 }

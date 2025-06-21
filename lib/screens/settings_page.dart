@@ -3,15 +3,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
+// <<< THÊM IMPORT MÀN HÌNH MỚI >>>
+import 'package:mincloset/screens/city_selection_screen.dart';
 import 'package:mincloset/states/profile_page_state.dart';
-import 'package:mincloset/widgets/city_preference_dialog.dart';
+// <<< XÓA IMPORT DIALOG CŨ >>>
+// import 'package:mincloset/widgets/city_preference_dialog.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Vẫn đọc state từ profileProvider để hiển thị thông tin hiện tại
     final state = ref.watch(profileProvider);
 
     return Scaffold(
@@ -29,16 +31,14 @@ class SettingsPage extends ConsumerWidget {
                 : state.manualCity),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
-              showDialog(
-                context: context,
-                // Dialog sẽ được nâng cấp ở bước sau
-                builder: (context) => const CityPreferenceDialog(),
+              // <<< THAY THẾ showDialog BẰNG Navigator.push >>>
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (context) => const CitySelectionScreen()),
               );
             },
           ),
           const Divider(),
-          // Sau này bạn có thể thêm các cài đặt khác ở đây
-          // Ví dụ: ListTile(title: Text('Giao diện Sáng/Tối')),
         ],
       ),
     );

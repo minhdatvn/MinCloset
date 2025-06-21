@@ -1,6 +1,8 @@
 // lib/notifiers/profile_page_notifier.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mincloset/models/city_suggestion.dart';
+import 'package:mincloset/notifiers/home_page_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/states/profile_page_state.dart';
@@ -33,9 +35,10 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       final userName = prefs.getString('user_name') ?? 'Người dùng MinCloset';
       final avatarPath = prefs.getString('user_avatar_path');
       final cityModeString = prefs.getString('city_mode') ?? 'auto';
-      final cityMode =
-          cityModeString == 'auto' ? CityMode.auto : CityMode.manual;
-      final manualCity = prefs.getString('manual_city') ?? 'Da Nang';
+      // <<< SỬA ĐỔI: Dùng .byName để parse enum an toàn hơn >>>
+      final cityMode = CityMode.values.byName(cityModeString);
+      // <<< SỬA ĐỔI: Đọc tên hiển thị đầy đủ thay vì tên cũ >>>
+      final manualCity = prefs.getString('manual_city_name') ?? 'Da Nang';
 
       final allItems = await itemRepo.getAllItems();
       final allClosets = await closetRepo.getClosets();
@@ -47,14 +50,14 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       final occasionDist = <String, int>{};
 
       for (final item in allItems) {
-        final colors = item.color.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
+        final colors =
+            item.color.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
         for (final color in colors) {
           colorDist[color] = (colorDist[color] ?? 0) + 1;
         }
         final mainCategory = item.category.split('>').first.trim();
         if (mainCategory.isNotEmpty) {
-          categoryDist[mainCategory] =
-              (categoryDist[mainCategory] ?? 0) + 1;
+          categoryDist[mainCategory] = (categoryDist[mainCategory] ?? 0) + 1;
         }
         if (item.season != null && item.season!.isNotEmpty) {
           final seasons = item.season!.split(',').map((e) => e.trim());
@@ -112,15 +115,29 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     }
   }
 
-  Future<void> updateCityPreference(CityMode mode, String? manualCity) async {
+  // <<< THAY THẾ HOÀN TOÀN HÀM CŨ BẰNG HÀM NÀY >>>
+  Future<void> updateCityPreference(
+      CityMode mode, CitySuggestion? suggestion) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('city_mode', mode == CityMode.auto ? 'auto' : 'manual');
-    if (mode == CityMode.manual && manualCity != null) {
-      await prefs.setString('manual_city', manualCity);
-      state = state.copyWith(cityMode: mode, manualCity: manualCity);
+    await prefs.setString('city_mode', mode.name);
+
+    if (mode == CityMode.manual && suggestion != null) {
+      // Lưu tất cả thông tin cần thiết
+      await prefs.setString('manual_city_name', suggestion.displayName);
+      await prefs.setDouble('manual_city_lat', suggestion.lat);
+      await prefs.setDouble('manual_city_lon', suggestion.lon);
+      state =
+          state.copyWith(cityMode: mode, manualCity: suggestion.displayName);
     } else {
+      // Xóa các key cũ nếu chuyển sang chế độ auto
+      await prefs.remove('manual_city_name');
+      await prefs.remove('manual_city_lat');
+      await prefs.remove('manual_city_lon');
       state = state.copyWith(cityMode: mode);
     }
+
+    // Yêu cầu HomePage tải lại gợi ý với thành phố mới
+    _ref.read(homeProvider.notifier).getNewSuggestion();
   }
 }
 

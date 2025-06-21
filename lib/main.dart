@@ -18,8 +18,7 @@ class MinClosetApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'MinCloset',
-      // <<< SỬA ĐỔI Ở ĐÂY >>>
-      theme: appTheme, // Áp dụng theme bạn vừa tạo
+      theme: appTheme,
       home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
     );

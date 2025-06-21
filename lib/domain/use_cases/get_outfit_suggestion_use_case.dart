@@ -1,13 +1,13 @@
-// lib/domain/use_cases/get_outfit_suggestion_use_case.dart
+// lib/domain/use_cases/get_out_suggestion_use_case.dart
 
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/suggestion_repository.dart';
 import 'package:mincloset/repositories/weather_repository.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/utils/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GetOutfitSuggestionUseCase {
   final ClothingItemRepository _clothingItemRepo;
@@ -20,52 +20,72 @@ class GetOutfitSuggestionUseCase {
     this._suggestionRepo,
   );
 
-  Future<String> _getCityForWeather() async {
+  Future<Map<String, dynamic>> _getWeatherForSuggestion() async {
     final prefs = await SharedPreferences.getInstance();
-    final cityMode = prefs.getString('city_mode') ?? 'auto';
+    final cityModeString = prefs.getString('city_mode') ?? 'auto';
+    final cityMode = CityMode.values.byName(cityModeString);
 
-    if (cityMode == 'manual') {
-      return prefs.getString('manual_city') ?? 'Da Nang';
-    }
+    String cityName = 'Da Nang';
+    Map<String, dynamic> weatherData;
 
     try {
-      LocationPermission permission = await Geolocator.checkPermission();
-      if (permission == LocationPermission.denied) {
-        permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) {
-          return 'Da Nang';
-        }
-      }
-      if (permission == LocationPermission.deniedForever) {
-        return 'Da Nang';
-      }
+      if (cityMode == CityMode.manual) {
+        final lat = prefs.getDouble('manual_city_lat');
+        final lon = prefs.getDouble('manual_city_lon');
+        final displayName = prefs.getString('manual_city_name');
 
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
-      return placemarks.first.locality ?? 'Da Nang';
+        if (lat != null && lon != null && displayName != null) {
+          logger.i('Lấy thời tiết theo tọa độ đã lưu: ($lat, $lon)');
+          weatherData = await _weatherRepo.getWeatherByCoords(lat, lon);
+          cityName = displayName;
+        } else {
+          logger.w('Dữ liệu thành phố thủ công bị thiếu, quay về mặc định.');
+          weatherData = await _weatherRepo.getWeather(cityName);
+        }
+      } else {
+        logger.i('Lấy thời tiết theo vị trí tự động...');
+        // <<< SỬA LỖI GÂY TREO Ở ĐÂY >>>
+        // 1. Kiểm tra xem dịch vụ vị trí có được bật không
+        final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (!serviceEnabled) {
+          logger.w('Dịch vụ vị trí đang tắt, quay về mặc định.');
+          // Ném lỗi để khối catch bên dưới xử lý và dùng thành phố mặc định
+          throw Exception('Location services are disabled.');
+        }
+
+        // 2. Xử lý quyền truy cập
+        LocationPermission permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+          permission = await Geolocator.requestPermission();
+        }
+
+        if (permission == LocationPermission.denied ||
+            permission == LocationPermission.deniedForever) {
+          logger.w('Không có quyền truy cập vị trí, quay về mặc định.');
+          throw Exception('Location permissions are denied.');
+        }
+        
+        // 3. Nếu mọi thứ ổn, mới lấy vị trí
+        Position position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high);
+        weatherData = await _weatherRepo.getWeatherByCoords(
+            position.latitude, position.longitude);
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+            position.latitude, position.longitude);
+        cityName = placemarks.first.locality ?? cityName;
+      }
     } catch (e, s) {
-      logger.e(
-        "Lỗi khi lấy vị trí tự động",
-        error: e,
-        stackTrace: s,
-      );
-      return 'Da Nang';
+      logger.e("Lỗi khi lấy dữ liệu thời tiết cho gợi ý, sử dụng mặc định.", error: e, stackTrace: s);
+      weatherData = await _weatherRepo.getWeather(cityName);
     }
+
+    weatherData['name'] = cityName;
+    return weatherData;
   }
 
-  // <<< THAY ĐỔI: Hàm này trả về một Map chứa cả weather và suggestion text >>>
   Future<Map<String, dynamic>> execute() async {
-    final city = await _getCityForWeather();
-
-    final results = await Future.wait([
-      _weatherRepo.getWeather(city),
-      _clothingItemRepo.getAllItems(),
-    ]);
-
-    final weatherData = results[0] as Map<String, dynamic>;
-    final items = results[1] as List<ClothingItem>;
+    final weatherData = await _getWeatherForSuggestion();
+    final items = await _clothingItemRepo.getAllItems();
 
     if (items.isEmpty) {
       return {
@@ -74,15 +94,14 @@ class GetOutfitSuggestionUseCase {
       };
     }
 
-    // <<< THAY ĐỔI: Xử lý kết quả JSON từ Repository >>>
     final suggestionMap = await _suggestionRepo.getOutfitSuggestion(
       weather: weatherData,
       items: items,
-      cityName: city,
+      cityName: weatherData['name'],
     );
 
-    // Ghép kết quả lại thành một chuỗi hoàn chỉnh để hiển thị
-    final suggestionText = "${suggestionMap['suggestion']}\n\n${suggestionMap['reason']}";
+    final suggestionText =
+        "${suggestionMap['suggestion']}\n\n${suggestionMap['reason']}";
 
     return {
       'weather': weatherData,

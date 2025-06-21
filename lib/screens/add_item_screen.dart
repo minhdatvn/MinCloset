@@ -42,7 +42,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  // <<< THÊM PHƯƠNG THỨC dispose ĐỂ GỌI resetState >>>
+  // <<< THAY ĐỔI 4: XÓA BỎ HOÀN TOÀN PHƯƠNG THỨC `dispose` GÂY LỖI >>>
+  /*
   @override
   void dispose() {
     // Dọn dẹp trạng thái của notifier khi màn hình bị hủy.
@@ -52,6 +53,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     });
     super.dispose();
   }
+  */
 
   void _showImageSourceActionSheet(BuildContext context) {
     final notifier = ref.read(addItemProvider(_providerArgs).notifier);
@@ -83,6 +85,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
+  // <<< THAY ĐỔI 5: CẬP NHẬT LUỒNG XÓA >>>
   Future<void> _showDeleteConfirmationDialog(BuildContext context) async {
     if (widget.itemToEdit == null) return;
 
@@ -103,7 +106,14 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
 
     if (confirmed == true) {
-      await ref.read(addItemProvider(_providerArgs).notifier).deleteItem();
+      // Lấy navigator ra trước khi gọi await
+      final navigator = Navigator.of(context);
+      final success = await ref.read(addItemProvider(_providerArgs).notifier).deleteItem();
+      
+      // Nếu xóa thành công và widget vẫn còn tồn tại, hãy pop màn hình
+      if (success && mounted) {
+        navigator.pop(true);
+      }
     }
   }
 
@@ -121,13 +131,14 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
       });
     }
     
+    // <<< THAY ĐỔI 6: XÓA LUỒNG LẮNG NGHE `isSuccess` >>>
     ref.listen<AddItemState>(provider, (previous, next) {
       if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
       }
-      if (next.isSuccess) {
-        Navigator.of(context).pop(true);
-      }
+      // if (next.isSuccess) {
+      //   Navigator.of(context).pop(true);
+      // }
     });
 
     return Scaffold(
@@ -159,10 +170,19 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         onMaterialsChanged: notifier.onMaterialsChanged,
         onPatternsChanged: notifier.onPatternsChanged,
       ),
+      // <<< THAY ĐỔI 7: CẬP NHẬT LUỒNG LƯU >>>
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ElevatedButton.icon(
-          onPressed: state.isLoading ? null : notifier.saveItem,
+          onPressed: state.isLoading
+              ? null
+              : () async {
+                  final navigator = Navigator.of(context);
+                  final success = await notifier.saveItem();
+                  if (success && mounted) {
+                    navigator.pop(true);
+                  }
+                },
           icon: state.isLoading ? const SizedBox.shrink() : const Icon(Icons.save),
           label: state.isLoading 
               ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3,)) 

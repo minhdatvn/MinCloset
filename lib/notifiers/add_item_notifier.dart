@@ -50,7 +50,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
   }
 
-  // ... Tất cả các hàm khác trong class này giữ nguyên, không cần thay đổi ...
+  // ... Các hàm onNameChanged, onClosetChanged, pickImage, analyzeImage... giữ nguyên ...
   String _normalizeCategory(String? rawCategory) {
     if (rawCategory == null || rawCategory.trim().isEmpty) { return 'Khác > Khác'; }
     if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) { return '$rawCategory > Khác'; }
@@ -103,18 +103,22 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       state = state.copyWith(isAnalyzing: false);
     }
   }
-  Future<void> saveItem() async {
+
+  // <<< THAY ĐỔI 1: Sửa hàm saveItem để trả về Future<bool> >>>
+  Future<bool> saveItem() async {
     if (state.image == null && state.imagePath == null) {
       state = state.copyWith(errorMessage: 'Vui lòng thêm ảnh cho món đồ.');
-      return;
+      return false;
     }
     state = state.copyWith(isLoading: true, errorMessage: null);
+
     final validateRequiredUseCase = _ref.read(validateRequiredFieldsUseCaseProvider);
     final requiredResult = validateRequiredUseCase.executeForSingle(state);
     if (!requiredResult.success) {
       state = state.copyWith(isLoading: false, errorMessage: requiredResult.errorMessage);
-      return;
+      return false;
     }
+
     final validateNameUseCase = _ref.read(validateItemNameUseCaseProvider);
     final nameValidationResult = await validateNameUseCase.forSingleItem(
       name: state.name,
@@ -122,8 +126,9 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     );
     if (!nameValidationResult.success) {
       state = state.copyWith(isLoading: false, errorMessage: nameValidationResult.errorMessage);
-      return;
+      return false;
     }
+
     final clothingItem = ClothingItem(
       id: state.isEditing ? state.id : const Uuid().v4(),
       name: state.name.trim(),
@@ -136,6 +141,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       material: state.selectedMaterials.join(', '),
       pattern: state.selectedPatterns.join(', '),
     );
+
     try {
       if (state.isEditing) {
         await _clothingItemRepo.updateItem(clothingItem);
@@ -143,25 +149,31 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
         await _clothingItemRepo.insertItem(clothingItem);
       }
       state = state.copyWith(isLoading: false, isSuccess: true);
+      return true;
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: 'Lỗi khi lưu: $e');
+      return false;
     }
   }
-  Future<void> deleteItem() async {
+
+  // <<< THAY ĐỔI 2: Sửa hàm deleteItem để trả về Future<bool> >>>
+  Future<bool> deleteItem() async {
     if (!state.isEditing) {
-      return;
+      return false;
     }
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       await _clothingItemRepo.deleteItem(state.id);
       state = state.copyWith(isLoading: false, isSuccess: true);
+      return true;
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: 'Lỗi khi xóa: $e');
+      return false;
     }
   }
 
+  // <<< THAY ĐỔI 3: Có thể xóa bỏ hàm resetState() này >>>
   void resetState() {
-    // Chỉ reset các cờ trạng thái, không xóa dữ liệu form
     if (state.isSuccess || state.errorMessage != null) {
        state = state.copyWith(isSuccess: false, errorMessage: null);
     }

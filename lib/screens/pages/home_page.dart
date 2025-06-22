@@ -28,11 +28,8 @@ final recentItemsProvider =
   return itemRepo.getRecentItems(5);
 });
 
-// <<< THAY ĐỔI: Chuyển lại thành ConsumerWidget vì không cần `initState` nữa >>>
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
-
-  // <<< THAY ĐỔI: Hàm initState đã được xóa bỏ >>>
 
   Future<void> _pickAndAnalyzeImage(BuildContext context, WidgetRef ref) async {
     final navigator = Navigator.of(context);
@@ -65,7 +62,6 @@ class HomePage extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          // <<< THAY ĐỔI: Chỉ làm mới danh sách item, không gọi gợi ý mới >>>
           ref.invalidate(recentItemsProvider);
         },
         child: SingleChildScrollView(
@@ -84,7 +80,6 @@ class HomePage extends ConsumerWidget {
               const SizedBox(height: 32),
               _buildRecentlyAddedSection(context, ref),
               const SizedBox(height: 32),
-              // <<< VIỆT HÓA >>>
               const SectionHeader(
                 title: 'Gợi ý hôm nay',
               ),
@@ -122,13 +117,11 @@ class HomePage extends ConsumerWidget {
   Widget _buildAiStylistSection(BuildContext context) {
     return Column(
       children: [
-        // <<< VIỆT HÓA >>>
         const SectionHeader(title: 'Xưởng phối đồ'),
         const SizedBox(height: 16),
         Row(
           children: [
             ActionCard(
-              // <<< VIỆT HÓA >>>
               label: 'Tạo một bộ đồ',
               icon: Icons.auto_awesome_outlined,
               onTap: () => Navigator.of(context)
@@ -136,7 +129,6 @@ class HomePage extends ConsumerWidget {
             ),
             const SizedBox(width: 16),
             ActionCard(
-              // <<< VIỆT HÓA >>>
               label: 'Bộ đồ đã lưu',
               icon: Icons.collections_bookmark_outlined,
               onTap: () => Navigator.of(context)
@@ -153,7 +145,6 @@ class HomePage extends ConsumerWidget {
     return Column(
       children: [
         SectionHeader(
-          // <<< VIỆT HÓA >>>
           title: 'Đã thêm gần đây',
           seeAllText: 'Xem tất cả',
           onSeeAll: () {
@@ -258,13 +249,13 @@ class HomePage extends ConsumerWidget {
                             ),
                           ],
                         )
-                      // <<< VIỆT HÓA >>>
                       : const SizedBox(height: 60, child: Center(child: Text("Không có dữ liệu thời tiết.")))
                     )
               ),
               TextButton.icon(
+                // <<< THÊM KEY Ở ĐÂY >>>
+                key: const ValueKey('new_suggestion_button'),
                 icon: const Icon(Icons.auto_awesome, size: 18),
-                // <<< VIỆT HÓA >>>
                 label: const Text('Gợi ý mới'),
                 onPressed: state.isLoading ? null : notifier.getNewSuggestion,
                 style: TextButton.styleFrom(
@@ -284,7 +275,6 @@ class HomePage extends ConsumerWidget {
             ))
           else
             Text(
-              // <<< VIỆT HÓA >>>
               state.suggestion ?? 'Nhấn "Gợi ý mới" và để MinCloset tư vấn cho bạn!',
               style: const TextStyle(fontSize: 16, height: 1.5),
             ),

@@ -102,7 +102,7 @@ class HomePage extends ConsumerWidget {
           children: [
             const Text('Xin chào,',
                 style: TextStyle(fontSize: 16, color: Colors.grey)),
-            Text(userName ?? 'MinVN',
+            Text(userName ?? 'User',
                 style: Theme.of(context).appBarTheme.titleTextStyle),
           ],
         ),

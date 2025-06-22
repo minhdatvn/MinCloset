@@ -166,12 +166,12 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
               IconButton(
                 icon: const Icon(Icons.undo),
                 tooltip: 'Hoàn tác',
-                onPressed: () => _editorKey.currentState?.stateManager.undo(),
+                onPressed: () => _editorKey.currentState?.undoAction(),
               ),
               IconButton(
                 icon: const Icon(Icons.redo),
                 tooltip: 'Làm lại',
-                onPressed: () => _editorKey.currentState?.stateManager.redo(),
+                onPressed: () => _editorKey.currentState?.redoAction(),
               ),
             ],
           ),

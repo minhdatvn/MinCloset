@@ -65,10 +65,14 @@ class OutfitActionsMenu extends ConsumerWidget {
           TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
           ElevatedButton(
             onPressed: () async {
+              // <<< SỬA LỖI: Lấy navigator ra trước khi có `await` >>>
               final navigator = Navigator.of(ctx);
               if (nameController.text.trim().isEmpty) return;
+
               await ref.read(outfitDetailProvider(currentOutfit).notifier).updateName(nameController.text.trim());
+              
               onUpdateCallback?.call();
+              // Giờ đây việc sử dụng `navigator` là an toàn
               navigator.pop();
             },
             child: const Text('Lưu'),
@@ -79,21 +83,25 @@ class OutfitActionsMenu extends ConsumerWidget {
   }
 
   Future<void> _shareOutfit(BuildContext context, Outfit outfit) async {
+    // <<< SỬA LỖI: Lấy scaffoldMessenger ra trước khi có `await` >>>
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
     try {
-      // <<< SỬA LỖI CUỐI CÙNG: QUAY LẠI DÙNG `Share` VÀ THÊM `IGNORE` >>>
       // ignore: deprecated_member_use_from_same_package
       await Share.shareXFiles(
         [XFile(outfit.imagePath)],
         text: 'Cùng xem bộ đồ "${outfit.name}" của tôi trên MinCloset nhé!',
       );
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Không thể chia sẻ: $e')));
-      }
+      // Giờ đây việc sử dụng `scaffoldMessenger` là an toàn
+      scaffoldMessenger.showSnackBar(SnackBar(content: Text('Không thể chia sẻ: $e')));
     }
   }
 
   Future<void> _deleteOutfit(BuildContext context, WidgetRef ref, Outfit outfit, VoidCallback? onUpdateCallback) async {
+    // <<< SỬA LỖI: Lấy navigator và scaffoldMessenger ra trước khi có `await` >>>
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -110,12 +118,12 @@ class OutfitActionsMenu extends ConsumerWidget {
       )
     );
 
-    if (confirmed == true) {
-      final navigator = Navigator.of(context);
-      final scaffoldMessenger = ScaffoldMessenger.of(context);
+    // Thêm một bước kiểm tra `context.mounted` để an toàn tuyệt đối
+    if (confirmed == true && context.mounted) {
       await ref.read(outfitDetailProvider(outfit).notifier).deleteOutfit();
       onUpdateCallback?.call();
       
+      // Giờ đây việc sử dụng các biến này là an toàn
       scaffoldMessenger.showSnackBar(SnackBar(content: Text('Đã xóa bộ đồ "${outfit.name}".')));
       if (navigator.canPop()) {
          navigator.pop(true);

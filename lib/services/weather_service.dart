@@ -2,21 +2,34 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:mincloset/models/city_suggestion.dart'; // <<< THÊM IMPORT MỚI
-import 'package:mincloset/utils/logger.dart'; // <<< THÊM IMPORT MỚI
+import 'package:mincloset/models/city_suggestion.dart';
+import 'package:mincloset/utils/logger.dart';
 
 class WeatherService {
-  final String _apiKey = dotenv.env['OPENWEATHER_API_KEY'] ?? 'API_KEY_NOT_FOUND';
-  static const _baseWeatherUrl = 'https://api.openweathermap.org/data/2.5/weather';
-  // <<< THÊM URL CHO GECODING API >>>
-  static const _baseGeoUrl = 'http://api.openweathermap.org/geo/1.0/direct';
+  final String _apiKey;
+  
+  // <<< THAY ĐỔI: Chuyển host và path ra thành hằng số >>>
+  static const _weatherApiHost = 'api.openweathermap.org';
+  static const _weatherApiPath = '/data/2.5/weather';
+  static const _geoApiPath = '/geo/1.0/direct';
 
-  // Phương thức lấy thời tiết theo tên thành phố (giữ nguyên)
+  final http.Client _client;
+
+  WeatherService({required String apiKey, http.Client? client})
+      : _apiKey = apiKey,
+        _client = client ?? http.Client();
+
   Future<Map<String, dynamic>> getWeather(String city) async {
-    final url = '$_baseWeatherUrl?q=$city&appid=$_apiKey&units=metric&lang=vi';
+    // <<< THAY ĐỔI: Dùng Uri.https để tạo URL an toàn >>>
+    final uri = Uri.https(_weatherApiHost, _weatherApiPath, {
+      'q': city,
+      'appid': _apiKey,
+      'units': 'metric',
+      'lang': 'vi',
+    });
+
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await _client.get(uri); // Sử dụng uri đã tạo
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
@@ -29,11 +42,18 @@ class WeatherService {
     }
   }
 
-  // <<< THÊM PHƯƠNG THỨC MỚI: LẤY THỜI TIẾT THEO TỌA ĐỘ >>>
   Future<Map<String, dynamic>> getWeatherByCoords(double lat, double lon) async {
-    final url = '$_baseWeatherUrl?lat=$lat&lon=$lon&appid=$_apiKey&units=metric&lang=vi';
+    // <<< THAY ĐỔI: Dùng Uri.https để tạo URL an toàn >>>
+    final uri = Uri.https(_weatherApiHost, _weatherApiPath, {
+      'lat': lat.toString(),
+      'lon': lon.toString(),
+      'appid': _apiKey,
+      'units': 'metric',
+      'lang': 'vi',
+    });
+
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await _client.get(uri);
       if (response.statusCode == 200) {
         return json.decode(response.body);
       } else {
@@ -46,15 +66,19 @@ class WeatherService {
     }
   }
 
-  // <<< THÊM PHƯƠNG THỨC MỚI: TÌM KIẾM THÀNH PHỐ >>>
   Future<List<CitySuggestion>> searchCities(String query) async {
     if (query.isEmpty) {
       return [];
     }
-    // Giới hạn 5 kết quả để tránh làm rối giao diện
-    final url = '$_baseGeoUrl?q=$query&limit=5&appid=$_apiKey';
+    // <<< THAY ĐỔI: Dùng Uri.https để tạo URL an toàn >>>
+    final uri = Uri.https(_weatherApiHost, _geoApiPath, {
+      'q': query,
+      'limit': '5',
+      'appid': _apiKey,
+    });
+
     try {
-      final response = await http.get(Uri.parse(url));
+      final response = await _client.get(uri);
       if (response.statusCode == 200) {
         final List<dynamic> results = json.decode(response.body);
         return results
@@ -62,11 +86,11 @@ class WeatherService {
             .toList();
       } else {
         logger.w('Lỗi tìm kiếm thành phố cho "$query": ${response.statusCode} ${response.body}');
-        return []; // Trả về danh sách rỗng nếu có lỗi
+        return [];
       }
     } catch (error) {
       logger.e('Lỗi kết nối dịch vụ Geocoding', error: error);
-      return []; // Trả về danh sách rỗng nếu có lỗi
+      return [];
     }
   }
 }

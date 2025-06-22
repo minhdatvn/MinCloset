@@ -8,10 +8,16 @@ import 'package:mincloset/domain/use_cases/validate_item_name_use_case.dart';
 import 'package:mincloset/domain/use_cases/validate_required_fields_use_case.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/services/classification_service.dart';
+import 'package:mincloset/services/generative_ai_wrapper.dart'; 
+
+final generativeAIWrapperProvider = Provider<IGenerativeAIWrapper>((ref) {
+  return GenerativeAIWrapper();
+});
 
 // Provider cho Service mới
 final classificationServiceProvider = Provider<ClassificationService>((ref) {
-  return ClassificationService();
+  final wrapper = ref.watch(generativeAIWrapperProvider);
+  return ClassificationService(aiWrapper: wrapper);
 });
 
 // Provider cho UseCase mới

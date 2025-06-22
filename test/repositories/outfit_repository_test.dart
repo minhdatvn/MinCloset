@@ -31,14 +31,6 @@ void main() {
     itemIds: 'id1,id2,id3',
     isFixed: false,
   );
-  
-  final tOutfitMap = {
-    'id': tOutfitId,
-    'name': 'Đi chơi cuối tuần',
-    'imagePath': 'path/to/image.png',
-    'itemIds': 'id1,id2,id3',
-    'is_fixed': 0,
-  };
 
   group('OutfitRepository', () {
 

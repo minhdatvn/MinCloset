@@ -1,16 +1,14 @@
 // lib/screens/pages/closets_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mincloset/notifiers/closets_page_notifier.dart';
-import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/pages/closet_detail_page.dart';
-import 'package:mincloset/widgets/filter_bottom_sheet.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
+import 'package:mincloset/widgets/item_search_filter_bar.dart';
 
 void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
   final nameController = TextEditingController();
@@ -91,66 +89,15 @@ class _AllItemsTab extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     const providerId = 'closetsPage';
-    final state = ref.watch(itemFilterProvider(providerId));
-    final notifier = ref.read(itemFilterProvider(providerId).notifier);
-    final searchController = useTextEditingController();
-    final closetsAsync = ref.watch(closetsProvider);
     
-    useEffect(() {
-      if (searchController.text != state.searchQuery) {
-        searchController.text = state.searchQuery;
-      }
-      return null;
-    }, [state.searchQuery]);
-
-
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Tìm kiếm vật phẩm...',
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  ),
-                  onChanged: notifier.setSearchQuery,
-                ),
-              ),
-              const SizedBox(width: 8),
-              IconButton(
-                icon: Badge(
-                  isLabelVisible: state.activeFilters.isApplied,
-                  child: const Icon(Icons.filter_list),
-                ),
-                tooltip: 'Lọc nâng cao',
-                onPressed: () {
-                  closetsAsync.whenData((closets) {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      builder: (_) => FilterBottomSheet(
-                        currentFilter: state.activeFilters,
-                        closets: closets,
-                        onApplyFilter: notifier.applyFilters,
-                      ),
-                    );
-                  });
-                },
-              ),
-            ],
-          ),
-        ),
+        // <<< THAY THẾ TOÀN BỘ PADDING VÀ ROW CŨ BẰNG WIDGET MỚI NÀY >>>
+        ItemSearchFilterBar(providerId: providerId),
+        // -----------------------------------------------------------
         Expanded(
           child: ItemBrowserView(
             providerId: providerId,
-            // <<< SỬA LỖI TẠI ĐÂY >>>
             onItemTapped: (item) async {
               final wasChanged = await Navigator.of(context).push<bool>(
                 MaterialPageRoute(builder: (context) => AddItemScreen(itemToEdit: item)),

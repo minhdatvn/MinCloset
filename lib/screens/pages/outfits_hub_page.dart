@@ -40,7 +40,6 @@ class OutfitsHubPage extends ConsumerWidget {
               final outfit = outfits[index - 1];
               return Card(
                 clipBehavior: Clip.antiAlias,
-                elevation: 4,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -120,7 +119,6 @@ class OutfitsHubPage extends ConsumerWidget {
       },
       borderRadius: BorderRadius.circular(12),
       child: Card(
-        elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Center(
           child: Column(

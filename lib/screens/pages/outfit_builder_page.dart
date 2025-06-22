@@ -1,7 +1,7 @@
 // lib/screens/pages/outfit_builder_page.dart
 import 'dart:io';
 import 'dart:typed_data';
-
+import 'package:mincloset/widgets/item_search_filter_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image/image.dart' as img;
@@ -182,52 +182,46 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
 
   Widget _buildItemBrowserSheet() {
     return DraggableScrollableSheet(
-      initialChildSize: 0.06,
-      minChildSize: 0.06,
-      maxChildSize: 0.9,
+      initialChildSize: 0.17,
+      minChildSize: 0.07,
+      maxChildSize: 0.92,
       builder: (BuildContext context, ScrollController scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.95),
+            color: Theme.of(context).scaffoldBackgroundColor.withAlpha(242),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.15),
+                color: Colors.black.withAlpha(38),
                 blurRadius: 10,
               ),
             ],
           ),
           child: ListView(
-            controller: scrollController, // Gán controller cho ListView
-            padding: EdgeInsets.zero, // Bỏ padding mặc định của ListView
+            controller: scrollController,
+            padding: EdgeInsets.zero,
             children: [
-              // Tay nắm để người dùng biết có thể kéo
+              // Tay nắm kéo
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Center( // Dùng Center để căn giữa tay nắm
+                child: Center(
                   child: Container(
                     width: 40,
                     height: 5,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(12)),
                   ),
                 ),
               ),
+              // Thanh tìm kiếm và bộ lọc
+              const ItemSearchFilterBar(providerId: 'outfit_builder_items'),
               // Danh sách vật phẩm
               ItemBrowserView(
                 providerId: 'outfit_builder_items',
-                // Không cần truyền controller vào đây nữa vì ListView đã xử lý
                 onItemTapped: (item) {
                   final stickerId = const Uuid().v4();
                   _itemsOnCanvas[stickerId] = item;
                   _editorKey.currentState?.addLayer(
-                    WidgetLayer(
-                      widget: Image.file(File(item.imagePath),
-                          fit: BoxFit.contain),
-                      id: stickerId,
-                    ),
+                    WidgetLayer(widget: Image.file(File(item.imagePath), fit: BoxFit.contain), id: stickerId),
                   );
                 },
               ),
@@ -312,7 +306,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
           ),
           Positioned(
             // Ghim nó vào các cạnh trái, phải và dưới, nhưng cách cạnh dưới 80px
-            bottom: 80.0,
+            bottom: 60.0,
             left: 0,
             right: 0,
             // Cho phép nó chiếm toàn bộ chiều cao còn lại phía trên

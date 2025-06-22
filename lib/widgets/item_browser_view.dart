@@ -6,20 +6,18 @@ import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 
-enum ItemBrowserBuildMode { box, sliver }
-
 class ItemBrowserView extends ConsumerWidget {
   final String providerId;
   final void Function(ClothingItem) onItemTapped;
   final Map<String, int> itemCounts;
-  final ItemBrowserBuildMode buildMode;
+  final ScrollController? scrollController;
 
   const ItemBrowserView({
     super.key,
     required this.providerId,
     required this.onItemTapped,
     this.itemCounts = const {},
-    this.buildMode = ItemBrowserBuildMode.box,
+    this.scrollController,
   });
 
   @override
@@ -28,19 +26,16 @@ class ItemBrowserView extends ConsumerWidget {
     final state = ref.watch(provider);
 
     if (state.isLoading && state.filteredItems.isEmpty) {
-      final loadingWidget = const Center(
+      return const Center(
         child: Padding(
           padding: EdgeInsets.all(32.0),
           child: CircularProgressIndicator(),
         ),
       );
-      return buildMode == ItemBrowserBuildMode.sliver
-          ? SliverToBoxAdapter(child: loadingWidget)
-          : loadingWidget;
     }
 
     if (state.filteredItems.isEmpty) {
-      final emptyWidget = Center(
+      return Center(
         child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: Text(
@@ -50,55 +45,29 @@ class ItemBrowserView extends ConsumerWidget {
           ),
         ),
       );
-      return buildMode == ItemBrowserBuildMode.sliver
-          ? SliverToBoxAdapter(child: emptyWidget)
-          : emptyWidget;
     }
 
-    if (buildMode == ItemBrowserBuildMode.sliver) {
-      return SliverPadding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        sliver: SliverGrid.builder(
-          itemCount: state.filteredItems.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            childAspectRatio: 0.8,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemBuilder: (ctx, index) {
-            final item = state.filteredItems[index];
-            final count = itemCounts[item.id] ?? 0;
-            return GestureDetector(
-              // <<< THAY ĐỔI Ở ĐÂY
-              key: ValueKey('item_card_${item.id}'),
-              onTap: () => onItemTapped(item),
-              child: RecentItemCard(item: item, count: count),
-            );
-          },
-        ),
-      );
-    } else {
-      return GridView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-        itemCount: state.filteredItems.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          childAspectRatio: 0.8,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-        ),
-        itemBuilder: (ctx, index) {
-          final item = state.filteredItems[index];
-          final count = itemCounts[item.id] ?? 0;
-          return GestureDetector(
-            // <<< VÀ THAY ĐỔI Ở ĐÂY
-            key: ValueKey('item_card_${item.id}'),
-            onTap: () => onItemTapped(item),
-            child: RecentItemCard(item: item, count: count),
-          );
-        },
-      );
-    }
+    return GridView.builder(
+      controller: scrollController,
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: state.filteredItems.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        childAspectRatio: 0.8,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemBuilder: (ctx, index) {
+        final item = state.filteredItems[index];
+        final count = itemCounts[item.id] ?? 0;
+        return GestureDetector(
+          key: ValueKey('item_card_${item.id}'),
+          onTap: () => onItemTapped(item),
+          child: RecentItemCard(item: item, count: count),
+        );
+      },
+    );
   }
 }

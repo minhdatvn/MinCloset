@@ -1,15 +1,18 @@
 // lib/screens/pages/outfit_builder_page.dart
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image/image.dart' as img;
+import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/clothing_item.dart';
-import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/notifiers/outfit_builder_notifier.dart';
-import 'package:mincloset/providers/database_providers.dart';
-import 'package:mincloset/widgets/clothing_sticker.dart';
-import 'package:mincloset/widgets/filter_bottom_sheet.dart';
-import 'package:mincloset/widgets/item_browser_view.dart';
-import 'package:screenshot/screenshot.dart';
+import 'package:mincloset/states/outfit_builder_state.dart';
+import 'package:mincloset/widgets/recent_item_card.dart';
+// Import chính của thư viện và các model cần thiết
+import 'package:pro_image_editor/pro_image_editor.dart';
+import 'package:uuid/uuid.dart';
 
 class OutfitBuilderPage extends ConsumerStatefulWidget {
   const OutfitBuilderPage({super.key});
@@ -19,89 +22,84 @@ class OutfitBuilderPage extends ConsumerStatefulWidget {
 }
 
 class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
-  final _screenshotController = ScreenshotController();
+  final _editorKey = GlobalKey<ProImageEditorState>();
+  Uint8List? _imageData;
+  final Map<String, ClothingItem> _itemsOnCanvas = {};
 
-  // <<< CẬP NHẬT HÀM LƯU >>>
-  Future<void> _saveOutfit() async {
-    final notifier = ref.read(outfitBuilderProvider.notifier);
-    // Lấy kết quả từ dialog, giờ đây là một Map
-    final result = await _showNameOutfitDialog();
+  @override
+  void initState() {
+    super.initState();
+    _generateBlankImage(const Size(750, 1000));
+  }
 
-    // Nếu người dùng nhấn Hủy hoặc không nhập tên, result sẽ là null
-    if (result == null) return;
-    
-    final String name = result['name'] as String;
-    final bool isFixed = result['isFixed'] as bool;
-
-    if (name.trim().isEmpty) return;
-
-    notifier.deselectAllStickers();
-    await Future.delayed(const Duration(milliseconds: 50));
-
-    final capturedImage = await _screenshotController.capture();
-    if (capturedImage != null) {
-      // Truyền thêm cờ isFixed vào hàm saveOutfit của notifier
-      await notifier.saveOutfit(name, isFixed, capturedImage);
+  Future<void> _generateBlankImage(Size size) async {
+    final image = img.Image(
+      width: size.width.toInt(),
+      height: size.height.toInt(),
+      backgroundColor: img.ColorRgb8(255, 255, 255),
+    );
+    if (mounted) {
+      setState(() {
+        _imageData = Uint8List.fromList(img.encodePng(image));
+      });
     }
   }
 
-  // <<< CẬP NHẬT HỘP THOẠI LƯU >>>
-  Future<Map<String, dynamic>?> _showNameOutfitDialog() {
-    final nameController = TextEditingController();
-    bool isFixed = false; // Trạng thái ban đầu của switch
+  Future<void> _pickBackgroundImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null && mounted) {
+      final bytes = await pickedFile.readAsBytes();
+      setState(() {
+        _imageData = bytes;
+      });
+    }
+  }
 
-    return showDialog<Map<String, dynamic>>(
+  Future<void> _showSaveDialog(Uint8List editedImageBytes) async {
+    if (!mounted) return;
+    
+    final nameController = TextEditingController();
+    bool isFixed = false;
+
+    final result = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (ctx) {
-        // Sử dụng StatefulBuilder để dialog có thể tự cập nhật trạng thái của Switch
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: const Text('Lưu bộ đồ'),
+              title: const Text('Save Outfit'),
               content: Column(
-                mainAxisSize: MainAxisSize.min, // Giúp Column co lại vừa với nội dung
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
                     controller: nameController,
                     decoration:
-                        const InputDecoration(hintText: 'Ví dụ: Dạo phố cuối tuần'),
+                        const InputDecoration(hintText: 'E.g., Weekend coffee date'),
                     autofocus: true,
                   ),
                   const SizedBox(height: 16),
-                  // SwitchListTile để có tiêu đề và nút switch tiện lợi
                   SwitchListTile(
-                    title: const Text(
-                      'Bộ đồ cố định',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: const Text(
-                      'Các món đồ sẽ luôn được gợi ý cùng nhau (dùng cho đồng phục, suit...).',
-                      style: TextStyle(fontSize: 12),
-                    ),
+                    title: const Text('Fixed Outfit', style: TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: const Text('Items will always be suggested together.', style: TextStyle(fontSize: 12)),
                     value: isFixed,
-                    onChanged: (newValue) {
-                      // Cập nhật trạng thái của Switch khi người dùng tương tác
-                      setState(() {
-                        isFixed = newValue;
-                      });
-                    },
+                    onChanged: (newValue) => setState(() => isFixed = newValue),
                     contentPadding: EdgeInsets.zero,
                   ),
                 ],
               ),
               actions: [
-                TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(),
-                    child: const Text('Hủy')),
+                TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
                 ElevatedButton(
                   onPressed: () {
-                    // Trả về một Map chứa cả tên và trạng thái của switch
-                    Navigator.of(ctx).pop({
-                      'name': nameController.text.trim(),
-                      'isFixed': isFixed,
-                    });
+                    if (nameController.text.trim().isNotEmpty) {
+                      Navigator.of(ctx).pop({
+                        'name': nameController.text.trim(),
+                        'isFixed': isFixed,
+                      });
+                    }
                   },
-                  child: const Text('Lưu'),
+                  child: const Text('Save'),
                 ),
               ],
             );
@@ -109,233 +107,123 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
         );
       },
     );
+
+    if (result != null && mounted) {
+      await ref.read(outfitBuilderProvider.notifier).saveOutfit(
+            name: result['name'] as String,
+            isFixed: result['isFixed'] as bool,
+            itemsOnCanvas: _itemsOnCanvas,
+            capturedImage: editedImageBytes,
+          );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(outfitBuilderProvider);
-    final notifier = ref.read(outfitBuilderProvider.notifier);
-
-    ref.listen(outfitBuilderProvider, (previous, next) {
-      if (next.saveSuccess && previous?.saveSuccess == false) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã lưu bộ đồ thành công!')));
-        Navigator.of(context).pop(true);
+    ref.listen<OutfitBuilderState>(outfitBuilderProvider, (previous, next) {
+      if (next.saveSuccess && !(previous?.saveSuccess ?? false)) {
+        ScaffoldMessenger.of(context)
+          ..removeCurrentSnackBar()
+          ..showSnackBar(const SnackBar(content: Text('Outfit saved successfully!')));
       }
       if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
+        ScaffoldMessenger.of(context)
+          ..removeCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(next.errorMessage!)));
       }
     });
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Xưởng Phối đồ'),
+        title: const Text('Outfit Workshop'),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () {
+            _editorKey.currentState?.closeEditor();
+          },
+        ),
         actions: [
-          if (state.isSaving)
-            const Padding(
-              padding: EdgeInsets.only(right: 16.0),
-              child: Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 3))),
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.check),
-              onPressed: _saveOutfit,
-              tooltip: 'Lưu bộ đồ',
-            )
-        ],
-      ),
-      body: Stack(
-        children: [
-          Align(
-            alignment: Alignment.topCenter,
-            child: AspectRatio(
-              aspectRatio: 3 / 4,
-              child: Screenshot(
-                controller: _screenshotController,
-                child: GestureDetector(
-                  onTap: notifier.deselectAllStickers,
-                  child: Container(
-                    color: Colors.white,
-                    child: Stack(
-                      children: state.itemsOnCanvas.entries.map((entry) {
-                        final stickerId = entry.key;
-                        final item = entry.value;
-                        return ClothingSticker(
-                          key: ValueKey(stickerId),
-                          item: item,
-                          isSelected: stickerId == state.selectedStickerId,
-                          onSelect: () => notifier.selectSticker(stickerId),
-                          onDelete: () => notifier.deleteSticker(stickerId),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+          IconButton(
+            icon: const Icon(Icons.photo_library_outlined),
+            tooltip: 'Change Background',
+            onPressed: _pickBackgroundImage,
           ),
-          DraggableScrollableSheet(
-            initialChildSize: 0.32,
-            minChildSize: 0.2,
-            maxChildSize: 0.8,
-            builder: (BuildContext context, ScrollController scrollController) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(26),
-                      blurRadius: 10,
-                      spreadRadius: 2,
-                    ),
-                  ],
-                ),
-                child: _ItemSelectionPanel(scrollController: scrollController),
-              );
+          IconButton(
+            icon: const Icon(Icons.check),
+            tooltip: 'Save Outfit',
+            onPressed: () {
+              _editorKey.currentState?.doneEditing();
             },
           ),
         ],
       ),
-    );
-  }
-}
+      body: _imageData == null
+          ? const Center(child: CircularProgressIndicator())
+          : ProImageEditor.memory(
+              _imageData!,
+              key: _editorKey,
+              // <<< SỬA LỖI: Đặt các hàm callback vào đúng đối tượng ProImageEditorCallbacks >>>
+              callbacks: ProImageEditorCallbacks(
+                onImageEditingComplete: (Uint8List bytes) async {
+                  await _showSaveDialog(bytes);
+                },
+                onCloseEditor: (EditorMode mode) {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+              configs: ProImageEditorConfigs(
+                // Cấu hình cho tính năng Crop & Rotate
+                cropRotateEditorConfigs: const CropRotateEditorConfigs(
+                  // Cung cấp danh sách các tỷ lệ
+                  aspectRatioOptions: [
+                    CropAspectRatio(text: 'Outfit', ratio: 3 / 4),
+                  ],
+                ),
+                // Cấu hình cho Filter - Tắt đi
+                filterEditorConfigs: const FilterEditorConfigs(enabled: false),
+                // Cấu hình cho Blur - Tắt đi
+                blurEditorConfigs: const BlurEditorConfigs(enabled: false),
 
-class _SliverHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final Widget child;
-  final double height;
-
-  _SliverHeaderDelegate({required this.child, required this.height});
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return SizedBox.expand(child: child);
-  }
-
-  @override
-  double get maxExtent => height;
-
-  @override
-  double get minExtent => height;
-
-  @override
-  bool shouldRebuild(covariant _SliverHeaderDelegate oldDelegate) {
-    return oldDelegate.height != height || oldDelegate.child != child;
-  }
-}
-
-class _ItemSelectionPanel extends HookConsumerWidget {
-  final ScrollController scrollController;
-  const _ItemSelectionPanel({required this.scrollController});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    const providerId = 'outfitBuilderPage';
-    final filterState = ref.watch(itemFilterProvider(providerId));
-    final filterNotifier = ref.read(itemFilterProvider(providerId).notifier);
-    final searchController = useTextEditingController();
-    final closetsAsync = ref.watch(closetsProvider);
-
-    final canvasItems = ref.watch(outfitBuilderProvider.select((state) => state.itemsOnCanvas.values));
-
-    final Map<String, int> itemCounts = {};
-    for (final item in canvasItems) {
-      itemCounts[item.id] = (itemCounts[item.id] ?? 0) + 1;
-    }
-
-    useEffect(() {
-      if (searchController.text != filterState.searchQuery) {
-        searchController.text = filterState.searchQuery;
-      }
-      return null;
-    }, [filterState.searchQuery]);
-
-    return CustomScrollView(
-      controller: scrollController,
-      slivers: [
-        SliverPersistentHeader(
-          pinned: true,
-          delegate: _SliverHeaderDelegate(
-            height: 78,
-            child: Container(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Center(
-                      child: Container(
-                        width: 40,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                // Cấu hình cho Sticker
+                stickerEditorConfigs: StickerEditorConfigs(
+                  // Sử dụng builder để truyền hàm `setLayer`
+                  builder: (context, setLayer, scrollCtrl) {
+                    final outfitBuilderState = ref.watch(outfitBuilderProvider);
+                    if (outfitBuilderState.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return GridView.builder(
+                      controller: scrollCtrl,
+                      padding: const EdgeInsets.all(8),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4,
+                        mainAxisSpacing: 8,
+                        crossAxisSpacing: 8,
                       ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: searchController,
-                            decoration: InputDecoration(
-                              hintText: 'Tìm kiếm vật phẩm...',
-                              prefixIcon: const Icon(Icons.search),
-                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                              filled: true,
-                              fillColor: Colors.grey.shade100,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                            onChanged: filterNotifier.setSearchQuery,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        IconButton(
-                          icon: Badge(
-                            isLabelVisible: filterState.activeFilters.isApplied,
-                            child: const Icon(Icons.filter_list),
-                          ),
-                          tooltip: 'Lọc nâng cao',
-                          onPressed: () {
-                            closetsAsync.whenData((closets) {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.transparent,
-                                builder: (_) => Padding(
-                                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                                  child: FilterBottomSheet(
-                                    currentFilter: filterState.activeFilters,
-                                    closets: closets,
-                                    onApplyFilter: filterNotifier.applyFilters,
-                                  ),
-                                ),
-                              );
-                            });
+                      itemCount: outfitBuilderState.allItems.length,
+                      itemBuilder: (context, index) {
+                        final item = outfitBuilderState.allItems[index];
+                        return GestureDetector(
+                          onTap: () {
+                            final stickerId = const Uuid().v4();
+                            _itemsOnCanvas[stickerId] = item;
+                            setLayer(
+                              WidgetLayer(
+                                widget: Image.file(File(item.imagePath), fit: BoxFit.contain),
+                                id: stickerId,
+                              ),
+                            );
                           },
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                          child: RecentItemCard(item: item),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-        ),
-        ItemBrowserView(
-          providerId: providerId,
-          buildMode: ItemBrowserBuildMode.sliver,
-          onItemTapped: (ClothingItem item) {
-            ref.read(outfitBuilderProvider.notifier).addItemToCanvas(item);
-          },
-          itemCounts: itemCounts,
-        ),
-      ],
     );
   }
 }

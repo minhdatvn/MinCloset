@@ -9,15 +9,17 @@ final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>((ref) {
 });
 
 class LocaleNotifier extends StateNotifier<Locale> {
-  // Ngôn ngữ mặc định khi mở app lần đầu là Tiếng Việt
-  LocaleNotifier() : super(const Locale('vi')) {
+  // <<< THAY ĐỔI NGÔN NGỮ MẶC ĐỊNH Ở ĐÂY >>>
+  // Ngôn ngữ mặc định khi mở app lần đầu là Tiếng Anh
+  LocaleNotifier() : super(const Locale('en')) {
     _loadLocale();
   }
 
   // Tải ngôn ngữ đã lưu từ bộ nhớ
   void _loadLocale() async {
     final prefs = await SharedPreferences.getInstance();
-    final langCode = prefs.getString('language_code') ?? 'vi';
+    // Thay giá trị dự phòng ở đây để nhất quán
+    final langCode = prefs.getString('language_code') ?? 'en';
     state = Locale(langCode);
   }
 

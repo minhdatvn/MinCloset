@@ -1,5 +1,4 @@
 // lib/notifiers/profile_page_notifier.dart
-// lib/notifiers/profile_page_notifier.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/city_suggestion.dart';
@@ -14,6 +13,9 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   final Ref _ref;
 
   ProfilePageNotifier(this._ref) : super(const ProfilePageState()) {
+    // <<< THÊM DÒNG NÀY ĐỂ TỰ ĐỘNG TẢI DỮ LIỆU KHI NOTIFIER ĐƯỢC TẠO >>>
+    loadInitialData();
+
     _ref.listen<int>(itemAddedTriggerProvider, (previous, next) {
       if (previous != next) {
         loadInitialData();
@@ -24,15 +26,18 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   Future<void> loadInitialData() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
+      logger.i('Bắt đầu tải dữ liệu Profile...');
+
       final prefs = await SharedPreferences.getInstance();
+      logger.i('1. Tải SharedPreferences thành công.');
+
       final closetRepo = _ref.read(closetRepositoryProvider);
       final itemRepo = _ref.read(clothingItemRepositoryProvider);
       final outfitRepo = _ref.read(outfitRepositoryProvider);
+      logger.i('2. Khởi tạo các Repositories thành công.');
 
       final userName = prefs.getString('user_name') ?? 'Người dùng MinCloset';
       final avatarPath = prefs.getString('user_avatar_path');
-
-      // <<< TẢI DỮ LIỆU CÁ NHÂN MỚI >>>
       final gender = prefs.getString('user_gender');
       final dobString = prefs.getString('user_dob');
       final dob = dobString != null ? DateTime.tryParse(dobString) : null;
@@ -41,15 +46,21 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       final personalStyles = prefs.getStringList('user_styles')?.toSet() ?? {};
       final favoriteColors =
           prefs.getStringList('user_favorite_colors')?.toSet() ?? {};
-
       final cityModeString = prefs.getString('city_mode') ?? 'auto';
       final cityMode = CityMode.values.byName(cityModeString);
       final manualCity = prefs.getString('manual_city_name') ?? 'Da Nang';
+      logger.i('3. Đọc dữ liệu từ SharedPreferences thành công.');
 
+      // Ta sẽ kiểm tra từng lời gọi CSDL
       final allItems = await itemRepo.getAllItems();
-      final allClosets = await closetRepo.getClosets();
-      final allOutfits = await outfitRepo.getOutfits();
+      logger.i('4. Tải tất cả Items từ CSDL thành công.');
 
+      final allClosets = await closetRepo.getClosets();
+      logger.i('5. Tải tất cả Closets từ CSDL thành công.');
+
+      final allOutfits = await outfitRepo.getOutfits();
+      logger.i('6. Tải tất cả Outfits từ CSDL thành công.');
+      
       final colorDist = <String, int>{};
       final categoryDist = <String, int>{};
       final seasonDist = <String, int>{};
@@ -77,6 +88,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
           }
         }
       }
+      logger.i('7. Tính toán thống kê thành công.');
 
       state = state.copyWith(
         isLoading: false,
@@ -98,6 +110,8 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
         seasonDistribution: seasonDist,
         occasionDistribution: occasionDist,
       );
+      logger.i('8. Cập nhật state thành công! Hoàn tất tải trang Profile.');
+
     } catch (e, s) {
       logger.e("Lỗi khi tải dữ liệu trang cá nhân", error: e, stackTrace: s);
       state = state.copyWith(
@@ -106,7 +120,8 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       );
     }
   }
-
+  
+  // ... các hàm còn lại không thay đổi ...
   Future<void> updateAvatar() async {
     final imagePicker = ImagePicker();
     final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
@@ -119,7 +134,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     }
   }
 
-  // <<< CẬP NHẬT HÀM LƯU TRỮ ĐỂ XỬ LÝ DỮ LIỆU MỚI >>>
   Future<void> updateProfileInfo(Map<String, dynamic> data) async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -131,7 +145,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     final personalStyles = data['personalStyles'] as Set<String>?;
     final favoriteColors = data['favoriteColors'] as Set<String>?;
 
-    // Lưu các giá trị vào SharedPreferences
     await _saveString(prefs, 'user_name', name);
     await _saveString(prefs, 'user_gender', gender);
     if (dob != null) {
@@ -152,7 +165,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       await prefs.remove('user_favorite_colors');
     }
 
-    // Cập nhật state để giao diện thay đổi ngay lập tức
     state = state.copyWith(
       userName: name,
       gender: gender,
@@ -185,7 +197,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     _ref.read(homeProvider.notifier).getNewSuggestion();
   }
 
-  // Hàm helper để lưu an toàn, nếu giá trị là null thì xóa key khỏi SharedPreferences
   Future<void> _saveString(
       SharedPreferences prefs, String key, String? value) async {
     if (value != null && value.isNotEmpty) {

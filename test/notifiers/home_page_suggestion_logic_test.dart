@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mincloset/notifiers/home_page_notifier.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
-import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/screens/pages/home_page.dart';
 import 'package:mincloset/states/home_page_state.dart';
 import 'package:mincloset/states/profile_page_state.dart';

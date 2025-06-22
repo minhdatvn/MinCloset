@@ -50,7 +50,20 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
   }
 
-  // ... Các hàm onNameChanged, onClosetChanged, pickImage, analyzeImage... giữ nguyên ...
+  // <<< THÊM HÀM MỚI Ở ĐÂY >>>
+  // Hàm này lọc các màu từ A.I, chỉ giữ lại những màu có trong AppOptions
+  Set<String> _normalizeColors(List<dynamic>? rawColors) {
+    if (rawColors == null) return {};
+    final validColorNames = AppOptions.colors.keys.toSet();
+    final selections = <String>{};
+    for (final color in rawColors) {
+      if (validColorNames.contains(color.toString())) {
+        selections.add(color.toString());
+      }
+    }
+    return selections;
+  }
+
   String _normalizeCategory(String? rawCategory) {
     if (rawCategory == null || rawCategory.trim().isEmpty) { return 'Khác > Khác'; }
     if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) { return '$rawCategory > Khác'; }
@@ -95,16 +108,17 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     final result = await useCase.execute(image);
     if (result.isNotEmpty && mounted) {
       final category = _normalizeCategory(result['category'] as String?);
-      final colors = (result['colors'] as List<dynamic>?)?.map((e) => e.toString()).toSet();
+      // <<< SỬA LOGIC Ở ĐÂY >>>
+      // Sử dụng hàm chuẩn hóa mới cho màu sắc
+      final colors = _normalizeColors(result['colors'] as List<dynamic>?);
       final materials = _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList());
       final patterns = _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList());
-      state = state.copyWith(isAnalyzing: false, name: result['name'] as String? ?? state.name, selectedCategoryValue: category, selectedColors: colors ?? state.selectedColors, selectedMaterials: materials.isNotEmpty ? materials : state.selectedMaterials, selectedPatterns: patterns.isNotEmpty ? patterns : state.selectedPatterns);
+      state = state.copyWith(isAnalyzing: false, name: result['name'] as String? ?? state.name, selectedCategoryValue: category, selectedColors: colors, selectedMaterials: materials.isNotEmpty ? materials : state.selectedMaterials, selectedPatterns: patterns.isNotEmpty ? patterns : state.selectedPatterns);
     } else if (mounted) {
       state = state.copyWith(isAnalyzing: false);
     }
   }
 
-  // <<< THAY ĐỔI 1: Sửa hàm saveItem để trả về Future<bool> >>>
   Future<bool> saveItem() async {
     if (state.image == null && state.imagePath == null) {
       state = state.copyWith(errorMessage: 'Vui lòng thêm ảnh cho món đồ.');
@@ -156,7 +170,6 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
   }
 
-  // <<< THAY ĐỔI 2: Sửa hàm deleteItem để trả về Future<bool> >>>
   Future<bool> deleteItem() async {
     if (!state.isEditing) {
       return false;
@@ -172,7 +185,6 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
   }
 
-  // <<< THAY ĐỔI 3: Có thể xóa bỏ hàm resetState() này >>>
   void resetState() {
     if (state.isSuccess || state.errorMessage != null) {
        state = state.copyWith(isSuccess: false, errorMessage: null);

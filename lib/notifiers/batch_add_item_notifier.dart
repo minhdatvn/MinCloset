@@ -19,7 +19,19 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
   BatchAddItemNotifier(this._clothingItemRepo, this._ref)
       : super(const BatchAddItemState());
 
-  // ... các hàm helper giữ nguyên ...
+  // <<< THÊM HÀM MỚI Ở ĐÂY >>>
+  Set<String> _normalizeColors(List<dynamic>? rawColors) {
+    if (rawColors == null) return {};
+    final validColorNames = AppOptions.colors.keys.toSet();
+    final selections = <String>{};
+    for (final color in rawColors) {
+      if (validColorNames.contains(color.toString())) {
+        selections.add(color.toString());
+      }
+    }
+    return selections;
+  }
+
   String _normalizeCategory(String? rawCategory) {
     if (rawCategory == null || rawCategory.trim().isEmpty) { return 'Khác > Khác'; }
     if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) { return '$rawCategory > Khác'; }
@@ -53,10 +65,12 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
         final result = results[i];
         final imageFile = images[i];
         final tempId = const Uuid().v4();
+        
+        // <<< SỬA LOGIC Ở ĐÂY >>>
         final preAnalyzedState = AddItemState(
           id: tempId, name: result['name'] as String? ?? '', image: File(imageFile.path),
           selectedCategoryValue: _normalizeCategory(result['category'] as String?),
-          selectedColors: (result['colors'] as List<dynamic>?)?.map((e) => e.toString()).toSet() ?? {},
+          selectedColors: _normalizeColors(result['colors'] as List<dynamic>?),
           selectedMaterials: _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList()),
           selectedPatterns: _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList()),
         );
@@ -71,35 +85,28 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
   }
   
   void setCurrentIndex(int index) {
-    // Chỉ cập nhật index, không cần validation ở đây vì đây là hành động của người dùng (vuốt tay)
     state = state.copyWith(currentIndex: index, clearSaveError: true);
   }
 
-  // <<< THAY ĐỔI LOGIC Ở ĐÂY >>>
   void nextPage() {
-    // 1. Lấy state của item hiện tại
     final currentItemArgs = state.itemArgsList[state.currentIndex];
     final currentItemState = _ref.read(addItemProvider(currentItemArgs));
     
-    // 2. Kiểm tra các trường bắt buộc của item hiện tại
     final validationResult = _ref.read(validateRequiredFieldsUseCaseProvider).executeForSingle(currentItemState);
 
     if (validationResult.success) {
-      // 3a. Nếu hợp lệ, cho phép chuyển trang
       if (state.currentIndex < state.itemArgsList.length - 1) {
         state = state.copyWith(
           currentIndex: state.currentIndex + 1,
-          clearSaveError: true // Xóa lỗi cũ khi chuyển trang thành công
+          clearSaveError: true 
         );
       }
     } else {
-      // 3b. Nếu không hợp lệ, hiển thị lỗi và không chuyển trang
       state = state.copyWith(saveErrorMessage: validationResult.errorMessage);
     }
   }
 
   void previousPage() {
-    // Không cần validation khi quay lại trang trước
     if (state.currentIndex > 0) {
       state = state.copyWith(
         currentIndex: state.currentIndex - 1,

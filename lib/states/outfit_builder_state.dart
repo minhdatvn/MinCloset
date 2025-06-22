@@ -8,6 +8,8 @@ import 'package:mincloset/models/clothing_item.dart';
 class OutfitBuilderState extends Equatable {
   // Trạng thái cho biết đang tải danh sách vật phẩm hay không
   final bool isLoading;
+  // <<< THÊM MỚI: Trạng thái cho biết có đang lưu bộ đồ hay không >>>
+  final bool isSaving;
   // Danh sách tất cả vật phẩm để hiển thị trong ngăn sticker
   final List<ClothingItem> allItems;
   // Trạng thái lỗi nếu có
@@ -17,6 +19,7 @@ class OutfitBuilderState extends Equatable {
 
   const OutfitBuilderState({
     this.isLoading = true,
+    this.isSaving = false, // <<< THÊM MỚI
     this.allItems = const [],
     this.errorMessage,
     this.saveSuccess = false,
@@ -24,12 +27,14 @@ class OutfitBuilderState extends Equatable {
 
   OutfitBuilderState copyWith({
     bool? isLoading,
+    bool? isSaving, // <<< THÊM MỚI
     List<ClothingItem>? allItems,
     String? errorMessage,
     bool? saveSuccess,
   }) {
     return OutfitBuilderState(
       isLoading: isLoading ?? this.isLoading,
+      isSaving: isSaving ?? this.isSaving, // <<< THÊM MỚI
       allItems: allItems ?? this.allItems,
       errorMessage: errorMessage ?? this.errorMessage,
       saveSuccess: saveSuccess ?? this.saveSuccess,
@@ -37,5 +42,11 @@ class OutfitBuilderState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [isLoading, allItems, errorMessage, saveSuccess];
+  List<Object?> get props => [
+        isLoading,
+        isSaving, // <<< THÊM MỚI
+        allItems,
+        errorMessage,
+        saveSuccess
+      ];
 }

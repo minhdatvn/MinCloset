@@ -57,85 +57,155 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   }
 
   Future<void> _showSaveDialog(Uint8List editedImageBytes) async {
-    if (!mounted) return;
-    
-    final nameController = TextEditingController();
-    bool isFixed = false;
+  if (!mounted) return;
 
-    final result = await showDialog<Map<String, dynamic>>(
-      context: context,
-      builder: (ctx) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('Save Outfit'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration:
-                        const InputDecoration(hintText: 'E.g., Weekend coffee date'),
-                    autofocus: true,
-                  ),
-                  const SizedBox(height: 16),
-                  SwitchListTile(
-                    title: const Text('Fixed Outfit', style: TextStyle(fontWeight: FontWeight.bold)),
-                    subtitle: const Text('Items will always be suggested together.', style: TextStyle(fontSize: 12)),
-                    value: isFixed,
-                    onChanged: (newValue) => setState(() => isFixed = newValue),
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ],
+  final nameController = TextEditingController();
+  bool isFixed = false;
+  // <<< THÊM VALUE NOTIFIER ĐỂ KIỂM SOÁT NÚT LƯU >>>
+  final isSavingNotifier = ValueNotifier<bool>(false);
+
+  // Dùng để kiểm tra xem nút lưu có nên được bật hay không
+  final formKey = GlobalKey<FormState>();
+
+  final result = await showDialog<Map<String, dynamic>>(
+    context: context,
+    // Ngăn người dùng bấm ra ngoài để đóng dialog khi đang lưu
+    barrierDismissible: false,
+    builder: (ctx) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return Form( // Bọc trong Form để validate
+            key: formKey,
+            child: AlertDialog(
+              title: const Text('Lưu bộ đồ'),
+              content: ValueListenableBuilder<bool>(
+                // Lắng nghe trạng thái đang lưu
+                valueListenable: isSavingNotifier,
+                builder: (context, isSaving, child) {
+                  // Nếu đang lưu thì hiển thị loading
+                  if (isSaving) {
+                    return const SizedBox(
+                      height: 100,
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(height: 16),
+                            Text('Đang lưu...'),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+                  // Ngược lại, hiển thị form
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: nameController,
+                        decoration: const InputDecoration(
+                            hintText: 'Ví dụ: Cà phê cuối tuần'),
+                        autofocus: true,
+                        // Validator để đảm bảo tên không bị trống
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Vui lòng nhập tên cho bộ đồ';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      SwitchListTile(
+                        title: const Text('Bộ đồ cố định',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: const Text(
+                            'Các món đồ sẽ luôn được gợi ý cùng nhau.',
+                            style: TextStyle(fontSize: 12)),
+                        value: isFixed,
+                        onChanged: (newValue) =>
+                            setState(() => isFixed = newValue),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ],
+                  );
+                },
               ),
               actions: [
-                TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
-                ElevatedButton(
-                  onPressed: () {
-                    if (nameController.text.trim().isNotEmpty) {
-                      Navigator.of(ctx).pop({
-                        'name': nameController.text.trim(),
-                        'isFixed': isFixed,
-                      });
-                    }
-                  },
-                  child: const Text('Save'),
+                // <<< HIỂN THỊ NÚT HỦY KHI KHÔNG LƯU >>>
+                ValueListenableBuilder<bool>(
+                  valueListenable: isSavingNotifier,
+                  builder: (context, isSaving, _) => isSaving
+                      ? const SizedBox.shrink()
+                      : TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(),
+                          child: const Text('Hủy')),
+                ),
+                ValueListenableBuilder<bool>(
+                  valueListenable: isSavingNotifier,
+                  builder: (context, isSaving, _) => isSaving
+                      ? const SizedBox.shrink()
+                      : ElevatedButton(
+                          onPressed: () {
+                            // Validate form trước khi lưu
+                            if (formKey.currentState?.validate() ?? false) {
+                              Navigator.of(ctx).pop({
+                                'name': nameController.text.trim(),
+                                'isFixed': isFixed,
+                              });
+                            }
+                          },
+                          child: const Text('Lưu'),
+                        ),
                 ),
               ],
-            );
-          },
-        );
-      },
-    );
-
-    if (result != null && mounted) {
-      await ref.read(outfitBuilderProvider.notifier).saveOutfit(
-            name: result['name'] as String,
-            isFixed: result['isFixed'] as bool,
-            itemsOnCanvas: _itemsOnCanvas,
-            capturedImage: editedImageBytes,
+            ),
           );
-    }
+        },
+      );
+    },
+  );
+
+  if (result != null && mounted) {
+    // Báo cho dialog biết là đang lưu
+    isSavingNotifier.value = true;
+    await ref.read(outfitBuilderProvider.notifier).saveOutfit(
+          name: result['name'] as String,
+          isFixed: result['isFixed'] as bool,
+          itemsOnCanvas: _itemsOnCanvas,
+          capturedImage: editedImageBytes,
+        );
+    // Sau khi lưu xong, tắt dialog
+    if (mounted) Navigator.of(context).pop();
   }
+}
 
   @override
-  Widget build(BuildContext context) {
-    ref.listen<OutfitBuilderState>(outfitBuilderProvider, (previous, next) {
-      if (next.saveSuccess && !(previous?.saveSuccess ?? false)) {
-        ScaffoldMessenger.of(context)
-          ..removeCurrentSnackBar()
-          ..showSnackBar(const SnackBar(content: Text('Outfit saved successfully!')));
-      }
-      if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(context)
-          ..removeCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(next.errorMessage!)));
-      }
-    });
+Widget build(BuildContext context) {
+  // <<< CẬP NHẬT LISTENER ĐỂ ĐÓNG MÀN HÌNH KHI LƯU THÀNH CÔNG >>>
+  ref.listen<OutfitBuilderState>(outfitBuilderProvider, (previous, next) {
+    // Nếu lưu thành công, hiển thị thông báo và đóng màn hình editor
+    if (next.saveSuccess && !(previous?.saveSuccess ?? false)) {
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(const SnackBar(content: Text('Đã lưu bộ đồ thành công!')));
+      // Trả về true để màn hình trước có thể tải lại danh sách
+      Navigator.of(context).pop(true);
+    }
+    // Nếu có lỗi, chỉ hiển thị thông báo
+    if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
+      ScaffoldMessenger.of(context)
+        ..removeCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(next.errorMessage!),
+          backgroundColor: Colors.red,
+        ));
+    }
+  });
 
-    return Scaffold(
+  return Scaffold(
       appBar: AppBar(
-        title: const Text('Outfit Workshop'),
+        title: const Text('Xưởng phối đồ'),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -145,12 +215,12 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.photo_library_outlined),
-            tooltip: 'Change Background',
+            tooltip: 'Đổi ảnh nền',
             onPressed: _pickBackgroundImage,
           ),
           IconButton(
             icon: const Icon(Icons.check),
-            tooltip: 'Save Outfit',
+            tooltip: 'Lưu bộ đồ',
             onPressed: () {
               _editorKey.currentState?.doneEditing();
             },
@@ -162,7 +232,6 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
           : ProImageEditor.memory(
               _imageData!,
               key: _editorKey,
-              // <<< SỬA LỖI: Đặt các hàm callback vào đúng đối tượng ProImageEditorCallbacks >>>
               callbacks: ProImageEditorCallbacks(
                 onImageEditingComplete: (Uint8List bytes) async {
                   await _showSaveDialog(bytes);
@@ -174,22 +243,17 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                 },
               ),
               configs: ProImageEditorConfigs(
-                // Cấu hình cho tính năng Crop & Rotate
-                cropRotateEditorConfigs: const CropRotateEditorConfigs(
-                  // Cung cấp danh sách các tỷ lệ
-                  aspectRatioOptions: [
-                    CropAspectRatio(text: 'Outfit', ratio: 3 / 4),
+                //... các config khác giữ nguyên
+                cropRotateEditor: const CropRotateEditorConfigs(
+                  aspectRatios: [
+                    AspectRatioItem(text: 'Outfit', value: 3 / 4),
                   ],
                 ),
-                // Cấu hình cho Filter - Tắt đi
-                filterEditorConfigs: const FilterEditorConfigs(enabled: false),
-                // Cấu hình cho Blur - Tắt đi
-                blurEditorConfigs: const BlurEditorConfigs(enabled: false),
-
-                // Cấu hình cho Sticker
-                stickerEditorConfigs: StickerEditorConfigs(
-                  // Sử dụng builder để truyền hàm `setLayer`
-                  builder: (context, setLayer, scrollCtrl) {
+                filterEditor: const FilterEditorConfigs(enabled: false),
+                blurEditor: const BlurEditorConfigs(enabled: false),
+                stickerEditor: StickerEditorConfigs(
+                  enabled: true,
+                  builder: (setLayer, scrollCtrl) {
                     final outfitBuilderState = ref.watch(outfitBuilderProvider);
                     if (outfitBuilderState.isLoading) {
                       return const Center(child: CircularProgressIndicator());
@@ -197,7 +261,8 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                     return GridView.builder(
                       controller: scrollCtrl,
                       padding: const EdgeInsets.all(8),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 4,
                         mainAxisSpacing: 8,
                         crossAxisSpacing: 8,
@@ -211,7 +276,8 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                             _itemsOnCanvas[stickerId] = item;
                             setLayer(
                               WidgetLayer(
-                                widget: Image.file(File(item.imagePath), fit: BoxFit.contain),
+                                widget: Image.file(File(item.imagePath),
+                                    fit: BoxFit.contain),
                                 id: stickerId,
                               ),
                             );

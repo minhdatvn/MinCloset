@@ -1,8 +1,7 @@
 // lib/screens/main_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/notifiers/home_page_notifier.dart'; // <<< THÊM IMPORT
-import 'package:mincloset/notifiers/profile_page_notifier.dart'; // <<< THÊM IMPORT
+import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/screens/pages/closets_page.dart';
 import 'package:mincloset/screens/pages/home_page.dart';
@@ -10,7 +9,6 @@ import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/screens/pages/profile_page.dart';
 import 'package:mincloset/widgets/global_add_button.dart';
 
-// <<< THAY ĐỔI 2: Chuyển thành ConsumerStatefulWidget >>>
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
@@ -19,14 +17,14 @@ class MainScreen extends ConsumerStatefulWidget {
 }
 
 class _MainScreenState extends ConsumerState<MainScreen> {
-  // <<< THAY ĐỔI 3: Thêm initState để tải dữ liệu ban đầu >>>
   @override
   void initState() {
     super.initState();
     // Dùng addPostFrameCallback để đảm bảo các provider đã sẵn sàng
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(profileProvider.notifier).loadInitialData();
-      ref.read(homeProvider.notifier).getNewSuggestion();
+      // <<< ĐÃ XÓA DÒNG NÀY ĐỂ NGỪNG TỰ ĐỘNG GỌI GỢI Ý >>>
+      // ref.read(homeProvider.notifier).getNewSuggestion(); 
     });
   }
 

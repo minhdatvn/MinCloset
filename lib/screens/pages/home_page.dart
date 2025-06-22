@@ -28,24 +28,11 @@ final recentItemsProvider =
   return itemRepo.getRecentItems(5);
 });
 
-// <<< THAY ĐỔI 3: Chuyển thành ConsumerStatefulWidget >>>
-class HomePage extends ConsumerStatefulWidget {
+// <<< THAY ĐỔI: Chuyển lại thành ConsumerWidget vì không cần `initState` nữa >>>
+class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
-  @override
-  ConsumerState<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends ConsumerState<HomePage> {
-  // <<< THAY ĐỔI 4: Gọi hàm tải dữ liệu trong initState >>>
-  @override
-  void initState() {
-    super.initState();
-    // Dùng addPostFrameCallback để đảm bảo widget đã build xong
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(homeProvider.notifier).getNewSuggestion();
-    });
-  }
+  // <<< THAY ĐỔI: Hàm initState đã được xóa bỏ >>>
 
   Future<void> _pickAndAnalyzeImage(BuildContext context, WidgetRef ref) async {
     final navigator = Navigator.of(context);
@@ -66,8 +53,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    // Từ đây code không thay đổi, chỉ cần thay `WidgetRef ref` trong `build` thành `ref`
+  Widget build(BuildContext context, WidgetRef ref) {
     final homeState = ref.watch(homeProvider);
     final homeNotifier = ref.read(homeProvider.notifier);
     final profileState = ref.watch(profileProvider);
@@ -79,8 +65,8 @@ class _HomePageState extends ConsumerState<HomePage> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
+          // <<< THAY ĐỔI: Chỉ làm mới danh sách item, không gọi gợi ý mới >>>
           ref.invalidate(recentItemsProvider);
-          await homeNotifier.getNewSuggestion();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -98,8 +84,9 @@ class _HomePageState extends ConsumerState<HomePage> {
               const SizedBox(height: 32),
               _buildRecentlyAddedSection(context, ref),
               const SizedBox(height: 32),
+              // <<< VIỆT HÓA >>>
               const SectionHeader(
-                title: 'Todays suggestion',
+                title: 'Gợi ý hôm nay',
               ),
               const SizedBox(height: 16),
               _buildTodaysSuggestionCard(context, homeState, homeNotifier),
@@ -111,7 +98,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  // Các hàm build UI con không thay đổi
   Widget _buildHeader(BuildContext context, WidgetRef ref) {
     final userName = ref.watch(profileProvider.select((state) => state.userName));
     return Row(
@@ -136,19 +122,22 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget _buildAiStylistSection(BuildContext context) {
     return Column(
       children: [
-        const SectionHeader(title: 'AI Stylist'),
+        // <<< VIỆT HÓA >>>
+        const SectionHeader(title: 'Xưởng phối đồ'),
         const SizedBox(height: 16),
         Row(
           children: [
             ActionCard(
-              label: 'Start an Outfit',
+              // <<< VIỆT HÓA >>>
+              label: 'Tạo một bộ đồ',
               icon: Icons.auto_awesome_outlined,
               onTap: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (ctx) => const OutfitBuilderPage())),
             ),
             const SizedBox(width: 16),
             ActionCard(
-              label: 'Saved Outfits',
+              // <<< VIỆT HÓA >>>
+              label: 'Bộ đồ đã lưu',
               icon: Icons.collections_bookmark_outlined,
               onTap: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (ctx) => const OutfitsHubPage())),
@@ -164,8 +153,9 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Column(
       children: [
         SectionHeader(
-          title: 'Recently Added',
-          seeAllText: 'See all',
+          // <<< VIỆT HÓA >>>
+          title: 'Đã thêm gần đây',
+          seeAllText: 'Xem tất cả',
           onSeeAll: () {
             ref.read(mainScreenIndexProvider.notifier).state = 1;
           },
@@ -268,12 +258,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                             ),
                           ],
                         )
-                      : const SizedBox(height: 60, child: Center(child: Text("No weather data.")))
+                      // <<< VIỆT HÓA >>>
+                      : const SizedBox(height: 60, child: Center(child: Text("Không có dữ liệu thời tiết.")))
                     )
               ),
               TextButton.icon(
                 icon: const Icon(Icons.auto_awesome, size: 18),
-                label: const Text('New Suggestion'),
+                // <<< VIỆT HÓA >>>
+                label: const Text('Gợi ý mới'),
                 onPressed: state.isLoading ? null : notifier.getNewSuggestion,
                 style: TextButton.styleFrom(
                   foregroundColor: theme.colorScheme.primary,
@@ -292,7 +284,8 @@ class _HomePageState extends ConsumerState<HomePage> {
             ))
           else
             Text(
-              state.suggestion ?? 'Press "New Suggestion" and let MinCloset advise you!',
+              // <<< VIỆT HÓA >>>
+              state.suggestion ?? 'Nhấn "Gợi ý mới" và để MinCloset tư vấn cho bạn!',
               style: const TextStyle(fontSize: 16, height: 1.5),
             ),
           
@@ -301,7 +294,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             Align(
               alignment: Alignment.centerRight,
               child: Text(
-                'Updated at: ${DateFormat('HH:mm, dd/MM/yyyy').format(state.suggestionTimestamp!)}',
+                'Cập nhật lúc: ${DateFormat('HH:mm, dd/MM/yyyy').format(state.suggestionTimestamp!)}',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey.shade700,

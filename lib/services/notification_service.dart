@@ -5,32 +5,29 @@ import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/widgets/notification_banner.dart';
 
 class NotificationService {
-  // Key để truy cập NavigatorState từ bất cứ đâu
-  static final GlobalKey<NavigatorState> navigatorKey =
-      GlobalKey<NavigatorState>();
+  // Bỏ static, chuyển thành biến của class
+  final GlobalKey<NavigatorState> _navigatorKey;
+  OverlayEntry? _overlayEntry;
 
-  static OverlayEntry? _overlayEntry;
+  // Hàm khởi tạo, nhận vào navigatorKey
+  NotificationService(this._navigatorKey);
 
-  static void showBanner({
+  void showBanner({
     required String message,
     NotificationType type = NotificationType.error,
   }) {
-    // Nếu đang có banner, không hiển thị cái mới
     if (_overlayEntry != null) {
       return;
     }
 
-    // THAY ĐỔI Ở ĐÂY: Lấy OverlayState trực tiếp từ NavigatorState
-    final overlayState = navigatorKey.currentState?.overlay;
+    // Sử dụng _navigatorKey của class
+    final overlayState = _navigatorKey.currentState?.overlay;
     if (overlayState == null) {
-      // Nếu không lấy được overlay state, không làm gì cả
       return;
     }
-    
-    // Lấy context từ overlayState để sử dụng cho builder
+
     final context = overlayState.context;
     final mediaQueryData = MediaQuery.of(context);
-
 
     _overlayEntry = OverlayEntry(
       builder: (context) => MediaQuery(
@@ -54,7 +51,6 @@ class NotificationService {
       ),
     );
 
-    // Dùng overlayState để insert
     overlayState.insert(_overlayEntry!);
   }
 }

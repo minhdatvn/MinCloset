@@ -1,18 +1,19 @@
 // lib/screens/pages/outfit_builder_page.dart
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:mincloset/widgets/item_search_filter_bar.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/outfit_builder_notifier.dart';
+import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/screens/background_cropper_screen.dart';
 import 'package:mincloset/states/outfit_builder_state.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
-import 'package:mincloset/screens/background_cropper_screen.dart';
-import 'package:mincloset/services/notification_service.dart';
-import 'package:mincloset/models/notification_type.dart';
+import 'package:mincloset/widgets/item_search_filter_bar.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 import 'package:uuid/uuid.dart';
 
@@ -260,14 +261,14 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   Widget build(BuildContext context) {
     ref.listen<OutfitBuilderState>(outfitBuilderProvider, (previous, next) {
       if (next.saveSuccess && !(previous?.saveSuccess ?? false)) {
-        NotificationService.showBanner(
+        ref.read(notificationServiceProvider).showBanner(
           message: 'Outfit saved successfully!',
           type: NotificationType.success,
         );
         Navigator.of(context).pop(true);
       }
       if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
-        NotificationService.showBanner(message: next.errorMessage!);
+        ref.read(notificationServiceProvider).showBanner(message: next.errorMessage!);
       }
     });
 

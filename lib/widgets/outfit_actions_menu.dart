@@ -1,10 +1,10 @@
 // lib/widgets/outfit_actions_menu.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/outfit_detail_notifier.dart';
-import 'package:mincloset/services/notification_service.dart';
-import 'package:mincloset/models/notification_type.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:share_plus/share_plus.dart';
 
 class OutfitActionsMenu extends ConsumerWidget {
@@ -25,7 +25,7 @@ class OutfitActionsMenu extends ConsumerWidget {
         if (value == 'edit') {
           _showEditOutfitNameDialog(context, ref, outfit, onUpdate);
         } else if (value == 'share') {
-          _shareOutfit(context, outfit);
+          _shareOutfit(context, ref, outfit);
         } else if (value == 'delete') {
           _deleteOutfit(context, ref, outfit, onUpdate);
         }
@@ -84,7 +84,7 @@ class OutfitActionsMenu extends ConsumerWidget {
     );
   }
 
-  Future<void> _shareOutfit(BuildContext context, Outfit outfit) async {
+  Future<void> _shareOutfit(BuildContext context, WidgetRef ref, Outfit outfit) async {
     // <<< SỬA LỖI: Lấy scaffoldMessenger ra trước khi có `await` >>>
     try {
       // ignore: deprecated_member_use_from_same_package, deprecated_member_use
@@ -93,9 +93,7 @@ class OutfitActionsMenu extends ConsumerWidget {
         text: 'Cùng xem bộ đồ "${outfit.name}" của tôi trên MinCloset nhé!',
       );
     } catch (e) {
-      // Giờ đây việc sử dụng `scaffoldMessenger` là an toàn
-      // scaffoldMessenger.showSnackBar(SnackBar(content: Text('Không thể chia sẻ: $e'))); // Xóa dòng này
-      NotificationService.showBanner(message: 'Could not share: $e'); // Thêm dòng này
+      ref.read(notificationServiceProvider).showBanner(message: 'Could not share: $e'); // Thêm dòng này
     }
   }
 
@@ -126,7 +124,7 @@ class OutfitActionsMenu extends ConsumerWidget {
 
       // Giờ đây việc sử dụng các biến này là an toàn
       // scaffoldMessenger.showSnackBar(SnackBar(content: Text('Đã xóa bộ đồ "${outfit.name}".'))); // Xóa dòng này
-      NotificationService.showBanner(
+      ref.read(notificationServiceProvider).showBanner(
         message: 'Deleted outfit "${outfit.name}".',
         type: NotificationType.success,
       ); // Thêm dòng này

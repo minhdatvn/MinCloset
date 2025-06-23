@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
-import 'package:mincloset/services/notification_service.dart';
 import 'package:uuid/uuid.dart';
 
 class AddItemScreen extends ConsumerStatefulWidget {
@@ -169,7 +169,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                     // Nếu thất bại, đọc lỗi từ state và hiển thị banner
                     final errorMessage = ref.read(provider).errorMessage;
                     if (errorMessage != null) {
-                      NotificationService.showBanner(message: errorMessage);
+                      ref.read(notificationServiceProvider).showBanner(message: errorMessage);
                     }
                   }
                 },

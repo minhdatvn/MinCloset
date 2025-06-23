@@ -1,12 +1,12 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/providers/locale_provider.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/screens/splash_screen.dart';
 import 'package:mincloset/theme/app_theme.dart';
-import 'package:mincloset/services/notification_service.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,9 +20,10 @@ class MinClosetApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
+    final navigatorKey = ref.watch(navigatorKeyProvider);
 
     return MaterialApp(
-      navigatorKey: NotificationService.navigatorKey,
+      navigatorKey: navigatorKey,
       title: 'MinCloset',
       theme: appTheme,
       // <<< THÊM CẤU HÌNH ĐA NGÔN NGỮ >>>

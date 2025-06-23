@@ -1,6 +1,8 @@
 // lib/providers/service_providers.dart
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/services/notification_service.dart';
 import 'package:mincloset/services/suggestion_service.dart';
 import 'package:mincloset/services/weather_service.dart';
 
@@ -13,4 +15,15 @@ final weatherServiceProvider = Provider<WeatherService>((ref) {
 // Tương tự, provider này cung cấp một đối tượng của SuggestionService.
 final suggestionServiceProvider = Provider<SuggestionService>((ref) {
   return SuggestionService();
+});
+
+// Provider để tạo và cung cấp navigatorKey duy nhất cho ứng dụng
+final navigatorKeyProvider = Provider((ref) => GlobalKey<NavigatorState>());
+
+// Provider để cung cấp NotificationService
+final notificationServiceProvider = Provider((ref) {
+  // Lấy navigatorKey từ provider ở trên
+  final navigatorKey = ref.watch(navigatorKeyProvider);
+  // Tạo và trả về một instance của NotificationService
+  return NotificationService(navigatorKey);
 });

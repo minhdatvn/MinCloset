@@ -31,7 +31,7 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
     final navigator = Navigator.of(context);
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
-    // <<< THAY ĐỔI: Listener chỉ phản ứng với lỗi phân tích >>>
+    // <<< Listener chỉ phản ứng với lỗi phân tích >>>
     ref.listen<BatchAddItemState>(batchAddItemProvider, (previous, next) async {
       if (!mounted) return;
 
@@ -50,7 +50,7 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
       
       // Xử lý khi chỉ có lỗi phân tích
       else if (next.analysisErrorMessage != null && previous?.analysisErrorMessage == null) {
-        scaffoldMessenger.showSnackBar(SnackBar(content: Text('Lỗi phân tích: ${next.analysisErrorMessage}')));
+        scaffoldMessenger.showSnackBar(SnackBar(content: Text('Error analyzing item: ${next.analysisErrorMessage}')));
         navigator.pop(false);
       }
     });
@@ -66,7 +66,7 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
               const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
               const SizedBox(height: 24),
               Text(
-                'A.I đang xem hình ảnh của bạn để nhập sẵn thông tin. Sau khi kết thúc bạn có thể tự chỉnh sửa.',
+                'Pre-filling item information. You can edit later.',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, height: 1.5),
               ),

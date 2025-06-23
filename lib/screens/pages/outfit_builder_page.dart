@@ -10,6 +10,7 @@ import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/outfit_builder_notifier.dart';
 import 'package:mincloset/states/outfit_builder_state.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
+import 'package:mincloset/screens/background_cropper_screen.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 import 'package:uuid/uuid.dart';
 
@@ -45,9 +46,30 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   Future<void> _pickBackgroundImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null && mounted) {
-      final bytes = await pickedFile.readAsBytes();
-      _editorKey.currentState?.updateBackgroundImage(EditorImage(byteArray: bytes));
+
+    if (pickedFile == null || !mounted) return;
+
+    final imageBytes = await pickedFile.readAsBytes();
+
+    if (!mounted) return;
+
+    final croppedBytes = await Navigator.of(context).push<Uint8List>(
+      MaterialPageRoute(
+        builder: (context) => BackgroundCropperScreen(imageBytes: imageBytes),
+      ),
+    );
+
+    if (croppedBytes != null && mounted) {
+      // BƯỚC 1: Cập nhật state của parent widget (OutfitBuilderPage)
+      // để đảm bảo các lần build lại trong tương lai sử dụng đúng ảnh.
+      setState(() {
+        _imageData = croppedBytes;
+      });
+
+      // BƯỚC 2: Ra lệnh cho State HIỆN TẠI của ProImageEditor
+      // cập nhật ngay lập tức hình nền của nó.
+      _editorKey.currentState
+          ?.updateBackgroundImage(EditorImage(byteArray: croppedBytes));
     }
   }
 

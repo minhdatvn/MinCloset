@@ -320,10 +320,29 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                             style: const MainEditorStyle(background: Colors.white),
                             widgets: MainEditorWidgets(appBar: (_, __) => null),
                           ),
-                          stickerEditor: const StickerEditorConfigs(enabled: false),
+                          // === BẬT STICKER EDITOR ===
+                          stickerEditor: StickerEditorConfigs(
+                            enabled: true,
+                            // Cung cấp một builder để hiển thị giao diện chọn sticker.
+                            // Hiện tại, chúng ta sẽ hiển thị một thông báo.
+                            // Sau này bạn có thể thay thế bằng một GridView chứa các sticker của bạn.
+                            builder: (setLayer, scrollController) {
+                              return const Center(
+                                child: Text('Stickers will be available soon.'),
+                              );
+                            },
+                          ),
+
+                          // === ẨN CÁC EDITOR KHÔNG CẦN THIẾT ===
+                          cropRotateEditor: const CropRotateEditorConfigs(enabled: false),
+                          filterEditor: const FilterEditorConfigs(enabled: false),
+                          blurEditor: const BlurEditorConfigs(enabled: false),
+                          // TuneEditor (chỉnh màu) cũng là một nút riêng, ta cũng ẩn nó đi
+                          tuneEditor: const TuneEditorConfigs(enabled: false),
                         ),
                       ),
-              ),
+                    ),
+              
             ],
           ),
           Positioned(

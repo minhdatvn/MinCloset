@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:mincloset/helpers/db_helper.dart';
 import 'package:mincloset/models/closet.dart';
-import 'package:mincloset/screens/main_screen.dart';
+import 'package:mincloset/routing/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Thêm import
 import 'package:uuid/uuid.dart'; // Thêm import
 
@@ -46,11 +46,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // Giữ lại độ trễ nhỏ để hiển thị logo
     await Future.delayed(const Duration(milliseconds: 500));
 
-    if (mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const MainScreen()),
-      );
-    }
+    if (mounted) {Navigator.of(context).pushReplacementNamed(AppRoutes.main);}
   }
 
   @override

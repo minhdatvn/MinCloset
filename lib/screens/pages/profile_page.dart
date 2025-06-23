@@ -1,14 +1,14 @@
 // lib/screens/pages/profile_page.dart
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
-import 'package:mincloset/screens/edit_profile_screen.dart';
-import 'package:mincloset/screens/settings_page.dart';
+import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/profile_page_state.dart';
-import 'package:mincloset/widgets/stats_pie_chart.dart';
 import 'package:mincloset/widgets/stats_overview_card.dart';
+import 'package:mincloset/widgets/stats_pie_chart.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
@@ -34,12 +34,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   Widget _buildProfileHeader(ProfilePageState state) {
-    // ... widget này không thay đổi ...
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const EditProfileScreen()),
-        );
+        Navigator.pushNamed(context, AppRoutes.settings);
       },
       borderRadius: BorderRadius.circular(12),
       child: Padding(
@@ -169,7 +166,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               leading: const Icon(Icons.settings_outlined),
               title: const Text('Cài đặt & Tùy chọn'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const SettingsPage())),
+              onTap: () => Navigator.pushNamed(context, AppRoutes.editProfile),
             ),
             const Divider(height: 32),
             Text('Tổng quan Tủ đồ', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),

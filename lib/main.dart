@@ -5,7 +5,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/providers/locale_provider.dart';
 import 'package:mincloset/providers/service_providers.dart';
-import 'package:mincloset/screens/splash_screen.dart';
+import 'package:mincloset/routing/app_routes.dart';
+import 'package:mincloset/routing/route_generator.dart';
 import 'package:mincloset/theme/app_theme.dart';
 
 Future<void> main() async {
@@ -26,7 +27,8 @@ class MinClosetApp extends ConsumerWidget {
       navigatorKey: navigatorKey,
       title: 'MinCloset',
       theme: appTheme,
-      // <<< THÊM CẤU HÌNH ĐA NGÔN NGỮ >>>
+      initialRoute: AppRoutes.splash,
+      onGenerateRoute: RouteGenerator.onGenerateRoute, // Sửa ở đây
       locale: locale,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -34,10 +36,9 @@ class MinClosetApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
-        Locale('vi'), // Tiếng Việt
-        Locale('en'), // Tiếng Anh
+        Locale('vi'),
+        Locale('en'),
       ],
-      home: const SplashScreen(),
       debugShowCheckedModeBanner: false,
     );
   }

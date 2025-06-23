@@ -2,11 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/notifiers/closets_page_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/providers/event_providers.dart';
-import 'package:mincloset/screens/add_item_screen.dart';
-import 'package:mincloset/screens/pages/closet_detail_page.dart';
+import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:mincloset/widgets/item_search_filter_bar.dart';
 
@@ -99,9 +99,7 @@ class _AllItemsTab extends HookConsumerWidget {
           child: ItemBrowserView(
             providerId: providerId,
             onItemTapped: (item) async {
-              final wasChanged = await Navigator.of(context).push<bool>(
-                MaterialPageRoute(builder: (context) => AddItemScreen(itemToEdit: item)),
-              );
+              final wasChanged = await Navigator.pushNamed(context, AppRoutes.addItem, arguments: ItemNotifierArgs(tempId: item.id, itemToEdit: item));
               if (wasChanged == true) {
                 ref.read(itemAddedTriggerProvider.notifier).state++;
               }
@@ -152,9 +150,7 @@ class _ClosetsListTab extends ConsumerWidget {
               title: Text(closet.name, style: const TextStyle(fontWeight: FontWeight.bold)),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => ClosetDetailPage(closet: closet)),
-                );
+                Navigator.pushNamed(context, AppRoutes.closetDetail, arguments: closet);
               },
             );
           },

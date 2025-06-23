@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
-import 'package:mincloset/screens/add_item_screen.dart';
-import 'package:mincloset/screens/batch_add_item_screen.dart';
+import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
 
 class AnalysisLoadingScreen extends ConsumerStatefulWidget {
@@ -41,9 +41,17 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
         bool? result;
 
         if (analyzedItemArgs.length == 1) {
-          result = await navigator.push<bool>(MaterialPageRoute(builder: (context) => AddItemScreen(preAnalyzedState: analyzedItemArgs.first.preAnalyzedState)));
+          // Sử dụng pushNamed để mở AddItemScreen
+          result = await navigator.pushNamed<bool>(
+            AppRoutes.addItem,
+            arguments: ItemNotifierArgs(
+              tempId: analyzedItemArgs.first.tempId,
+              preAnalyzedState: analyzedItemArgs.first.preAnalyzedState,
+            ),
+          );
         } else if (analyzedItemArgs.length > 1) {
-          result = await navigator.push<bool>(MaterialPageRoute(builder: (context) => const BatchAddItemScreen()));
+          // Sử dụng pushNamed để mở BatchAddItemScreen
+          result = await navigator.pushNamed<bool>(AppRoutes.batchAddItem);
         }
         if (mounted) { navigator.pop(result); }
       }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/providers/event_providers.dart';
-import 'package:mincloset/screens/analysis_loading_screen.dart';
+import 'package:mincloset/routing/app_routes.dart';
 
 class GlobalAddButton extends ConsumerStatefulWidget {
   const GlobalAddButton({super.key});
@@ -90,9 +90,9 @@ class _GlobalAddButtonState extends ConsumerState<GlobalAddButton> {
       );
     }
 
-    final itemsWereAdded = await navigator.push<bool>(
-      MaterialPageRoute(
-          builder: (ctx) => AnalysisLoadingScreen(images: filesToProcess)),
+    final itemsWereAdded = await navigator.pushNamed(
+      AppRoutes.analysisLoading,
+      arguments: filesToProcess,
     );
 
     if (itemsWereAdded == true) {

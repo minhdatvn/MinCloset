@@ -1,12 +1,13 @@
 // lib/screens/pages/outfits_hub_page.dart
 
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/providers/outfit_providers.dart';
-import 'package:mincloset/screens/outfit_detail_page.dart';
-import 'package:mincloset/screens/pages/outfit_builder_page.dart';
+import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/widgets/outfit_actions_menu.dart';
+
 
 class OutfitsHubPage extends ConsumerWidget {
   const OutfitsHubPage({super.key});
@@ -51,9 +52,7 @@ class OutfitsHubPage extends ConsumerWidget {
                         children: [
                           GestureDetector(
                             onTap: () async {
-                              final bool? outfitWasChanged = await Navigator.of(context).push<bool>(
-                                MaterialPageRoute(builder: (_) => OutfitDetailPage(outfit: outfit)),
-                              );
+                              final bool? outfitWasChanged = await Navigator.pushNamed(context, AppRoutes.outfitDetail, arguments: outfit);
                               if (outfitWasChanged == true) {
                                 ref.invalidate(outfitsProvider);
                               }
@@ -110,9 +109,7 @@ class OutfitsHubPage extends ConsumerWidget {
   Widget _buildAddOutfitCard(BuildContext context, WidgetRef ref) {
     return InkWell(
       onTap: () async {
-        final bool? newOutfitCreated = await Navigator.of(context).push<bool>(
-          MaterialPageRoute(builder: (context) => const OutfitBuilderPage())
-        );
+        final bool? newOutfitCreated = await Navigator.pushNamed(context, AppRoutes.outfitBuilder);
         if (newOutfitCreated == true) {
           ref.invalidate(outfitsProvider);
         }

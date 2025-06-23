@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/locale_provider.dart';
-import 'package:mincloset/screens/city_selection_screen.dart';
+import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -74,10 +74,7 @@ class SettingsPage extends ConsumerWidget {
                 : state.manualCity),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                    builder: (context) => const CitySelectionScreen()),
-              );
+              Navigator.pushNamed(context, AppRoutes.citySelection);
             },
           ),
           const Divider(),

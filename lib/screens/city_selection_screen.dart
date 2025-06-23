@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/notifiers/city_selection_notifier.dart';
 import 'package:mincloset/states/city_selection_state.dart';
 import 'package:mincloset/states/profile_page_state.dart';
+import 'package:mincloset/services/notification_service.dart';
 
 class CitySelectionScreen extends ConsumerStatefulWidget {
   const CitySelectionScreen({super.key});
@@ -31,8 +32,7 @@ class _CitySelectionScreenState extends ConsumerState<CitySelectionScreen> {
     ref.listen<CitySelectionState>(citySelectionProvider, (previous, next) {
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(next.errorMessage!)));
+        NotificationService.showBanner(message: next.errorMessage!);
       }
     });
 

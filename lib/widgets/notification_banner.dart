@@ -41,7 +41,7 @@ class _NotificationBannerState extends State<NotificationBanner>
 
     _controller.forward();
 
-    _dismissTimer = Timer(const Duration(seconds: 4), () {
+    _dismissTimer = Timer(const Duration(seconds: 3), () {
       _closeBanner();
     });
   }
@@ -107,14 +107,14 @@ class _NotificationBannerState extends State<NotificationBanner>
           ),
           child: Row(
             children: [
-              Icon(theme.icon, color: theme.contentColor, size: 28),
+              Icon(theme.icon, color: theme.contentColor, size: 25),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   widget.message,
                   style: TextStyle(
                     color: theme.contentColor,
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

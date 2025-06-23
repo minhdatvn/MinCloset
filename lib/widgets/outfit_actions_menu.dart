@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/outfit_detail_notifier.dart';
+import 'package:mincloset/services/notification_service.dart';
+import 'package:mincloset/models/notification_type.dart';
 import 'package:share_plus/share_plus.dart';
 
 class OutfitActionsMenu extends ConsumerWidget {
@@ -84,7 +86,6 @@ class OutfitActionsMenu extends ConsumerWidget {
 
   Future<void> _shareOutfit(BuildContext context, Outfit outfit) async {
     // <<< SỬA LỖI: Lấy scaffoldMessenger ra trước khi có `await` >>>
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
     try {
       // ignore: deprecated_member_use_from_same_package, deprecated_member_use
       await Share.shareXFiles(
@@ -93,14 +94,14 @@ class OutfitActionsMenu extends ConsumerWidget {
       );
     } catch (e) {
       // Giờ đây việc sử dụng `scaffoldMessenger` là an toàn
-      scaffoldMessenger.showSnackBar(SnackBar(content: Text('Không thể chia sẻ: $e')));
+      // scaffoldMessenger.showSnackBar(SnackBar(content: Text('Không thể chia sẻ: $e'))); // Xóa dòng này
+      NotificationService.showBanner(message: 'Could not share: $e'); // Thêm dòng này
     }
   }
 
   Future<void> _deleteOutfit(BuildContext context, WidgetRef ref, Outfit outfit, VoidCallback? onUpdateCallback) async {
     // <<< SỬA LỖI: Lấy navigator và scaffoldMessenger ra trước khi có `await` >>>
     final navigator = Navigator.of(context);
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -122,11 +123,16 @@ class OutfitActionsMenu extends ConsumerWidget {
     if (confirmed == true && context.mounted) {
       await ref.read(outfitDetailProvider(outfit).notifier).deleteOutfit();
       onUpdateCallback?.call();
-      
+
       // Giờ đây việc sử dụng các biến này là an toàn
-      scaffoldMessenger.showSnackBar(SnackBar(content: Text('Đã xóa bộ đồ "${outfit.name}".')));
+      // scaffoldMessenger.showSnackBar(SnackBar(content: Text('Đã xóa bộ đồ "${outfit.name}".'))); // Xóa dòng này
+      NotificationService.showBanner(
+        message: 'Deleted outfit "${outfit.name}".',
+        type: NotificationType.success,
+      ); // Thêm dòng này
+
       if (navigator.canPop()) {
-         navigator.pop(true);
+        navigator.pop(true);
       }
     }
   }

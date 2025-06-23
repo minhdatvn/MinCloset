@@ -11,6 +11,8 @@ import 'package:mincloset/notifiers/outfit_builder_notifier.dart';
 import 'package:mincloset/states/outfit_builder_state.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:mincloset/screens/background_cropper_screen.dart';
+import 'package:mincloset/services/notification_service.dart';
+import 'package:mincloset/models/notification_type.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 import 'package:uuid/uuid.dart';
 
@@ -258,15 +260,14 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   Widget build(BuildContext context) {
     ref.listen<OutfitBuilderState>(outfitBuilderProvider, (previous, next) {
       if (next.saveSuccess && !(previous?.saveSuccess ?? false)) {
-        ScaffoldMessenger.of(context)
-          ..removeCurrentSnackBar()
-          ..showSnackBar(const SnackBar(content: Text('Đã lưu bộ đồ thành công!')));
+        NotificationService.showBanner(
+          message: 'Outfit saved successfully!',
+          type: NotificationType.success,
+        );
         Navigator.of(context).pop(true);
       }
       if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(context)
-          ..removeCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(next.errorMessage!), backgroundColor: Colors.red));
+        NotificationService.showBanner(message: next.errorMessage!);
       }
     });
 

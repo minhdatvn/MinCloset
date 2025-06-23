@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
+import 'package:mincloset/services/notification_service.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
 
 class BatchAddItemScreen extends ConsumerStatefulWidget {
@@ -43,8 +44,7 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
       
       // 2. Xử lý hiển thị lỗi
       if (next.saveErrorMessage != null && next.saveErrorMessage != previous?.saveErrorMessage) {
-        ScaffoldMessenger.of(context).removeCurrentSnackBar(); // Xóa snackbar cũ nếu có
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.saveErrorMessage!)));
+        NotificationService.showBanner(message: next.saveErrorMessage!);
       }
 
       // 3. Xử lý đồng bộ PageController (luôn chạy khi index thay đổi)

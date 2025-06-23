@@ -107,7 +107,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 1)); 
 
-    expect(find.text('Sửa món đồ'), findsOneWidget);
+    expect(find.text('Edit Item'), findsOneWidget);
     expect(find.widgetWithText(TextFormField, 'Áo phông cũ'), findsOneWidget);
 
     const newItemName = 'Áo phông hàng hiệu mới';

@@ -42,19 +42,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  // <<< THAY ĐỔI 4: XÓA BỎ HOÀN TOÀN PHƯƠNG THỨC `dispose` GÂY LỖI >>>
-  /*
-  @override
-  void dispose() {
-    // Dọn dẹp trạng thái của notifier khi màn hình bị hủy.
-    // Dùng Future.microtask để đảm bảo nó được gọi sau khi quá trình build hoàn tất.
-    Future.microtask(() {
-      ref.read(addItemProvider(_providerArgs).notifier).resetState();
-    });
-    super.dispose();
-  }
-  */
-
   void _showImageSourceActionSheet(BuildContext context) {
     final notifier = ref.read(addItemProvider(_providerArgs).notifier);
     
@@ -65,7 +52,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           children: <Widget>[
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('Chọn từ Album'),
+              title: const Text('Choose from album'),
               onTap: () {
                 Navigator.of(ctx).pop();
                 notifier.pickImage(ImageSource.gallery);
@@ -73,7 +60,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_camera),
-              title: const Text('Chụp ảnh'),
+              title: const Text('Take photo'),
               onTap: () {
                 Navigator.of(ctx).pop();
                 notifier.pickImage(ImageSource.camera);
@@ -85,21 +72,20 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
   }
 
-  // <<< THAY ĐỔI 5: CẬP NHẬT LUỒNG XÓA >>>
   Future<void> _showDeleteConfirmationDialog(BuildContext context) async {
     if (widget.itemToEdit == null) return;
 
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Xác nhận xóa'),
-        content: Text('Bạn có chắc chắn muốn xóa vĩnh viễn món đồ "${widget.itemToEdit!.name}" không?'),
+        title: const Text('Confirm deletion'),
+        content: Text('Are you sure to permanently delete item "${widget.itemToEdit!.name}" ?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Hủy')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Xóa'),
+            child: const Text('Delete'),
           ),
         ],
       ),
@@ -144,19 +130,19 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(state.isEditing ? 'Sửa món đồ' : 'Thêm đồ mới'),
+        title: Text(state.isEditing ? 'Edit item' : 'Add item'),
         actions: [
           if (state.isEditing || state.image == null)
             IconButton(
               icon: const Icon(Icons.add_a_photo_outlined),
               onPressed: () => _showImageSourceActionSheet(context),
-              tooltip: 'Chọn ảnh khác',
+              tooltip: 'Choose another photo',
             ),
           if (state.isEditing)
             IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.red),
               onPressed: () => _showDeleteConfirmationDialog(context),
-              tooltip: 'Xóa món đồ',
+              tooltip: 'Delete item',
             ),
         ],
       ),
@@ -171,7 +157,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         onMaterialsChanged: notifier.onMaterialsChanged,
         onPatternsChanged: notifier.onPatternsChanged,
       ),
-      // <<< THAY ĐỔI 7: CẬP NHẬT LUỒNG LƯU >>>
+      // <<< LUỒNG LƯU >>>
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ElevatedButton.icon(
@@ -187,7 +173,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           icon: state.isLoading ? const SizedBox.shrink() : const Icon(Icons.save),
           label: state.isLoading 
               ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3,)) 
-              : Text(state.isEditing ? 'Cập nhật' : 'Lưu'),
+              : Text('Save'),
         ),
       ),
     );

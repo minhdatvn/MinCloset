@@ -87,7 +87,7 @@ void main() {
     // Bây giờ, chúng ta chỉ kiểm tra kết quả của giai đoạn này
     
     // 1. Xác minh chúng ta đang ở đúng màn hình
-    expect(find.text('Thêm đồ mới'), findsOneWidget, reason: 'Phải tìm thấy title của AddItemScreen');
+    expect(find.text('Add Item'), findsOneWidget, reason: 'Phải tìm thấy title của AddItemScreen');
 
     // 2. Xác minh widget được AI điền dữ liệu đã hiển thị
     expect(find.widgetWithText(TextFormField, 'Áo phông AI'), findsOneWidget, reason: 'Phải tìm thấy TextFormField với tên từ AI');

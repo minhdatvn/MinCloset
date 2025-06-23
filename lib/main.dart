@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/providers/locale_provider.dart';
 import 'package:mincloset/screens/splash_screen.dart';
 import 'package:mincloset/theme/app_theme.dart';
+import 'package:mincloset/services/notification_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 Future<void> main() async {
@@ -21,6 +22,7 @@ class MinClosetApp extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
 
     return MaterialApp(
+      navigatorKey: NotificationService.navigatorKey,
       title: 'MinCloset',
       theme: appTheme,
       // <<< THÊM CẤU HÌNH ĐA NGÔN NGỮ >>>

@@ -6,6 +6,7 @@ import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
+import 'package:mincloset/services/notification_service.dart';
 import 'package:uuid/uuid.dart';
 
 class AddItemScreen extends ConsumerStatefulWidget {
@@ -117,16 +118,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         }
       });
     }
-    
-    // <<< THAY ĐỔI 6: XÓA LUỒNG LẮNG NGHE `isSuccess` >>>
-    ref.listen<AddItemState>(provider, (previous, next) {
-      if (next.errorMessage != null && next.errorMessage != previous?.errorMessage) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(next.errorMessage!)));
-      }
-      // if (next.isSuccess) {
-      //   Navigator.of(context).pop(true);
-      // }
-    });
 
     return Scaffold(
       appBar: AppBar(
@@ -161,13 +152,25 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ElevatedButton.icon(
-          onPressed: state.isLoading
+           onPressed: state.isLoading
               ? null
               : () async {
-                  final navigator = Navigator.of(context);
+                  // Gọi hàm saveItem và chờ kết quả
                   final success = await notifier.saveItem();
-                  if (success && mounted) {
-                    navigator.pop(true);
+                  
+                  // `mounted` check để đảm bảo widget vẫn còn tồn tại
+                  if (!mounted) return;
+
+                  if (success) {
+                    // Nếu thành công, quay về màn hình trước
+                    // ignore: use_build_context_synchronously
+                    Navigator.of(context).pop(true);
+                  } else {
+                    // Nếu thất bại, đọc lỗi từ state và hiển thị banner
+                    final errorMessage = ref.read(provider).errorMessage;
+                    if (errorMessage != null) {
+                      NotificationService.showBanner(message: errorMessage);
+                    }
                   }
                 },
           icon: state.isLoading ? const SizedBox.shrink() : const Icon(Icons.save),

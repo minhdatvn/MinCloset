@@ -86,7 +86,7 @@ class OutfitActionsMenu extends ConsumerWidget {
     // <<< SỬA LỖI: Lấy scaffoldMessenger ra trước khi có `await` >>>
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     try {
-      // ignore: deprecated_member_use_from_same_package
+      // ignore: deprecated_member_use_from_same_package, deprecated_member_use
       await Share.shareXFiles(
         [XFile(outfit.imagePath)],
         text: 'Cùng xem bộ đồ "${outfit.name}" của tôi trên MinCloset nhé!',

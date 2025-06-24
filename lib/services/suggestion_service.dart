@@ -16,7 +16,7 @@ class SuggestionService {
     required String cityName,
   }) async {
     final model = GenerativeModel(
-      model: 'gemini-1.5-flash-latest',
+      model: 'gemini-2.0-flash-lite',
       apiKey: _apiKey,
     );
 

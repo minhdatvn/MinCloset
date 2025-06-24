@@ -1,20 +1,18 @@
 // lib/screens/pages/home_page.dart
 
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/notifiers/home_page_notifier.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/ui_providers.dart';
-import 'package:mincloset/screens/add_item_screen.dart';
-import 'package:mincloset/screens/analysis_loading_screen.dart';
-import 'package:mincloset/screens/pages/outfit_builder_page.dart';
+import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/home_page_state.dart';
-import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/widgets/action_card.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:mincloset/widgets/section_header.dart';
@@ -23,7 +21,6 @@ import 'package:mincloset/widgets/stats_overview_card.dart';
 final recentItemsProvider =
     FutureProvider.autoDispose<List<ClothingItem>>((ref) async {
   ref.watch(itemAddedTriggerProvider);
-
   final itemRepo = ref.watch(clothingItemRepositoryProvider);
   return itemRepo.getRecentItems(5);
 });
@@ -31,28 +28,9 @@ final recentItemsProvider =
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
-  Future<void> _pickAndAnalyzeImage(BuildContext context, WidgetRef ref) async {
-    final navigator = Navigator.of(context);
-    final imagePicker = ImagePicker();
-    final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-       if (navigator.mounted) {
-         final itemWasAdded = await navigator.push<bool>(
-            MaterialPageRoute(builder: (ctx) => AnalysisLoadingScreen(images: [pickedFile])),
-         );
-         
-         if (itemWasAdded == true) {
-            ref.read(itemAddedTriggerProvider.notifier).state++;
-         }
-       }
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final homeState = ref.watch(homeProvider);
-    final homeNotifier = ref.read(homeProvider.notifier);
     final profileState = ref.watch(profileProvider);
 
     return Scaffold(
@@ -63,6 +41,7 @@ class HomePage extends ConsumerWidget {
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(recentItemsProvider);
+          await ref.read(homeProvider.notifier).getNewSuggestion();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -76,15 +55,15 @@ class HomePage extends ConsumerWidget {
                 totalOutfits: profileState.totalOutfits,
               ),
               const SizedBox(height: 32),
-              _buildAiStylistSection(context),
+              _buildAiStylistSection(context, ref),
               const SizedBox(height: 32),
               _buildRecentlyAddedSection(context, ref),
               const SizedBox(height: 32),
               const SectionHeader(
-                title: 'Outfit suggestions',
+                title: 'Outfit Suggestions',
               ),
               const SizedBox(height: 16),
-              _buildTodaysSuggestionCard(context, homeState, homeNotifier),
+              _buildTodaysSuggestionCard(context, ref, homeState),
               const SizedBox(height: 32),
             ],
           ),
@@ -114,25 +93,23 @@ class HomePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildAiStylistSection(BuildContext context) {
+  Widget _buildAiStylistSection(BuildContext context, WidgetRef ref) {
     return Column(
       children: [
-        const SectionHeader(title: 'Outfit studio'),
+        const SectionHeader(title: 'Outfit Studio'),
         const SizedBox(height: 16),
         Row(
           children: [
             ActionCard(
               label: 'Create a new outfit',
               icon: Icons.auto_awesome_outlined,
-              onTap: () => Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (ctx) => const OutfitBuilderPage())),
+              onTap: () => Navigator.pushNamed(context, AppRoutes.outfitBuilder),
             ),
             const SizedBox(width: 16),
             ActionCard(
               label: 'Saved outfits',
               icon: Icons.collections_bookmark_outlined,
-              onTap: () => Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (ctx) => const OutfitsHubPage())),
+              onTap: () => ref.read(mainScreenIndexProvider.notifier).state = 2,
             ),
           ],
         ),
@@ -145,7 +122,7 @@ class HomePage extends ConsumerWidget {
     return Column(
       children: [
         SectionHeader(
-          title: 'Latest items',
+          title: 'Latest Items',
           seeAllText: 'View all',
           onSeeAll: () {
             ref.read(mainScreenIndexProvider.notifier).state = 1;
@@ -156,29 +133,33 @@ class HomePage extends ConsumerWidget {
           height: 120,
           child: recentItemsAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => const Text('Cannot load...'),
+            error: (err, stack) => const Center(child: Text('Cannot load items...')),
             data: (items) {
+              // <<< SỬA ĐỔI: Nếu rỗng, hiển thị text thay vì nút bấm >>>
               if (items.isEmpty) {
-                return _buildAddFirstItemButton(context, ref);
+                return const Center(
+                  child: Text(
+                    "Your latest items will appear here.",
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                );
               }
+              // <<< SỬA ĐỔI: ListView chỉ build danh sách item, không còn nút bấm >>>
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: items.length + 1,
+                itemCount: items.length,
                 itemBuilder: (ctx, index) {
-                  if (index == 0) {
-                    return _buildAddFirstItemButton(context, ref);
-                  }
-                  final item = items[index - 1];
+                  final item = items[index];
                   return Padding(
                     padding: const EdgeInsets.only(right: 12.0),
                     child: SizedBox(
                       width: 120 * (3 / 4),
                       child: GestureDetector(
                         onTap: () async {
-                          final wasChanged = await Navigator.of(context).push<bool>(
-                            MaterialPageRoute(
-                              builder: (context) => AddItemScreen(itemToEdit: item),
-                            ),
+                          final wasChanged = await Navigator.pushNamed(
+                            context, 
+                            AppRoutes.addItem, 
+                            arguments: ItemNotifierArgs(tempId: item.id, itemToEdit: item)
                           );
                           if (wasChanged == true) {
                             ref.read(itemAddedTriggerProvider.notifier).state++;
@@ -197,27 +178,12 @@ class HomePage extends ConsumerWidget {
     );
   }
   
-  Widget _buildAddFirstItemButton(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 12.0),
-      child: InkWell(
-        onTap: () => _pickAndAnalyzeImage(context, ref),
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          width: 120 * (3/4), 
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Theme.of(context).colorScheme.outline),
-          ),
-          child: Icon(Icons.add, size: 40, color: Theme.of(context).colorScheme.onSurface),
-        ),
-      ),
-    );
-  }
+  // Hàm _buildAddFirstItemButton và _pickAndAnalyzeImage đã được xóa hoàn toàn
 
-  Widget _buildTodaysSuggestionCard(BuildContext context, HomePageState state, HomePageNotifier notifier) {
+  Widget _buildTodaysSuggestionCard(BuildContext context, WidgetRef ref, HomePageState state) {
     final theme = Theme.of(context);
+    final notifier = ref.read(homeProvider.notifier);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -253,10 +219,9 @@ class HomePage extends ConsumerWidget {
                     )
               ),
               TextButton.icon(
-                // <<< THÊM KEY Ở ĐÂY >>>
                 key: const ValueKey('new_suggestion_button'),
                 icon: const Icon(Icons.auto_awesome, size: 18),
-                label: const Text('Get suggestions'),
+                label: const Text('Get Suggestion'),
                 onPressed: state.isLoading ? null : notifier.getNewSuggestion,
                 style: TextButton.styleFrom(
                   foregroundColor: theme.colorScheme.primary,
@@ -268,15 +233,25 @@ class HomePage extends ConsumerWidget {
 
           const Divider(height: 24, thickness: 0.5),
 
-          if (state.isLoading)
+          if (state.isLoading && state.suggestion == null)
             const Center(child: Padding(
               padding: EdgeInsets.symmetric(vertical: 24.0),
               child: CircularProgressIndicator(),
             ))
           else
-            Text(
-              state.suggestion ?? 'Tap "Get Suggestions" to see outfit recommendations!',
-              style: const TextStyle(fontSize: 16, height: 1.5),
+            AnimatedTextKit(
+              key: ValueKey(state.suggestion), 
+              animatedTexts: [
+                TypewriterAnimatedText(
+                  state.suggestion ?? 'Tap "Get Suggestion" to see outfit recommendations!',
+                  textStyle: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
+                  speed: const Duration(milliseconds: 20),
+                ),
+              ],
+              totalRepeatCount: 1,
+              pause: const Duration(milliseconds: 1000),
+              displayFullTextOnTap: true,
+              stopPauseOnTap: true,
             ),
           
           if (state.suggestionTimestamp != null) ...[
@@ -300,24 +275,14 @@ class HomePage extends ConsumerWidget {
 
   IconData _getWeatherIcon(String iconCode) {
     switch (iconCode) {
-      case '01d':
-      case '01n': return Icons.wb_sunny;
-      case '02d':
-      case '02n': return Icons.cloud_outlined;
-      case '03d':
-      case '03n':
-      case '04d':
-      case '04n': return Icons.cloud;
-      case '09d':
-      case '09n': return Icons.grain;
-      case '10d':
-      case '10n': return Icons.water_drop;
-      case '11d':
-      case '11n': return Icons.thunderstorm;
-      case '13d':
-      case '13n': return Icons.ac_unit;
-      case '50d':
-      case '50n': return Icons.foggy;
+      case '01d': case '01n': return Icons.wb_sunny;
+      case '02d': case '02n': return Icons.cloud_outlined;
+      case '03d': case '03n': case '04d': case '04n': return Icons.cloud;
+      case '09d': case '09n': return Icons.grain;
+      case '10d': case '10n': return Icons.water_drop;
+      case '11d': case '11n': return Icons.thunderstorm;
+      case '13d': case '13n': return Icons.ac_unit;
+      case '50d': case '50n': return Icons.foggy;
       default: return Icons.thermostat;
     }
   }

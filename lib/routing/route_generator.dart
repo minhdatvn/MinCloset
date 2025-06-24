@@ -27,58 +27,57 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const SplashScreen());
 
       case AppRoutes.main:
-        return MaterialPageRoute(builder: (_) => const MainScreen());
+        return FadeRoute(page: const MainScreen(), settings: settings);
 
-      // SỬA LỖI Ở ĐÂY: Thêm <bool>
       case AppRoutes.analysisLoading:
         if (args is List<XFile>) {
-          return MaterialPageRoute<bool>(
-              builder: (_) => AnalysisLoadingScreen(images: args));
+          return PageRouteBuilder(
+            opaque: false,
+            pageBuilder: (_, __, ___) => AnalysisLoadingScreen(images: args),
+            settings: settings,
+          );
         }
         return _errorRoute();
 
-      // SỬA LỖI Ở ĐÂY: Thêm <bool>
       case AppRoutes.addItem:
         final itemArgs = args as ItemNotifierArgs?;
+        // <<< SỬA LỖI Ở ĐÂY: Dùng MaterialPageRoute<bool> >>>
         return MaterialPageRoute<bool>(
-            builder: (_) => AddItemScreen(
-                  itemToEdit: itemArgs?.itemToEdit,
-                  newImage: itemArgs?.newImage,
-                  preAnalyzedState: itemArgs?.preAnalyzedState,
-                ));
+          builder: (_) => AddItemScreen(
+            itemToEdit: itemArgs?.itemToEdit,
+            newImage: itemArgs?.newImage,
+            preAnalyzedState: itemArgs?.preAnalyzedState,
+          ),
+          settings: settings,
+        );
 
-      // SỬA LỖI Ở ĐÂY: Thêm <bool>
       case AppRoutes.batchAddItem:
-        return MaterialPageRoute<bool>(builder: (_) => const BatchAddItemScreen());
+         return MaterialPageRoute<bool>(builder: (_) => const BatchAddItemScreen(), settings: settings);
 
-      // SỬA LỖI Ở ĐÂY: Thêm <bool>
       case AppRoutes.outfitBuilder:
-        return MaterialPageRoute<bool>(builder: (_) => const OutfitBuilderPage());
+        return FadeRoute(page: const OutfitBuilderPage(), settings: settings);
 
-      // SỬA LỖI Ở ĐÂY: Thêm <bool>
       case AppRoutes.outfitDetail:
         if (args is Outfit) {
-          return MaterialPageRoute<bool>(
-              builder: (_) => OutfitDetailPage(outfit: args));
+          // Màn hình này cũng có thể trả về giá trị bool
+          return MaterialPageRoute<bool>(builder: (_) => OutfitDetailPage(outfit: args), settings: settings);
         }
         return _errorRoute();
 
-      // SỬA LỖI Ở ĐÂY: Thêm <bool>
       case AppRoutes.closetDetail:
         if (args is Closet) {
-          return MaterialPageRoute<bool>(
-              builder: (_) => ClosetDetailPage(closet: args));
+          return FadeRoute(page: ClosetDetailPage(closet: args), settings: settings);
         }
         return _errorRoute();
       
       case AppRoutes.editProfile:
-        return MaterialPageRoute(builder: (_) => const EditProfileScreen());
+        return FadeRoute(page: const EditProfileScreen(), settings: settings);
 
       case AppRoutes.settings:
-        return MaterialPageRoute(builder: (_) => const SettingsPage());
+        return FadeRoute(page: const SettingsPage(), settings: settings);
 
       case AppRoutes.citySelection:
-        return MaterialPageRoute(builder: (_) => const CitySelectionScreen());
+        return FadeRoute(page: const CitySelectionScreen(), settings: settings);
 
       default:
         return _errorRoute();
@@ -94,4 +93,27 @@ class RouteGenerator {
       ),
     );
   }
+}
+
+class FadeRoute<T> extends PageRouteBuilder<T> {
+  final Widget page;
+
+  FadeRoute({required this.page, super.settings})
+      : super(
+          pageBuilder: (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+          ) => page,
+          transitionsBuilder: (
+            BuildContext context,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+            Widget child,
+          ) => FadeTransition(
+              opacity: animation,
+              child: child,
+            ),
+          transitionDuration: const Duration(milliseconds: 300), 
+        );
 }

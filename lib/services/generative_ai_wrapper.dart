@@ -15,7 +15,7 @@ class GenerativeAIWrapper implements IGenerativeAIWrapper {
 
   GenerativeAIWrapper()
       : _model = GenerativeModel(
-          model: 'gemini-1.5-flash-latest',
+          model: 'gemini-2.0-flash-lite',
           apiKey: dotenv.env['GEMINI_API_KEY'] ?? 'API_KEY_NOT_FOUND',
         );
 

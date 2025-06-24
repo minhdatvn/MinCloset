@@ -39,7 +39,7 @@ class ItemSearchFilterBar extends HookConsumerWidget {
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
-                hintText: 'Tìm kiếm vật phẩm...',
+                hintText: 'Search items...',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -59,7 +59,7 @@ class ItemSearchFilterBar extends HookConsumerWidget {
               isLabelVisible: state.activeFilters.isApplied,
               child: const Icon(Icons.filter_list),
             ),
-            tooltip: 'Lọc nâng cao',
+            tooltip: 'Filter',
             onPressed: () {
               // Chỉ mở bottom sheet khi đã tải xong danh sách tủ đồ
               closetsAsync.whenData((closets) {

@@ -119,7 +119,7 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
           TextFormField(
             controller: _nameController,
             decoration: const InputDecoration(
-              labelText: 'Tên món đồ *',
+              labelText: 'Item name *',
               border: OutlineInputBorder(),
             ),
             maxLength: 30,
@@ -134,13 +134,13 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                 items: closets.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))).toList(),
                 onChanged: widget.onClosetChanged,
                 decoration: const InputDecoration(
-                  labelText: 'Chọn tủ đồ *',
+                  labelText: 'Select closet *',
                   border: OutlineInputBorder(),
                 ),
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => Text('Lỗi tải tủ đồ: $err'),
+            error: (err, stack) => Text('Failed to load closet: $err'),
           ),
           const SizedBox(height: 16),
           CategorySelector(
@@ -148,31 +148,31 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
             onCategorySelected: widget.onCategoryChanged,
           ),
           MultiSelectChipField(
-            label: 'Màu sắc',
+            label: 'Color',
             allOptions: AppOptions.colors,
             initialSelections: widget.itemState.selectedColors,
             onSelectionChanged: widget.onColorsChanged,
           ),
           MultiSelectChipField(
-            label: 'Mùa',
+            label: 'Season',
             allOptions: AppOptions.seasons,
             initialSelections: widget.itemState.selectedSeasons,
             onSelectionChanged: widget.onSeasonsChanged,
           ),
           MultiSelectChipField(
-            label: 'Mục đích',
+            label: 'Occasion',
             allOptions: AppOptions.occasions,
             initialSelections: widget.itemState.selectedOccasions,
             onSelectionChanged: widget.onOccasionsChanged,
           ),
           MultiSelectChipField(
-            label: 'Chất liệu',
+            label: 'Material',
             allOptions: AppOptions.materials,
             initialSelections: widget.itemState.selectedMaterials,
             onSelectionChanged: widget.onMaterialsChanged,
           ),
           MultiSelectChipField(
-            label: 'Họa tiết',
+            label: 'Pattern',
             allOptions: AppOptions.patterns,
             initialSelections: widget.itemState.selectedPatterns,
             onSelectionChanged: widget.onPatternsChanged,

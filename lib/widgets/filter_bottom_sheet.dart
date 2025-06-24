@@ -47,15 +47,15 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Bộ lọc', style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
+              Text('Filter', style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
               const SizedBox(height: 16),
 
               // BỘ LỌC TỦ ĐỒ (GIỮ NGUYÊN)
               DropdownButtonFormField<String?>(
                 value: _temporaryFilter.closetId,
-                decoration: const InputDecoration(labelText: 'Tủ đồ'),
+                decoration: const InputDecoration(labelText: 'Closet'),
                 items: [
-                  const DropdownMenuItem(value: null, child: Text('Tất cả tủ đồ')),
+                  const DropdownMenuItem(value: null, child: Text('All closets')),
                   ...widget.closets.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))),
                 ],
                 onChanged: (value) {
@@ -69,9 +69,9 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
               // <<< THÊM MỚI: BỘ LỌC DANH MỤC
               DropdownButtonFormField<String?>(
                 value: _temporaryFilter.category,
-                decoration: const InputDecoration(labelText: 'Danh mục'),
+                decoration: const InputDecoration(labelText: 'Category'),
                 items: [
-                  const DropdownMenuItem(value: null, child: Text('Tất cả danh mục')),
+                  const DropdownMenuItem(value: null, child: Text('All categories')),
                   ...AppOptions.categories.keys.map((c) => DropdownMenuItem(value: c, child: Text(c))),
                 ],
                 onChanged: (value) {
@@ -84,7 +84,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
 
               // CÁC BỘ LỌC CHỌN NHIỀU
               MultiSelectChipField(
-                label: 'Màu sắc',
+                label: 'Color',
                 allOptions: AppOptions.colors,
                 initialSelections: _temporaryFilter.colors,
                 onSelectionChanged: (newSelections) {
@@ -94,7 +94,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
                 },
               ),
               MultiSelectChipField(
-                label: 'Mùa',
+                label: 'Season',
                 allOptions: AppOptions.seasons,
                 initialSelections: _temporaryFilter.seasons,
                 onSelectionChanged: (newSelections) {
@@ -104,7 +104,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
                 },
               ),
               MultiSelectChipField(
-                label: 'Mục đích',
+                label: 'Occasion',
                 allOptions: AppOptions.occasions,
                 initialSelections: _temporaryFilter.occasions,
                 onSelectionChanged: (newSelections) {
@@ -114,7 +114,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
                 },
               ),
               MultiSelectChipField(
-                label: 'Chất liệu',
+                label: 'Material',
                 allOptions: AppOptions.materials,
                 initialSelections: _temporaryFilter.materials,
                 onSelectionChanged: (newSelections) {
@@ -124,7 +124,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
                 },
               ),
               MultiSelectChipField(
-                label: 'Họa tiết',
+                label: 'Pattern',
                 allOptions: AppOptions.patterns,
                 initialSelections: _temporaryFilter.patterns,
                 onSelectionChanged: (newSelections) {
@@ -143,7 +143,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
                         widget.onApplyFilter(const OutfitFilter());
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Xóa bộ lọc'),
+                      child: const Text('Clear filters'),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -153,7 +153,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
                         widget.onApplyFilter(_temporaryFilter);
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Áp dụng'),
+                      child: const Text('Apply'),
                     ),
                   ),
                 ],

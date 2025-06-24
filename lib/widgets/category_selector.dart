@@ -76,7 +76,7 @@ class _CategorySelectorState extends State<CategorySelector> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Danh mục *', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,)),
+                const Text('Category *', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,)),
                 Expanded(
                   child: _buildSummaryView(),
                 ),
@@ -99,7 +99,7 @@ class _CategorySelectorState extends State<CategorySelector> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Text('Chưa chọn', style: TextStyle(fontSize: 16, color: Colors.grey.shade600)),
+          Text('None selected', style: TextStyle(fontSize: 16, color: Colors.grey.shade600)),
           const SizedBox(width: 4),
           Icon(_isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down, color: Colors.grey),
         ],

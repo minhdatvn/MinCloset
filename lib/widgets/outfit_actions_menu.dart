@@ -36,12 +36,12 @@ class OutfitActionsMenu extends ConsumerWidget {
           enabled: !outfit.isFixed,
           child: ListTile(
             leading: Icon(Icons.edit_outlined, color: outfit.isFixed ? Colors.grey : null),
-            title: const Text('Đổi tên'),
+            title: const Text('Rename'),
           ),
         ),
         const PopupMenuItem<String>(
           value: 'share',
-          child: ListTile(leading: Icon(Icons.share_outlined), title: Text('Chia sẻ')),
+          child: ListTile(leading: Icon(Icons.share_outlined), title: Text('Share')),
         ),
         const PopupMenuDivider(),
         PopupMenuItem<String>(
@@ -49,7 +49,7 @@ class OutfitActionsMenu extends ConsumerWidget {
           enabled: !outfit.isFixed,
           child: ListTile(
             leading: Icon(Icons.delete_outline, color: outfit.isFixed ? Colors.grey : Colors.red),
-            title: Text('Xóa', style: TextStyle(color: outfit.isFixed ? Colors.grey : Colors.red)),
+            title: Text('Delete', style: TextStyle(color: outfit.isFixed ? Colors.grey : Colors.red)),
           ),
         ),
       ],
@@ -61,10 +61,10 @@ class OutfitActionsMenu extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Đổi tên bộ đồ'),
-        content: TextField(controller: nameController, autofocus: true, decoration: const InputDecoration(labelText: 'Tên mới')),
+        title: const Text('Rename outfit'),
+        content: TextField(controller: nameController, autofocus: true, decoration: const InputDecoration(labelText: 'New name')),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () async {
               // <<< SỬA LỖI: Lấy navigator ra trước khi có `await` >>>
@@ -77,7 +77,7 @@ class OutfitActionsMenu extends ConsumerWidget {
               // Giờ đây việc sử dụng `navigator` là an toàn
               navigator.pop();
             },
-            child: const Text('Lưu'),
+            child: const Text('Save'),
           ),
         ],
       ),
@@ -90,7 +90,7 @@ class OutfitActionsMenu extends ConsumerWidget {
       // ignore: deprecated_member_use_from_same_package, deprecated_member_use
       await Share.shareXFiles(
         [XFile(outfit.imagePath)],
-        text: 'Cùng xem bộ đồ "${outfit.name}" của tôi trên MinCloset nhé!',
+        text: 'Let check out my outfit: "${outfit.name}"!',
       );
     } catch (e) {
       ref.read(notificationServiceProvider).showBanner(message: 'Could not share: $e'); // Thêm dòng này
@@ -104,14 +104,14 @@ class OutfitActionsMenu extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Xác nhận xóa'),
-        content: Text('Bạn có chắc chắn muốn xóa vĩnh viễn bộ đồ "${outfit.name}" không?'),
+        title: const Text('Confirm deletion'),
+        content: Text('Permanently delete outfit "${outfit.name}"?'),
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Hủy')),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Xóa'),
+            child: const Text('Delete'),
           ),
         ],
       )

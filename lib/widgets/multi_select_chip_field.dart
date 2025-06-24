@@ -94,7 +94,7 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
 
   Widget _buildSummaryView(bool isColorSelector) {
     if (_selectedOptions.isEmpty) {
-      return Text('Chưa có', style: TextStyle(fontSize: 16, color: Colors.grey.shade600));
+      return Text('Not yet', style: TextStyle(fontSize: 16, color: Colors.grey.shade600));
     }
     if (isColorSelector && widget.allOptions is Map<String, Color>) {
       final colorMap = widget.allOptions as Map<String, Color>;

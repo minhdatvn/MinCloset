@@ -40,8 +40,8 @@ class ItemBrowserView extends ConsumerWidget {
           padding: const EdgeInsets.all(32.0),
           child: Text(
             state.searchQuery.isNotEmpty || state.activeFilters.isApplied
-                ? 'Không tìm thấy vật phẩm nào.'
-                : 'Tủ đồ của bạn chưa có vật phẩm nào.',
+                ? 'No items available.'
+                : 'Your closet is empty',
           ),
         ),
       );

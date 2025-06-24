@@ -36,7 +36,7 @@ class _GlobalAddButtonState extends ConsumerState<GlobalAddButton> {
           children: <Widget>[
             ListTile(
               leading: const Icon(Icons.photo_camera_outlined),
-              title: const Text('Chụp ảnh mới'),
+              title: const Text('Take photo'),
               onTap: () {
                 Navigator.of(ctx).pop();
                 _pickAndAnalyzeImages(ImageSource.camera);
@@ -44,7 +44,7 @@ class _GlobalAddButtonState extends ConsumerState<GlobalAddButton> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Chọn từ Album'),
+              title: const Text('Choose from album (up to 10)'),
               onTap: () {
                 Navigator.of(ctx).pop();
                 _pickAndAnalyzeImages(ImageSource.gallery);
@@ -86,7 +86,7 @@ class _GlobalAddButtonState extends ConsumerState<GlobalAddButton> {
       filesToProcess = pickedFiles.take(10).toList();
       scaffoldMessenger.showSnackBar(
         const SnackBar(
-            content: Text('Đã chọn tối đa 10 ảnh. Các ảnh thừa đã được bỏ qua.')),
+            content: Text('Maximum of 10 photos selected. Extra photos were skipped.')),
       );
     }
 

@@ -90,7 +90,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
         builder: (context, setState) => Form(
           key: formKey,
           child: AlertDialog(
-            title: const Text('Lưu bộ đồ'),
+            title: const Text('Save outfit'),
             content: ValueListenableBuilder<bool>(
               valueListenable: isSavingNotifier,
               builder: (context, isSaving, child) {
@@ -103,7 +103,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                         children: [
                           CircularProgressIndicator(),
                           SizedBox(height: 16),
-                          Text('Đang lưu...'),
+                          Text('Saving...'),
                         ],
                       ),
                     ),
@@ -114,19 +114,19 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                   children: [
                     TextFormField(
                       controller: nameController,
-                      decoration: const InputDecoration(hintText: 'Ví dụ: Cà phê cuối tuần'),
+                      decoration: const InputDecoration(hintText: 'Example: Weekend coffee meet-up'),
                       autofocus: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Vui lòng nhập tên cho bộ đồ';
+                          return 'Please enter an outfit name';
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 16),
                     SwitchListTile(
-                      title: const Text('Bộ đồ cố định', style: TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: const Text('Các món đồ sẽ luôn được gợi ý cùng nhau.', style: TextStyle(fontSize: 12)),
+                      title: const Text('Fixed outfit', style: TextStyle(fontWeight: FontWeight.bold)),
+                      subtitle: const Text('Items in this outfit are always worn together. Each item can only belong to one fixed outfit.', style: TextStyle(fontSize: 12)),
                       value: isFixed,
                       onChanged: (newValue) => setState(() => isFixed = newValue),
                       contentPadding: EdgeInsets.zero,
@@ -140,7 +140,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                 valueListenable: isSavingNotifier,
                 builder: (context, isSaving, _) => isSaving
                     ? const SizedBox.shrink()
-                    : TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
+                    : TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
               ),
               ValueListenableBuilder<bool>(
                 valueListenable: isSavingNotifier,
@@ -152,7 +152,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                             Navigator.of(ctx).pop({'name': nameController.text.trim(), 'isFixed': isFixed});
                           }
                         },
-                        child: const Text('Lưu'),
+                        child: const Text('Save'),
                       ),
               ),
             ],
@@ -190,12 +190,12 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
             children: [
               IconButton(
                 icon: const Icon(Icons.undo),
-                tooltip: 'Hoàn tác',
+                tooltip: 'Undo',
                 onPressed: () => _editorKey.currentState?.undoAction(),
               ),
               IconButton(
                 icon: const Icon(Icons.redo),
-                tooltip: 'Làm lại',
+                tooltip: 'Redo',
                 onPressed: () => _editorKey.currentState?.redoAction(),
               ),
             ],
@@ -274,7 +274,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Outfit Builder'),
+        title: const Text('Outfit studio'),
         leading: IconButton(icon: const Icon(Icons.close), onPressed: () => _editorKey.currentState?.closeEditor()),
         actions: [
           if (_isSaving)

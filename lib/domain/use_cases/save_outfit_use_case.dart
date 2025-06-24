@@ -30,13 +30,13 @@ class SaveOutfitUseCase {
       
       // Bọc thao tác ghi file trong try-catch để bắt lỗi cụ thể
       await File(imagePath).writeAsBytes(capturedImage);
-      logger.i('Đã lưu ảnh bộ đồ thành công tại: $imagePath');
+      logger.i('Successfully saved outfit photo at: $imagePath');
 
     } catch (e, s) {
       // Ghi lại lỗi chi tiết nếu có sự cố xảy ra khi ghi file
-      logger.e('LỖI GHI FILE khi lưu bộ đồ', error: e, stackTrace: s);
+      logger.e('File write error when saving outfit', error: e, stackTrace: s);
       // Ném ra một lỗi mới rõ ràng hơn để tầng Notifier có thể bắt được
-      throw Exception('Không thể lưu ảnh của bộ đồ. Vui lòng thử lại.');
+      throw Exception('Could not save outfit photo. Please try again.');
     }
 
     // --- BƯỚC 2: TẠO ĐỐI TƯỢNG OUTFIT VÀ LƯU VÀO CSDL ---

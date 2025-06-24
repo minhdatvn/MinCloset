@@ -34,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
       // Nếu chưa, tạo một tủ đồ mới
       final defaultCloset = Closet(
         id: const Uuid().v4(),
-        name: 'Tủ đồ của tôi',
+        name: 'My first closet',
       );
       await DatabaseHelper.instance.insertCloset(defaultCloset.toMap());
       
@@ -60,7 +60,7 @@ class _SplashScreenState extends State<SplashScreen> {
             SizedBox(height: 20),
             CircularProgressIndicator(),
             SizedBox(height: 10),
-            Text('Đang chuẩn bị tủ đồ...'),
+            Text('Cleaning closet...'),
           ],
         ),
       ),

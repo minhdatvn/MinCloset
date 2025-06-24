@@ -18,11 +18,11 @@ class OutfitsHubPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Trang phục của bạn'),
+        title: const Text('Your outfits'),
       ),
       body: outfitsAsyncValue.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Lỗi: $err')),
+        error: (err, stack) => Center(child: Text('Error: $err')),
         data: (outfits) {
           return GridView.builder(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
@@ -124,7 +124,7 @@ class OutfitsHubPage extends ConsumerWidget {
               Icon(Icons.add_circle_outline, size: 40, color: Colors.grey.shade600),
               const SizedBox(height: 8),
               const Text(
-                'Tạo bộ đồ mới',
+                'Create a new outfit',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ],

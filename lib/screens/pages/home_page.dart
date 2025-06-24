@@ -122,7 +122,7 @@ class HomePage extends ConsumerWidget {
         Row(
           children: [
             ActionCard(
-              label: 'Create new outfit',
+              label: 'Create a new outfit',
               icon: Icons.auto_awesome_outlined,
               onTap: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (ctx) => const OutfitBuilderPage())),

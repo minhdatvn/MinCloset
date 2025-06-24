@@ -40,8 +40,8 @@ class OutfitDetailPage extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4.0),
               child: SwitchListTile(
-                title: const Text('Bộ đồ cố định', style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: const Text('Các món đồ trong bộ này sẽ luôn được gợi ý cùng nhau.'),
+                title: const Text('Fixed outfit', style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text('Items in this outfit are always worn together. Each item can only belong to one fixed outfit.'),
                 value: currentOutfit.isFixed,
                 // <<< CẬP NHẬT LOGIC onChanged >>>
                 onChanged: (newValue) async {

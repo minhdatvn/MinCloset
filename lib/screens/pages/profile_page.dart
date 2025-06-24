@@ -80,7 +80,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      state.userName ?? 'Chưa có tên',
+                      state.userName ?? 'Unnamed',
                       style: Theme.of(context)
                           .textTheme
                           .headlineSmall
@@ -89,7 +89,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      'Xem & chỉnh sửa thông tin',
+                      'Edit profile',
                       style: TextStyle(color: Colors.grey.shade600),
                     ),
                   ],
@@ -109,12 +109,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final notifier = ref.read(profileProvider.notifier);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Trang cá nhân'),
+        title: const Text('Profile'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => notifier.loadInitialData(),
-            tooltip: 'Tải lại dữ liệu',
+            tooltip: 'Refresh page',
           )
         ],
       ),
@@ -133,7 +133,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     final List<Widget> statPages = [];
     if (state.categoryDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage('Danh mục', state.categoryDistribution));
+      statPages.add(_buildStatPage('Categories', state.categoryDistribution));
     }
     if (state.colorDistribution.isNotEmpty) {
       final sortedColorEntries = state.colorDistribution.entries.toList()
@@ -142,13 +142,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           .map((entry) => AppOptions.colors[entry.key] ?? Colors.grey)
           .toList();
       final sortedColorMap = Map.fromEntries(sortedColorEntries);
-      statPages.add(_buildStatPage('Màu sắc', sortedColorMap, specificColors: dynamicColors));
+      statPages.add(_buildStatPage('Colors', sortedColorMap, specificColors: dynamicColors));
     }
     if (state.seasonDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage('Mùa', state.seasonDistribution));
+      statPages.add(_buildStatPage('Seasons', state.seasonDistribution));
     }
     if (state.occasionDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage('Mục đích', state.occasionDistribution));
+      statPages.add(_buildStatPage('Occasion', state.occasionDistribution));
     }
 
     return RefreshIndicator(
@@ -164,12 +164,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.settings_outlined),
-              title: const Text('Cài đặt & Tùy chọn'),
+              title: const Text('Settings'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
               onTap: () => Navigator.pushNamed(context, AppRoutes.settings),
             ),
             const Divider(height: 32),
-            Text('Tổng quan Tủ đồ', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Closets overview', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             StatsOverviewCard(
               totalItems: state.totalItems,
@@ -177,13 +177,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               totalOutfits: state.totalOutfits,
             ),
             const SizedBox(height: 24),
-            Text('Thống kê', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            Text('Statistics', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             if (statPages.isEmpty)
               const Center(
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 32.0),
-                  child: Text('Chưa có dữ liệu để thống kê.'),
+                  child: Text('No data for statistics'),
                 ),
               )
             else

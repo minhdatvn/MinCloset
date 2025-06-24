@@ -60,11 +60,11 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
     });
 
     if (itemArgsList.isEmpty) {
-      return const Scaffold(body: Center(child: Text('Không có dữ liệu ảnh để hiển thị.')));
+      return const Scaffold(body: Center(child: Text('No photos to display.')));
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Thêm món đồ (${state.currentIndex + 1}/${itemArgsList.length})')),
+      appBar: AppBar(title: Text('Add item (${state.currentIndex + 1}/${itemArgsList.length})')),
       body: Column(
         children: [
           Expanded(
@@ -86,7 +86,7 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
                 ElevatedButton.icon(
                   onPressed: state.currentIndex > 0 ? notifier.previousPage : null,
                   icon: const Icon(Icons.arrow_back),
-                  label: const Text('Trước'),
+                  label: const Text('Previous'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.onSurface,
                     foregroundColor: Theme.of(context).colorScheme.surface,
@@ -94,14 +94,14 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
                 ),
                 if (state.currentIndex < itemArgsList.length - 1)
                   // Nút "Sau" giờ sẽ gọi hàm nextPage đã có validation
-                  ElevatedButton.icon(onPressed: notifier.nextPage, icon: const Icon(Icons.arrow_forward), label: const Text('Sau'))
+                  ElevatedButton.icon(onPressed: notifier.nextPage, icon: const Icon(Icons.arrow_forward), label: const Text('Next'))
                 else
                   ElevatedButton.icon(
                     onPressed: state.isSaving ? null : notifier.saveAll,
                     icon: state.isSaving
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                         : const Icon(Icons.save),
-                    label: const Text('Lưu tất cả'),
+                    label: const Text('Save all'),
                   ),
               ],
             ),

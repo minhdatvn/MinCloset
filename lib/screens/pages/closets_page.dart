@@ -15,14 +15,14 @@ void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
   showDialog(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: const Text('Tạo tủ đồ mới'),
+      title: const Text('Create new closet'),
       content: TextField(
         controller: nameController,
-        decoration: const InputDecoration(labelText: 'Tên tủ đồ'),
+        decoration: const InputDecoration(labelText: 'Closet name'),
         autofocus: true,
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Hủy')),
+        TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
         ElevatedButton(
           onPressed: () async {
             final success = await ref.read(closetsPageProvider.notifier).addCloset(nameController.text);
@@ -30,7 +30,7 @@ void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
               Navigator.of(ctx).pop();
             }
           },
-          child: const Text('Lưu'),
+          child: const Text('Save'),
         ),
       ],
     ),
@@ -63,12 +63,12 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tủ đồ của bạn'),
+        title: const Text('Your closet'),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
-            Tab(text: 'Tất cả vật phẩm'),
-            Tab(text: 'Theo Tủ đồ'),
+            Tab(text: 'All items'),
+            Tab(text: 'By Closet'),
           ],
         ),
       ),
@@ -121,7 +121,7 @@ class _ClosetsListTab extends ConsumerWidget {
 
     return closetsAsyncValue.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(child: Text('Lỗi: $error')),
+      error: (error, stack) => Center(child: Text('Error: $error')),
       data: (closets) {
         return ListView.builder(
           padding: const EdgeInsets.only(top: 8),
@@ -134,7 +134,7 @@ class _ClosetsListTab extends ConsumerWidget {
                   color: theme.colorScheme.primary
                 ),
                 title: Text(
-                  'Thêm tủ đồ mới...',
+                  'Add new closet',
                   style: TextStyle(
                     color: theme.colorScheme.primary,
                     fontWeight: FontWeight.bold

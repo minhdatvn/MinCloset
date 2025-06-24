@@ -33,10 +33,10 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
   }
 
   String _normalizeCategory(String? rawCategory) {
-    if (rawCategory == null || rawCategory.trim().isEmpty) { return 'Khác > Khác'; }
-    if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) { return '$rawCategory > Khác'; }
+    if (rawCategory == null || rawCategory.trim().isEmpty) { return 'Other > Other'; }
+    if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) { return '$rawCategory > Other'; }
     final parts = rawCategory.split(' > ');
-    if (!AppOptions.categories.containsKey(parts.first)) { return 'Khác > Khác'; }
+    if (!AppOptions.categories.containsKey(parts.first)) { return 'Other > Other'; }
     return rawCategory;
   }
   Set<String> _normalizeMultiSelect(dynamic rawValue, List<String> validOptions) {
@@ -51,7 +51,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
       if (validOptionsSet.contains(value)) { selections.add(value); } 
       else { hasUnknowns = true; }
     }
-    if (hasUnknowns && validOptionsSet.contains('Khác')) { selections.add('Khác'); }
+    if (hasUnknowns && validOptionsSet.contains('Other')) { selections.add('Other'); }
     return selections;
   }
   Future<void> analyzeAllImages(List<XFile> images) async {
@@ -142,7 +142,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
       await _clothingItemRepo.insertBatchItems(itemsToSave);
       state = state.copyWith(isSaving: false, saveSuccess: true);
     } catch (e) {
-      state = state.copyWith(isSaving: false, saveErrorMessage: "Lỗi khi lưu: $e");
+      state = state.copyWith(isSaving: false, saveErrorMessage: "Save error: $e");
     }
   }
 }

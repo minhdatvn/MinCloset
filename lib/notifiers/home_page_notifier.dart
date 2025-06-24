@@ -29,11 +29,11 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
         );
       }
     } catch (e, s) {
-      logger.e('Lỗi khi lấy gợi ý mới', error: e, stackTrace: s);
+      logger.e('Failed to get new suggestions', error: e, stackTrace: s);
       if (mounted) {
         state = state.copyWith(
           isLoading: false,
-          errorMessage: 'Không thể nhận gợi ý. Vui lòng thử lại.',
+          errorMessage: 'Failed to get suggestions. Please try again.',
         );
       }
     }

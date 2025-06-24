@@ -65,10 +65,10 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   }
 
   String _normalizeCategory(String? rawCategory) {
-    if (rawCategory == null || rawCategory.trim().isEmpty) { return 'Khác > Khác'; }
-    if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) { return '$rawCategory > Khác'; }
+    if (rawCategory == null || rawCategory.trim().isEmpty) { return 'Other > Other'; }
+    if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) { return '$rawCategory > Other'; }
     final parts = rawCategory.split(' > ');
-    if (!AppOptions.categories.containsKey(parts.first)) { return 'Khác > Khác'; }
+    if (!AppOptions.categories.containsKey(parts.first)) { return 'Other > Other'; }
     return rawCategory;
   }
   Set<String> _normalizeMultiSelect(dynamic rawValue, List<String> validOptions) {
@@ -83,7 +83,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       if (validOptionsSet.contains(value)) { selections.add(value); } 
       else { hasUnknowns = true; }
     }
-    if (hasUnknowns && validOptionsSet.contains('Khác')) { selections.add('Khác'); }
+    if (hasUnknowns && validOptionsSet.contains('Other')) { selections.add('Other'); }
     return selections;
   }
   void onNameChanged(String name) => state = state.copyWith(name: name);
@@ -121,7 +121,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
 
   Future<bool> saveItem() async {
     if (state.image == null && state.imagePath == null) {
-      state = state.copyWith(errorMessage: 'Vui lòng thêm ảnh cho món đồ.');
+      state = state.copyWith(errorMessage: 'Please add a photo for the item.');
       return false;
     }
     state = state.copyWith(isLoading: true, errorMessage: null);
@@ -165,7 +165,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       state = state.copyWith(isLoading: false, isSuccess: true);
       return true;
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: 'Lỗi khi lưu: $e');
+      state = state.copyWith(isLoading: false, errorMessage: 'Save error: $e');
       return false;
     }
   }
@@ -180,7 +180,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       state = state.copyWith(isLoading: false, isSuccess: true);
       return true;
     } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: 'Lỗi khi xóa: $e');
+      state = state.copyWith(isLoading: false, errorMessage: 'Delete error: $e');
       return false;
     }
   }

@@ -38,10 +38,10 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
         _runFilter();
       }
     } catch (e, s) {
-      logger.e("Lỗi khi tải tất cả vật phẩm", error: e, stackTrace: s);
+      logger.e("Failed to load all items", error: e, stackTrace: s);
       if (mounted) {
         state = state.copyWith(
-            errorMessage: "Lỗi tải vật phẩm", isLoading: false);
+            errorMessage: "Failed to load item", isLoading: false);
       }
     }
   }

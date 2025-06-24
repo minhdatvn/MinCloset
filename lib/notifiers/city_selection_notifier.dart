@@ -54,10 +54,10 @@ class CitySelectionNotifier extends StateNotifier<CitySelectionState> {
           state = state.copyWith(isSearching: false, suggestions: results);
         }
       } catch (e, s) {
-        logger.e('Lỗi tìm kiếm thành phố', error: e, stackTrace: s);
+        logger.e('Failed to search location', error: e, stackTrace: s);
         if (mounted) {
           state = state.copyWith(
-              isSearching: false, errorMessage: 'Lỗi tìm kiếm');
+              isSearching: false, errorMessage: 'Failed to search');
         }
       }
     });
@@ -74,7 +74,7 @@ class CitySelectionNotifier extends StateNotifier<CitySelectionState> {
       if (state.selectedMode == CityMode.manual) {
         // Nếu người dùng chưa chọn gợi ý nào thì không cho lưu
         if (state.selectedSuggestion == null) {
-          state = state.copyWith(errorMessage: 'Vui lòng chọn một thành phố từ danh sách gợi ý');
+          state = state.copyWith(errorMessage: 'Please select a location from the suggestions');
           return false;
         }
         await profileNotifier.updateCityPreference(
@@ -86,7 +86,7 @@ class CitySelectionNotifier extends StateNotifier<CitySelectionState> {
       }
       return true;
     } catch (e) {
-      logger.e('Lỗi khi lưu cài đặt thành phố', error: e);
+      logger.e('Failed to save location settings', error: e);
       return false;
     }
   }

@@ -50,7 +50,7 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
     state = state.copyWith(isSaving: true, saveSuccess: false, errorMessage: null);
 
     if (itemsOnCanvas.isEmpty) {
-      state = state.copyWith(errorMessage: 'Vui lòng thêm ít nhất một vật phẩm để lưu bộ đồ!', isSaving: false);
+      state = state.copyWith(errorMessage: 'Please add at least one item to save the outfit!', isSaving: false);
       return;
     }
 
@@ -65,7 +65,7 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
         if (intersection.isNotEmpty) {
           final conflictingItemId = intersection.first;
           final conflictingItem = await _clothingItemRepo.getItemById(conflictingItemId);
-          final errorMessage = "Lỗi: '${conflictingItem?.name ?? 'Một vật phẩm'}' đã thuộc một Bộ đồ cố định khác.";
+          final errorMessage = "Error: '${conflictingItem?.name ?? 'An item'}' already belongs to another fixed outfit.";
           state = state.copyWith(errorMessage: errorMessage, isSaving: false);
           return;
         }
@@ -81,7 +81,7 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
       );
       state = state.copyWith(saveSuccess: true, isSaving: false);
     } catch (e) {
-      state = state.copyWith(errorMessage: "Lỗi khi lưu bộ đồ: $e", isSaving: false);
+      state = state.copyWith(errorMessage: "Failed to save outfit: $e", isSaving: false);
     }
   }
 }

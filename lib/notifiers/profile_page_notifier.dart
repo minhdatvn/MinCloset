@@ -26,17 +26,17 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   Future<void> loadInitialData() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      logger.i('Bắt đầu tải dữ liệu Profile...');
+      logger.i('Loading profile data...');
 
       final prefs = await SharedPreferences.getInstance();
-      logger.i('1. Tải SharedPreferences thành công.');
+      logger.i('1. SharedPreferences loaded successfully');
 
       final closetRepo = _ref.read(closetRepositoryProvider);
       final itemRepo = _ref.read(clothingItemRepositoryProvider);
       final outfitRepo = _ref.read(outfitRepositoryProvider);
-      logger.i('2. Khởi tạo các Repositories thành công.');
+      logger.i('2. Repositories initialized successfully.');
 
-      final userName = prefs.getString('user_name') ?? 'Người dùng MinCloset';
+      final userName = prefs.getString('user_name') ?? 'MinCloset user';
       final avatarPath = prefs.getString('user_avatar_path');
       final gender = prefs.getString('user_gender');
       final dobString = prefs.getString('user_dob');
@@ -48,18 +48,18 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
           prefs.getStringList('user_favorite_colors')?.toSet() ?? {};
       final cityModeString = prefs.getString('city_mode') ?? 'auto';
       final cityMode = CityMode.values.byName(cityModeString);
-      final manualCity = prefs.getString('manual_city_name') ?? 'Da Nang';
-      logger.i('3. Đọc dữ liệu từ SharedPreferences thành công.');
+      final manualCity = prefs.getString('manual_city_name') ?? 'Ha Noi';
+      logger.i('3. Successfully read SharedPreferences.');
 
       // Ta sẽ kiểm tra từng lời gọi CSDL
       final allItems = await itemRepo.getAllItems();
-      logger.i('4. Tải tất cả Items từ CSDL thành công.');
+      logger.i('4. Successfully loaded all items from database.');
 
       final allClosets = await closetRepo.getClosets();
-      logger.i('5. Tải tất cả Closets từ CSDL thành công.');
+      logger.i('5. Successfully loaded all closets from database.');
 
       final allOutfits = await outfitRepo.getOutfits();
-      logger.i('6. Tải tất cả Outfits từ CSDL thành công.');
+      logger.i('6. Successfully loaded all outfits from database.');
       
       final colorDist = <String, int>{};
       final categoryDist = <String, int>{};
@@ -88,7 +88,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
           }
         }
       }
-      logger.i('7. Tính toán thống kê thành công.');
+      logger.i('7. Statistics calculated successfully.');
 
       state = state.copyWith(
         isLoading: false,
@@ -110,13 +110,13 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
         seasonDistribution: seasonDist,
         occasionDistribution: occasionDist,
       );
-      logger.i('8. Cập nhật state thành công! Hoàn tất tải trang Profile.');
+      logger.i('8. State updated successfully! Profile page loading complete.');
 
     } catch (e, s) {
-      logger.e("Lỗi khi tải dữ liệu trang cá nhân", error: e, stackTrace: s);
+      logger.e("Failed to load profile data.", error: e, stackTrace: s);
       state = state.copyWith(
         isLoading: false,
-        errorMessage: "Không thể tải dữ liệu. Vui lòng thử lại.",
+        errorMessage: "Failed to load data. Please try again.",
       );
     }
   }

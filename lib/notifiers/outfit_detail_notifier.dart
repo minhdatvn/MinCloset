@@ -45,9 +45,9 @@ class OutfitDetailNotifier extends StateNotifier<Outfit> {
           // <<< SỬ DỤNG REPO ĐỂ LẤY TÊN VẬT PHẨM >>>
           final conflictingItemId = intersection.first;
           final conflictingItem = await _clothingItemRepo.getItemById(conflictingItemId);
-          final conflictingItemName = conflictingItem?.name ?? 'Một vật phẩm';
+          final conflictingItemName = conflictingItem?.name ?? 'An item';
           
-          final errorMessage = "Lỗi: '$conflictingItemName' đã thuộc một Bộ đồ cố định khác.";
+          final errorMessage = "Error: '$conflictingItemName' already belongs to another fixed outfit.";
           logger.w(errorMessage);
           return errorMessage; 
         }
@@ -60,8 +60,8 @@ class OutfitDetailNotifier extends StateNotifier<Outfit> {
       state = updatedOutfit;
       return null; // Trả về null báo hiệu thành công
     } catch (e, s) {
-      logger.e("Lỗi khi cập nhật trạng thái cố định", error: e, stackTrace: s);
-      return "Đã có lỗi không xác định xảy ra."; // Trả về chuỗi lỗi chung
+      logger.e("Failed to update fixed outfit", error: e, stackTrace: s);
+      return "Something went wrong."; // Trả về chuỗi lỗi chung
     }
   }
 
@@ -69,7 +69,7 @@ class OutfitDetailNotifier extends StateNotifier<Outfit> {
     try {
       await _outfitRepo.deleteOutfit(state.id);
     } catch (e, s) {
-      logger.e("Lỗi khi xóa bộ đồ", error: e, stackTrace: s);
+      logger.e("Failed to delete outfit", error: e, stackTrace: s);
     }
   }
 }

@@ -31,7 +31,7 @@ class ClosetDetailNotifier extends StateNotifier<ClosetDetailState> {
         }
       } catch (e) {
         if (mounted) {
-          state = state.copyWith(errorMessage: "Lỗi tìm kiếm", isLoading: false);
+          state = state.copyWith(errorMessage: "Failed to search", isLoading: false);
         }
       }
     });

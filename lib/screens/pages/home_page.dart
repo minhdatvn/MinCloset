@@ -81,7 +81,7 @@ class HomePage extends ConsumerWidget {
               _buildRecentlyAddedSection(context, ref),
               const SizedBox(height: 32),
               const SectionHeader(
-                title: 'Gợi ý hôm nay',
+                title: 'Outfit suggestions',
               ),
               const SizedBox(height: 16),
               _buildTodaysSuggestionCard(context, homeState, homeNotifier),
@@ -100,7 +100,7 @@ class HomePage extends ConsumerWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Xin chào,',
+            const Text('Hello,',
                 style: TextStyle(fontSize: 16, color: Colors.grey)),
             Text(userName ?? 'User',
                 style: Theme.of(context).appBarTheme.titleTextStyle),
@@ -117,19 +117,19 @@ class HomePage extends ConsumerWidget {
   Widget _buildAiStylistSection(BuildContext context) {
     return Column(
       children: [
-        const SectionHeader(title: 'Xưởng phối đồ'),
+        const SectionHeader(title: 'Outfit studio'),
         const SizedBox(height: 16),
         Row(
           children: [
             ActionCard(
-              label: 'Tạo một bộ đồ',
+              label: 'Create new outfit',
               icon: Icons.auto_awesome_outlined,
               onTap: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (ctx) => const OutfitBuilderPage())),
             ),
             const SizedBox(width: 16),
             ActionCard(
-              label: 'Bộ đồ đã lưu',
+              label: 'Saved outfits',
               icon: Icons.collections_bookmark_outlined,
               onTap: () => Navigator.of(context)
                   .push(MaterialPageRoute(builder: (ctx) => const OutfitsHubPage())),
@@ -145,8 +145,8 @@ class HomePage extends ConsumerWidget {
     return Column(
       children: [
         SectionHeader(
-          title: 'Đã thêm gần đây',
-          seeAllText: 'Xem tất cả',
+          title: 'Latest items',
+          seeAllText: 'View all',
           onSeeAll: () {
             ref.read(mainScreenIndexProvider.notifier).state = 1;
           },
@@ -249,14 +249,14 @@ class HomePage extends ConsumerWidget {
                             ),
                           ],
                         )
-                      : const SizedBox(height: 60, child: Center(child: Text("Không có dữ liệu thời tiết.")))
+                      : const SizedBox(height: 60, child: Center(child: Text("Weather data unavailable.")))
                     )
               ),
               TextButton.icon(
                 // <<< THÊM KEY Ở ĐÂY >>>
                 key: const ValueKey('new_suggestion_button'),
                 icon: const Icon(Icons.auto_awesome, size: 18),
-                label: const Text('Gợi ý mới'),
+                label: const Text('Get suggestions'),
                 onPressed: state.isLoading ? null : notifier.getNewSuggestion,
                 style: TextButton.styleFrom(
                   foregroundColor: theme.colorScheme.primary,
@@ -275,7 +275,7 @@ class HomePage extends ConsumerWidget {
             ))
           else
             Text(
-              state.suggestion ?? 'Nhấn "Gợi ý mới" và để MinCloset tư vấn cho bạn!',
+              state.suggestion ?? 'Tap "Get Suggestions" to see outfit recommendations!',
               style: const TextStyle(fontSize: 16, height: 1.5),
             ),
           
@@ -284,7 +284,7 @@ class HomePage extends ConsumerWidget {
             Align(
               alignment: Alignment.centerRight,
               child: Text(
-                'Cập nhật lúc: ${DateFormat('HH:mm, dd/MM/yyyy').format(state.suggestionTimestamp!)}',
+                'Last updated: ${DateFormat('HH:mm, dd/MM/yyyy').format(state.suggestionTimestamp!)}',
                 style: TextStyle(
                   fontSize: 12,
                   color: Colors.grey.shade700,

@@ -7,19 +7,20 @@ class ClothingItem extends Equatable {
   final String category;
   final String color;
   final String imagePath;
+  final String? thumbnailPath; // <<< THÊM MỚI
   final String closetId;
   final String? season;
   final String? occasion;
   final String? material;
   final String? pattern;
 
-  // <<< SỬA LẠI HÀM KHỞI TẠO ĐỂ DÙNG THAM SỐ CÓ TÊN
   const ClothingItem({
     required this.id,
     required this.name,
     required this.category,
     required this.color,
     required this.imagePath,
+    this.thumbnailPath, // <<< THÊM MỚI
     required this.closetId,
     this.season,
     this.occasion,
@@ -33,6 +34,7 @@ class ClothingItem extends Equatable {
     String? category,
     String? color,
     String? imagePath,
+    String? thumbnailPath, // <<< THÊM MỚI
     String? closetId,
     String? season,
     String? occasion,
@@ -45,6 +47,7 @@ class ClothingItem extends Equatable {
       category: category ?? this.category,
       color: color ?? this.color,
       imagePath: imagePath ?? this.imagePath,
+      thumbnailPath: thumbnailPath ?? this.thumbnailPath, // <<< THÊM MỚI
       closetId: closetId ?? this.closetId,
       season: season ?? this.season,
       occasion: occasion ?? this.occasion,
@@ -60,6 +63,7 @@ class ClothingItem extends Equatable {
       'category': category,
       'color': color,
       'imagePath': imagePath,
+      'thumbnailPath': thumbnailPath, // <<< THÊM MỚI
       'closetId': closetId,
       'season': season,
       'occasion': occasion,
@@ -75,6 +79,7 @@ class ClothingItem extends Equatable {
       category: map['category'],
       color: map['color'],
       imagePath: map['imagePath'],
+      thumbnailPath: map['thumbnailPath'], // <<< THÊM MỚI
       closetId: map['closetId'],
       season: map['season'],
       occasion: map['occasion'],
@@ -90,6 +95,7 @@ class ClothingItem extends Equatable {
         category,
         color,
         imagePath,
+        thumbnailPath, // <<< THÊM MỚI
         closetId,
         season,
         occasion,

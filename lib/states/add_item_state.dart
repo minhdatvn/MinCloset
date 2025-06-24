@@ -1,17 +1,17 @@
 // lib/states/add_item_state.dart
 import 'dart:io';
-import 'package:equatable/equatable.dart'; // <<< THÊM IMPORT
+import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mincloset/models/clothing_item.dart';
 
 @immutable
-// <<< THAY ĐỔI 1: Kế thừa từ Equatable >>>
 class AddItemState extends Equatable {
   // Trạng thái của các trường trong form
   final String id;
   final String name;
   final File? image;
-  final String? imagePath; // Dùng khi edit
+  final String? imagePath;
+  final String? thumbnailPath; // <<< THÊM MỚI
   final String? selectedClosetId;
   final String selectedCategoryValue;
   final Set<String> selectedColors;
@@ -32,6 +32,7 @@ class AddItemState extends Equatable {
     this.name = '',
     this.image,
     this.imagePath,
+    this.thumbnailPath, // <<< THÊM MỚI
     this.selectedClosetId,
     this.selectedCategoryValue = '',
     this.selectedColors = const {},
@@ -46,7 +47,6 @@ class AddItemState extends Equatable {
     this.isSuccess = false,
   });
 
-  // factory và copyWith không thay đổi
   factory AddItemState.fromClothingItem(ClothingItem item) {
     Set<String> stringToSet(String? s) => (s == null || s.isEmpty) ? {} : s.split(', ').toSet();
 
@@ -54,6 +54,7 @@ class AddItemState extends Equatable {
       id: item.id,
       name: item.name,
       imagePath: item.imagePath,
+      thumbnailPath: item.thumbnailPath, // <<< THÊM MỚI
       selectedClosetId: item.closetId,
       selectedCategoryValue: item.category,
       selectedColors: stringToSet(item.color),
@@ -70,6 +71,7 @@ class AddItemState extends Equatable {
     String? name,
     File? image,
     String? imagePath,
+    String? thumbnailPath, // <<< THÊM MỚI
     String? selectedClosetId,
     String? selectedCategoryValue,
     Set<String>? selectedColors,
@@ -88,6 +90,7 @@ class AddItemState extends Equatable {
       name: name ?? this.name,
       image: image ?? this.image,
       imagePath: imagePath ?? this.imagePath,
+      thumbnailPath: thumbnailPath ?? this.thumbnailPath, // <<< THÊM MỚI
       selectedClosetId: selectedClosetId ?? this.selectedClosetId,
       selectedCategoryValue: selectedCategoryValue ?? this.selectedCategoryValue,
       selectedColors: selectedColors ?? this.selectedColors,
@@ -103,13 +106,13 @@ class AddItemState extends Equatable {
     );
   }
 
-  // <<< THAY ĐỔI 2: Thêm getter 'props' để định nghĩa các thuộc tính so sánh >>>
   @override
   List<Object?> get props => [
         id,
         name,
         image,
         imagePath,
+        thumbnailPath, // <<< THÊM MỚI
         selectedClosetId,
         selectedCategoryValue,
         selectedColors,

@@ -16,15 +16,14 @@ class RecentItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // BƯỚC 1: Dùng AspectRatio để tạo một khung 3:4 cố định.
+    // <<< THAY ĐỔI: Ưu tiên dùng thumbnailPath, nếu không có thì dùng imagePath >>>
+    final imageToShowPath = item.thumbnailPath ?? item.imagePath;
+
     return AspectRatio(
       aspectRatio: 3 / 4,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          // BƯỚC 2: Vẽ lớp nền (background) trước tiên.
-          // Container này sẽ tự động lấp đầy không gian của Stack (và AspectRatio).
-          // Nó có bo góc và viền.
           Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -32,18 +31,15 @@ class RecentItemCard extends StatelessWidget {
               border: Border.all(color: Colors.grey.shade300),
             ),
           ),
-
-          // BƯỚC 3: Vẽ lớp nội dung (ảnh) lên trên lớp nền.
-          // Dùng Padding để tạo khoảng đệm cho ảnh so với viền.
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.0), // Bo góc cho chính hình ảnh
+              borderRadius: BorderRadius.circular(8.0),
               child: Image.file(
-                File(item.imagePath),
-                // BoxFit.contain đảm bảo ảnh hiển thị đầy đủ, không bị cắt xén,
-                // và được co lại để vừa với không gian của Padding.
+                File(imageToShowPath), // Sử dụng đường dẫn đã được chọn
                 fit: BoxFit.contain,
+                // Thêm key để Flutter biết khi nào cần rebuild ảnh
+                key: ValueKey(imageToShowPath), 
                 errorBuilder: (context, error, stackTrace) {
                   return const Center(
                     child: Icon(
@@ -56,8 +52,6 @@ class RecentItemCard extends StatelessWidget {
               ),
             ),
           ),
-
-          // Lớp Badge số đếm không thay đổi, được đặt lên trên cùng.
           if (count > 0)
             Positioned(
               top: -5,

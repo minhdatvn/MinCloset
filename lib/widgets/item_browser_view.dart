@@ -10,14 +10,12 @@ class ItemBrowserView extends ConsumerWidget {
   final String providerId;
   final void Function(ClothingItem) onItemTapped;
   final Map<String, int> itemCounts;
-  final ScrollController? scrollController;
 
   const ItemBrowserView({
     super.key,
     required this.providerId,
     required this.onItemTapped,
     this.itemCounts = const {},
-    this.scrollController,
   });
 
   @override
@@ -25,49 +23,51 @@ class ItemBrowserView extends ConsumerWidget {
     final provider = itemFilterProvider(providerId);
     final state = ref.watch(provider);
 
-    if (state.isLoading && state.filteredItems.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32.0),
-          child: CircularProgressIndicator(),
-        ),
+    if (state.isLoading && state.items.isEmpty) {
+      return const SliverFillRemaining(
+        child: Center(child: CircularProgressIndicator()),
       );
     }
 
-    if (state.filteredItems.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Text(
-            state.searchQuery.isNotEmpty || state.activeFilters.isApplied
-                ? 'No items available.'
-                : 'Your closet is empty',
+    if (state.items.isEmpty) {
+      return SliverFillRemaining(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Text(
+              state.searchQuery.isNotEmpty || state.activeFilters.isApplied
+                  ? 'No items found.'
+                  : 'Your closet is empty.',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
           ),
         ),
       );
     }
 
-    return GridView.builder(
-      controller: scrollController,
+    return SliverPadding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: state.filteredItems.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 0.8,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
+      sliver: SliverGrid.builder(
+        itemCount: state.items.length + (state.isLoadingMore ? 1 : 0),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          childAspectRatio: 0.8,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+        ),
+        itemBuilder: (ctx, index) {
+          if (index >= state.items.length) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final item = state.items[index];
+          final count = itemCounts[item.id] ?? 0;
+          return GestureDetector(
+            key: ValueKey('item_card_${item.id}'),
+            onTap: () => onItemTapped(item),
+            child: RecentItemCard(item: item, count: count),
+          );
+        },
       ),
-      itemBuilder: (ctx, index) {
-        final item = state.filteredItems[index];
-        final count = itemCounts[item.id] ?? 0;
-        return GestureDetector(
-          key: ValueKey('item_card_${item.id}'),
-          onTap: () => onItemTapped(item),
-          child: RecentItemCard(item: item, count: count),
-        );
-      },
     );
   }
 }

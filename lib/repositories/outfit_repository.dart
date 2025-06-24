@@ -8,10 +8,10 @@ class OutfitRepository {
 
   OutfitRepository(this._dbHelper);
 
-  Future<List<Outfit>> getOutfits() async {
-    // <<< SỬA LỖI Ở ĐÂY >>>
-    // Trả về trực tiếp vì _dbHelper.getOutfits() đã trả về đúng kiểu List<Outfit>
-    return _dbHelper.getOutfits();
+  // <<< SỬA ĐỔI: Thêm limit, offset và logic chuyển đổi Map -> Model >>>
+  Future<List<Outfit>> getOutfits({int? limit, int? offset}) async {
+    final data = await _dbHelper.getOutfits(limit: limit, offset: offset);
+    return data.map((map) => Outfit.fromMap(map)).toList();
   }
 
   // Hàm này đã đúng vì _dbHelper.getFixedOutfits() trả về List<Map>

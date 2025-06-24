@@ -2,18 +2,19 @@
 
 import 'package:mincloset/helpers/db_helper.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/models/outfit_filter.dart';
 
 class ClothingItemRepository {
   final DatabaseHelper _dbHelper;
 
   ClothingItemRepository(this._dbHelper);
 
-  Future<List<ClothingItem>> getAllItems() async {
-    final data = await _dbHelper.getAllItems();
+  // <<< SỬA ĐỔI: Thêm limit và offset >>>
+  Future<List<ClothingItem>> getAllItems({int? limit, int? offset}) async {
+    final data = await _dbHelper.getAllItems(limit: limit, offset: offset);
     return data.map((map) => ClothingItem.fromMap(map)).toList();
   }
   
-  // <<< THÊM HÀM MỚI Ở ĐÂY >>>
   Future<ClothingItem?> getItemById(String id) async {
     final map = await _dbHelper.getItemById(id);
     if (map != null) {
@@ -22,8 +23,9 @@ class ClothingItemRepository {
     return null;
   }
 
-  Future<List<ClothingItem>> getItemsInCloset(String closetId) async {
-    final data = await _dbHelper.getItemsInCloset(closetId);
+  // <<< SỬA ĐỔI: Thêm limit và offset >>>
+  Future<List<ClothingItem>> getItemsInCloset(String closetId, {int? limit, int? offset}) async {
+    final data = await _dbHelper.getItemsInCloset(closetId, limit: limit, offset: offset);
     return data.map((map) => ClothingItem.fromMap(map)).toList();
   }
 
@@ -49,20 +51,37 @@ class ClothingItemRepository {
     await _dbHelper.deleteItem(id);
   }
 
-  Future<List<ClothingItem>> searchItemsInCloset(String closetId, String query) async {
+  // <<< SỬA ĐỔI: Thêm limit và offset >>>
+  Future<List<ClothingItem>> searchItemsInCloset(String closetId, String query, {int? limit, int? offset}) async {
     if (query.isEmpty) {
-      return getItemsInCloset(closetId);
+      return getItemsInCloset(closetId, limit: limit, offset: offset);
     }
-    final data = await _dbHelper.searchItemsInCloset(closetId, query);
+    final data = await _dbHelper.searchItemsInCloset(closetId, query, limit: limit, offset: offset);
     return data.map((map) => ClothingItem.fromMap(map)).toList();
   }
 
-  Future<List<ClothingItem>> searchAllItems(String query) async {
-    final data = await _dbHelper.searchAllItems(query);
+  // <<< SỬA ĐỔI: Thêm limit và offset >>>
+  Future<List<ClothingItem>> searchAllItems(String query, {int? limit, int? offset}) async {
+    final data = await _dbHelper.searchAllItems(query, limit: limit, offset: offset);
     return data.map((map) => ClothingItem.fromMap(map)).toList();
   }
 
   Future<bool> itemNameExists(String name, String closetId, {String? currentItemId}) {
     return _dbHelper.itemNameExistsInCloset(name, closetId, currentItemId: currentItemId);
+  }
+
+  Future<List<ClothingItem>> getFilteredItems({
+    String query = '',
+    OutfitFilter? filters,
+    int? limit,
+    int? offset,
+  }) async {
+    final data = await _dbHelper.getFilteredItems(
+      query: query,
+      filters: filters,
+      limit: limit,
+      offset: offset,
+    );
+    return data.map((map) => ClothingItem.fromMap(map)).toList();
   }
 }

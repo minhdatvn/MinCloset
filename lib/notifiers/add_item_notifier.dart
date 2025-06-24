@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mincloset/helpers/image_helper.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/domain/providers.dart';
@@ -50,8 +51,6 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
   }
 
-  // <<< THÊM HÀM MỚI Ở ĐÂY >>>
-  // Hàm này lọc các màu từ A.I, chỉ giữ lại những màu có trong AppOptions
   Set<String> _normalizeColors(List<dynamic>? rawColors) {
     if (rawColors == null) return {};
     final validColorNames = AppOptions.colors.keys.toSet();
@@ -108,8 +107,6 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     final result = await useCase.execute(image);
     if (result.isNotEmpty && mounted) {
       final category = _normalizeCategory(result['category'] as String?);
-      // <<< SỬA LOGIC Ở ĐÂY >>>
-      // Sử dụng hàm chuẩn hóa mới cho màu sắc
       final colors = _normalizeColors(result['colors'] as List<dynamic>?);
       final materials = _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList());
       final patterns = _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList());
@@ -120,7 +117,8 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   }
 
   Future<bool> saveItem() async {
-    if (state.image == null && state.imagePath == null) {
+    final sourceImagePath = state.image?.path ?? state.imagePath;
+    if (sourceImagePath == null) {
       state = state.copyWith(errorMessage: 'Please add a photo for the item.');
       return false;
     }
@@ -142,13 +140,18 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       state = state.copyWith(isLoading: false, errorMessage: nameValidationResult.errorMessage);
       return false;
     }
-
+    
+    final String? thumbnailPath = state.image != null
+        ? await createThumbnail(sourceImagePath)
+        : null;
+    
     final clothingItem = ClothingItem(
       id: state.isEditing ? state.id : const Uuid().v4(),
       name: state.name.trim(),
       category: state.selectedCategoryValue,
       closetId: state.selectedClosetId!,
-      imagePath: state.image?.path ?? state.imagePath!,
+      imagePath: sourceImagePath,
+      thumbnailPath: thumbnailPath ?? state.thumbnailPath,
       color: state.selectedColors.join(', '),
       season: state.selectedSeasons.join(', '),
       occasion: state.selectedOccasions.join(', '),
@@ -171,11 +174,14 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   }
 
   Future<bool> deleteItem() async {
-    if (!state.isEditing) {
-      return false;
-    }
+    if (!state.isEditing) return false;
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
+      await deleteImageAndThumbnail(
+        imagePath: state.imagePath,
+        thumbnailPath: state.thumbnailPath,
+      );
+      
       await _clothingItemRepo.deleteItem(state.id);
       state = state.copyWith(isLoading: false, isSuccess: true);
       return true;
@@ -184,14 +190,9 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       return false;
     }
   }
-
-  void resetState() {
-    if (state.isSuccess || state.errorMessage != null) {
-       state = state.copyWith(isSuccess: false, errorMessage: null);
-    }
-  }
 }
 
+// <<< SỬA LỖI: Xóa .autoDispose >>>
 final addItemProvider = StateNotifierProvider
     .family<AddItemNotifier, AddItemState, ItemNotifierArgs>((ref, args) {
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);

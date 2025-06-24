@@ -1,9 +1,10 @@
 // lib/helpers/db_helper.dart
-import 'package:sqflite/sqflite.dart' as sql;
-import 'package:path/path.dart' as path;
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit.dart';
+import 'package:mincloset/models/outfit_filter.dart';
+import 'package:path/path.dart' as path;
+import 'package:sqflite/sqflite.dart' as sql;
 
 class DatabaseHelper {
   sql.Database? _database;
@@ -19,31 +20,33 @@ class DatabaseHelper {
   Future<sql.Database> _initDB(String filePath) async {
     final dbPath = await sql.getDatabasesPath();
     final finalPath = path.join(dbPath, filePath);
-    // <<< GIỮ NGUYÊN VERSION 1 VÀ BỎ QUA onUpgrade >>>
     return await sql.openDatabase(finalPath, version: 1, onCreate: _createDB);
   }
 
   Future<void> _createDB(sql.Database db, int version) async {
     await db.execute("""CREATE TABLE closets (id TEXT PRIMARY KEY, name TEXT)""");
+    
+    // <<< THAY ĐỔI 1: Thêm cột thumbnailPath >>>
     await db.execute("""CREATE TABLE clothing_items (
         id TEXT PRIMARY KEY, name TEXT, category TEXT, color TEXT,
-        imagePath TEXT, closetId TEXT, season TEXT, occasion TEXT,
+        imagePath TEXT,
+        thumbnailPath TEXT, 
+        closetId TEXT, season TEXT, occasion TEXT,
         material TEXT, pattern TEXT
       )""");
     
-    // <<< THÊM CỘT is_fixed VÀO BẢNG outfits >>>
+    // <<< THAY ĐỔI 2: Thêm cột thumbnailPath >>>
     await db.execute("""CREATE TABLE outfits (
         id TEXT PRIMARY KEY,
         name TEXT,
         imagePath TEXT,
+        thumbnailPath TEXT,
         itemIds TEXT,
         is_fixed INTEGER NOT NULL DEFAULT 0
       )""");
   }
 
-  // <<< HÀM _onUpgrade ĐÃ ĐƯỢC LOẠI BỎ >>>
-
-  // === CÁC HÀM KHÁC GIỮ NGUYÊN ===
+  // === Closet Functions ===
   Future<void> insertCloset(Map<String, dynamic> data) async {
     final db = await instance.database;
     await db.insert('closets', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
@@ -67,6 +70,7 @@ class DatabaseHelper {
     });
   }
 
+  // === Item Functions ===
   Future<void> insertItem(Map<String, dynamic> data) async {
     final db = await instance.database;
     await db.insert('clothing_items', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
@@ -81,11 +85,6 @@ class DatabaseHelper {
     await batch.commit(noResult: true);
   }
 
-  Future<List<Map<String, dynamic>>> getItemsInCloset(String closetId) async {
-    final db = await instance.database;
-    return db.query('clothing_items', where: 'closetId = ?', whereArgs: [closetId]);
-  }
-  
   Future<int> updateItem(ClothingItem item) async {
     final db = await instance.database;
     return db.update('clothing_items', item.toMap(), where: 'id = ?', whereArgs: [item.id]);
@@ -96,32 +95,55 @@ class DatabaseHelper {
     await db.delete('clothing_items', where: 'id = ?', whereArgs: [id]);
   }
   
-  Future<List<Map<String, dynamic>>> getAllItems() async {
+  Future<List<Map<String, dynamic>>> getAllItems({int? limit, int? offset}) async {
     final db = await instance.database;
-    return db.query('clothing_items');
+    return db.query(
+      'clothing_items',
+      orderBy: 'id DESC',
+      limit: limit,
+      offset: offset,
+    );
   }
 
+  Future<List<Map<String, dynamic>>> getItemsInCloset(String closetId, {int? limit, int? offset}) async {
+    final db = await instance.database;
+    return db.query(
+      'clothing_items',
+      where: 'closetId = ?',
+      whereArgs: [closetId],
+      orderBy: 'id DESC',
+      limit: limit,
+      offset: offset,
+    );
+  }
+  
   Future<List<Map<String, dynamic>>> getRecentItems(int limit) async {
     final db = await instance.database;
     return db.query('clothing_items', orderBy: 'id DESC', limit: limit);
   }
-
-  Future<List<Map<String, dynamic>>> searchItemsInCloset(String closetId, String query) async {
+  
+  Future<List<Map<String, dynamic>>> searchItemsInCloset(String closetId, String query, {int? limit, int? offset}) async {
     final db = await instance.database;
     return db.query(
       'clothing_items',
       where: 'closetId = ? AND name LIKE ?',
       whereArgs: [closetId, '%$query%'],
+      orderBy: 'id DESC',
+      limit: limit,
+      offset: offset,
     );
   }
 
-  Future<List<Map<String, dynamic>>> searchAllItems(String query) async {
+  Future<List<Map<String, dynamic>>> searchAllItems(String query, {int? limit, int? offset}) async {
     final db = await instance.database;
-    if (query.isEmpty) return getAllItems();
+    if (query.isEmpty) return getAllItems(limit: limit, offset: offset);
     return db.query(
       'clothing_items',
       where: 'name LIKE ?',
       whereArgs: ['%$query%'],
+      orderBy: 'id DESC',
+      limit: limit,
+      offset: offset,
     );
   }
 
@@ -144,19 +166,35 @@ class DatabaseHelper {
     return result.isNotEmpty;
   }
 
+  Future<Map<String, dynamic>?> getItemById(String id) async {
+    final db = await instance.database;
+    final maps = await db.query(
+      'clothing_items',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+    if (maps.isNotEmpty) {
+      return maps.first;
+    }
+    return null;
+  }
+
+  // === Outfit Functions ===
   Future<void> insertOutfit(Outfit outfit) async {
     final db = await instance.database;
     await db.insert('outfits', outfit.toMap(),
         conflictAlgorithm: sql.ConflictAlgorithm.replace);
   }
-
-  Future<List<Outfit>> getOutfits() async {
+  
+  Future<List<Map<String, dynamic>>> getOutfits({int? limit, int? offset}) async {
     final db = await instance.database;
-    final maps = await db.query('outfits');
-    if (maps.isEmpty) {
-      return [];
-    }
-    return List.generate(maps.length, (i) => Outfit.fromMap(maps[i]));
+    return db.query(
+      'outfits',
+      orderBy: 'id DESC',
+      limit: limit,
+      offset: offset,
+    );
   }
 
   Future<void> deleteOutfit(String id) async {
@@ -179,18 +217,67 @@ class DatabaseHelper {
     return db.query('outfits', where: 'is_fixed = ?', whereArgs: [1]);
   }
 
-  // <<< THÊM HÀM MỚI Ở ĐÂY >>>
-  Future<Map<String, dynamic>?> getItemById(String id) async {
+  // Thêm hàm mới từ Bước 8 của Giai đoạn 1
+  Future<List<Map<String, dynamic>>> getFilteredItems({
+    String query = '',
+    OutfitFilter? filters,
+    int? limit,
+    int? offset,
+  }) async {
     final db = await instance.database;
-    final maps = await db.query(
-      'clothing_items',
-      where: 'id = ?',
-      whereArgs: [id],
-      limit: 1,
-    );
-    if (maps.isNotEmpty) {
-      return maps.first;
+    List<String> whereClauses = [];
+    List<dynamic> whereArgs = [];
+
+    if (query.isNotEmpty) {
+      whereClauses.add('name LIKE ?');
+      whereArgs.add('%$query%');
     }
-    return null;
+
+    if (filters != null) {
+      if (filters.closetId != null) {
+        whereClauses.add('closetId = ?');
+        whereArgs.add(filters.closetId);
+      }
+      if (filters.category != null) {
+        whereClauses.add('category LIKE ?');
+        whereArgs.add('${filters.category}%');
+      }
+      if (filters.colors.isNotEmpty) {
+        final colorClauses = filters.colors.map((_) => 'color LIKE ?').join(' OR ');
+        whereClauses.add('($colorClauses)');
+        whereArgs.addAll(filters.colors.map((c) => '%$c%'));
+      }
+      if (filters.seasons.isNotEmpty) {
+        final seasonClauses = filters.seasons.map((_) => 'season LIKE ?').join(' OR ');
+        whereClauses.add('($seasonClauses)');
+        whereArgs.addAll(filters.seasons.map((s) => '%$s%'));
+      }
+      if (filters.occasions.isNotEmpty) {
+        final occasionClauses = filters.occasions.map((_) => 'occasion LIKE ?').join(' OR ');
+        whereClauses.add('($occasionClauses)');
+        whereArgs.addAll(filters.occasions.map((o) => '%$o%'));
+      }
+       if (filters.materials.isNotEmpty) {
+        final materialClauses = filters.materials.map((_) => 'material LIKE ?').join(' OR ');
+        whereClauses.add('($materialClauses)');
+        whereArgs.addAll(filters.materials.map((m) => '%$m%'));
+      }
+      if (filters.patterns.isNotEmpty) {
+        final patternClauses = filters.patterns.map((_) => 'pattern LIKE ?').join(' OR ');
+        whereClauses.add('($patternClauses)');
+        whereArgs.addAll(filters.patterns.map((p) => '%$p%'));
+      }
+    }
+    
+    final whereString = whereClauses.isNotEmpty ? whereClauses.join(' AND ') : null;
+
+    return db.query(
+      'clothing_items',
+      where: whereString,
+      whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
+      orderBy: 'id DESC',
+      limit: limit,
+      offset: offset,
+    );
   }
 }

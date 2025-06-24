@@ -28,40 +28,41 @@ void main() {
     id: tOutfitId,
     name: 'Đi chơi cuối tuần',
     imagePath: 'path/to/image.png',
+    thumbnailPath: 'path/to/thumb.png',
     itemIds: 'id1,id2,id3',
     isFixed: false,
   );
 
+  final tOutfitMap = {
+    'id': tOutfit.id,
+    'name': tOutfit.name,
+    'imagePath': tOutfit.imagePath,
+    'thumbnailPath': tOutfit.thumbnailPath,
+    'itemIds': tOutfit.itemIds,
+    'is_fixed': 0
+  };
+
   group('OutfitRepository', () {
 
-    test('getOutfits - nên trả về một danh sách Outfit khi CSDL có dữ liệu', () async {
-      // Arrange
-      when(() => mockDbHelper.getOutfits()).thenAnswer((_) async => [tOutfit]);
-
-      // Act
-      final result = await repository.getOutfits();
-
-      // Assert
+    test('getOutfits - nên gọi dbHelper với đúng limit/offset và trả về List<Outfit>', () async {
+      when(() => mockDbHelper.getOutfits(limit: 10, offset: 0)).thenAnswer((_) async => [tOutfitMap]);
+      final result = await repository.getOutfits(limit: 10, offset: 0);
       expect(result, isA<List<Outfit>>());
       expect(result.length, 1);
-      expect(result.first, tOutfit);
-      verify(() => mockDbHelper.getOutfits()).called(1);
+      expect(result.first, tOutfit); 
+      verify(() => mockDbHelper.getOutfits(limit: 10, offset: 0)).called(1);
     });
 
     test('getOutfits - nên trả về một danh sách rỗng khi CSDL không có dữ liệu', () async {
-      // Arrange
-      when(() => mockDbHelper.getOutfits()).thenAnswer((_) async => []);
-
-      // Act
+      when(() => mockDbHelper.getOutfits(limit: any(named: 'limit'), offset: any(named: 'offset'))).thenAnswer((_) async => []);
       final result = await repository.getOutfits();
-
-      // Assert
       expect(result, isA<List<Outfit>>());
       expect(result.isEmpty, isTrue);
-      verify(() => mockDbHelper.getOutfits()).called(1);
+      verify(() => mockDbHelper.getOutfits(limit: null, offset: null)).called(1);
     });
     
-    test('insertOutfit - nên gọi insertOutfit trên dbHelper với dữ liệu chính xác', () async {
+    // <<< SỬA LỖI NẰM Ở BÀI TEST NÀY >>>
+    test('insertOutfit - nên gọi insertOutfit trên dbHelper với đúng đối tượng Outfit', () async {
       // Arrange
       when(() => mockDbHelper.insertOutfit(any())).thenAnswer((_) async {});
 
@@ -70,34 +71,23 @@ void main() {
 
       // Assert
       final captured = verify(() => mockDbHelper.insertOutfit(captureAny())).captured;
-      // <<< DÒNG ĐÃ ĐƯỢC SỬA LỖI >>>
-      // So sánh đối tượng Outfit bị bắt giữ với đối tượng Outfit gốc.
+      // Bây giờ chúng ta mong muốn đối số bị bắt giữ phải chính là đối tượng `tOutfit`
       expect(captured.first, tOutfit);
     });
 
     test('deleteOutfit - nên gọi deleteOutfit trên dbHelper với ID chính xác', () async {
-      // Arrange
       when(() => mockDbHelper.deleteOutfit(any())).thenAnswer((_) async {});
-
-      // Act
       await repository.deleteOutfit(tOutfitId);
-
-      // Assert
       verify(() => mockDbHelper.deleteOutfit(tOutfitId)).called(1);
     });
     
     test('getFixedOutfits - nên trả về danh sách các outfit có is_fixed = 1', () async {
-      // Arrange
       final tFixedOutfit = tOutfit.copyWith(isFixed: true);
       final tFixedOutfitMap = Map<String, dynamic>.from(tOutfit.toMap())
         ..['is_fixed'] = 1;
       
       when(() => mockDbHelper.getFixedOutfits()).thenAnswer((_) async => [tFixedOutfitMap]);
-
-      // Act
       final result = await repository.getFixedOutfits();
-
-      // Assert
       expect(result.length, 1);
       expect(result.first, tFixedOutfit);
       verify(() => mockDbHelper.getFixedOutfits()).called(1);

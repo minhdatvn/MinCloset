@@ -8,6 +8,7 @@ import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/notification_type.dart';
+import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/notifiers/outfit_builder_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/screens/background_cropper_screen.dart';
@@ -16,6 +17,33 @@ import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:mincloset/widgets/item_search_filter_bar.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 import 'package:uuid/uuid.dart';
+
+// <<< THÊM LỚP DELEGATE Ở ĐÂY >>>
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  final ItemSearchFilterBar _searchBar;
+
+  _SliverAppBarDelegate(this._searchBar);
+
+  @override
+  double get minExtent => 72.0;
+  @override
+  double get maxExtent => 72.0;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    // Thêm một lớp Material để đảm bảo màu nền và các hiệu ứng được vẽ đúng
+    return Material( 
+      color: Theme.of(context).scaffoldBackgroundColor.withAlpha(242),
+      child: _searchBar,
+    );
+  }
+
+  @override
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+    return false;
+  }
+}
+
 
 class OutfitBuilderPage extends ConsumerStatefulWidget {
   const OutfitBuilderPage({super.key});
@@ -29,13 +57,16 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   Uint8List? _imageData;
   final Map<String, ClothingItem> _itemsOnCanvas = {};
   bool _isSaving = false;
+  
+  static const _itemBrowserProviderId = 'outfit_builder_items';
 
   @override
   void initState() {
     super.initState();
     _generateBlankImage(const Size(750, 1000));
   }
-
+  
+  // Các hàm logic khác không thay đổi...
   Future<void> _generateBlankImage(Size size) async {
     final image = img.Image(width: size.width.toInt(), height: size.height.toInt());
     img.fill(image, color: img.ColorRgb8(255, 255, 255));
@@ -49,33 +80,23 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   Future<void> _pickBackgroundImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
     if (pickedFile == null || !mounted) return;
-
     final imageBytes = await pickedFile.readAsBytes();
-
     if (!mounted) return;
-
     final croppedBytes = await Navigator.of(context).push<Uint8List>(
       MaterialPageRoute(
         builder: (context) => BackgroundCropperScreen(imageBytes: imageBytes),
       ),
     );
-
     if (croppedBytes != null && mounted) {
-      // BƯỚC 1: Cập nhật state của parent widget (OutfitBuilderPage)
-      // để đảm bảo các lần build lại trong tương lai sử dụng đúng ảnh.
       setState(() {
         _imageData = croppedBytes;
       });
-
-      // BƯỚC 2: Ra lệnh cho State HIỆN TẠI của ProImageEditor
-      // cập nhật ngay lập tức hình nền của nó.
       _editorKey.currentState
           ?.updateBackgroundImage(EditorImage(byteArray: croppedBytes));
     }
   }
-
+  
   Future<void> _showSaveDialog(Uint8List editedImageBytes) async {
     if (!mounted) return;
     final nameController = TextEditingController();
@@ -204,13 +225,28 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
       ),
     );
   }
-
+  
+  // <<< SỬA LẠI HÀM NÀY ĐỂ DÙNG SLIVERS >>>
   Widget _buildItemBrowserSheet() {
+    final notifier = ref.read(itemFilterProvider(_itemBrowserProviderId).notifier);
+    final state = ref.watch(itemFilterProvider(_itemBrowserProviderId));
+
     return DraggableScrollableSheet(
       initialChildSize: 0.17,
       minChildSize: 0.07,
       maxChildSize: 0.92,
       builder: (BuildContext context, ScrollController scrollController) {
+        
+        void onScroll() {
+          if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 300 &&
+              !state.isLoadingMore &&
+              state.hasMore) {
+            notifier.fetchMoreItems();
+          }
+        }
+        
+        scrollController.addListener(onScroll);
+
         return Container(
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor.withAlpha(242),
@@ -222,26 +258,30 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
               ),
             ],
           ),
-          child: ListView(
+          child: CustomScrollView(
             controller: scrollController,
-            padding: EdgeInsets.zero,
-            children: [
-              // Tay nắm kéo
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Center(
-                  child: Container(
-                    width: 40,
-                    height: 5,
-                    decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(12)),
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Center(
+                    child: Container(
+                      width: 40,
+                      height: 5,
+                      decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(12)),
+                    ),
                   ),
                 ),
               ),
-              // Thanh tìm kiếm và bộ lọc
-              const ItemSearchFilterBar(providerId: 'outfit_builder_items'),
-              // Danh sách vật phẩm
+              // Ghim thanh tìm kiếm bằng SliverPersistentHeader
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _SliverAppBarDelegate(
+                  const ItemSearchFilterBar(providerId: _itemBrowserProviderId),
+                ),
+              ),
               ItemBrowserView(
-                providerId: 'outfit_builder_items',
+                providerId: _itemBrowserProviderId,
                 onItemTapped: (item) {
                   final stickerId = const Uuid().v4();
                   _itemsOnCanvas[stickerId] = item;
@@ -274,7 +314,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Outfit studio'),
+        title: const Text('Outfit Studio'),
         leading: IconButton(icon: const Icon(Icons.close), onPressed: () => _editorKey.currentState?.closeEditor()),
         actions: [
           if (_isSaving)
@@ -298,7 +338,6 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
       ),
       body: Stack(
         children: [
-          // Lớp dưới: Trình chỉnh sửa chính
           Column(
             children: [
               _buildSecondaryToolbar(),
@@ -322,38 +361,28 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                             style: const MainEditorStyle(background: Colors.white),
                             widgets: MainEditorWidgets(appBar: (_, __) => null),
                           ),
-                          // === BẬT STICKER EDITOR ===
                           stickerEditor: StickerEditorConfigs(
                             enabled: true,
-                            // Cung cấp một builder để hiển thị giao diện chọn sticker.
-                            // Hiện tại, chúng ta sẽ hiển thị một thông báo.
-                            // Sau này bạn có thể thay thế bằng một GridView chứa các sticker của bạn.
                             builder: (setLayer, scrollController) {
                               return const Center(
                                 child: Text('Stickers will be available soon.'),
                               );
                             },
                           ),
-
-                          // === ẨN CÁC EDITOR KHÔNG CẦN THIẾT ===
                           cropRotateEditor: const CropRotateEditorConfigs(enabled: false),
                           filterEditor: const FilterEditorConfigs(enabled: false),
                           blurEditor: const BlurEditorConfigs(enabled: false),
-                          // TuneEditor (chỉnh màu) cũng là một nút riêng, ta cũng ẩn nó đi
                           tuneEditor: const TuneEditorConfigs(enabled: false),
                         ),
                       ),
-                    ),
-              
+              ),
             ],
           ),
           Positioned(
-            // Ghim nó vào các cạnh trái, phải và dưới, nhưng cách cạnh dưới 80px
             bottom: 60.0,
             left: 0,
             right: 0,
-            // Cho phép nó chiếm toàn bộ chiều cao còn lại phía trên
-            top: 0, 
+            top: 0,
             child: _buildItemBrowserSheet(),
           ),
         ],

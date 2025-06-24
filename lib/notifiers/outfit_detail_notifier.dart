@@ -6,6 +6,7 @@ import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
 import 'package:mincloset/utils/logger.dart';
+import 'package:mincloset/helpers/image_helper.dart';
 
 class OutfitDetailNotifier extends StateNotifier<Outfit> {
   final OutfitRepository _outfitRepo;
@@ -67,6 +68,13 @@ class OutfitDetailNotifier extends StateNotifier<Outfit> {
 
   Future<void> deleteOutfit() async {
     try {
+      // <<< THÊM MỚI: Gọi hàm xóa file ảnh >>>
+      await deleteImageAndThumbnail(
+        imagePath: state.imagePath,
+        thumbnailPath: state.thumbnailPath,
+      );
+      
+      // Xóa bản ghi trong CSDL
       await _outfitRepo.deleteOutfit(state.id);
     } catch (e, s) {
       logger.e("Failed to delete outfit", error: e, stackTrace: s);

@@ -3,6 +3,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mincloset/helpers/db_helper.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/models/outfit_filter.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:uuid/uuid.dart';
@@ -118,6 +119,37 @@ void main() {
     });
   });
 
-  // Bạn có thể thêm các bài test tương tự cho các phương thức khác như
-  // updateItem, getItemsInCloset, v.v.
+  group('getFilteredItems', () {
+    test('Nên gọi getFilteredItems trên dbHelper với đúng các tham số', () async {
+      // Arrange
+      const query = 'áo';
+      final filters = OutfitFilter(category: 'Tops', colors: {'Trắng'});
+      const limit = 10;
+      const offset = 0;
+      // Giả lập dbHelper trả về danh sách rỗng
+      when(() => mockDbHelper.getFilteredItems(
+        query: any(named: 'query'),
+        filters: any(named: 'filters'),
+        limit: any(named: 'limit'),
+        offset: any(named: 'offset'),
+      )).thenAnswer((_) async => []);
+
+      // Act
+      await repository.getFilteredItems(
+        query: query,
+        filters: filters,
+        limit: limit,
+        offset: offset,
+      );
+
+      // Assert
+      // Xác minh rằng dbHelper được gọi với chính xác các đối số đã truyền vào
+      verify(() => mockDbHelper.getFilteredItems(
+        query: query,
+        filters: filters,
+        limit: limit,
+        offset: offset,
+      )).called(1);
+    });
+  });
 }

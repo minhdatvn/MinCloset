@@ -5,25 +5,24 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mincloset/domain/use_cases/save_outfit_use_case.dart';
+import 'package:mincloset/helpers/image_helper.dart'; // <<< THÊM IMPORT
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
-// --- Các lớp Mock và Fake không thay đổi ---
+// --- CÁC LỚP MOCK ---
 class MockOutfitRepository extends Mock implements OutfitRepository {}
+class MockImageHelper extends Mock implements ImageHelper {} // <<< THÊM MOCK MỚI
 class FakeOutfit extends Fake implements Outfit {}
 
 void main() {
-  // --- PHẦN SỬA LỖI QUAN TRỌNG ---
-  // Đảm bảo rằng binding của Flutter test đã được khởi tạo.
-  // Điều này cần thiết để truy cập `TestDefaultBinaryMessengerBinding`.
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late SaveOutfitUseCase useCase;
   late MockOutfitRepository mockOutfitRepository;
+  late MockImageHelper mockImageHelper; // <<< KHAI BÁO BIẾN MỚI
 
-  // Định nghĩa kênh platform mà chúng ta muốn mock
   const channel = MethodChannel('plugins.flutter.io/path_provider');
 
   setUpAll(() {
@@ -32,15 +31,14 @@ void main() {
 
   setUp(() {
     mockOutfitRepository = MockOutfitRepository();
-    useCase = SaveOutfitUseCase(mockOutfitRepository);
+    mockImageHelper = MockImageHelper(); // <<< KHỞI TẠO MOCK
+    
+    // <<< SỬA LỖI: Truyền vào 2 tham số >>>
+    useCase = SaveOutfitUseCase(mockOutfitRepository, mockImageHelper);
 
-    // --- ĐÂY LÀ CÁCH MOCK MỚI VÀ CHÍNH XÁC ---
-    // Chúng ta sử dụng `TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger`
-    // để đăng ký một "trình xử lý cuộc gọi giả" (mock call handler) cho kênh đã định nghĩa.
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
       if (methodCall.method == 'getApplicationDocumentsDirectory') {
-        // Tạo một đường dẫn tạm thời và giả để trả về
         final tempDir = await Directory.systemTemp.createTemp('test_app_doc_dir');
         return tempDir.path;
       }
@@ -48,8 +46,6 @@ void main() {
     });
   });
 
-  // Thêm tearDown để dọn dẹp mock handler sau mỗi bài test
-  // Điều này ngăn chặn việc handler của test này ảnh hưởng đến các test khác.
   tearDown(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
@@ -65,9 +61,12 @@ void main() {
     };
     final tCapturedImage = Uint8List.fromList([1, 2, 3]);
 
-    test('Nên lưu ảnh và gọi insertOutfit trên repository với dữ liệu chính xác', () async {
+    test('Nên lưu ảnh, tạo thumbnail và gọi insertOutfit trên repository', () async {
       // Sắp xếp
+      // Giả lập các hàm không trả về gì
       when(() => mockOutfitRepository.insertOutfit(any())).thenAnswer((_) async => Future.value());
+      // Giả lập hàm tạo thumbnail trả về một đường dẫn giả
+      when(() => mockImageHelper.createThumbnail(any())).thenAnswer((_) async => 'path/to/thumb.jpg');
 
       // Hành động
       await useCase.execute(
@@ -82,13 +81,15 @@ void main() {
       expect(captured.length, 1);
       final savedOutfit = captured.first as Outfit;
 
+      // Kiểm tra các thuộc tính của outfit đã được lưu
       expect(savedOutfit.name, tName);
       expect(savedOutfit.isFixed, tIsFixed);
       expect(savedOutfit.itemIds, 'item1,item2');
-      // Kiểm tra xem file ảnh có được tạo ra trong thư mục tạm không
+      expect(savedOutfit.thumbnailPath, 'path/to/thumb.jpg'); // Kiểm tra thumbnail path
+      
+      // Kiểm tra xem file ảnh gốc có được tạo ra không
       final file = File(savedOutfit.imagePath);
       expect(await file.exists(), isTrue);
-      // Dọn dẹp file
       await file.delete();
     });
   });

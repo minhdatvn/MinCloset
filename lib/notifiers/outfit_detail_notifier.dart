@@ -11,8 +11,9 @@ import 'package:mincloset/helpers/image_helper.dart';
 class OutfitDetailNotifier extends StateNotifier<Outfit> {
   final OutfitRepository _outfitRepo;
   final ClothingItemRepository _clothingItemRepo;
+  final ImageHelper _imageHelper;
 
-  OutfitDetailNotifier(this._outfitRepo, this._clothingItemRepo, Outfit initialOutfit) : super(initialOutfit);
+  OutfitDetailNotifier(this._outfitRepo, this._clothingItemRepo, this._imageHelper, Outfit initialOutfit) : super(initialOutfit);
 
   Future<void> updateName(String newName) async {
     if (newName.trim().isEmpty || newName.trim() == state.name) {
@@ -68,13 +69,11 @@ class OutfitDetailNotifier extends StateNotifier<Outfit> {
 
   Future<void> deleteOutfit() async {
     try {
-      // <<< THÊM MỚI: Gọi hàm xóa file ảnh >>>
-      await deleteImageAndThumbnail(
+      // <<< Sửa lời gọi hàm >>>
+      await _imageHelper.deleteImageAndThumbnail(
         imagePath: state.imagePath,
         thumbnailPath: state.thumbnailPath,
       );
-      
-      // Xóa bản ghi trong CSDL
       await _outfitRepo.deleteOutfit(state.id);
     } catch (e, s) {
       logger.e("Failed to delete outfit", error: e, stackTrace: s);
@@ -86,5 +85,6 @@ final outfitDetailProvider = StateNotifierProvider.autoDispose
     .family<OutfitDetailNotifier, Outfit, Outfit>((ref, initialOutfit) {
   final outfitRepo = ref.watch(outfitRepositoryProvider);
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
-  return OutfitDetailNotifier(outfitRepo, clothingItemRepo, initialOutfit);
+  final imageHelper = ref.watch(imageHelperProvider); // <<< Lấy dependency từ provider
+  return OutfitDetailNotifier(outfitRepo, clothingItemRepo, imageHelper, initialOutfit); // <<< Truyền vào constructor
 });

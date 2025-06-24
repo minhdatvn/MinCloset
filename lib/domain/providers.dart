@@ -4,7 +4,7 @@ import 'package:mincloset/domain/use_cases/analyze_item_use_case.dart';
 import 'package:mincloset/domain/use_cases/get_outfit_suggestion_use_case.dart';
 import 'package:mincloset/domain/use_cases/save_outfit_use_case.dart';
 import 'package:mincloset/domain/use_cases/validate_item_name_use_case.dart';
-// <<< THÊM IMPORT MỚI
+import 'package:mincloset/helpers/image_helper.dart'; 
 import 'package:mincloset/domain/use_cases/validate_required_fields_use_case.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/services/classification_service.dart';
@@ -36,7 +36,8 @@ final getOutfitSuggestionUseCaseProvider = Provider<GetOutfitSuggestionUseCase>(
 
 final saveOutfitUseCaseProvider = Provider<SaveOutfitUseCase>((ref) {
   final outfitRepo = ref.watch(outfitRepositoryProvider);
-  return SaveOutfitUseCase(outfitRepo);
+  final imageHelper = ref.watch(imageHelperProvider); // <<< Lấy dependency
+  return SaveOutfitUseCase(outfitRepo, imageHelper); // <<< Truyền vào
 });
 
 final validateItemNameUseCaseProvider = Provider<ValidateItemNameUseCase>((ref) {

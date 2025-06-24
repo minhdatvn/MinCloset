@@ -1,5 +1,7 @@
 // test/notifiers/profile_page_notifier_test.dart
 
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mincloset/models/closet.dart';
@@ -13,19 +15,17 @@ import 'package:mincloset/repositories/outfit_repository.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// --- BƯỚC 1: TẠO CÁC LỚP MOCK ---
+// --- CÁC LỚP MOCK KHÔNG THAY ĐỔI ---
 class MockClosetRepository extends Mock implements ClosetRepository {}
 class MockClothingItemRepository extends Mock implements ClothingItemRepository {}
 class MockOutfitRepository extends Mock implements OutfitRepository {}
 
 void main() {
-  // Khai báo các biến mock và ProviderContainer
+  late ProviderContainer container;
   late MockClosetRepository mockClosetRepo;
   late MockClothingItemRepository mockClothingItemRepo;
   late MockOutfitRepository mockOutfitRepo;
-  late ProviderContainer container;
 
-  // Dữ liệu mẫu để giả lập kết quả trả về từ các repository
   final tClosets = [Closet(id: 'c1', name: 'Tủ đồ 1')];
   final tOutfits = [const Outfit(id: 'o1', name: 'Outfit 1', imagePath: 'p1', itemIds: 'i1')];
   final tItems = [
@@ -33,16 +33,26 @@ void main() {
     const ClothingItem(id: 'i2', name: 'Quần xanh', category: 'Quần > Quần jeans', color: 'Xanh', imagePath: 'p2', closetId: 'c1', season: 'Thu,Hạ', occasion: 'Hằng ngày'),
     const ClothingItem(id: 'i3', name: 'Áo khoác đỏ', category: 'Áo khoác', color: 'Đỏ', imagePath: 'p3', closetId: 'c1', season: 'Đông', occasion: 'Đi làm'),
   ];
-
-  // --- BƯỚC 2: HÀM `setUp` ---
-  // Hàm này chạy trước mỗi bài test
+  
+  // <<< SỬA ĐỔI: Chuyển toàn bộ mock vào setUp >>>
   setUp(() {
-    // Khởi tạo các mock repository
     mockClosetRepo = MockClosetRepository();
     mockClothingItemRepo = MockClothingItemRepository();
     mockOutfitRepo = MockOutfitRepository();
 
-    // Khởi tạo ProviderContainer và GHI ĐÈ các provider thật bằng các mock
+    // 1. Giả lập SharedPreferences
+    SharedPreferences.setMockInitialValues({
+      'user_name': 'Minh Dat',
+      'city_mode': 'manual',
+      'manual_city_name': 'Hanoi',
+    });
+
+    // 2. Giả lập kết quả trả về từ các mock repository
+    when(() => mockClosetRepo.getClosets()).thenAnswer((_) async => tClosets);
+    when(() => mockOutfitRepo.getOutfits()).thenAnswer((_) async => tOutfits);
+    when(() => mockClothingItemRepo.getAllItems()).thenAnswer((_) async => tItems);
+
+    // 3. Khởi tạo ProviderContainer sau khi đã thiết lập xong các mock
     container = ProviderContainer(
       overrides: [
         closetRepositoryProvider.overrideWithValue(mockClosetRepo),
@@ -52,55 +62,52 @@ void main() {
     );
   });
 
-  // Dọn dẹp container sau mỗi bài test
   tearDown(() {
     container.dispose();
   });
 
-
   group('ProfilePageNotifier', () {
-    test('loadInitialData - nên tải dữ liệu và tính toán thống kê chính xác', () async {
-      // --- SẮP XẾP (ARRANGE) ---
-
-      // 1. Giả lập dữ liệu trong SharedPreferences
-      SharedPreferences.setMockInitialValues({
-        'user_name': 'Minh Dat',
-        'city_mode': 'manual',
-        'manual_city_name': 'Hanoi',
-      });
-
-      // 2. Giả lập kết quả trả về từ các mock repository
-      when(() => mockClosetRepo.getClosets()).thenAnswer((_) async => tClosets);
-      when(() => mockOutfitRepo.getOutfits()).thenAnswer((_) async => tOutfits);
-      when(() => mockClothingItemRepo.getAllItems()).thenAnswer((_) async => tItems);
+    // <<< SỬA LẠI HOÀN TOÀN BÀI TEST NÀY >>>
+    test('khi khởi tạo, nên tự động tải dữ liệu và tính toán thống kê chính xác', () async {
+      // ARRANGE
+      // Notifier được tạo và `loadInitialData` được gọi tự động trong `setUp`.
+      // Chúng ta cần một cơ chế để đợi cho `loadInitialData` (là một Future) hoàn thành.
+      final completer = Completer<void>();
       
-      // Lấy ra notifier từ container
-      final notifier = container.read(profileProvider.notifier);
+      // Lắng nghe sự thay đổi của state. Khi state chuyển từ loading=true sang loading=false,
+      // nghĩa là quá trình tải đã xong.
+      container.listen(
+        profileProvider,
+        (previous, next) {
+          if (previous?.isLoading == true && next.isLoading == false) {
+            if (!completer.isCompleted) {
+              completer.complete();
+            }
+          }
+        },
+        fireImmediately: true, // fireImmediately để kiểm tra cả trạng thái ban đầu
+      );
 
-      // --- HÀNH ĐỘNG (ACT) ---
-      await notifier.loadInitialData();
+      // ACT
+      // Kích hoạt việc tạo notifier. Dòng này sẽ bắt đầu quá trình tải dữ liệu.
+      container.read(profileProvider.notifier);
+      // Đợi cho đến khi completer báo hiệu đã tải xong
+      await completer.future;
 
-      // --- KIỂM CHỨNG (ASSERT) ---
-      // Lấy ra trạng thái cuối cùng của notifier
+      // ASSERT
       final state = container.read(profileProvider);
 
-      // Kiểm tra các giá trị được tải từ SharedPreferences
+      // Kiểm tra các giá trị được tải
       expect(state.userName, 'Minh Dat');
       expect(state.manualCity, 'Hanoi');
-      
-      // Kiểm tra các giá trị tổng quan
-      expect(state.totalItems, tItems.length); // 3
-      expect(state.totalClosets, tClosets.length); // 1
-      expect(state.totalOutfits, tOutfits.length); // 1
+      expect(state.totalItems, tItems.length);
+      expect(state.totalClosets, tClosets.length);
+      expect(state.totalOutfits, tOutfits.length);
 
-      // Kiểm tra logic tính toán thống kê (quan trọng)
-      // Phân phối màu: Đỏ (2), Xanh (1)
+      // Kiểm tra logic tính toán thống kê
       expect(state.colorDistribution, {'Đỏ': 2, 'Xanh': 1});
-      // Phân phối danh mục chính: Áo (1), Quần (1), Áo khoác (1)
       expect(state.categoryDistribution, {'Áo': 1, 'Quần': 1, 'Áo khoác': 1});
-      // Phân phối mùa: Hạ (2), Thu (1), Đông (1)
       expect(state.seasonDistribution, {'Hạ': 2, 'Thu': 1, 'Đông': 1});
-      // Phân phối mục đích: Đi chơi (1), Hằng ngày (1), Đi làm (1)
       expect(state.occasionDistribution, {'Đi chơi': 1, 'Hằng ngày': 1, 'Đi làm': 1});
 
       // Đảm bảo không có lỗi
@@ -112,7 +119,5 @@ void main() {
       verify(() => mockClosetRepo.getClosets()).called(1);
       verify(() => mockOutfitRepo.getOutfits()).called(1);
     });
-
-    // Bạn có thể viết thêm test cho các hàm khác như updateAvatar, updateProfileInfo...
   });
 }

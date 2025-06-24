@@ -19,16 +19,13 @@ class MockWeatherRepository extends Mock implements WeatherRepository {}
 class MockSuggestionRepository extends Mock implements SuggestionRepository {}
 
 // TẠO CÁC LỚP MOCK CHO PLATFORM INTERFACE
-// Thêm "with MockPlatformInterfaceMixin" để tuân thủ quy tắc test của package
 class MockGeocodingPlatform extends Mock with MockPlatformInterfaceMixin implements GeocodingPlatform {}
 class MockGeolocatorPlatform extends Mock with MockPlatformInterfaceMixin implements GeolocatorPlatform {
-  // Cung cấp một giá trị mặc định cho các thuộc tính getter
   @override
   Stream<ServiceStatus> getServiceStatusStream() => const Stream.empty();
 }
 
 void main() {
-  // Khai báo các biến
   late GetOutfitSuggestionUseCase useCase;
   late MockClothingItemRepository mockClothingRepo;
   late MockWeatherRepository mockWeatherRepo;
@@ -37,14 +34,12 @@ void main() {
   late MockGeocodingPlatform mockGeocoding;
   late MockGeolocatorPlatform mockGeolocator;
 
-  // Dữ liệu giả
   final tClothingItems = [
     const ClothingItem(id: '1', name: 'Áo khoác', category: 'Áo', color: 'Đen', imagePath: 'path', closetId: 'c1'),
   ];
   final tWeatherData = {'name': 'Da Nang', 'main': {'temp': 30.0}, 'weather': [{'description': 'nắng đẹp'}]};
   final tSuggestionMap = {'suggestion': 'Mặc áo khoác đen', 'reason': 'Vì trời lạnh'};
 
-  // Hàm `setUp`
   setUp(() {
     mockClothingRepo = MockClothingItemRepository();
     mockWeatherRepo = MockWeatherRepository();
@@ -52,14 +47,15 @@ void main() {
     mockGeocoding = MockGeocodingPlatform();
     mockGeolocator = MockGeolocatorPlatform();
     
-    // Gán các instance mock cho platform interface
     GeocodingPlatform.instance = mockGeocoding;
     GeolocatorPlatform.instance = mockGeolocator;
 
     useCase = GetOutfitSuggestionUseCase(mockClothingRepo, mockWeatherRepo, mockSuggestionRepo);
 
-    // Mặc định, giả lập các hàm trả về dữ liệu thành công
-    when(() => mockClothingRepo.getAllItems()).thenAnswer((_) async => tClothingItems);
+    // <<< SỬA ĐỔI MOCK: Dùng any() để chấp nhận cả trường hợp có và không có tham số >>>
+    when(() => mockClothingRepo.getAllItems(limit: any(named: 'limit'), offset: any(named: 'offset')))
+        .thenAnswer((_) async => tClothingItems);
+        
     when(() => mockWeatherRepo.getWeather(any())).thenAnswer((_) async => tWeatherData);
     when(() => mockWeatherRepo.getWeatherByCoords(any(), any())).thenAnswer((_) async => tWeatherData);
     when(() => mockSuggestionRepo.getOutfitSuggestion(weather: any(named: 'weather'), items: any(named: 'items'), cityName: any(named: 'cityName')))
@@ -69,14 +65,17 @@ void main() {
   group('GetOutfitSuggestionUseCase', () {
     test('Nên trả về thông báo "thêm đồ" khi tủ đồ rỗng', () async {
       // Arrange
-      when(() => mockClothingRepo.getAllItems()).thenAnswer((_) async => []);
+      // Giả lập getAllItems trả về danh sách rỗng
+      when(() => mockClothingRepo.getAllItems(limit: any(named: 'limit'), offset: any(named: 'offset')))
+          .thenAnswer((_) async => []);
       SharedPreferences.setMockInitialValues({'city_mode': 'auto'});
 
       // Act
       final result = await useCase.execute();
 
       // Assert
-      expect(result['suggestion'], 'Hãy thêm đồ vào tủ để nhận gợi ý.');
+      // <<< SỬA ĐỔI: Mong đợi chuỗi tiếng Anh >>>
+      expect(result['suggestion'], 'Please add items to your closet to get suggestions.');
     });
 
     test('Nên lấy thời tiết theo thành phố thủ công đã lưu', () async {

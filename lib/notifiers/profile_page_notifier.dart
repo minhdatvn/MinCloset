@@ -13,7 +13,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   final Ref _ref;
 
   ProfilePageNotifier(this._ref) : super(const ProfilePageState()) {
-    // <<< THÊM DÒNG NÀY ĐỂ TỰ ĐỘNG TẢI DỮ LIỆU KHI NOTIFIER ĐƯỢC TẠO >>>
     loadInitialData();
 
     _ref.listen<int>(itemAddedTriggerProvider, (previous, next) {
@@ -51,7 +50,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       final manualCity = prefs.getString('manual_city_name') ?? 'Ha Noi';
       logger.i('3. Successfully read SharedPreferences.');
 
-      // Ta sẽ kiểm tra từng lời gọi CSDL
       final allItems = await itemRepo.getAllItems();
       logger.i('4. Successfully loaded all items from database.');
 
@@ -121,7 +119,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     }
   }
   
-  // ... các hàm còn lại không thay đổi ...
   Future<void> updateAvatar() async {
     final imagePicker = ImagePicker();
     final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
@@ -215,8 +212,9 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   }
 }
 
+// <<< SỬA LỖI: Xóa .autoDispose >>>
 final profileProvider =
-    StateNotifierProvider.autoDispose<ProfilePageNotifier, ProfilePageState>(
+    StateNotifierProvider<ProfilePageNotifier, ProfilePageState>(
         (ref) {
   return ProfilePageNotifier(ref);
 });

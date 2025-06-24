@@ -26,7 +26,7 @@ class ItemNotifierArgs extends Equatable {
     this.newImage,
     this.preAnalyzedState,
   });
-  
+
   @override
   List<Object?> get props => [tempId];
 }
@@ -34,9 +34,10 @@ class ItemNotifierArgs extends Equatable {
 
 class AddItemNotifier extends StateNotifier<AddItemState> {
   final ClothingItemRepository _clothingItemRepo;
+  final ImageHelper _imageHelper; // <<< THÊM
   final Ref _ref;
 
-  AddItemNotifier(this._clothingItemRepo, this._ref, ItemNotifierArgs args)
+  AddItemNotifier(this._clothingItemRepo, this._imageHelper, this._ref, ItemNotifierArgs args) // <<< SỬA
       : super(
           args.preAnalyzedState ??
           (args.itemToEdit != null
@@ -142,7 +143,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
     
     final String? thumbnailPath = state.image != null
-        ? await createThumbnail(sourceImagePath)
+        ? await _imageHelper.createThumbnail(sourceImagePath)
         : null;
     
     final clothingItem = ClothingItem(
@@ -177,11 +178,11 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     if (!state.isEditing) return false;
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
-      await deleteImageAndThumbnail(
+      await _imageHelper.deleteImageAndThumbnail( // <<< SỬA
         imagePath: state.imagePath,
         thumbnailPath: state.thumbnailPath,
       );
-      
+
       await _clothingItemRepo.deleteItem(state.id);
       state = state.copyWith(isLoading: false, isSuccess: true);
       return true;
@@ -192,9 +193,9 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   }
 }
 
-// <<< SỬA LỖI: Xóa .autoDispose >>>
 final addItemProvider = StateNotifierProvider
     .family<AddItemNotifier, AddItemState, ItemNotifierArgs>((ref, args) {
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
-  return AddItemNotifier(clothingItemRepo, ref, args);
+  final imageHelper = ref.watch(imageHelperProvider); // <<< THÊM
+  return AddItemNotifier(clothingItemRepo, imageHelper, ref, args); // <<< SỬA
 });

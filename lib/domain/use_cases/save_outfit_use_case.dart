@@ -2,7 +2,7 @@
 
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:mincloset/helpers/image_helper.dart'; // <<< THÊM IMPORT MỚI
+import 'package:mincloset/helpers/image_helper.dart'; // Sửa import
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
@@ -13,8 +13,10 @@ import 'package:path/path.dart' as p;
 
 class SaveOutfitUseCase {
   final OutfitRepository _outfitRepo;
+  final ImageHelper _imageHelper; // <<< Thêm dependency
 
-  SaveOutfitUseCase(this._outfitRepo);
+  // <<< Sửa constructor >>>
+  SaveOutfitUseCase(this._outfitRepo, this._imageHelper);
 
   Future<void> execute({
     required String name,
@@ -22,7 +24,6 @@ class SaveOutfitUseCase {
     required Map<String, ClothingItem> itemsOnCanvas,
     required Uint8List capturedImage,
   }) async {
-    // --- LƯU ẢNH GỐC ---
     final String imagePath;
     try {
       final directory = await getApplicationDocumentsDirectory();
@@ -38,7 +39,7 @@ class SaveOutfitUseCase {
     }
 
     // <<< THÊM MỚI: TẠO ẢNH THU NHỎ >>>
-    final String? thumbnailPath = await createThumbnail(imagePath);
+    final String? thumbnailPath = await _imageHelper.createThumbnail(imagePath);
 
     // --- TẠO ĐỐI TƯỢNG OUTFIT VÀ LƯU VÀO CSDL ---
     final itemIds = itemsOnCanvas.values.map((item) => item.id).join(',');

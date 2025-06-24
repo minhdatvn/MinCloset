@@ -133,7 +133,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     final List<Widget> statPages = [];
     if (state.categoryDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage('Categories', state.categoryDistribution));
+      statPages.add(_buildStatPage('Category', state.categoryDistribution));
     }
     if (state.colorDistribution.isNotEmpty) {
       final sortedColorEntries = state.colorDistribution.entries.toList()
@@ -142,10 +142,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           .map((entry) => AppOptions.colors[entry.key] ?? Colors.grey)
           .toList();
       final sortedColorMap = Map.fromEntries(sortedColorEntries);
-      statPages.add(_buildStatPage('Colors', sortedColorMap, specificColors: dynamicColors));
+      statPages.add(_buildStatPage('Color', sortedColorMap, specificColors: dynamicColors));
     }
     if (state.seasonDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage('Seasons', state.seasonDistribution));
+      statPages.add(_buildStatPage('Season', state.seasonDistribution));
     }
     if (state.occasionDistribution.isNotEmpty) {
       statPages.add(_buildStatPage('Occasion', state.occasionDistribution));

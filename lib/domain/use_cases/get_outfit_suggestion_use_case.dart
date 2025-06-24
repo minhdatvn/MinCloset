@@ -35,20 +35,20 @@ class GetOutfitSuggestionUseCase {
         final displayName = prefs.getString('manual_city_name');
 
         if (lat != null && lon != null && displayName != null) {
-          logger.i('Lấy thời tiết theo tọa độ đã lưu: ($lat, $lon)');
+          logger.i('Get weather by saved coordinates: ($lat, $lon)');
           weatherData = await _weatherRepo.getWeatherByCoords(lat, lon);
           cityName = displayName;
         } else {
-          logger.w('Dữ liệu thành phố thủ công bị thiếu, quay về mặc định.');
+          logger.w('Manual location data missing, reverting to default.');
           weatherData = await _weatherRepo.getWeather(cityName);
         }
       } else {
-        logger.i('Lấy thời tiết theo vị trí tự động...');
+        logger.i('Getting weather by auto-detecting location…');
         // <<< SỬA LỖI GÂY TREO Ở ĐÂY >>>
         // 1. Kiểm tra xem dịch vụ vị trí có được bật không
         final serviceEnabled = await Geolocator.isLocationServiceEnabled();
         if (!serviceEnabled) {
-          logger.w('Dịch vụ vị trí đang tắt, quay về mặc định.');
+          logger.w('Location services are off, reverting to default.');
           // Ném lỗi để khối catch bên dưới xử lý và dùng thành phố mặc định
           throw Exception('Location services are disabled.');
         }
@@ -61,7 +61,7 @@ class GetOutfitSuggestionUseCase {
 
         if (permission == LocationPermission.denied ||
             permission == LocationPermission.deniedForever) {
-          logger.w('Không có quyền truy cập vị trí, quay về mặc định.');
+          logger.w('Location permission are denied, reverting to default.');
           throw Exception('Location permissions are denied.');
         }
         
@@ -75,7 +75,7 @@ class GetOutfitSuggestionUseCase {
         cityName = placemarks.first.locality ?? cityName;
       }
     } catch (e, s) {
-      logger.e("Lỗi khi lấy dữ liệu thời tiết cho gợi ý, sử dụng mặc định.", error: e, stackTrace: s);
+      logger.e("Failed to load weather for suggestions, using default.", error: e, stackTrace: s);
       weatherData = await _weatherRepo.getWeather(cityName);
     }
 
@@ -90,7 +90,7 @@ class GetOutfitSuggestionUseCase {
     if (items.isEmpty) {
       return {
         'weather': weatherData,
-        'suggestion': 'Hãy thêm đồ vào tủ để nhận gợi ý.',
+        'suggestion': 'Please add items to your closet to get suggestions.',
       };
     }
 

@@ -7,13 +7,13 @@ class ValidateRequiredFieldsUseCase {
   /// Xác thực các trường bắt buộc cho một món đồ duy nhất.
   ValidationResult executeForSingle(AddItemState itemState) {
     if (itemState.name.trim().isEmpty) {
-      return ValidationResult.failure("Vui lòng nhập tên");
+      return ValidationResult.failure("Please enter item name");
     }
     if (itemState.selectedClosetId == null) {
-      return ValidationResult.failure("Vui lòng chọn tủ quần áo");
+      return ValidationResult.failure("Please select a closet");
     }
     if (itemState.selectedCategoryValue.isEmpty) {
-      return ValidationResult.failure("Vui lòng chọn danh mục");
+      return ValidationResult.failure("Please select a category");
     }
     return ValidationResult.success();
   }
@@ -24,19 +24,19 @@ class ValidateRequiredFieldsUseCase {
       final itemState = itemStates[i];
       if (itemState.name.trim().isEmpty) {
         return ValidationResult.failure(
-          "Vui lòng nhập tên cho Món đồ số ${i + 1}",
+          "Please enter a name for Item ${i + 1}",
           errorIndex: i,
         );
       }
       if (itemState.selectedClosetId == null) {
         return ValidationResult.failure(
-          "Vui lòng chọn tủ quần áo cho Món đồ số ${i + 1}",
+          "Please select a closet for Item ${i + 1}",
           errorIndex: i,
         );
       }
       if (itemState.selectedCategoryValue.isEmpty) {
         return ValidationResult.failure(
-          "Vui lòng chọn danh mục cho Món đồ số ${i + 1}",
+          "Please select a category for Item ${i + 1}",
           errorIndex: i,
         );
       }

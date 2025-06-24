@@ -38,7 +38,7 @@ class _CitySelectionScreenState extends ConsumerState<CitySelectionScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tùy chọn Thành phố'),
+        title: const Text('Select location'),
         actions: [
           if (!state.isLoading)
             TextButton(
@@ -51,7 +51,7 @@ class _CitySelectionScreenState extends ConsumerState<CitySelectionScreen> {
                   navigator.pop();
                 }
               },
-              child: const Text('LƯU'),
+              child: const Text('Save'),
             )
         ],
       ),
@@ -60,13 +60,13 @@ class _CitySelectionScreenState extends ConsumerState<CitySelectionScreen> {
           : Column(
               children: [
                 RadioListTile<CityMode>(
-                  title: const Text('Tự động theo vị trí'),
+                  title: const Text('Auto-detect'),
                   value: CityMode.auto,
                   groupValue: state.selectedMode,
                   onChanged: (value) => notifier.setMode(value!),
                 ),
                 RadioListTile<CityMode>(
-                  title: const Text('Nhập thủ công'),
+                  title: const Text('Manually'),
                   subtitle: Text(state.selectedSuggestion?.displayName ??
                       state.currentManualCityName),
                   value: CityMode.manual,
@@ -80,7 +80,7 @@ class _CitySelectionScreenState extends ConsumerState<CitySelectionScreen> {
                       controller: _textController,
                       onChanged: notifier.search,
                       decoration: InputDecoration(
-                        hintText: 'Tìm kiếm thành phố...',
+                        hintText: 'Search city/location…',
                         prefixIcon: const Icon(Icons.search),
                         suffixIcon: state.isSearching
                             ? const Padding(

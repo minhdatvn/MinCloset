@@ -26,7 +26,7 @@ class ValidateItemNameUseCase {
 
     if (existingNames.contains(trimmedNewName)) {
       return ValidationResult.failure(
-        'Tên "${name.trim()}" đã được dùng. Bạn vui lòng nhập tên khác. Có thể thêm số vào sau tên đồ vật (ví dụ: Áo 1, Áo 2,... để phân biệt).',
+        '"${name.trim()}" is already taken. Please use a different name. You can add numbers to distinguish items (e.g., Shirt 1, Shirt 2...).',
       );
     }
 
@@ -42,7 +42,7 @@ class ValidateItemNameUseCase {
       if (nameTracker.containsKey(currentName)) {
         final originalIndex = nameTracker[currentName]!;
         return ValidationResult.failure(
-          'Tên "$currentName" của món đồ ${i + 1} đã trùng với món đồ ${originalIndex + 1}. Bạn vui lòng nhập tên khác. Có thể thêm số vào sau tên (ví dụ: Áo 1, Áo 2,... để dễ phân biệt).',
+          '"$currentName" for item ${i + 1}  is already used by item ${originalIndex + 1}. Please use a different name. You can add numbers to distinguish items (e.g., Shirt 1, Shirt 2...).',
           errorIndex: i,
         );
       }
@@ -57,7 +57,7 @@ class ValidateItemNameUseCase {
       final currentName = itemStates[i].name.trim();
       if (existingNames.contains(currentName.toLowerCase())) {
         return ValidationResult.failure(
-          'Tên "$currentName" của món đồ ${i + 1} đã được dùng. Bạn vui lòng nhập tên khác. Có thể thêm số vào sau tên đồ vật (ví dụ: Áo 1, Áo 2,... để phân biệt).',
+          '"$currentName" for item ${i + 1} is already taken. Please use a different name. You can add numbers to distinguish items (e.g., Shirt 1, Shirt 2...).',
           errorIndex: i,
         );
       }

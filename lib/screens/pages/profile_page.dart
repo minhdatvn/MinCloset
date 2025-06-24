@@ -36,7 +36,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget _buildProfileHeader(ProfilePageState state) {
     return InkWell(
       onTap: () {
-        Navigator.pushNamed(context, AppRoutes.settings);
+        Navigator.pushNamed(context, AppRoutes.editProfile);
       },
       borderRadius: BorderRadius.circular(12),
       child: Padding(
@@ -166,7 +166,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               leading: const Icon(Icons.settings_outlined),
               title: const Text('Cài đặt & Tùy chọn'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () => Navigator.pushNamed(context, AppRoutes.editProfile),
+              onTap: () => Navigator.pushNamed(context, AppRoutes.settings),
             ),
             const Divider(height: 32),
             Text('Tổng quan Tủ đồ', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),

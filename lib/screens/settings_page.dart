@@ -15,7 +15,7 @@ class SettingsPage extends ConsumerWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Chọn ngôn ngữ'),
+          title: const Text('Select language'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -46,7 +46,7 @@ class SettingsPage extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Hủy'),
+              child: const Text('Cancel'),
             )
           ],
         );
@@ -61,16 +61,16 @@ class SettingsPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cài đặt'),
+        title: const Text('Settings'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           ListTile(
             leading: const Icon(Icons.location_city_outlined),
-            title: const Text('Thành phố mặc định cho Thời tiết'),
+            title: const Text('Location'),
             subtitle: Text(state.cityMode == CityMode.auto
-                ? 'Tự động theo vị trí'
+                ? 'Auto-detect'
                 : state.manualCity),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
@@ -80,7 +80,7 @@ class SettingsPage extends ConsumerWidget {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.language_outlined),
-            title: const Text('Ngôn ngữ'),
+            title: const Text('Language'),
             subtitle: Text(locale.languageCode == 'vi' ? 'Tiếng Việt' : 'English'),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () => _showLanguageDialog(context, ref),

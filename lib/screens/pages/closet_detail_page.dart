@@ -22,12 +22,12 @@ class ClosetDetailPage extends ConsumerWidget {
       ),
       body: itemsAsyncValue.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Lỗi: $err')),
+        error: (err, stack) => Center(child: Text('Error: $err')),
         data: (items) {
           if (items.isEmpty) {
             return const Center(
               child: Text(
-                'Tủ đồ này chưa có gì cả.\nHãy nhấn nút + ở dưới để thêm nhé!',
+                'Your closet is empty.\nPlease add items!',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 18, color: Colors.grey),
               ),

@@ -25,7 +25,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Set<String> _selectedStyles = {};
   Set<String> _selectedFavoriteColors = {};
 
-  final _genders = ['Nam', 'Nữ', 'Khác'];
+  final _genders = ['Male', 'Female', 'Other'];
 
   @override
   void initState() {
@@ -89,7 +89,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 ),
               ),
               CupertinoButton(
-                child: const Text('Chọn', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                child: const Text('Save', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 onPressed: () {
                   setState(() => _selectedDOB = tempDate);
                   Navigator.of(context).pop();
@@ -106,7 +106,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chỉnh sửa thông tin'),
+        title: const Text('Edit profile'),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
@@ -114,7 +114,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         actions: [
           TextButton(
             onPressed: _saveProfile,
-            child: const Text('LƯU', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: const Text('Save', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -123,11 +123,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildSectionTitle('Thông tin cơ bản'),
+            _buildSectionTitle('Basic info '),
             const SizedBox(height: 16),
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Họ và tên'),
+              decoration: const InputDecoration(labelText: 'Full name'),
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
@@ -136,7 +136,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   .map((gender) => DropdownMenuItem(value: gender, child: Text(gender)))
                   .toList(),
               onChanged: (value) => setState(() => _selectedGender = value),
-              decoration: const InputDecoration(labelText: 'Giới tính'),
+              decoration: const InputDecoration(labelText: 'Gender'),
             ),
             const SizedBox(height: 16),
             InkWell(
@@ -144,14 +144,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               child: InputDecorator(
                 // <<< SỬA LỖI THỤT LỀ >>>
                 decoration: const InputDecoration(
-                  labelText: 'Ngày sinh',
+                  labelText: 'Birthday',
                   contentPadding: EdgeInsets.zero,
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Text(
                     _selectedDOB == null
-                        ? 'Chưa chọn'
+                        ? 'Not selected'
                         : DateFormat('dd/MM/yyyy').format(_selectedDOB!),
                     style: const TextStyle(fontSize: 16),
                   ),
@@ -164,7 +164,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 Expanded(
                   child: TextFormField(
                     controller: _heightController,
-                    decoration: const InputDecoration(labelText: 'Chiều cao (cm)'),
+                    decoration: const InputDecoration(labelText: 'Height (cm)'),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
@@ -173,7 +173,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 Expanded(
                   child: TextFormField(
                     controller: _weightController,
-                    decoration: const InputDecoration(labelText: 'Cân nặng (kg)'),
+                    decoration: const InputDecoration(labelText: 'Weight (kg)'),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),
@@ -181,16 +181,16 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               ],
             ),
             const Divider(height: 48),
-            _buildSectionTitle('Sở thích & Phong cách'),
+            _buildSectionTitle('Interests & Style'),
             const SizedBox(height: 8),
             MultiSelectChipField(
-              label: 'Phong cách cá nhân',
+              label: 'Personal style',
               allOptions: AppOptions.personalStyles,
               initialSelections: _selectedStyles,
               onSelectionChanged: (selections) => setState(() => _selectedStyles = selections),
             ),
             MultiSelectChipField(
-              label: 'Màu sắc yêu thích',
+              label: 'Favorite colors',
               allOptions: AppOptions.colors,
               initialSelections: _selectedFavoriteColors,
               onSelectionChanged: (selections) => setState(() => _selectedFavoriteColors = selections),

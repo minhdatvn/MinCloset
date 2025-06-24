@@ -1,6 +1,7 @@
 // lib/widgets/item_browser_view.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart'; // <<< THÊM IMPORT MỚI
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
@@ -65,6 +66,14 @@ class ItemBrowserView extends ConsumerWidget {
             key: ValueKey('item_card_${item.id}'),
             onTap: () => onItemTapped(item),
             child: RecentItemCard(item: item, count: count),
+          )
+          // <<< THÊM HIỆU ỨNG VÀO ĐÂY >>>
+          .animate()
+          .fadeIn(duration: 500.ms)
+          .slideY(
+            begin: 0.3, 
+            duration: 500.ms, 
+            curve: Curves.easeOutCubic
           );
         },
       ),

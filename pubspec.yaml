@@ -35,6 +35,7 @@ dependencies:
   fl_chart: ^0.68.0
   font_awesome_flutter: ^10.7.0
   pro_image_editor: ^9.13.0
+  flutter_animate: ^4.5.2
 
 dev_dependencies:
   flutter_test:

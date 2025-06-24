@@ -1,5 +1,6 @@
 // lib/screens/main_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/screens/pages/closets_page.dart';
@@ -19,7 +20,6 @@ class _MainScreenState extends ConsumerState<MainScreen> {
   @override
   void initState() {
     super.initState();
-    // Dùng addPostFrameCallback để đảm bảo các provider đã sẵn sàng
     WidgetsBinding.instance.addPostFrameCallback((_) {
     });
   }
@@ -112,7 +112,16 @@ class _MainScreenState extends ConsumerState<MainScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 24),
+            // <<< DI CHUYỂN .animate() VÀO CHỈ ICON >>>
+            Icon(icon, color: color, size: 24)
+              .animate(
+                target: isSelected ? 1 : 0,
+              )
+              .shake(
+                hz: 2, // Giảm tần số rung (lắc chậm hơn)
+                duration: 500.ms, // Tăng thời gian (lắc lâu hơn)
+                curve: Curves.easeInOut,
+              ),
             const SizedBox(height: 4),
             Text(
               label,

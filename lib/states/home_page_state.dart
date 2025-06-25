@@ -1,19 +1,21 @@
 // lib/states/home_page_state.dart
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mincloset/domain/models/suggestion_result.dart';
 
 @immutable
 class HomePageState extends Equatable {
   final bool isLoading;
-  final String? suggestion;
+  // THAY THẾ suggestion (String) BẰNG suggestionResult (SuggestionResult)
+  final SuggestionResult? suggestionResult;
   final Map<String, dynamic>? weather;
   final String? errorMessage;
   final DateTime? suggestionTimestamp;
   final int suggestionId;
 
   const HomePageState({
-    this.isLoading = false, // <<< THAY ĐỔI: Mặc định không loading
-    this.suggestion,
+    this.isLoading = false,
+    this.suggestionResult, // <<< THAY ĐỔI
     this.weather,
     this.errorMessage,
     this.suggestionTimestamp,
@@ -22,7 +24,7 @@ class HomePageState extends Equatable {
 
   HomePageState copyWith({
     bool? isLoading,
-    String? suggestion,
+    SuggestionResult? suggestionResult, // <<< THAY ĐỔI
     Map<String, dynamic>? weather,
     String? errorMessage,
     DateTime? suggestionTimestamp,
@@ -31,7 +33,7 @@ class HomePageState extends Equatable {
   }) {
     return HomePageState(
       isLoading: isLoading ?? this.isLoading,
-      suggestion: suggestion ?? this.suggestion,
+      suggestionResult: suggestionResult ?? this.suggestionResult, // <<< THAY ĐỔI
       weather: weather ?? this.weather,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
       suggestionTimestamp: suggestionTimestamp ?? this.suggestionTimestamp,
@@ -42,7 +44,7 @@ class HomePageState extends Equatable {
   @override
   List<Object?> get props => [
         isLoading,
-        suggestion,
+        suggestionResult, // <<< THAY ĐỔI
         weather,
         errorMessage,
         suggestionTimestamp,

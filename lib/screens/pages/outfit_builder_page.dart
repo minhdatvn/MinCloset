@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
+import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
@@ -44,10 +45,17 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-
 class OutfitBuilderPage extends ConsumerStatefulWidget {
+  // Khai báo các biến final MỘT LẦN DUY NHẤT ở đây
   final List<ClothingItem>? preselectedItems;
-  const OutfitBuilderPage({super.key, this.preselectedItems});
+  final SuggestionResult? suggestionResult;
+
+  // Constructor chỉ cần tham chiếu đến các biến đã khai báo bằng `this.`
+  const OutfitBuilderPage({
+    super.key,
+    this.preselectedItems,
+    this.suggestionResult,
+  });
 
   @override
   ConsumerState<OutfitBuilderPage> createState() => _OutfitBuilderPageState();
@@ -61,26 +69,77 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   
   static const _itemBrowserProviderId = 'outfit_builder_items';
 
+  Rect _getPlaceholderRect(String slot, Size canvasSize) {
+    switch (slot) {
+      case 'topwear':
+        return Rect.fromLTWH(canvasSize.width * 0.15, canvasSize.height * 0.1, canvasSize.width * 0.7, canvasSize.height * 0.4);
+      case 'bottomwear':
+        return Rect.fromLTWH(canvasSize.width * 0.2, canvasSize.height * 0.5, canvasSize.width * 0.6, canvasSize.height * 0.45);
+      case 'outerwear':
+        return Rect.fromLTWH(canvasSize.width * 0.1, canvasSize.height * 0.05, canvasSize.width * 0.8, canvasSize.height * 0.8);
+      case 'footwear':
+        return Rect.fromLTWH(canvasSize.width * 0.25, canvasSize.height * 0.85, canvasSize.width * 0.5, canvasSize.height * 0.15);
+      case 'accessories':
+         return Rect.fromLTWH(canvasSize.width * 0.65, canvasSize.height * 0.05, canvasSize.width * 0.25, canvasSize.height * 0.15);
+      default:
+        return Rect.fromLTWH(0, 0, canvasSize.width * 0.5, canvasSize.height * 0.5);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    _generateBlankImage(const Size(750, 1000)).then((_) {
-      // <<< THÊM MỚI: Logic xử lý các vật phẩm chọn sẵn >>>
-      // Đảm bảo editor đã sẵn sàng trước khi thêm layer
-      if (widget.preselectedItems != null && widget.preselectedItems!.isNotEmpty) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+    const canvasSize = Size(750, 1000);
+
+    _generateBlankImage(canvasSize).then((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+
+        if (widget.suggestionResult != null) {
+          final composition = widget.suggestionResult!.composition;
+          final slots = ['outerwear', 'topwear', 'bottomwear', 'footwear', 'accessories'];
+
+          for (final slot in slots) {
+            final item = composition[slot];
+            if (item != null) {
+              final stickerId = const Uuid().v4();
+              _itemsOnCanvas[stickerId] = item;
+              
+              final rect = _getPlaceholderRect(slot, canvasSize);
+
+              // >>> PHẦN SỬA LỖI QUAN TRỌNG NHẤT NẰM Ở ĐÂY <<<
+              _editorKey.currentState?.addLayer(
+                WidgetLayer(
+                  id: stickerId,
+                  // Đặt vị trí của layer bằng tham số `offset`
+                  offset: rect.topLeft, 
+                  // Gán kích thước cho ảnh bằng cách bọc nó trong SizedBox
+                  widget: SizedBox(
+                    width: rect.width,
+                    height: rect.height,
+                    child: Image.file(
+                      File(item.imagePath),
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              );
+            }
+          }
+        } 
+        else if (widget.preselectedItems != null && widget.preselectedItems!.isNotEmpty) {
           for (final item in widget.preselectedItems!) {
             final stickerId = const Uuid().v4();
             _itemsOnCanvas[stickerId] = item;
             _editorKey.currentState?.addLayer(
               WidgetLayer(
-                widget: Image.file(File(item.imagePath), fit: BoxFit.contain),
                 id: stickerId,
+                widget: Image.file(File(item.imagePath), fit: BoxFit.contain),
               ),
             );
           }
-        });
-      }
+        }
+      });
     });
   }
   

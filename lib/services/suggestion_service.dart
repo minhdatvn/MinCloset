@@ -3,41 +3,70 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/utils/logger.dart';
 
 class SuggestionService {
   final String _apiKey = dotenv.env['GEMINI_API_KEY'] ?? 'API_KEY_NOT_FOUND';
 
-  // <<< THAY ĐỔI: HÀM NÀY GIỜ TRẢ VỀ Map<String, String> >>>
-  Future<Map<String, String>> getOutfitSuggestion({
+  // <<< THAY ĐỔI HOÀN TOÀN HÀM NÀY >>>
+  Future<Map<String, dynamic>> getOutfitSuggestion({
     required Map<String, dynamic> weather,
-    required List<ClothingItem> items,
     required String cityName,
+    required String gender,
+    required String userStyle,
+    required String favoriteColors,
+    required String setOutfitsString,
+    required String wardrobeString,
   }) async {
     final model = GenerativeModel(
-      model: 'gemini-2.0-flash-lite',
+      model: 'gemini-1.5-flash-latest', // Sử dụng model mới hơn nếu có thể
       apiKey: _apiKey,
     );
 
     final temp = weather['main']['temp'].toStringAsFixed(0);
     final condition = weather['weather'][0]['description'];
-    final wardrobeString = items.map((item) => '- ${item.name} (${item.category}, màu ${item.color})').join('\n');
 
-    // <<< THAY ĐỔI: Cập nhật prompt để yêu cầu trả về JSON >>>
+    // Xây dựng prompt mới, chi tiết
     final prompt = """
-      Bạn là 'MinCloset', một trợ lý thời trang AI sành điệu.
-      Người dùng đang ở $cityName. Thời tiết hiện tại là $temp°C và $condition.
-      Tủ đồ của người dùng:
-      $wardrobeString
+    Bạn là 'MinCloset', một trợ lý thời trang AI chuyên nghiệp.
 
-      Dựa vào thời tiết và tủ đồ, hãy gợi ý MỘT bộ trang phục hoàn chỉnh và thời trang nhất. Chỉ được sử dụng các món đồ có trong danh sách.
-      Hãy trả lời bằng một đối tượng JSON duy nhất có 2 keys:
-      1. "suggestion": Một chuỗi liệt kê các món đồ được chọn. Ví dụ: "Áo thun trắng + Quần jeans xanh + Giày sneaker".
-      2. "reason": Một chuỗi giải thích ngắn gọn (1-2 câu) tại sao bộ đồ đó phù hợp.
+    **Thông tin người dùng:**
+    - Giới tính: $gender
+    - Phong cách cá nhân: $userStyle
+    - Màu sắc yêu thích: $favoriteColors
 
-      Chỉ trả về đối tượng JSON, không có bất kỳ văn bản nào khác.
-      """;
+    **Ngữ cảnh:**
+    - Địa điểm: $cityName
+    - Thời tiết: $temp°C, $condition
+
+    **Tủ đồ của người dùng bao gồm 2 phần:**
+
+    **1. Các "Set Outfit" (Các món đồ trong một set BẮT BUỘC phải mặc cùng nhau):**
+    $setOutfitsString
+
+    **2. Các vật phẩm lẻ (Có thể phối tự do):**
+    $wardrobeString
+
+    **YÊU CẦU:**
+    1. Dựa vào TẤT CẢ thông tin trên (sở thích, thời tiết, tủ đồ), hãy gợi ý MỘT bộ trang phục phù hợp nhất.
+    2. **LUẬT PHỐI ĐỒ:** Nếu bạn chọn MỘT món đồ bất kỳ từ một "Set Outfit", bạn BẮT BUỘC phải chọn TẤT CẢ các món đồ còn lại trong set đó. Bạn có thể kết hợp một "Set Outfit" hoàn chỉnh với các "vật phẩm lẻ" khác.
+    3. **KẾT QUẢ TRẢ VỀ:** Hãy trả lời bằng một đối tượng JSON duy nhất, không có bất kỳ văn bản nào khác, với cấu trúc sau:
+       {
+         "outfit_composition": {
+           "topwear": "[Tên món đồ áo]",
+           "bottomwear": "[Tên món đồ quần/váy]",
+           "outerwear": "[Tên áo khoác (nếu có)]",
+           "footwear": "[Tên giày/dép]",
+           "accessories": "[Tên phụ kiện (nếu có)]"
+         },
+         "outfit_name": "[Một cái tên sáng tạo cho bộ đồ]",
+         "reason": "[Giải thích ngắn gọn tại sao bộ đồ này phù hợp]"
+       }
+
+    **Lưu ý quan trọng:**
+    - Với mỗi vị trí trong "outfit_composition", hãy điền tên món đồ CHÍNH XÁC như trong danh sách tủ đồ.
+    - Nếu không có món đồ nào phù hợp cho một vị trí (ví dụ: không cần áo khoác), hãy điền `null` cho giá trị đó.
+    """;
 
     try {
       final content = [Content.text(prompt)];
@@ -51,11 +80,9 @@ class SuggestionService {
         
         logger.i("Phản hồi gợi ý từ AI (đã làm sạch): $cleanJsonString");
         final decodedJson = json.decode(cleanJsonString) as Map<String, dynamic>;
-
-        return {
-          'suggestion': decodedJson['suggestion'] as String? ?? '',
-          'reason': decodedJson['reason'] as String? ?? ''
-        };
+        
+        // Trả về toàn bộ đối tượng JSON mà AI đã tạo
+        return decodedJson;
       }
       throw Exception('AI response is null or invalid.');
 
@@ -65,10 +92,11 @@ class SuggestionService {
         error: e,
         stackTrace: s,
       );
-      // Trả về map rỗng để báo hiệu lỗi
+      // Trả về một đối tượng JSON lỗi để xử lý ở phía UI
       return {
-        'suggestion': 'Đã có lỗi xảy ra khi kết nối với AI.',
-        'reason': 'Vui lòng thử lại.'
+        'outfit_name': 'Lỗi gợi ý',
+        'reason': 'Đã có lỗi xảy ra khi kết nối với AI. Vui lòng thử lại.',
+        'outfit_composition': {},
       };
     }
   }

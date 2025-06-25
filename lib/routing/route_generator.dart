@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
@@ -55,7 +56,15 @@ class RouteGenerator {
          return MaterialPageRoute<bool>(builder: (_) => const BatchAddItemScreen(), settings: settings);
 
       case AppRoutes.outfitBuilder:
-        return FadeRoute(page: const OutfitBuilderPage(), settings: settings);
+        // Chấp nhận cả việc không có args (tạo mới) và có args (sửa từ gợi ý)
+        final suggestionResult = args as SuggestionResult?;
+        return FadeRoute(
+          page: OutfitBuilderPage(
+            // Truyền suggestionResult vào constructor
+            suggestionResult: suggestionResult,
+          ),
+          settings: settings,
+        );
 
       case AppRoutes.outfitDetail:
         if (args is Outfit) {

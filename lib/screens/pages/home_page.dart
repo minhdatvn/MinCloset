@@ -1,9 +1,11 @@
 // lib/screens/pages/home_page.dart
+import 'dart:io';
 
-import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:dotted_border/dotted_border.dart'; // Sẽ cần thêm package này
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/notifiers/home_page_notifier.dart';
@@ -212,7 +214,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Hiển thị tên địa điểm nếu có
                     if (state.weather?['name'] != null)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8.0),
@@ -221,8 +222,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                       ),
-                    
-                    // Hiển thị thông tin thời tiết
                     (state.weather != null
                       ? Row(
                           children: [
@@ -251,36 +250,59 @@ class _HomePageState extends ConsumerState<HomePage> {
 
           const Divider(height: 24, thickness: 0.5),
 
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              // Lớp 1: AnimatedTextKit luôn được build, nhưng có thể bị làm mờ
-              AnimatedOpacity(
-                opacity: state.isLoading ? 0.5 : 1.0,
-                duration: const Duration(milliseconds: 200),
-                child: AnimatedTextKit(
-                  key: ValueKey(state.suggestionId),
-                  isRepeatingAnimation: false, // Thêm dòng này để chắc chắn nó chỉ chạy 1 lần
-                  animatedTexts: [
-                    TypewriterAnimatedText(
-                      state.suggestion ?? 'Tap "Get Suggestion" to see outfit recommendations!',
-                      textStyle: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
-                      speed: const Duration(milliseconds: 20),
-                    ),
-                  ],
-                  displayFullTextOnTap: true,
-                  stopPauseOnTap: true,
+          // >>> PHẦN SỬA LỖI VÀ THAY ĐỔI CHÍNH NẰM Ở ĐÂY <<<
+          if (state.isLoading)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 48.0),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (state.suggestionResult != null)
+            // Nếu có kết quả, hiển thị giao diện trực quan
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSuggestionPlaceholder(state.suggestionResult!),
+                const SizedBox(height: 16),
+                Text(
+                  state.suggestionResult!.outfitName,
+                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  state.suggestionResult!.reason,
+                  style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.edit_outlined),
+                    label: const Text('Edit & Save'),
+                    onPressed: () {
+                      // Điều hướng đến Outfit Studio và truyền dữ liệu gợi ý
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.outfitBuilder,
+                        arguments: state.suggestionResult,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            )
+          else
+            // Trạng thái ban đầu hoặc khi có lỗi
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 48.0),
+              child: Center(
+                child: Text(
+                  // Sửa lỗi ở đây: Thay state.suggestion bằng state.errorMessage
+                  state.errorMessage ?? 'Tap "Get Suggestions" to see outfit recommendations!',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
                 ),
               ),
-
-              // Lớp 2: Vòng xoay loading chỉ hiển thị khi isLoading = true
-              if (state.isLoading)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 24.0),
-                  child: CircularProgressIndicator(),
-                )
-            ],
-          ),
+            ),
           
           if (state.suggestionTimestamp != null) ...[
             const SizedBox(height: 16),
@@ -300,6 +322,94 @@ class _HomePageState extends ConsumerState<HomePage> {
       ),
     );
   }
+
+  Widget _buildSuggestionPlaceholder(SuggestionResult result) {
+    // Hàm nhỏ để tạo một placeholder
+    Widget singlePlaceholder(ClothingItem? item, {double? width, double? height}) {
+      if (item == null) {
+        // >>> PHẦN SỬA LỖI CUỐI CÙNG NẰM Ở ĐÂY <<<
+        return DottedBorder(
+          options: RoundedRectDottedBorderOptions(
+            // XÓA DÒNG BÁO LỖI "borderType: BorderType.RRect,"
+            radius: const Radius.circular(8),
+            color: Colors.grey.shade400,
+            strokeWidth: 1.5,
+            dashPattern: const [6, 4],
+          ),
+          child: Container(
+            width: width,
+            height: height,
+            decoration: BoxDecoration(
+              color: Colors.grey.withValues(alpha:0.05),
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        );
+      }
+      return Image.file(
+        File(item.imagePath),
+        fit: BoxFit.contain,
+        errorBuilder: (ctx, err, stack) => const Icon(Icons.error_outline),
+      );
+    }
+
+    // Phần còn lại của hàm không thay đổi
+    return AspectRatio(
+      aspectRatio: 3 / 4,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Stack(
+          children: [
+            // Outerwear (áo khoác) - nằm dưới cùng
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: singlePlaceholder(result.composition['outerwear']),
+            ),
+            // Topwear (áo)
+            Positioned(
+              top: 20,
+              left: 20,
+              right: 20,
+              height: 150,
+              child: singlePlaceholder(result.composition['topwear']),
+            ),
+            // Bottomwear (quần/váy)
+            Positioned(
+              bottom: 60,
+              left: 40,
+              right: 40,
+              height: 180,
+              child: singlePlaceholder(result.composition['bottomwear']),
+            ),
+            // Footwear (giày)
+            Positioned(
+              bottom: 10,
+              left: 60,
+              right: 60,
+              height: 60,
+              child: singlePlaceholder(result.composition['footwear']),
+            ),
+            // Accessories (phụ kiện)
+            Positioned(
+              top: 10,
+              right: 10,
+              width: 50,
+              height: 50,
+              child: singlePlaceholder(result.composition['accessories']),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 
   IconData _getWeatherIcon(String iconCode) {
     switch (iconCode) {

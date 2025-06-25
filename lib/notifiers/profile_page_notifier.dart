@@ -47,7 +47,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
           prefs.getStringList('user_favorite_colors')?.toSet() ?? {};
       final cityModeString = prefs.getString('city_mode') ?? 'auto';
       final cityMode = CityMode.values.byName(cityModeString);
-      final manualCity = prefs.getString('manual_city_name') ?? 'Ha Noi';
+      final manualCity = prefs.getString('manual_city_name') ?? 'Ha Noi, VN';
       logger.i('3. Successfully read SharedPreferences.');
 
       final allItems = await itemRepo.getAllItems();

@@ -15,22 +15,14 @@ Future<void> main() async {
 
   await SentryFlutter.init(
     (options) {
+      // Giữ lại DSN để gửi lỗi
       options.dsn = dotenv.env['SENTRY_DSN'] ?? '';
-      options.tracesSampleRate = 1.0;
-      options.profilesSampleRate = 1.0;
+      // Bỏ các tùy chọn tracesSampleRate và profilesSampleRate để tắt performance
     },
-    // <<< THAY ĐỔI QUAN TRỌNG Ở ĐÂY >>>
-    // appRunner giờ sẽ bọc ứng dụng của bạn trong các widget cần thiết của Sentry
+    // Chỉ cần bọc ứng dụng trong ProviderScope là đủ
     appRunner: () => runApp(
-      DefaultAssetBundle(
-        // Cách dùng SentryAssetBundle mới
-        bundle: SentryAssetBundle(),
-        // SentryUserInteractionWidget giúp ghi lại các tương tác của người dùng
-        child: SentryUserInteractionWidget(
-          child: const ProviderScope(
-            child: MinClosetApp(),
-          ),
-        ),
+      const ProviderScope(
+        child: MinClosetApp(),
       ),
     ),
   );
@@ -44,14 +36,11 @@ class MinClosetApp extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
     final navigatorKey = ref.watch(navigatorKeyProvider);
 
+    // Bỏ SentryAssetBundle và SentryNavigatorObserver
     return MaterialApp(
       navigatorKey: navigatorKey,
       title: 'MinCloset',
       theme: appTheme,
-      // SentryNavigatorObserver vẫn được giữ nguyên ở đây
-      navigatorObservers: [
-        SentryNavigatorObserver(),
-      ],
       initialRoute: AppRoutes.splash,
       onGenerateRoute: RouteGenerator.onGenerateRoute,
       locale: locale,

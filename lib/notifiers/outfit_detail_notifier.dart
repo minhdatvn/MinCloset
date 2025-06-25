@@ -67,16 +67,23 @@ class OutfitDetailNotifier extends StateNotifier<Outfit> {
     }
   }
 
-  Future<void> deleteOutfit() async {
+  Future<bool> deleteOutfit() async {
+    // Đọc tất cả các giá trị cần thiết từ state ra biến cục bộ NGAY LẬP TỨC.
+    final outfitId = state.id;
+    final imagePath = state.imagePath;
+    final thumbnailPath = state.thumbnailPath;
+
     try {
-      // <<< Sửa lời gọi hàm >>>
+      // Từ đây trở đi, chỉ sử dụng các biến cục bộ, không truy cập 'state' nữa.
       await _imageHelper.deleteImageAndThumbnail(
-        imagePath: state.imagePath,
-        thumbnailPath: state.thumbnailPath,
+        imagePath: imagePath,
+        thumbnailPath: thumbnailPath,
       );
-      await _outfitRepo.deleteOutfit(state.id);
+      await _outfitRepo.deleteOutfit(outfitId);
+      return true; // Trả về true khi tất cả các bước thành công
     } catch (e, s) {
       logger.e("Failed to delete outfit", error: e, stackTrace: s);
+      return false; // Trả về false nếu có bất kỳ lỗi nào xảy ra
     }
   }
 }

@@ -121,18 +121,28 @@ class OutfitActionsMenu extends ConsumerWidget {
 
     // Thêm một bước kiểm tra `context.mounted` để an toàn tuyệt đối
     if (confirmed == true && context.mounted) {
-      await ref.read(outfitDetailProvider(outfit).notifier).deleteOutfit();
-      onUpdateCallback?.call();
+      // Gọi hàm deleteOutfit và nhận lại kết quả true/false
+      final bool success =
+          await ref.read(outfitDetailProvider(outfit).notifier).deleteOutfit();
 
-      // Giờ đây việc sử dụng các biến này là an toàn
-      // scaffoldMessenger.showSnackBar(SnackBar(content: Text('Đã xóa bộ đồ "${outfit.name}".'))); // Xóa dòng này
-      ref.read(notificationServiceProvider).showBanner(
-        message: 'Deleted outfit "${outfit.name}".',
-        type: NotificationType.success,
-      ); // Thêm dòng này
+      // Chỉ thực hiện các hành động tiếp theo NẾU xóa thành công
+      if (success) {
+        onUpdateCallback?.call();
 
-      if (navigator.canPop()) {
-        navigator.pop(true);
+        ref.read(notificationServiceProvider).showBanner(
+              message: 'Deleted outfit "${outfit.name}".',
+              type: NotificationType.success,
+            );
+
+        if (navigator.canPop()) {
+          navigator.pop(true);
+        }
+      } else {
+        // Nếu xóa thất bại, thông báo cho người dùng
+        ref.read(notificationServiceProvider).showBanner(
+              message: 'Failed to delete outfit. Please try again.',
+              // type mặc định là error nên không cần truyền
+            );
       }
     }
   }

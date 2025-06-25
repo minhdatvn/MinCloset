@@ -6,6 +6,7 @@ import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
+import 'package:mincloset/providers/service_providers.dart';
 
 class AnalysisLoadingScreen extends ConsumerStatefulWidget {
   final List<XFile> images;
@@ -29,7 +30,6 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
   @override
   Widget build(BuildContext context) {
     final navigator = Navigator.of(context);
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     // <<< Listener chỉ phản ứng với lỗi phân tích >>>
     ref.listen<BatchAddItemState>(batchAddItemProvider, (previous, next) async {
@@ -58,7 +58,10 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
       
       // Xử lý khi chỉ có lỗi phân tích
       else if (next.analysisErrorMessage != null && previous?.analysisErrorMessage == null) {
-        scaffoldMessenger.showSnackBar(SnackBar(content: Text('Error analyzing item: ${next.analysisErrorMessage}')));
+        // Thay thế SnackBar ở đây
+        ref.read(notificationServiceProvider).showBanner(
+              message: 'Error analyzing item: ${next.analysisErrorMessage}',
+            );
         navigator.pop(false);
       }
     });

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/outfit_detail_notifier.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/widgets/outfit_actions_menu.dart';
 
 // <<< CHUYỂN THÀNH ConsumerStatefulWidget >>>
@@ -70,15 +71,12 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
                   onChanged: (newValue) async {
                     final errorMessage = await notifier.toggleIsFixed(newValue);
                     if (errorMessage == null) {
-                      // Nếu không có lỗi, đánh dấu là đã thay đổi
                       setState(() => _didChange = true);
-                    } else if (context.mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(errorMessage),
-                          backgroundColor: Colors.red,
-                        )
-                      );
+                    } else {
+                      // Thay thế SnackBar ở đây
+                      ref
+                          .read(notificationServiceProvider)
+                          .showBanner(message: errorMessage);
                     }
                   },
                 ),

@@ -13,6 +13,7 @@ import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 import 'package:mincloset/widgets/item_search_filter_bar.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
+import 'package:mincloset/providers/service_providers.dart';
 
 // Hàm _showAddClosetDialog không thay đổi
 void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
@@ -462,10 +463,6 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                 child: const Icon(Icons.delete, color: Colors.white),
               ),
               confirmDismiss: (direction) async {
-                // --- BƯỚC 1: Lấy các đối tượng phụ thuộc vào 'context' TRƯỚC khi await ---
-                // Việc này sẽ giải quyết cảnh báo an toàn.
-                final scaffoldMessenger = ScaffoldMessenger.of(context);
-                final currentTheme = Theme.of(context);
 
                 // Xử lý khi vuốt sang trái để XÓA
                 if (direction == DismissDirection.endToStart) {
@@ -504,10 +501,10 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
 
                   if (error != null) {
                     // --- BƯỚC 2: Sử dụng các biến đã lưu ở trên, không dùng context trực tiếp ---
-                    scaffoldMessenger.showSnackBar(SnackBar(
-                      content: Text(error),
-                      backgroundColor: currentTheme.colorScheme.error,
-                    ));
+                    ref.read(notificationServiceProvider).showBanner(
+                          message: error,
+                          // type mặc định là error nên không cần truyền
+                        );
                     return false; // Hủy thao tác xóa
                   }
                   return true; // Cho phép xóa

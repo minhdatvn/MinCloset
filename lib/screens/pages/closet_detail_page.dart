@@ -171,12 +171,17 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
         // Thanh menu dưới cùng chỉ hiển thị ở chế độ chọn nhiều
         bottomNavigationBar: state.isMultiSelectMode
           ? BottomAppBar(
+              // Đặt chiều cao nhỏ hơn
+              height: 60,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  TextButton.icon(
-                    icon: const Icon(Icons.delete_outline),
-                    label: const Text('Delete'),
+                  // Nút Xóa
+                  _buildBottomBarButton(
+                    context: context,
+                    icon: Icons.delete_outline,
+                    label: 'Delete',
+                    color: Colors.red,
                     onPressed: () async {
                       final confirmed = await showDialog<bool>(
                         context: context,
@@ -198,19 +203,22 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
                         await notifier.deleteSelectedItems();
                       }
                     },
-                    style: TextButton.styleFrom(foregroundColor: Colors.red),
                   ),
-                  TextButton.icon(
-                    icon: const Icon(Icons.move_up_outlined),
-                    label: const Text('Move'),
+                  // Nút Di chuyển
+                  _buildBottomBarButton(
+                    context: context,
+                    icon: Icons.move_up_outlined,
+                    label: 'Move',
                     onPressed: () {
                       final itemsToMove = state.items.where((item) => state.selectedItemIds.contains(item.id)).toSet();
                       _showMoveDialog(notifier, itemsToMove);
                     },
                   ),
-                  TextButton.icon(
-                    icon: const Icon(Icons.add_to_photos_outlined),
-                    label: const Text('Create Outfit'),
+                  // Nút Tạo trang phục
+                  _buildBottomBarButton(
+                    context: context,
+                    icon: Icons.add_to_photos_outlined,
+                    label: 'Create Outfit',
                     onPressed: () {
                       final selectedItems = state.items.where((item) => state.selectedItemIds.contains(item.id)).toList();
                       notifier.clearSelectionAndExitMode();
@@ -268,6 +276,42 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
           child: RecentItemCard(item: item, isSelected: isSelected),
         );
       },
+    );
+  }
+
+   Widget _buildBottomBarButton({
+    required BuildContext context,
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+    Color? color,
+  }) {
+    final theme = Theme.of(context);
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        foregroundColor: color ?? theme.colorScheme.onSurface,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        // Yêu cầu Column chỉ chiếm không gian tối thiểu theo chiều dọc
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 22),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              // Đặt chiều cao dòng chữ để nó gọn hơn
+              height: 1.2,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

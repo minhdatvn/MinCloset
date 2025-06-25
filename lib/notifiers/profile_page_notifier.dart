@@ -15,7 +15,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   ProfilePageNotifier(this._ref) : super(const ProfilePageState()) {
     loadInitialData();
 
-    _ref.listen<int>(itemAddedTriggerProvider, (previous, next) {
+    _ref.listen<int>(itemChangedTriggerProvider, (previous, next) {
       if (previous != next) {
         loadInitialData();
       }

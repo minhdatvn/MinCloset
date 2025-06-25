@@ -19,7 +19,7 @@ final closetsProvider = FutureProvider<List<Closet>>((ref) {
 // <<< THAY ĐỔI Ở ĐÂY
 final itemsInClosetProvider =
     FutureProvider.family<List<ClothingItem>, String>((ref, closetId) {
-  ref.watch(itemAddedTriggerProvider);
+  ref.watch(itemChangedTriggerProvider);
   final clothingItemRepository = ref.watch(clothingItemRepositoryProvider);
   return clothingItemRepository.getItemsInCloset(closetId);
 });

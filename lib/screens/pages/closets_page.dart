@@ -63,22 +63,46 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
+    const allItemsProviderId = 'closetsPage';
+    final allItemsState = ref.watch(itemFilterProvider(allItemsProviderId));  
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your Closet'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'All Items'),
-            Tab(text: 'By Closet'),
-          ],
+        // Tự động tắt nút back khi ở chế độ chọn nhiều
+        automaticallyImplyLeading: !allItemsState.isMultiSelectMode,
+        // Hiển thị nút 'X' để thoát khi ở chế độ chọn nhiều
+        leading: allItemsState.isMultiSelectMode
+            ? IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => ref.read(itemFilterProvider(allItemsProviderId).notifier).clearSelectionAndExitMode(),
+              )
+            : null,
+        // Thay đổi tiêu đề một cách linh động
+        title: Text(
+          allItemsState.isMultiSelectMode
+              ? '${allItemsState.selectedItemIds.length} selected'
+              : 'Your Closet',
         ),
+        // Giữ nguyên TabBar, nhưng ẩn nó đi khi đang chọn nhiều
+        bottom: allItemsState.isMultiSelectMode
+            ? null // Ẩn TabBar
+            : TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(text: 'All Items'),
+                  Tab(text: 'By Closet'),
+                ],
+              ),
       ),
       body: TabBarView(
+        // Khóa việc vuốt chuyển tab khi đang chọn nhiều để tránh lỗi
+        physics: allItemsState.isMultiSelectMode
+            ? const NeverScrollableScrollPhysics()
+            : null,
         controller: _tabController,
-        children: [
-          const _AllItemsTab(), // Tab này đã được sửa lại hoàn toàn ở dưới
-          const _ClosetsListTab(),
+        children: const [
+          _AllItemsTab(),
+          _ClosetsListTab(),
         ],
       ),
     );
@@ -174,7 +198,27 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
                     TextButton.icon(
                       icon: const Icon(Icons.delete_outline),
                       label: const Text('Delete'),
-                      onPressed: notifier.deleteSelectedItems,
+                      onPressed: () async {
+                        final confirmed = await showDialog<bool>(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            title: const Text('Confirm Deletion'),
+                            content: Text('Are you sure you want to permanently delete ${state.selectedItemIds.length} selected item(s)?'),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+                              TextButton(
+                                onPressed: () => Navigator.of(ctx).pop(true),
+                                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirmed == true) {
+                          await notifier.deleteSelectedItems();
+                        }
+                      },
                       style: TextButton.styleFrom(foregroundColor: Colors.red),
                     ),
                     TextButton.icon(
@@ -228,7 +272,7 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
               } else {
                 final wasChanged = await Navigator.pushNamed(context, AppRoutes.addItem, arguments: ItemNotifierArgs(tempId: item.id, itemToEdit: item));
                 if (wasChanged == true) {
-                  ref.read(itemAddedTriggerProvider.notifier).state++;
+                  ref.read(itemChangedTriggerProvider.notifier).state++;
                 }
               }
             },

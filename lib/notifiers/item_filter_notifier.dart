@@ -1,7 +1,9 @@
 // lib/notifiers/item_filter_notifier.dart
 
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/domain/providers.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit_filter.dart';
 import 'package:mincloset/providers/event_providers.dart';
@@ -9,7 +11,6 @@ import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/states/item_filter_state.dart';
 import 'package:mincloset/utils/logger.dart';
-import 'package:mincloset/domain/providers.dart';
 
 const _pageSize = 15;
 
@@ -22,7 +23,7 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
   ItemFilterNotifier(this._repo, this._ref) : super(const ItemFilterState()) {
     fetchInitialItems();
 
-    _ref.listen<int>(itemAddedTriggerProvider, (previous, next) {
+    _ref.listen<int>(itemChangedTriggerProvider, (previous, next) {
       if (previous != next) {
         fetchInitialItems();
       }
@@ -132,6 +133,7 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
     final useCase = _ref.read(deleteMultipleItemsUseCaseProvider);
     await useCase.execute(state.selectedItemIds);
     
+    _ref.read(itemChangedTriggerProvider.notifier).state++;
     // Sau khi xóa, thoát chế độ và tải lại dữ liệu
     clearSelectionAndExitMode();
     await fetchInitialItems();

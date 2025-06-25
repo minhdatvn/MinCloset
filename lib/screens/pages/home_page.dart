@@ -20,7 +20,7 @@ import 'package:mincloset/widgets/stats_overview_card.dart';
 
 final recentItemsProvider =
     FutureProvider.autoDispose<List<ClothingItem>>((ref) async {
-  ref.watch(itemAddedTriggerProvider);
+  ref.watch(itemChangedTriggerProvider);
   final itemRepo = ref.watch(clothingItemRepositoryProvider);
   return itemRepo.getRecentItems(5);
 });
@@ -177,7 +177,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                             arguments: ItemNotifierArgs(tempId: item.id, itemToEdit: item)
                           );
                           if (wasChanged == true) {
-                            ref.read(itemAddedTriggerProvider.notifier).state++;
+                            ref.read(itemChangedTriggerProvider.notifier).state++;
                           }
                         },
                         child: RecentItemCard(item: item),

@@ -96,7 +96,7 @@ class _GlobalAddButtonState extends ConsumerState<GlobalAddButton> {
     );
 
     if (itemsWereAdded == true) {
-      ref.read(itemAddedTriggerProvider.notifier).state++;
+      ref.read(itemChangedTriggerProvider.notifier).state++;
     }
   }
 }

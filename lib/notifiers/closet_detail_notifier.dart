@@ -7,6 +7,7 @@ import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/states/closet_detail_state.dart';
 import 'package:mincloset/utils/logger.dart';
 import 'package:mincloset/domain/providers.dart';
+import 'package:mincloset/providers/event_providers.dart'; 
 
 const _pageSize = 18;
 
@@ -115,6 +116,8 @@ class ClosetDetailNotifier extends StateNotifier<ClosetDetailState> {
 
     final useCase = _ref.read(deleteMultipleItemsUseCaseProvider);
     await useCase.execute(state.selectedItemIds);
+
+    _ref.read(itemChangedTriggerProvider.notifier).state++;
 
     clearSelectionAndExitMode();
     await fetchInitialItems();

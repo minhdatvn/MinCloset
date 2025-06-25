@@ -163,7 +163,27 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
                   TextButton.icon(
                     icon: const Icon(Icons.delete_outline),
                     label: const Text('Delete'),
-                    onPressed: notifier.deleteSelectedItems,
+                    onPressed: () async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Confirm Deletion'),
+                          content: Text('Are you sure you want to permanently delete ${state.selectedItemIds.length} selected item(s)?'),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(true),
+                              style: TextButton.styleFrom(foregroundColor: Colors.red),
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      if (confirmed == true) {
+                        await notifier.deleteSelectedItems();
+                      }
+                    },
                     style: TextButton.styleFrom(foregroundColor: Colors.red),
                   ),
                   TextButton.icon(
@@ -226,7 +246,7 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
               final wasChanged = await Navigator.pushNamed(context, AppRoutes.addItem, arguments: ItemNotifierArgs(tempId: item.id, itemToEdit: item));
               if (wasChanged == true) {
                 setState(() => _didChange = true);
-                ref.read(itemAddedTriggerProvider.notifier).state++;
+                ref.read(itemChangedTriggerProvider.notifier).state++;
                 ref.invalidate(closetDetailProvider(widget.closet.id));
               }
             }

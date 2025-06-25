@@ -99,32 +99,33 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
               title: Text('${state.selectedItemIds.length} selected'),
             )
           : AppBar(
-              title: Row(
-                children: [
-                  Flexible(
-                    child: Text(
-                      widget.closet.name,
-                      overflow: TextOverflow.ellipsis, // Hiển thị '...' khi text quá dài
-                      maxLines: 1, // Đảm bảo chỉ hiển thị trên một dòng
+              // Title giờ chỉ chứa tên closet, tự động xử lý overflow
+              title: Text(
+                widget.closet.name,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+              // Chuyển Chip số lượng vào thuộc tính 'actions'
+              actions: [
+                if (!state.isLoading)
+                  Padding(
+                    // Thêm padding để không bị sát cạnh phải
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Center(
+                      child: Chip(
+                        label: Text(
+                          '${state.items.length} ${state.items.length == 1 ? "item" : "items"}',
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        backgroundColor:
+                            Theme.of(context).colorScheme.secondaryContainer,
+                        side: BorderSide.none,
+                      ),
                     ),
                   ),
-                  // Spacer sẽ đẩy widget tiếp theo sang cạnh phải
-                  const Spacer(),
-                  // Chỉ hiển thị chip đếm số lượng khi đã tải xong và không ở chế độ chọn nhiều
-                  if (!state.isLoading)
-                    Chip(
-                      label: Text(
-                        '${state.items.length} ${state.items.length == 1 ? "item" : "items"}',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.secondary),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      backgroundColor:
-                          Theme.of(context).colorScheme.secondaryContainer,
-                      side: BorderSide.none,
-                    )
-                ],
-              ),
+              ],
             ),
         body: RefreshIndicator(
           onRefresh: notifier.fetchInitialItems,

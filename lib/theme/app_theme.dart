@@ -21,21 +21,49 @@ final ThemeData appTheme = ThemeData(
     onSurface: almostBlack,
     surfaceContainerHighest: lightGray,
     outline: midGray,
+    // Màu surfaceTint được dùng để tạo hiệu ứng phủ màu trên các bề mặt,
+    // giúp chúng có chiều sâu hoặc tương tác tốt hơn với màu chính.
+    surfaceTint: mochaMousse, 
   ),
 
   scaffoldBackgroundColor: Colors.white,
 
-  appBarTheme: const AppBarTheme(
+  // Định nghĩa TextTheme để kiểm soát kích thước và trọng lượng font
+  textTheme: const TextTheme(
+    displaySmall: TextStyle(fontSize: 34, fontWeight: FontWeight.normal, color: almostBlack), // Giảm size so với mặc định
+    headlineSmall: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: almostBlack), // Giảm size từ 24 xuống 22
+    titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: almostBlack),    // Giảm size từ 22 xuống 18
+    titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: almostBlack),   // Giữ nguyên hoặc điều chỉnh nhẹ
+    bodyLarge: TextStyle(fontSize: 16, color: almostBlack),                                  // Giữ nguyên
+    bodyMedium: TextStyle(fontSize: 14, color: almostBlack),                                  // Giữ nguyên
+    bodySmall: TextStyle(fontSize: 12, color: almostBlack),                                   // Giữ nguyên
+    labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),    // Cho nút bấm
+  ),
+
+  appBarTheme: AppBarTheme(
     backgroundColor: Colors.white,
     foregroundColor: almostBlack,
     elevation: 0,
     centerTitle: false,
-    titleTextStyle: TextStyle(
+    // Sử dụng TextStyle từ TextTheme để nhất quán
+    titleTextStyle: const TextStyle(
       fontFamily: 'Helvetica',
-      fontSize: 24,
+      fontSize: 18, // Thay đổi fontSize cho AppBar
       fontWeight: FontWeight.bold,
       color: almostBlack,
     ),
+    // Thêm surfaceTintColor để tạo điểm nhấn
+    surfaceTintColor: mochaMousse.withOpacity(0.05),
+  ),
+
+  // SỬA LỖI TẠI ĐÂY: Thay CardTheme thành CardThemeData
+  cardTheme: CardThemeData(
+    elevation: 0, // Bỏ elevation cho Card để giao diện phẳng hơn
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12), // Bo góc cho Card
+    ),
+    color: lightGray, // Màu nền mặc định cho Card
+    surfaceTintColor: mochaMousse.withOpacity(0.05), // Thêm hiệu ứng màu cho Card
   ),
 
   chipTheme: ChipThemeData(
@@ -49,18 +77,16 @@ final ThemeData appTheme = ThemeData(
     showCheckmark: false,
   ),
 
-  // <<< SỬA ĐỔI Ở ĐÂY >>>
-  // Giao diện cho nút bấm chính
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: mochaMousse, // Đổi màu nền mặc định thành màu chủ đạo
-      foregroundColor: Colors.white, // Chữ trắng trên nền màu chủ đạo
+      backgroundColor: mochaMousse, 
+      foregroundColor: Colors.white, 
       padding: const EdgeInsets.symmetric(vertical: 14),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
       textStyle: const TextStyle(
-        fontSize: 16,
+        fontSize: 14, // Thay đổi fontSize cho ElevatedButton
         fontWeight: FontWeight.bold,
       ),
       elevation: 2,

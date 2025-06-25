@@ -2,14 +2,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/notifiers/closets_page_notifier.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
-import 'package:mincloset/widgets/item_browser_view.dart';
+import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 import 'package:mincloset/widgets/item_search_filter_bar.dart';
+import 'package:mincloset/widgets/recent_item_card.dart';
 
 // Hàm _showAddClosetDialog không thay đổi
 void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
@@ -39,12 +41,12 @@ void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
   );
 }
 
-// Các lớp ClosetsPage và _ClosetsPageState không thay đổi
 class ClosetsPage extends ConsumerStatefulWidget {
   const ClosetsPage({super.key});
   @override
   ConsumerState<ClosetsPage> createState() => _ClosetsPageState();
 }
+
 class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   @override
@@ -52,11 +54,13 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
   }
+
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,7 +77,7 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
       body: TabBarView(
         controller: _tabController,
         children: [
-          const _AllItemsTab(),
+          const _AllItemsTab(), // Tab này đã được sửa lại hoàn toàn ở dưới
           const _ClosetsListTab(),
         ],
       ),
@@ -81,7 +85,7 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
   }
 }
 
-// Lớp _AllItemsTabState không thay đổi, chỉ sửa hàm build
+// <<< SỬA LẠI HOÀN TOÀN TAB NÀY ĐỂ HỖ TRỢ MULTI-SELECT >>>
 class _AllItemsTab extends ConsumerStatefulWidget {
   const _AllItemsTab();
   @override
@@ -90,7 +94,7 @@ class _AllItemsTab extends ConsumerStatefulWidget {
 
 class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
   final ScrollController _scrollController = ScrollController();
-  static const providerId = 'closetsPage';
+  static const providerId = 'closetsPage'; // ID cho provider của tab này
 
   @override
   void initState() {
@@ -103,6 +107,7 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
     final state = ref.read(itemFilterProvider(providerId));
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 300 &&
         !state.isLoadingMore &&
+        !state.isMultiSelectMode && // Không tải thêm khi đang chọn nhiều
         state.hasMore) {
       notifier.fetchMoreItems();
     }
@@ -117,30 +122,119 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
 
   @override
   Widget build(BuildContext context) {
-    final notifier = ref.read(itemFilterProvider(providerId).notifier);
-    
-    return RefreshIndicator(
-      onRefresh: notifier.fetchInitialItems,
-      child: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          // <<< THAY ĐỔI Ở ĐÂY: Dùng SliverPersistentHeader >>>
-          SliverPersistentHeader(
-            pinned: true, // Thuộc tính này sẽ ghim widget lại
-            delegate: _SliverAppBarDelegate(
-              const ItemSearchFilterBar(providerId: providerId),
-            ),
+    final provider = itemFilterProvider(providerId);
+    final notifier = ref.read(provider.notifier);
+    final state = ref.watch(provider);
+
+    return PopScope(
+      canPop: !state.isMultiSelectMode,
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
+        if (didPop) return;
+        if (state.isMultiSelectMode) {
+          notifier.clearSelectionAndExitMode();
+        }
+      },
+      child: Scaffold(
+        body: RefreshIndicator(
+          onRefresh: notifier.fetchInitialItems,
+          child: CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _SliverAppBarDelegate(
+                  ItemSearchFilterBar(providerId: providerId),
+                ),
+              ),
+              // Xử lý các trạng thái loading/empty/error
+              if (state.isLoading && state.items.isEmpty)
+                const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
+              else if (state.errorMessage != null && state.items.isEmpty)
+                SliverFillRemaining(child: Center(child: Text(state.errorMessage!)))
+              else if (state.items.isEmpty)
+                 SliverFillRemaining(
+                    child: Center(
+                      child: Text(
+                        state.searchQuery.isNotEmpty || state.activeFilters.isApplied ? 'No items found.' : 'Your closet is empty.',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 18, color: Colors.grey),
+                      ),
+                    ),
+                  )
+              else
+                _buildItemsGrid(state.items, state.hasMore, state.isMultiSelectMode),
+            ],
           ),
-          ItemBrowserView(
-            providerId: providerId,
-            onItemTapped: (item) async {
-              final wasChanged = await Navigator.pushNamed(context, AppRoutes.addItem, arguments: ItemNotifierArgs(tempId: item.id, itemToEdit: item));
-              if (wasChanged == true) {
-                ref.read(itemAddedTriggerProvider.notifier).state++;
+        ),
+        bottomNavigationBar: state.isMultiSelectMode
+            ? BottomAppBar(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    TextButton.icon(
+                      icon: const Icon(Icons.delete_outline),
+                      label: const Text('Delete'),
+                      onPressed: notifier.deleteSelectedItems,
+                      style: TextButton.styleFrom(foregroundColor: Colors.red),
+                    ),
+                    TextButton.icon(
+                      icon: const Icon(Icons.add_to_photos_outlined),
+                      label: const Text('Create Outfit'),
+                      onPressed: () {
+                        final selectedItems = state.items.where((item) => state.selectedItemIds.contains(item.id)).toList();
+                        notifier.clearSelectionAndExitMode();
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => OutfitBuilderPage(preselectedItems: selectedItems)));
+                      },
+                    ),
+                  ],
+                ),
+              )
+            : null,
+      ),
+    );
+  }
+
+  Widget _buildItemsGrid(List<ClothingItem> items, bool hasMore, bool isMultiSelectMode) {
+    final provider = itemFilterProvider(providerId);
+    final notifier = ref.read(provider.notifier);
+    final state = ref.watch(provider);
+    
+    return SliverPadding(
+      padding: const EdgeInsets.all(16.0),
+      sliver: SliverGrid.builder(
+        itemCount: items.length + (hasMore && !isMultiSelectMode ? 1 : 0),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 3 / 4,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+        ),
+        itemBuilder: (ctx, index) {
+          if (index >= items.length) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final item = items[index];
+          final isSelected = state.selectedItemIds.contains(item.id);
+
+          return GestureDetector(
+            onLongPress: () {
+              if (!isMultiSelectMode) {
+                notifier.enableMultiSelectMode(item.id);
               }
             },
-          ),
-        ],
+            onTap: () async {
+              if (isMultiSelectMode) {
+                notifier.toggleItemSelection(item.id);
+              } else {
+                final wasChanged = await Navigator.pushNamed(context, AppRoutes.addItem, arguments: ItemNotifierArgs(tempId: item.id, itemToEdit: item));
+                if (wasChanged == true) {
+                  ref.read(itemAddedTriggerProvider.notifier).state++;
+                }
+              }
+            },
+            child: RecentItemCard(item: item, isSelected: isSelected),
+          );
+        },
       ),
     );
   }

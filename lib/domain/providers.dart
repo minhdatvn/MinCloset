@@ -4,11 +4,13 @@ import 'package:mincloset/domain/use_cases/analyze_item_use_case.dart';
 import 'package:mincloset/domain/use_cases/get_outfit_suggestion_use_case.dart';
 import 'package:mincloset/domain/use_cases/save_outfit_use_case.dart';
 import 'package:mincloset/domain/use_cases/validate_item_name_use_case.dart';
-import 'package:mincloset/helpers/image_helper.dart'; 
 import 'package:mincloset/domain/use_cases/validate_required_fields_use_case.dart';
+import 'package:mincloset/helpers/image_helper.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/services/classification_service.dart';
-import 'package:mincloset/services/generative_ai_wrapper.dart'; 
+import 'package:mincloset/services/generative_ai_wrapper.dart';
+import 'package:mincloset/domain/use_cases/delete_multiple_items_use_case.dart';
+import 'package:mincloset/domain/use_cases/move_multiple_items_use_case.dart';
 
 final generativeAIWrapperProvider = Provider<IGenerativeAIWrapper>((ref) {
   return GenerativeAIWrapper();
@@ -49,4 +51,14 @@ final validateItemNameUseCaseProvider = Provider<ValidateItemNameUseCase>((ref) 
 final validateRequiredFieldsUseCaseProvider = Provider<ValidateRequiredFieldsUseCase>((ref) {
   // UseCase này không có phụ thuộc nên chúng ta chỉ cần khởi tạo nó
   return ValidateRequiredFieldsUseCase();
+});
+
+final deleteMultipleItemsUseCaseProvider = Provider<DeleteMultipleItemsUseCase>((ref) {
+  final repo = ref.watch(clothingItemRepositoryProvider);
+  return DeleteMultipleItemsUseCase(repo);
+});
+
+final moveMultipleItemsUseCaseProvider = Provider<MoveMultipleItemsUseCase>((ref) {
+  final repo = ref.watch(clothingItemRepositoryProvider);
+  return MoveMultipleItemsUseCase(repo);
 });

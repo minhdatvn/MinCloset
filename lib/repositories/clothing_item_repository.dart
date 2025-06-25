@@ -84,4 +84,12 @@ class ClothingItemRepository {
     );
     return data.map((map) => ClothingItem.fromMap(map)).toList();
   }
+
+  Future<void> deleteMultipleItems(Set<String> ids) async {
+    await _dbHelper.deleteMultipleItems(ids.toList());
+  }
+
+  Future<void> moveMultipleItems(Set<String> ids, String targetClosetId) async {
+    await _dbHelper.moveMultipleItems(ids.toList(), targetClosetId);
+  }
 }

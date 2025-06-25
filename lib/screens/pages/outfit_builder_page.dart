@@ -46,7 +46,8 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 
 
 class OutfitBuilderPage extends ConsumerStatefulWidget {
-  const OutfitBuilderPage({super.key});
+  final List<ClothingItem>? preselectedItems;
+  const OutfitBuilderPage({super.key, this.preselectedItems});
 
   @override
   ConsumerState<OutfitBuilderPage> createState() => _OutfitBuilderPageState();
@@ -63,7 +64,24 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   @override
   void initState() {
     super.initState();
-    _generateBlankImage(const Size(750, 1000));
+    _generateBlankImage(const Size(750, 1000)).then((_) {
+      // <<< THÊM MỚI: Logic xử lý các vật phẩm chọn sẵn >>>
+      // Đảm bảo editor đã sẵn sàng trước khi thêm layer
+      if (widget.preselectedItems != null && widget.preselectedItems!.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          for (final item in widget.preselectedItems!) {
+            final stickerId = const Uuid().v4();
+            _itemsOnCanvas[stickerId] = item;
+            _editorKey.currentState?.addLayer(
+              WidgetLayer(
+                widget: Image.file(File(item.imagePath), fit: BoxFit.contain),
+                id: stickerId,
+              ),
+            );
+          }
+        });
+      }
+    });
   }
   
   // Các hàm logic khác không thay đổi...

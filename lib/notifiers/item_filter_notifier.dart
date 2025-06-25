@@ -9,6 +9,7 @@ import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/states/item_filter_state.dart';
 import 'package:mincloset/utils/logger.dart';
+import 'package:mincloset/domain/providers.dart';
 
 const _pageSize = 15;
 
@@ -91,6 +92,49 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
     _isDisposed = true;
     _debounce?.cancel();
     super.dispose();
+  }
+
+  void enableMultiSelectMode(String initialItemId) {
+    state = state.copyWith(
+      isMultiSelectMode: true,
+      selectedItemIds: {initialItemId},
+    );
+  }
+
+  void toggleItemSelection(String itemId) {
+    if (!state.isMultiSelectMode) return;
+
+    final newSet = Set<String>.from(state.selectedItemIds);
+    if (newSet.contains(itemId)) {
+      newSet.remove(itemId);
+    } else {
+      newSet.add(itemId);
+    }
+    
+    // Nếu không còn item nào được chọn, thoát khỏi chế độ multi-select
+    if (newSet.isEmpty) {
+      clearSelectionAndExitMode();
+    } else {
+      state = state.copyWith(selectedItemIds: newSet);
+    }
+  }
+
+  void clearSelectionAndExitMode() {
+    state = state.copyWith(
+      isMultiSelectMode: false,
+      selectedItemIds: {},
+    );
+  }
+
+  Future<void> deleteSelectedItems() async {
+    if (state.selectedItemIds.isEmpty) return;
+
+    final useCase = _ref.read(deleteMultipleItemsUseCaseProvider);
+    await useCase.execute(state.selectedItemIds);
+    
+    // Sau khi xóa, thoát chế độ và tải lại dữ liệu
+    clearSelectionAndExitMode();
+    await fetchInitialItems();
   }
 }
 

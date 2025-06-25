@@ -27,10 +27,15 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
     final notifier = ref.read(provider.notifier);
     
     // <<< BỌC SCAFFOLD BẰNG WillPopScope ĐỂ TRẢ VỀ KẾT QUẢ >>>
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.of(context).pop(_didChange);
-        return false;
+    return PopScope(
+      // Chặn việc pop tự động để chúng ta có thể điều khiển và trả về giá trị
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
+        // Nếu việc pop chưa được thực hiện, chúng ta sẽ tự gọi nó
+        // với giá trị _didChange để báo cho màn hình trước biết.
+        if (!didPop) {
+          Navigator.of(context).pop(_didChange);
+        }
       },
       child: Scaffold(
         backgroundColor: Colors.white,

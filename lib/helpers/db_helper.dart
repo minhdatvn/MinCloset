@@ -280,4 +280,29 @@ class DatabaseHelper {
       offset: offset,
     );
   }
+
+  Future<void> deleteMultipleItems(List<String> ids) async {
+    if (ids.isEmpty) return;
+    final db = await instance.database;
+    final batch = db.batch();
+    for (final id in ids) {
+      batch.delete('clothing_items', where: 'id = ?', whereArgs: [id]);
+    }
+    await batch.commit(noResult: true);
+  }
+
+  Future<void> moveMultipleItems(List<String> ids, String targetClosetId) async {
+    if (ids.isEmpty) return;
+    final db = await instance.database;
+    final batch = db.batch();
+    for (final id in ids) {
+      batch.update(
+        'clothing_items',
+        {'closetId': targetClosetId},
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    }
+    await batch.commit(noResult: true);
+  }
 }

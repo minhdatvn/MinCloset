@@ -50,7 +50,6 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
 
   Future<void> _showMoveDialog(ClosetDetailNotifier notifier, Set<ClothingItem> itemsToMove) async {
     final closets = await ref.read(closetsProvider.future);
-    // Loại bỏ tủ đồ hiện tại khỏi danh sách lựa chọn
     final availableClosets = closets.where((c) => c.id != widget.closet.id).toList();
 
     if (!mounted) return;
@@ -61,24 +60,107 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
 
     final String? targetClosetId = await showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Move ${itemsToMove.length} items to...'),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: ListView.builder(
-            shrinkWrap: true,
-            itemCount: availableClosets.length,
-            itemBuilder: (context, index) {
-              final closet = availableClosets[index];
-              return ListTile(
-                title: Text(closet.name),
-                onTap: () => Navigator.of(ctx).pop(closet.id),
-              );
-            },
-          ),
-        ),
-        actions: [TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel'))],
-      ),
+      builder: (ctx) {
+        String? selectedId;
+        final scrollController = ScrollController();
+        
+        // ValueNotifier để chỉ rebuild các mũi tên
+        final showArrowsNotifier = ValueNotifier({'up': false, 'down': false});
+
+        // Hàm listener để cập nhật trạng thái mũi tên
+        void updateArrowVisibility() {
+          if (!scrollController.hasClients) return;
+          final currentShowUp = scrollController.offset > 0;
+          final currentShowDown = scrollController.offset < scrollController.position.maxScrollExtent;
+          if (currentShowUp != showArrowsNotifier.value['up'] || currentShowDown != showArrowsNotifier.value['down']) {
+            showArrowsNotifier.value = {'up': currentShowUp, 'down': currentShowDown};
+          }
+        }
+        
+        // Kiểm tra trạng thái ban đầu và gắn listener
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (scrollController.hasClients) {
+             final initialShowDown = scrollController.position.maxScrollExtent > 0;
+             showArrowsNotifier.value = {'up': false, 'down': initialShowDown};
+          }
+          scrollController.addListener(updateArrowVisibility);
+        });
+        
+        // Đảm bảo controller được dispose
+        ctx.findAncestorStateOfType<StatefulBuilderState>()?.deactivate = () {
+          scrollController.removeListener(updateArrowVisibility);
+          scrollController.dispose();
+          showArrowsNotifier.dispose();
+        };
+
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            return AlertDialog(
+              title: Text('Move ${itemsToMove.length} items to...'),
+              contentPadding: const EdgeInsets.symmetric(vertical: 20.0),
+              content: SizedBox(
+                width: double.maxFinite,
+                height: 300,
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: ListView.builder(
+                        controller: scrollController,
+                        shrinkWrap: true,
+                        itemCount: availableClosets.length,
+                        itemBuilder: (context, index) {
+                          final closet = availableClosets[index];
+                          return RadioListTile<String>(
+                            title: Text(closet.name),
+                            value: closet.id,
+                            groupValue: selectedId,
+                            onChanged: (value) => setDialogState(() => selectedId = value),
+                            contentPadding: EdgeInsets.zero,
+                          );
+                        },
+                      ),
+                    ),
+                    // Dùng ValueListenableBuilder để chỉ build lại các mũi tên
+                    ValueListenableBuilder<Map<String, bool>>(
+                      valueListenable: showArrowsNotifier,
+                      builder: (context, arrowsState, _) {
+                        return Stack(
+                          children: [
+                            if (arrowsState['up'] ?? false)
+                              const Positioned(
+                                top: 0, left: 0, right: 0,
+                                child: Align(
+                                  alignment: Alignment.topCenter,
+                                  child: Icon(Icons.keyboard_arrow_up, size: 24, color: Colors.grey),
+                                ),
+                              ),
+                            if (arrowsState['down'] ?? false)
+                              const Positioned(
+                                bottom: 0, left: 0, right: 0,
+                                child: Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: Icon(Icons.keyboard_arrow_down, size: 24, color: Colors.grey),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
+                ElevatedButton(
+                  onPressed: selectedId == null ? null : () => Navigator.of(ctx).pop(selectedId),
+                  child: const Text('Move'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
 
     if (targetClosetId != null) {

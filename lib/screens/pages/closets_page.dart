@@ -28,9 +28,12 @@ void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
       actions: [
         TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
         ElevatedButton(
-          onPressed: () async {
-            final success = await ref.read(closetsPageProvider.notifier).addCloset(nameController.text);
-            if (success && context.mounted) {
+          onPressed: () {
+            final closetName = nameController.text.trim();
+            if (closetName.isNotEmpty) {
+              // Gọi notifier để lưu nhưng không cần 'await'
+              ref.read(closetsPageProvider.notifier).addCloset(closetName);
+              // Đóng hộp thoại ngay lập tức
               Navigator.of(ctx).pop();
             }
           },

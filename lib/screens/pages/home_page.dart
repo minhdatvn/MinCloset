@@ -25,11 +25,29 @@ final recentItemsProvider =
   return itemRepo.getRecentItems(5);
 });
 
-class HomePage extends ConsumerWidget {
+// <<< THAY ĐỔI 1: Chuyển thành ConsumerStatefulWidget >>>
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+
+  // <<< THAY ĐỔI 2: Kích hoạt notifier trong initState >>>
+  @override
+  void initState() {
+    super.initState();
+    // Đảm bảo notifier được khởi tạo và bắt đầu tải dữ liệu khi widget được tạo
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(homeProvider.notifier);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // ref được truy cập thông qua `this.ref` trong State
     final homeState = ref.watch(homeProvider);
     final profileState = ref.watch(profileProvider);
 
@@ -40,7 +58,7 @@ class HomePage extends ConsumerWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          ref.invalidate(recentItemsProvider);
+          // Khi kéo để làm mới, sẽ lấy cả thời tiết và gợi ý mới
           await ref.read(homeProvider.notifier).getNewSuggestion();
         },
         child: SingleChildScrollView(
@@ -63,6 +81,7 @@ class HomePage extends ConsumerWidget {
                 title: 'Outfit Suggestions',
               ),
               const SizedBox(height: 16),
+              // Truyền ref vào hàm build card
               _buildTodaysSuggestionCard(context, ref, homeState),
               const SizedBox(height: 32),
             ],
@@ -72,6 +91,7 @@ class HomePage extends ConsumerWidget {
     );
   }
 
+  // Các hàm build UI con không thay đổi, chỉ cần truyền ref nếu cần
   Widget _buildHeader(BuildContext context, WidgetRef ref) {
     final userName = ref.watch(profileProvider.select((state) => state.userName));
     return Row(
@@ -135,7 +155,6 @@ class HomePage extends ConsumerWidget {
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (err, stack) => const Center(child: Text('Cannot load items...')),
             data: (items) {
-              // <<< SỬA ĐỔI: Nếu rỗng, hiển thị text thay vì nút bấm >>>
               if (items.isEmpty) {
                 return const Center(
                   child: Text(
@@ -144,7 +163,6 @@ class HomePage extends ConsumerWidget {
                   ),
                 );
               }
-              // <<< SỬA ĐỔI: ListView chỉ build danh sách item, không còn nút bấm >>>
               return ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: items.length,
@@ -178,8 +196,7 @@ class HomePage extends ConsumerWidget {
     );
   }
   
-  // Hàm _buildAddFirstItemButton và _pickAndAnalyzeImage đã được xóa hoàn toàn
-
+  // <<< THAY ĐỔI 3: Thêm tham số ref và sửa đổi logic hiển thị địa điểm >>>
   Widget _buildTodaysSuggestionCard(BuildContext context, WidgetRef ref, HomePageState state) {
     final theme = Theme.of(context);
     final notifier = ref.read(homeProvider.notifier);
@@ -195,28 +212,32 @@ class HomePage extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                child: (state.isLoading && state.weather == null)
-                    ? const SizedBox(height: 60, child: Center(child: CircularProgressIndicator()))
-                    : (state.weather != null
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Hiển thị tên địa điểm nếu có
+                    if (state.weather?['name'] != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text(
+                          state.weather!['name'] as String,
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    
+                    // Hiển thị thông tin thời tiết
+                    (state.weather != null
+                      ? Row(
                           children: [
-                            Text(
-                              state.weather!['name'] as String,
-                              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Icon(_getWeatherIcon(state.weather!['weather'][0]['icon'] as String), color: Colors.orange.shade700, size: 32),
-                                const SizedBox(width: 8),
-                                Text('${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-                              ],
-                            ),
+                            Icon(_getWeatherIcon(state.weather!['weather'][0]['icon'] as String), color: Colors.orange.shade700, size: 32),
+                            const SizedBox(width: 8),
+                            Text('${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
                           ],
                         )
-                      : const SizedBox(height: 60, child: Center(child: Text("Weather data unavailable.")))
+                      : const SizedBox(height: 40, child: Center(child: Text("Weather data unavailable.")))
                     )
+                  ],
+                ),
               ),
               TextButton.icon(
                 key: const ValueKey('new_suggestion_button'),
@@ -233,7 +254,7 @@ class HomePage extends ConsumerWidget {
 
           const Divider(height: 24, thickness: 0.5),
 
-          if (state.isLoading && state.suggestion == null)
+          if (state.isLoading)
             const Center(child: Padding(
               padding: EdgeInsets.symmetric(vertical: 24.0),
               child: CircularProgressIndicator(),

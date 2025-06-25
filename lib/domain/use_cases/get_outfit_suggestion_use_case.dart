@@ -20,7 +20,7 @@ class GetOutfitSuggestionUseCase {
     this._suggestionRepo,
   );
 
-  Future<Map<String, dynamic>> _getWeatherForSuggestion() async {
+  Future<Map<String, dynamic>> getWeatherForSuggestion() async {
     final prefs = await SharedPreferences.getInstance();
     final cityModeString = prefs.getString('city_mode') ?? 'auto';
     final cityMode = CityMode.values.byName(cityModeString);
@@ -84,7 +84,7 @@ class GetOutfitSuggestionUseCase {
   }
 
   Future<Map<String, dynamic>> execute() async {
-    final weatherData = await _getWeatherForSuggestion();
+    final weatherData = await getWeatherForSuggestion();
     final items = await _clothingItemRepo.getAllItems();
 
     if (items.isEmpty) {

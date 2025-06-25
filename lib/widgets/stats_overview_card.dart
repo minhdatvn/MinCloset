@@ -27,17 +27,17 @@ class StatsOverviewCard extends StatelessWidget {
           children: [
             _buildStatItem(
               context: context,
-              label: 'Vật phẩm',
+              label: 'Item',
               value: totalItems.toString(),
             ),
             _buildStatItem(
               context: context,
-              label: 'Tủ đồ',
+              label: 'Closet',
               value: totalClosets.toString(),
             ),
             _buildStatItem(
               context: context,
-              label: 'Bộ đồ',
+              label: 'Outfit',
               value: totalOutfits.toString(),
             ),
           ],

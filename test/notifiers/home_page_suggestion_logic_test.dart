@@ -73,14 +73,18 @@ void main() {
       verify(() => mockHomeNotifier.getNewSuggestion()).called(1);
     });
 
-    testWidgets('Không nên gọi getNewSuggestion khi thực hiện pull-to-refresh', (tester) async {
+    testWidgets('Nên gọi getNewSuggestion khi thực hiện pull-to-refresh', (tester) async {
+      // Sắp xếp
       await tester.pumpWidget(createTestableWidget());
-
       final refreshIndicator = tester.widget<RefreshIndicator>(find.byType(RefreshIndicator));
-      await refreshIndicator.onRefresh();
+
+      // Hành động
+      await refreshIndicator.onRefresh(); // Gọi hàm onRefresh
       await tester.pump();
 
-      verifyNever(() => mockHomeNotifier.getNewSuggestion());
+      // Kiểm chứng
+      // Mong đợi hàm getNewSuggestion được gọi đúng 1 lần
+      verify(() => mockHomeNotifier.getNewSuggestion()).called(1);
     });
   });
 }

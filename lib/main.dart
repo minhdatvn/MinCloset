@@ -1,4 +1,3 @@
-// lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -8,11 +7,39 @@ import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/routing/route_generator.dart';
 import 'package:mincloset/theme/app_theme.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  runApp(const ProviderScope(child: MinClosetApp()));
+
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = dotenv.env['SENTRY_DSN'] ?? '';
+      options.tracesSampleRate = 1.0;
+      options.profilesSampleRate = 1.0;
+    },
+    // <<< THAY ĐỔI QUAN TRỌNG Ở ĐÂY >>>
+    // appRunner giờ sẽ bọc ứng dụng của bạn trong các widget cần thiết của Sentry
+    appRunner: () => runApp(
+      DefaultAssetBundle(
+        // Cách dùng SentryAssetBundle mới
+        bundle: SentryAssetBundle(),
+        // SentryUserInteractionWidget giúp ghi lại các tương tác của người dùng
+        child: SentryUserInteractionWidget(
+          child: const ProviderScope(
+            child: MinClosetApp(),
+          ),
+        ),
+      ),
+    ),
+  );
+  // <<< THÊM LẠI DÒNG NÀY ĐỂ GỬI LỖI MẪU TỚI SENTRY >>>
+  // Giúp bạn kiểm tra xem Sentry đã được kết nối đúng chưa.
+  await Sentry.captureException(
+    Exception('Sentry test exception: MinCloset App Startup'),
+    stackTrace: StackTrace.current,
+  );
 }
 
 class MinClosetApp extends ConsumerWidget {
@@ -27,8 +54,12 @@ class MinClosetApp extends ConsumerWidget {
       navigatorKey: navigatorKey,
       title: 'MinCloset',
       theme: appTheme,
+      // SentryNavigatorObserver vẫn được giữ nguyên ở đây
+      navigatorObservers: [
+        SentryNavigatorObserver(),
+      ],
       initialRoute: AppRoutes.splash,
-      onGenerateRoute: RouteGenerator.onGenerateRoute, // Sửa ở đây
+      onGenerateRoute: RouteGenerator.onGenerateRoute,
       locale: locale,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

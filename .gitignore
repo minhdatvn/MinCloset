@@ -52,3 +52,4 @@ app.*.map.json
 *.xcworkspace/xcuserdata/ # Thêm dòng này nếu dùng Xcode
 
 /.env
+sentry.properties

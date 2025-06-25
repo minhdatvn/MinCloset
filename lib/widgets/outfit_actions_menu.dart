@@ -87,15 +87,17 @@ class OutfitActionsMenu extends ConsumerWidget {
   }
 
   Future<void> _shareOutfit(BuildContext context, WidgetRef ref, Outfit outfit) async {
-    // <<< SỬA LỖI: Lấy scaffoldMessenger ra trước khi có `await` >>>
     try {
-      // ignore: deprecated_member_use_from_same_package, deprecated_member_use
-      await Share.shareXFiles(
-        [XFile(outfit.imagePath)],
-        text: 'Let check out my outfit: "${outfit.name}"!',
+      // Sử dụng API mới SharePlus.instance.share với ShareParams
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(outfit.imagePath)],
+          text: 'Let check out my outfit: "${outfit.name}"!',
+        ),
       );
     } catch (e) {
-      ref.read(notificationServiceProvider).showBanner(message: 'Could not share: $e'); // Thêm dòng này
+      // Giữ lại phần xử lý lỗi
+      ref.read(notificationServiceProvider).showBanner(message: 'Could not share: $e');
     }
   }
 

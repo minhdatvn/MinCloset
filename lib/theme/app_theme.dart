@@ -53,7 +53,7 @@ final ThemeData appTheme = ThemeData(
       color: almostBlack,
     ),
     // Thêm surfaceTintColor để tạo điểm nhấn
-    surfaceTintColor: mochaMousse.withOpacity(0.05),
+    surfaceTintColor: mochaMousse.withValues(alpha:0.05),
   ),
 
   // SỬA LỖI TẠI ĐÂY: Thay CardTheme thành CardThemeData
@@ -63,7 +63,7 @@ final ThemeData appTheme = ThemeData(
       borderRadius: BorderRadius.circular(12), // Bo góc cho Card
     ),
     color: lightGray, // Màu nền mặc định cho Card
-    surfaceTintColor: mochaMousse.withOpacity(0.05), // Thêm hiệu ứng màu cho Card
+    surfaceTintColor: mochaMousse.withValues(alpha:0.05), // Thêm hiệu ứng màu cho Card
   ),
 
   chipTheme: ChipThemeData(

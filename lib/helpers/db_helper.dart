@@ -42,7 +42,8 @@ class DatabaseHelper {
         imagePath TEXT,
         thumbnailPath TEXT,
         itemIds TEXT,
-        is_fixed INTEGER NOT NULL DEFAULT 0
+        is_fixed INTEGER NOT NULL DEFAULT 0,
+        lastWornDate TEXT
       )""");
   }
 

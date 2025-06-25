@@ -1,11 +1,17 @@
 // lib/screens/pages/outfits_hub_page.dart
 
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:mincloset/models/notification_type.dart';
+import 'package:mincloset/models/outfit.dart';
+import 'package:mincloset/notifiers/outfit_detail_notifier.dart';
 import 'package:mincloset/notifiers/outfits_hub_notifier.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
-import 'package:mincloset/widgets/outfit_actions_menu.dart';
+import 'package:share_plus/share_plus.dart';
 
 class OutfitsHubPage extends ConsumerStatefulWidget {
   const OutfitsHubPage({super.key});
@@ -16,6 +22,213 @@ class OutfitsHubPage extends ConsumerStatefulWidget {
 
 class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
   final ScrollController _scrollController = ScrollController();
+
+  void _showOutfitDetailSheet(
+  BuildContext context,
+  WidgetRef ref,
+  Outfit outfit,
+  OutfitsHubNotifier notifier,
+) {
+  showModalBottomSheet(
+    context: context,
+    // Bỏ isScrollControlled và DraggableScrollableSheet vì sheet giờ đã nhỏ gọn
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (ctx) {
+      // Dùng SafeArea và Column để chứa các ListTile
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min, // Giúp Column chỉ chiếm chiều cao cần thiết
+          children: <Widget>[
+            // Dòng chứa thumbnail, tên và ngày mặc
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+              child: Row(
+                children: [
+                  // Ảnh thumbnail tròn
+                   SizedBox(
+                    width: 60, // Chiều rộng của ảnh
+                    height: 80, // Chiều cao (tỷ lệ 3:4)
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8), // Bo tròn góc
+                      child: Image.file(
+                        File(outfit.thumbnailPath ?? outfit.imagePath),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          // Fallback nếu ảnh lỗi
+                          return Container(
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.broken_image_outlined, color: Colors.grey),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Cột chứa tên và ngày mặc
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          outfit.name,
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        // Dòng này vẫn chính xác vì chúng ta đã cập nhật model Outfit
+                        Text(
+                          'Last worn: ${outfit.lastWornDate != null ? DateFormat.yMMMd().format(outfit.lastWornDate!) : "Never"}',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            // Các ListTile hành động (giữ nguyên như cũ)
+            ListTile(
+              leading: const Icon(Icons.edit_outlined),
+              title: const Text('Rename'),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                _showEditOutfitNameDialog(context, ref, outfit, notifier);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.share_outlined),
+              title: const Text('Share'),
+              onTap: () {
+                Navigator.of(ctx).pop(); // Đóng sheet
+                // Sử dụng API mới SharePlus.instance.share với ShareParams
+                SharePlus.instance.share(
+                  ShareParams(
+                    files: [XFile(outfit.imagePath)],
+                    text: 'Let check out my outfit: "${outfit.name}"!',
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.open_in_new),
+              title: const Text('View full details'),
+              onTap: () async {
+                Navigator.of(ctx).pop();
+                final bool? outfitWasChanged = await Navigator.pushNamed(
+                  context,
+                  AppRoutes.outfitDetail,
+                  arguments: outfit,
+                );
+                if (outfitWasChanged == true) {
+                  notifier.fetchInitialOutfits();
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              title: const Text('Delete', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.of(ctx).pop();
+                _showDeleteConfirmationDialog(context, ref, outfit, notifier);
+              },
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+  // Hàm để hiện dialog sửa tên (điều chỉnh từ outfit_actions_menu.dart)
+  void _showEditOutfitNameDialog(
+    BuildContext context,
+    WidgetRef ref,
+    Outfit outfit,
+    OutfitsHubNotifier notifier,
+  ) {
+    final nameController = TextEditingController(text: outfit.name);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Rename outfit'),
+        content: TextField(
+          controller: nameController,
+          autofocus: true,
+          decoration: const InputDecoration(labelText: 'New name'),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('Cancel')),
+          ElevatedButton(
+            onPressed: () async {
+              final navigator = Navigator.of(ctx);
+              if (nameController.text.trim().isEmpty) return;
+
+              // Gọi đến provider chi tiết để cập nhật
+              await ref.read(outfitDetailProvider(outfit).notifier)
+                      .updateName(nameController.text.trim());
+              
+              // Làm mới lại danh sách ở trang Hub
+              notifier.fetchInitialOutfits();
+              navigator.pop();
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Hàm để hiện dialog xác nhận xóa
+  void _showDeleteConfirmationDialog(
+    BuildContext context,
+    WidgetRef ref,
+    Outfit outfit,
+    OutfitsHubNotifier notifier,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Confirm deletion'),
+        content: Text('Permanently delete outfit "${outfit.name}"?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      // Gọi hàm xóa từ provider chi tiết
+      final success = await ref.read(outfitDetailProvider(outfit).notifier)
+                              .deleteOutfit();
+
+      // Nếu xóa thành công, làm mới lại trang Hub
+      if (success) {
+        notifier.fetchInitialOutfits();
+        ref.read(notificationServiceProvider).showBanner(
+                message: 'Deleted outfit "${outfit.name}".',
+                type: NotificationType.success,
+              );
+      } else {
+        ref.read(notificationServiceProvider).showBanner(
+                message: 'Failed to delete outfit. Please try again.',
+              );
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -91,65 +304,39 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
                 return Card(
                   clipBehavior: Clip.antiAlias,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                  child: Stack(
+                    fit: StackFit.expand,
                     children: [
-                      Expanded(
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            GestureDetector(
-                              onTap: () async {
-                                // Chờ kết quả trả về từ trang chi tiết
-                                final bool? outfitWasChanged = await Navigator.pushNamed(
-                                  context, 
-                                  AppRoutes.outfitDetail, 
-                                  arguments: outfit
-                                );
-                                // Nếu có thay đổi, làm mới lại danh sách
-                                if (outfitWasChanged == true) {
-                                  notifier.fetchInitialOutfits();
-                                }
-                              },
-                              child: Image.file(
-                                File(imageToShowPath),
-                                key: ValueKey(imageToShowPath),
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Center(child: Icon(Icons.broken_image, color: Colors.grey, size: 40));
-                                },
-                              ),
-                            ),
-                            if (outfit.isFixed)
-                              Positioned(
-                                top: 8,
-                                right: 8,
-                                child: Container(
-                                  padding: const EdgeInsets.all(5),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withAlpha(153),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(Icons.lock_outline, color: Colors.white, size: 16),
-                                ),
-                              )
-                          ],
+                      // Lớp 1: Ảnh nền và sự kiện onTap
+                      GestureDetector(
+                        onTap: () {
+                          // GỌI HÀM HIỂN THỊ BOTTOM SHEET SẼ ĐƯỢC TẠO Ở BƯỚC 2
+                          _showOutfitDetailSheet(context, ref, outfit, notifier);
+                        },
+                        child: Image.file(
+                          File(imageToShowPath),
+                          key: ValueKey(imageToShowPath),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Center(child: Icon(Icons.broken_image, color: Colors.grey, size: 40));
+                          },
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Row(
-                          children: [
-                            Expanded(child: Text(outfit.name, style: const TextStyle(fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis)),
-                            OutfitActionsMenu(
-                              outfit: outfit,
-                              onUpdate: () {
-                                notifier.fetchInitialOutfits();
-                              },
+                      
+                      // Lớp 2: Icon ổ khóa (nếu là bộ đồ cố định) - vẫn giữ lại
+                      if (outfit.isFixed)
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withAlpha(153),
+                              shape: BoxShape.circle,
                             ),
-                          ],
-                        ),
-                      ),
+                            child: const Icon(Icons.lock_outline, color: Colors.white, size: 16),
+                          ),
+                        )
                     ],
                   ),
                 );

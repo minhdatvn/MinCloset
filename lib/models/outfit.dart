@@ -5,34 +5,38 @@ class Outfit extends Equatable {
   final String id;
   final String name;
   final String imagePath;
-  final String? thumbnailPath; // <<< THÊM MỚI
+  final String? thumbnailPath;
   final String itemIds;
   final bool isFixed;
+  final DateTime? lastWornDate; // <<< THÊM MỚI
 
   const Outfit({
     required this.id,
     required this.name,
     required this.imagePath,
-    this.thumbnailPath, // <<< THÊM MỚI
+    this.thumbnailPath,
     required this.itemIds,
     this.isFixed = false,
+    this.lastWornDate, // <<< THÊM MỚI
   });
 
   Outfit copyWith({
     String? id,
     String? name,
     String? imagePath,
-    String? thumbnailPath, // <<< THÊM MỚI
+    String? thumbnailPath,
     String? itemIds,
     bool? isFixed,
+    DateTime? lastWornDate, // <<< THÊM MỚI
   }) {
     return Outfit(
       id: id ?? this.id,
       name: name ?? this.name,
       imagePath: imagePath ?? this.imagePath,
-      thumbnailPath: thumbnailPath ?? this.thumbnailPath, // <<< THÊM MỚI
+      thumbnailPath: thumbnailPath ?? this.thumbnailPath,
       itemIds: itemIds ?? this.itemIds,
       isFixed: isFixed ?? this.isFixed,
+      lastWornDate: lastWornDate ?? this.lastWornDate, // <<< THÊM MỚI
     );
   }
 
@@ -41,9 +45,13 @@ class Outfit extends Equatable {
       id: map['id'] as String,
       name: map['name'] as String,
       imagePath: map['imagePath'] as String,
-      thumbnailPath: map['thumbnailPath'] as String?, // <<< THÊM MỚI
+      thumbnailPath: map['thumbnailPath'] as String?,
       itemIds: map['itemIds'] as String,
       isFixed: (map['is_fixed'] as int? ?? 0) == 1,
+      // <<< THÊM MỚI: Chuyển đổi từ text trong CSDL sang DateTime
+      lastWornDate: map['lastWornDate'] != null
+          ? DateTime.tryParse(map['lastWornDate'] as String)
+          : null,
     );
   }
 
@@ -52,12 +60,14 @@ class Outfit extends Equatable {
       'id': id,
       'name': name,
       'imagePath': imagePath,
-      'thumbnailPath': thumbnailPath, // <<< THÊM MỚI
+      'thumbnailPath': thumbnailPath,
       'itemIds': itemIds,
       'is_fixed': isFixed ? 1 : 0,
+      // <<< THÊM MỚI: Chuyển đổi từ DateTime sang text để lưu vào CSDL
+      'lastWornDate': lastWornDate?.toIso8601String(),
     };
   }
 
   @override
-  List<Object?> get props => [id, name, imagePath, thumbnailPath, itemIds, isFixed]; // <<< THÊM MỚI
+  List<Object?> get props => [id, name, imagePath, thumbnailPath, itemIds, isFixed, lastWornDate]; // <<< THÊM MỚI
 }

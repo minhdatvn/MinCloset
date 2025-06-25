@@ -16,31 +16,61 @@ import 'package:mincloset/widgets/recent_item_card.dart';
 // Hàm _showAddClosetDialog không thay đổi
 void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
   final nameController = TextEditingController();
+  String? errorText;
+
   showDialog(
     context: context,
-    builder: (ctx) => AlertDialog(
-      title: const Text('Create New Closet'),
-      content: TextField(
-        controller: nameController,
-        decoration: const InputDecoration(labelText: 'Closet name'),
-        autofocus: true,
-      ),
-      actions: [
-        TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
-        ElevatedButton(
-          onPressed: () {
-            final closetName = nameController.text.trim();
-            if (closetName.isNotEmpty) {
-              // Gọi notifier để lưu nhưng không cần 'await'
-              ref.read(closetsPageProvider.notifier).addCloset(closetName);
-              // Đóng hộp thoại ngay lập tức
-              Navigator.of(ctx).pop();
-            }
-          },
-          child: const Text('Save'),
-        ),
-      ],
-    ),
+    // barrierDismissible: false, // Không cho phép đóng khi nhấn ra ngoài
+    builder: (ctx) {
+      // Dùng StatefulBuilder để dialog có thể tự cập nhật trạng thái
+      return StatefulBuilder(
+        builder: (dialogContext, setDialogState) {
+          return AlertDialog(
+            title: const Text('Create new closet'),
+            content: TextField(
+              controller: nameController,
+              autofocus: true,
+              maxLength: 30,
+              decoration: InputDecoration(
+                labelText: 'Closet name',
+                // Hiển thị lỗi ngay trên TextField
+                errorText: errorText,
+              ),
+              // Xóa lỗi khi người dùng bắt đầu nhập lại
+              onChanged: (_) {
+                if (errorText != null) {
+                  setDialogState(() {
+                    errorText = null;
+                  });
+                }
+              },
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('Cancel')),
+              ElevatedButton(
+                onPressed: () async {
+                  final notifier = ref.read(closetsPageProvider.notifier);
+                  final error = await notifier.addCloset(nameController.text);
+
+                  if (error == null) {
+                    // Thành công, đóng dialog
+                    if (ctx.mounted) Navigator.of(ctx).pop();
+                  } else {
+                    // Thất bại, cập nhật state của dialog để hiển thị lỗi
+                    setDialogState(() {
+                      errorText = error;
+                    });
+                  }
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      );
+    },
   );
 }
 
@@ -315,33 +345,117 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 
 
 // _ClosetsListTab không thay đổi
-class _ClosetsListTab extends ConsumerWidget {
+class _ClosetsListTab extends ConsumerStatefulWidget {
   const _ClosetsListTab();
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ClosetsListTab> createState() => _ClosetsListTabState();
+}
+
+class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
+  @override
+  Widget build(BuildContext context) {
     final closetsAsyncValue = ref.watch(closetsProvider);
     final theme = Theme.of(context);
     return closetsAsyncValue.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => Center(child: Text('Error: $error')),
       data: (closets) {
+        final isLimitReached = closets.length >= 10;
         return ListView.builder(
           padding: const EdgeInsets.only(top: 8),
           itemCount: closets.length + 1,
           itemBuilder: (ctx, index) {
-            if (index == closets.length) {
+            if (index == 0) {
+              if (isLimitReached) {
+                return Container(
+                  padding: const EdgeInsets.all(16.0),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  child: const Center(
+                    child: Text(
+                      'Closet limit (10) reached.',
+                      style: TextStyle(fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                );
+              }
               return ListTile(
-                leading: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),
-                title: Text('Add New Closet', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
+                leading: Icon(Icons.add_circle_outline,
+                    color: theme.colorScheme.primary),
+                title: Text('Add new closet',
+                    style: TextStyle(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.bold)),
                 onTap: () => _showAddClosetDialog(context, ref),
               );
             }
-            final closet = closets[index];
-            return ListTile(
-              leading: const Icon(Icons.inventory_2_outlined),
-              title: Text(closet.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () => Navigator.pushNamed(context, AppRoutes.closetDetail, arguments: closet),
+            final closet = closets[index - 1];
+            return Dismissible(
+              key: ValueKey(closet.id),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                color: Colors.red,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                alignment: Alignment.centerRight,
+                child: const Icon(Icons.delete, color: Colors.white),
+              ),
+              confirmDismiss: (direction) async {
+                // Lấy các đối tượng phụ thuộc CONTEXT ra ngoài TRƯỚC khi gọi await
+                final scaffoldMessenger = ScaffoldMessenger.of(context);
+                final currentTheme = Theme.of(context);
+
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (dialogCtx) => AlertDialog(
+                    title: const Text('Confirm Deletion'),
+                    content: Text(
+                        'Are you sure you want to delete the "${closet.name}" closet?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(dialogCtx).pop(false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                            foregroundColor: Colors.red),
+                        onPressed: () => Navigator.of(dialogCtx).pop(true),
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirmed != true) {
+                  return false;
+                }
+
+                final error = await ref
+                    .read(closetsPageProvider.notifier)
+                    .deleteCloset(closet.id);
+
+                // Bây giờ, chúng ta dùng các biến đã lấy ra trước đó
+                // và kiểm tra mounted để đảm bảo an toàn tuyệt đối
+                if (!mounted) return false;
+
+                if (error != null) {
+                  scaffoldMessenger.showSnackBar(SnackBar(
+                    content: Text(error),
+                    backgroundColor: currentTheme.colorScheme.error,
+                  ));
+                  return false;
+                }
+
+                return true;
+              },
+              child: ListTile(
+                leading: const Icon(Icons.inventory_2_outlined),
+                title: Text(closet.name,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () => Navigator.pushNamed(
+                    context, AppRoutes.closetDetail,
+                    arguments: closet),
+              ),
             );
           },
         );

@@ -19,22 +19,63 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
 
   ClosetsPageNotifier(this._closetRepo, this._ref) : super(const ClosetsPageState());
 
-  Future<bool> addCloset(String name) async {
-    if (name.trim().isEmpty) {
-      return false;
+  Future<String?> addCloset(String name) async {
+    final trimmedName = name.trim();
+    if (trimmedName.isEmpty) {
+      return 'Closet name cannot be empty.';
     }
+    if (trimmedName.length > 30) {
+      return 'Closet name cannot exceed 30 characters.';
+    }
+
     state = const ClosetsPageState(isLoading: true);
     try {
-      final newCloset = Closet(id: const Uuid().v4(), name: name.trim());
+      final closets = await _ref.read(closetsProvider.future);
+
+      // Thêm logic kiểm tra giới hạn số lượng
+      if (closets.length >= 10) {
+        state = const ClosetsPageState(isLoading: false);
+        return 'Maximum number of closets (10) reached.';
+      }
+
+      final isDuplicate = closets.any((closet) =>
+          closet.name.trim().toLowerCase() == trimmedName.toLowerCase());
+
+      if (isDuplicate) {
+        state = const ClosetsPageState(isLoading: false);
+        return 'A closet with this name already exists.';
+      }
+
+      final newCloset = Closet(id: const Uuid().v4(), name: trimmedName);
       await _closetRepo.insertCloset(newCloset);
-      
-      // Vô hiệu hóa provider `closetsProvider` để nó tự động tải lại danh sách mới
+
       _ref.invalidate(closetsProvider);
       state = const ClosetsPageState(isLoading: false);
-      return true;
+      return null;
     } catch (e) {
       state = ClosetsPageState(isLoading: false, error: e.toString());
-      return false;
+      return 'An unexpected error occurred.';
+    }
+  }
+
+  Future<String?> deleteCloset(String closetId) async {
+    try {
+      // Lấy danh sách các repo từ ref
+      final closetRepo = _ref.read(closetRepositoryProvider);
+      final clothingItemRepo = _ref.read(clothingItemRepositoryProvider);
+
+      // Kiểm tra xem closet có trống không
+      final itemsInCloset = await clothingItemRepo.getItemsInCloset(closetId);
+      if (itemsInCloset.isNotEmpty) {
+        return 'Closet is not empty. Move or delete items first.';
+      }
+
+      // Nếu closet trống, tiến hành xóa
+      await closetRepo.deleteCloset(closetId);
+      _ref.invalidate(closetsProvider); // Cập nhật lại danh sách closets
+      return null; // Xóa thành công
+    } catch (e) {
+      return 'An unexpected error occurred during deletion.';
     }
   }
 }

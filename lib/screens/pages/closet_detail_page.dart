@@ -49,123 +49,27 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
   }
 
   Future<void> _showMoveDialog(ClosetDetailNotifier notifier, Set<ClothingItem> itemsToMove) async {
-    final closets = await ref.read(closetsProvider.future);
-    final availableClosets = closets.where((c) => c.id != widget.closet.id).toList();
+      final closets = await ref.read(closetsProvider.future);
+      final availableClosets = closets.where((c) => c.id != widget.closet.id).toList();
 
-    if (!mounted) return;
-    if (availableClosets.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No other closets available to move to.')));
-      return;
-    }
+      if (!mounted) return;
+      if (availableClosets.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No other closets available to move to.')));
+        return;
+      }
 
-    final String? targetClosetId = await showDialog(
-      context: context,
-      builder: (ctx) {
-        String? selectedId;
-        final scrollController = ScrollController();
-        
-        // ValueNotifier để chỉ rebuild các mũi tên
-        final showArrowsNotifier = ValueNotifier({'up': false, 'down': false});
+      final String? targetClosetId = await showDialog(
+        context: context,
+        builder: (ctx) => _MoveItemsDialog(
+          availableClosets: availableClosets,
+          itemCount: itemsToMove.length,
+        ),
+      );
 
-        // Hàm listener để cập nhật trạng thái mũi tên
-        void updateArrowVisibility() {
-          if (!scrollController.hasClients) return;
-          final currentShowUp = scrollController.offset > 0;
-          final currentShowDown = scrollController.offset < scrollController.position.maxScrollExtent;
-          if (currentShowUp != showArrowsNotifier.value['up'] || currentShowDown != showArrowsNotifier.value['down']) {
-            showArrowsNotifier.value = {'up': currentShowUp, 'down': currentShowDown};
-          }
-        }
-        
-        // Kiểm tra trạng thái ban đầu và gắn listener
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (scrollController.hasClients) {
-             final initialShowDown = scrollController.position.maxScrollExtent > 0;
-             showArrowsNotifier.value = {'up': false, 'down': initialShowDown};
-          }
-          scrollController.addListener(updateArrowVisibility);
-        });
-        
-        // Đảm bảo controller được dispose
-        ctx.findAncestorStateOfType<StatefulBuilderState>()?.deactivate = () {
-          scrollController.removeListener(updateArrowVisibility);
-          scrollController.dispose();
-          showArrowsNotifier.dispose();
-        };
-
-        return StatefulBuilder(
-          builder: (dialogContext, setDialogState) {
-            return AlertDialog(
-              title: Text('Move ${itemsToMove.length} items to...'),
-              contentPadding: const EdgeInsets.symmetric(vertical: 20.0),
-              content: SizedBox(
-                width: double.maxFinite,
-                height: 300,
-                child: Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: ListView.builder(
-                        controller: scrollController,
-                        shrinkWrap: true,
-                        itemCount: availableClosets.length,
-                        itemBuilder: (context, index) {
-                          final closet = availableClosets[index];
-                          return RadioListTile<String>(
-                            title: Text(closet.name),
-                            value: closet.id,
-                            groupValue: selectedId,
-                            onChanged: (value) => setDialogState(() => selectedId = value),
-                            contentPadding: EdgeInsets.zero,
-                          );
-                        },
-                      ),
-                    ),
-                    // Dùng ValueListenableBuilder để chỉ build lại các mũi tên
-                    ValueListenableBuilder<Map<String, bool>>(
-                      valueListenable: showArrowsNotifier,
-                      builder: (context, arrowsState, _) {
-                        return Stack(
-                          children: [
-                            if (arrowsState['up'] ?? false)
-                              const Positioned(
-                                top: 0, left: 0, right: 0,
-                                child: Align(
-                                  alignment: Alignment.topCenter,
-                                  child: Icon(Icons.keyboard_arrow_up, size: 24, color: Colors.grey),
-                                ),
-                              ),
-                            if (arrowsState['down'] ?? false)
-                              const Positioned(
-                                bottom: 0, left: 0, right: 0,
-                                child: Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: Icon(Icons.keyboard_arrow_down, size: 24, color: Colors.grey),
-                                ),
-                              ),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
-                ElevatedButton(
-                  onPressed: selectedId == null ? null : () => Navigator.of(ctx).pop(selectedId),
-                  child: const Text('Move'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-
-    if (targetClosetId != null) {
-      await notifier.moveSelectedItems(targetClosetId);
-    }
+      if (targetClosetId != null) {
+        await notifier.moveSelectedItems(targetClosetId);
+      }
   }
 
   @override
@@ -194,7 +98,34 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
               ),
               title: Text('${state.selectedItemIds.length} selected'),
             )
-          : AppBar(title: Text(widget.closet.name)),
+          : AppBar(
+              title: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      widget.closet.name,
+                      overflow: TextOverflow.ellipsis, // Hiển thị '...' khi text quá dài
+                      maxLines: 1, // Đảm bảo chỉ hiển thị trên một dòng
+                    ),
+                  ),
+                  // Spacer sẽ đẩy widget tiếp theo sang cạnh phải
+                  const Spacer(),
+                  // Chỉ hiển thị chip đếm số lượng khi đã tải xong và không ở chế độ chọn nhiều
+                  if (!state.isLoading)
+                    Chip(
+                      label: Text(
+                        '${state.items.length} ${state.items.length == 1 ? "item" : "items"}',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      backgroundColor:
+                          Theme.of(context).colorScheme.secondaryContainer,
+                      side: BorderSide.none,
+                    )
+                ],
+              ),
+            ),
         body: RefreshIndicator(
           onRefresh: notifier.fetchInitialItems,
           child: Column(
@@ -336,6 +267,138 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
           child: RecentItemCard(item: item, isSelected: isSelected),
         );
       },
+    );
+  }
+}
+
+class _MoveItemsDialog extends StatefulWidget {
+  final List<Closet> availableClosets;
+  final int itemCount;
+
+  const _MoveItemsDialog({
+    required this.availableClosets,
+    required this.itemCount,
+  });
+
+  @override
+  State<_MoveItemsDialog> createState() => _MoveItemsDialogState();
+}
+
+class _MoveItemsDialogState extends State<_MoveItemsDialog> {
+  final ScrollController _scrollController = ScrollController();
+  final ValueNotifier<Map<String, bool>> _showArrowsNotifier =
+      ValueNotifier({'up': false, 'down': false});
+  String? _selectedId;
+
+  @override
+  void initState() {
+    super.initState();
+    // Thêm một frame callback để đảm bảo scrollController đã được gắn vào cây widget
+    // trước khi kiểm tra trạng thái cuộn.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        // Cập nhật trạng thái mũi tên lần đầu
+        _updateArrowVisibility();
+        // Gắn listener để theo dõi các thay đổi khi cuộn
+        _scrollController.addListener(_updateArrowVisibility);
+      }
+    });
+  }
+
+  void _updateArrowVisibility() {
+    if (!_scrollController.hasClients) return;
+    final showUp = _scrollController.offset > 0;
+    final showDown =
+        _scrollController.offset < _scrollController.position.maxScrollExtent;
+    // Chỉ cập nhật ValueNotifier nếu trạng thái thực sự thay đổi để tránh build lại không cần thiết
+    if (showUp != _showArrowsNotifier.value['up'] ||
+        showDown != _showArrowsNotifier.value['down']) {
+      _showArrowsNotifier.value = {'up': showUp, 'down': showDown};
+    }
+  }
+
+  @override
+  void dispose() {
+    // Dọn dẹp các controller một cách an toàn
+    _scrollController.removeListener(_updateArrowVisibility);
+    _scrollController.dispose();
+    _showArrowsNotifier.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Move ${widget.itemCount} items to...'),
+      contentPadding: const EdgeInsets.symmetric(vertical: 20.0),
+      content: SizedBox(
+        width: double.maxFinite,
+        height: 300,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: ListView.builder(
+                controller: _scrollController,
+                shrinkWrap: true,
+                itemCount: widget.availableClosets.length,
+                itemBuilder: (context, index) {
+                  final closet = widget.availableClosets[index];
+                  return RadioListTile<String>(
+                    title: Text(closet.name),
+                    value: closet.id,
+                    groupValue: _selectedId,
+                    onChanged: (value) => setState(() => _selectedId = value),
+                    contentPadding: EdgeInsets.zero,
+                  );
+                },
+              ),
+            ),
+            // Dùng ValueListenableBuilder để chỉ build lại các mũi tên
+            ValueListenableBuilder<Map<String, bool>>(
+              valueListenable: _showArrowsNotifier,
+              builder: (context, arrowsState, _) {
+                return Stack(
+                  children: [
+                    if (arrowsState['up'] ?? false)
+                      const Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: Icon(Icons.keyboard_arrow_up,
+                              size: 24, color: Colors.grey),
+                        ),
+                      ),
+                    if (arrowsState['down'] ?? false)
+                      const Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Icon(Icons.keyboard_arrow_down,
+                              size: 24, color: Colors.grey),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel')),
+        ElevatedButton(
+          onPressed:
+              _selectedId == null ? null : () => Navigator.of(context).pop(_selectedId),
+          child: const Text('Move'),
+        ),
+      ],
     );
   }
 }

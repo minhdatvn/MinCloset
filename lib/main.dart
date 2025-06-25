@@ -34,12 +34,6 @@ Future<void> main() async {
       ),
     ),
   );
-  // <<< THÊM LẠI DÒNG NÀY ĐỂ GỬI LỖI MẪU TỚI SENTRY >>>
-  // Giúp bạn kiểm tra xem Sentry đã được kết nối đúng chưa.
-  await Sentry.captureException(
-    Exception('Sentry test exception: MinCloset App Startup'),
-    stackTrace: StackTrace.current,
-  );
 }
 
 class MinClosetApp extends ConsumerWidget {

@@ -6,61 +6,80 @@ import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/outfit_detail_notifier.dart';
 import 'package:mincloset/widgets/outfit_actions_menu.dart';
 
-class OutfitDetailPage extends ConsumerWidget {
+// <<< CHUYỂN THÀNH ConsumerStatefulWidget >>>
+class OutfitDetailPage extends ConsumerStatefulWidget {
   final Outfit outfit;
-
   const OutfitDetailPage({super.key, required this.outfit});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final provider = outfitDetailProvider(outfit);
+  ConsumerState<OutfitDetailPage> createState() => _OutfitDetailPageState();
+}
+
+class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
+  // Biến để theo dõi xem có thay đổi nào không
+  bool _didChange = false;
+
+  @override
+  Widget build(BuildContext context) {
+    // <<< SỬA LẠI CÁCH LẤY PROVIDER CHO ĐÚNG VỚI STATEFULWIDGET >>>
+    final provider = outfitDetailProvider(widget.outfit);
     final currentOutfit = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
     
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(currentOutfit.name),
-        actions: [
-          OutfitActionsMenu(outfit: currentOutfit),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            InteractiveViewer(
-              minScale: 1.0,
-              maxScale: 4.0,
-              child: Image.file(
-                File(currentOutfit.imagePath),
-                fit: BoxFit.contain,
-              ),
+    // <<< BỌC SCAFFOLD BẰNG WillPopScope ĐỂ TRẢ VỀ KẾT QUẢ >>>
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.of(context).pop(_didChange);
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          title: Text(currentOutfit.name),
+          actions: [
+            OutfitActionsMenu(
+              outfit: currentOutfit,
+              // Thêm onUpdate để ghi nhận thay đổi khi sửa tên
+              onUpdate: () => setState(() => _didChange = true),
             ),
-            const Divider(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: SwitchListTile(
-                title: const Text('Fixed outfit', style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: const Text('Items in this outfit are always worn together. Each item can only belong to one fixed outfit.'),
-                value: currentOutfit.isFixed,
-                // <<< CẬP NHẬT LOGIC onChanged >>>
-                onChanged: (newValue) async {
-                  // Hàm toggleIsFixed giờ trả về một String? (thông báo lỗi)
-                  final errorMessage = await notifier.toggleIsFixed(newValue);
-                  
-                  // Nếu có lỗi, hiển thị SnackBar
-                  if (errorMessage != null && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(errorMessage),
-                        backgroundColor: Colors.red,
-                      )
-                    );
-                  }
-                },
-              ),
-            )
           ],
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              InteractiveViewer(
+                minScale: 1.0,
+                maxScale: 4.0,
+                child: Image.file(
+                  File(currentOutfit.imagePath),
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const Divider(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: SwitchListTile(
+                  title: const Text('Fixed outfit', style: TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: const Text('Items in this outfit are always worn together. Each item can only belong to one fixed outfit.'),
+                  value: currentOutfit.isFixed,
+                  onChanged: (newValue) async {
+                    final errorMessage = await notifier.toggleIsFixed(newValue);
+                    if (errorMessage == null) {
+                      // Nếu không có lỗi, đánh dấu là đã thay đổi
+                      setState(() => _didChange = true);
+                    } else if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(errorMessage),
+                          backgroundColor: Colors.red,
+                        )
+                      );
+                    }
+                  },
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

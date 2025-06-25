@@ -19,42 +19,44 @@ class OutfitActionsMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return PopupMenuButton<String>(
-      icon: const Icon(Icons.more_vert, color: Colors.grey),
-      onSelected: (value) {
-        if (value == 'edit') {
-          _showEditOutfitNameDialog(context, ref, outfit, onUpdate);
-        } else if (value == 'share') {
-          _shareOutfit(context, ref, outfit);
-        } else if (value == 'delete') {
-          _deleteOutfit(context, ref, outfit, onUpdate);
-        }
-      },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        PopupMenuItem<String>(
-          value: 'edit',
-          enabled: !outfit.isFixed,
-          child: ListTile(
-            leading: Icon(Icons.edit_outlined, color: outfit.isFixed ? Colors.grey : null),
-            title: const Text('Rename'),
-          ),
+  return PopupMenuButton<String>(
+    icon: const Icon(Icons.more_vert, color: Colors.grey),
+    onSelected: (value) {
+      if (value == 'edit') {
+        _showEditOutfitNameDialog(context, ref, outfit, onUpdate);
+      } else if (value == 'share') {
+        _shareOutfit(context, ref, outfit);
+      } else if (value == 'delete') {
+        _deleteOutfit(context, ref, outfit, onUpdate);
+      }
+    },
+    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+      // <<< THAY ĐỔI 1: Luôn cho phép "Rename" >>>
+      const PopupMenuItem<String>(
+        value: 'edit',
+        // Đã xóa thuộc tính 'enabled' để nút luôn bật
+        child: ListTile(
+          leading: Icon(Icons.edit_outlined), // Icon luôn có màu mặc định
+          title: Text('Rename'),
         ),
-        const PopupMenuItem<String>(
-          value: 'share',
-          child: ListTile(leading: Icon(Icons.share_outlined), title: Text('Share')),
+      ),
+      const PopupMenuItem<String>(
+        value: 'share',
+        child: ListTile(leading: Icon(Icons.share_outlined), title: Text('Share')),
+      ),
+      const PopupMenuDivider(),
+      // <<< THAY ĐỔI 2: Luôn cho phép "Delete" >>>
+      const PopupMenuItem<String>(
+        value: 'delete',
+        // Đã xóa thuộc tính 'enabled' để nút luôn bật
+        child: ListTile(
+          leading: Icon(Icons.delete_outline, color: Colors.red), // Icon luôn có màu đỏ
+          title: Text('Delete', style: TextStyle(color: Colors.red)), // Chữ luôn có màu đỏ
         ),
-        const PopupMenuDivider(),
-        PopupMenuItem<String>(
-          value: 'delete',
-          enabled: !outfit.isFixed,
-          child: ListTile(
-            leading: Icon(Icons.delete_outline, color: outfit.isFixed ? Colors.grey : Colors.red),
-            title: Text('Delete', style: TextStyle(color: outfit.isFixed ? Colors.grey : Colors.red)),
-          ),
-        ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
 
   void _showEditOutfitNameDialog(BuildContext context, WidgetRef ref, Outfit currentOutfit, VoidCallback? onUpdateCallback) {
     final nameController = TextEditingController(text: currentOutfit.name);

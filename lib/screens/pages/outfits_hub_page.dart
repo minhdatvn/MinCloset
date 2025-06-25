@@ -100,7 +100,13 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
                           children: [
                             GestureDetector(
                               onTap: () async {
-                                final bool? outfitWasChanged = await Navigator.pushNamed(context, AppRoutes.outfitDetail, arguments: outfit);
+                                // Chờ kết quả trả về từ trang chi tiết
+                                final bool? outfitWasChanged = await Navigator.pushNamed(
+                                  context, 
+                                  AppRoutes.outfitDetail, 
+                                  arguments: outfit
+                                );
+                                // Nếu có thay đổi, làm mới lại danh sách
                                 if (outfitWasChanged == true) {
                                   notifier.fetchInitialOutfits();
                                 }
@@ -157,11 +163,16 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
 
   Widget _buildAddOutfitCard(BuildContext context, WidgetRef ref) {
     return InkWell(
-      onTap: () async {
-        final bool? newOutfitCreated = await Navigator.pushNamed(context, AppRoutes.outfitBuilder);
-        if (newOutfitCreated == true) {
-          ref.read(outfitsHubProvider.notifier).fetchInitialOutfits();
-        }
+      onTap: () {
+        // Sử dụng .then() để xử lý kết quả trả về từ trang OutfitBuilder
+        // một cách an toàn hơn.
+        Navigator.pushNamed(context, AppRoutes.outfitBuilder).then((newOutfitCreated) {
+          // Nếu kết quả trả về là true (đã tạo outfit thành công)
+          if (newOutfitCreated == true) {
+            // Thì làm mới lại danh sách outfits
+            ref.read(outfitsHubProvider.notifier).fetchInitialOutfits();
+          }
+        });
       },
       borderRadius: BorderRadius.circular(12),
       child: Card(
@@ -173,7 +184,7 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
               Icon(Icons.add_circle_outline, size: 40, color: Colors.grey.shade600),
               const SizedBox(height: 8),
               const Text(
-                'Create a New Outfit',
+                'Create a new outfit', // <<< SỬA LẠI CHUỖI TEXT Ở ĐÂY >>>
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ],

@@ -57,10 +57,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         toolbarHeight: 80,
       ),
       body: RefreshIndicator(
-        onRefresh: () async {
-          // Khi kéo để làm mới, sẽ lấy cả thời tiết và gợi ý mới
-          await ref.read(homeProvider.notifier).getNewSuggestion();
-        },
+        onRefresh: () async => await ref.read(homeProvider.notifier).refreshWeatherOnly(), //Khi làm mới chỉ lấy thông tin thời tiết
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -254,23 +251,36 @@ class _HomePageState extends ConsumerState<HomePage> {
 
           const Divider(height: 24, thickness: 0.5),
 
-          if (state.isLoading)
-            const Center(child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 24.0),
-              child: CircularProgressIndicator(),
-            ))
-          else
-            AnimatedTextKit(
-              // <<< THAY ĐỔI KEY Ở ĐÂY >>>
-              key: ValueKey(state.suggestionId), 
-              animatedTexts: [
-                TypewriterAnimatedText(
-                  state.suggestion ?? 'Tap "Get Suggestion" to see outfit recommendations!',
-                  textStyle: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
-                  speed: const Duration(milliseconds: 20),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              // Lớp 1: AnimatedTextKit luôn được build, nhưng có thể bị làm mờ
+              AnimatedOpacity(
+                opacity: state.isLoading ? 0.5 : 1.0,
+                duration: const Duration(milliseconds: 200),
+                child: AnimatedTextKit(
+                  key: ValueKey(state.suggestionId),
+                  isRepeatingAnimation: false, // Thêm dòng này để chắc chắn nó chỉ chạy 1 lần
+                  animatedTexts: [
+                    TypewriterAnimatedText(
+                      state.suggestion ?? 'Tap "Get Suggestion" to see outfit recommendations!',
+                      textStyle: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
+                      speed: const Duration(milliseconds: 20),
+                    ),
+                  ],
+                  displayFullTextOnTap: true,
+                  stopPauseOnTap: true,
                 ),
-              ],
-            ),
+              ),
+
+              // Lớp 2: Vòng xoay loading chỉ hiển thị khi isLoading = true
+              if (state.isLoading)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24.0),
+                  child: CircularProgressIndicator(),
+                )
+            ],
+          ),
           
           if (state.suggestionTimestamp != null) ...[
             const SizedBox(height: 16),

@@ -40,7 +40,10 @@ class _MainScreenState extends ConsumerState<MainScreen> {
     final selectedIndex = ref.watch(mainScreenIndexProvider);
 
     return Scaffold(
-      body: _widgetOptions.elementAt(selectedIndex),
+      body: IndexedStack(
+        index: selectedIndex,
+        children: _widgetOptions,
+      ),
       floatingActionButton: Transform.translate(
         offset: const Offset(0, 18),
         child: const GlobalAddButton(),

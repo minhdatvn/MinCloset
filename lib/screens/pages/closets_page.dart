@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/notifiers/closets_page_notifier.dart';
@@ -74,6 +75,62 @@ void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
   );
 }
 
+void _showEditClosetDialog(
+    BuildContext context, WidgetRef ref, Closet closetToEdit) {
+  final nameController = TextEditingController(text: closetToEdit.name);
+  String? errorText;
+
+  showDialog(
+    context: context,
+    builder: (ctx) {
+      return StatefulBuilder(
+        builder: (dialogContext, setDialogState) {
+          return AlertDialog(
+            title: const Text('Edit closet name'),
+            content: TextField(
+              controller: nameController,
+              autofocus: true,
+              maxLength: 30,
+              decoration: InputDecoration(
+                labelText: 'New name',
+                errorText: errorText,
+              ),
+              onChanged: (_) {
+                if (errorText != null) {
+                  setDialogState(() {
+                    errorText = null;
+                  });
+                }
+              },
+            ),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text('Cancel')),
+              ElevatedButton(
+                onPressed: () async {
+                  final notifier = ref.read(closetsPageProvider.notifier);
+                  final error = await notifier.updateCloset(
+                      closetToEdit, nameController.text);
+
+                  if (error == null) {
+                    if (ctx.mounted) Navigator.of(ctx).pop();
+                  } else {
+                    setDialogState(() {
+                      errorText = error;
+                    });
+                  }
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
 class ClosetsPage extends ConsumerStatefulWidget {
   const ClosetsPage({super.key});
   @override
@@ -129,9 +186,7 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
       ),
       body: TabBarView(
         // Khóa việc vuốt chuyển tab khi đang chọn nhiều để tránh lỗi
-        physics: allItemsState.isMultiSelectMode
-            ? const NeverScrollableScrollPhysics()
-            : null,
+        physics: const NeverScrollableScrollPhysics(),
         controller: _tabController,
         children: const [
           _AllItemsTab(),
@@ -392,60 +447,78 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
             final closet = closets[index - 1];
             return Dismissible(
               key: ValueKey(closet.id),
-              direction: DismissDirection.endToStart,
+              // Nền cho thao tác vuốt trái (xóa)
               background: Container(
+                color: Colors.green,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                alignment: Alignment.centerLeft,
+                child: const Icon(Icons.edit, color: Colors.white),
+              ),
+              // Nền cho thao tác vuốt phải (sửa)
+              secondaryBackground: Container(
                 color: Colors.red,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 alignment: Alignment.centerRight,
                 child: const Icon(Icons.delete, color: Colors.white),
               ),
               confirmDismiss: (direction) async {
-                // Lấy các đối tượng phụ thuộc CONTEXT ra ngoài TRƯỚC khi gọi await
+                // --- BƯỚC 1: Lấy các đối tượng phụ thuộc vào 'context' TRƯỚC khi await ---
+                // Việc này sẽ giải quyết cảnh báo an toàn.
                 final scaffoldMessenger = ScaffoldMessenger.of(context);
                 final currentTheme = Theme.of(context);
 
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (dialogCtx) => AlertDialog(
-                    title: const Text('Confirm Deletion'),
-                    content: Text(
-                        'Are you sure you want to delete the "${closet.name}" closet?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(dialogCtx).pop(false),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                            foregroundColor: Colors.red),
-                        onPressed: () => Navigator.of(dialogCtx).pop(true),
-                        child: const Text('Delete'),
-                      ),
-                    ],
-                  ),
-                );
+                // Xử lý khi vuốt sang trái để XÓA
+                if (direction == DismissDirection.endToStart) {
+                  final confirmed = await showDialog<bool>(
+                    context: context, // An toàn khi dùng context ở đây vì chưa có await
+                    builder: (dialogCtx) => AlertDialog(
+                      title: const Text('Confirm Deletion'),
+                      content: Text(
+                          'Are you sure you want to delete the "${closet.name}" closet?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(dialogCtx).pop(false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                              foregroundColor: Colors.red),
+                          onPressed: () => Navigator.of(dialogCtx).pop(true),
+                          child: const Text('Delete'),
+                        ),
+                      ],
+                    ),
+                  );
 
-                if (confirmed != true) {
+                  // Kiểm tra mounted sau await đầu tiên, và kiểm tra người dùng có xác nhận không
+                  if (!mounted || confirmed != true) {
+                    return false;
+                  }
+
+                  final error = await ref
+                      .read(closetsPageProvider.notifier)
+                      .deleteCloset(closet.id);
+
+                  // Kiểm tra mounted lần nữa sau await thứ hai
+                  if (!mounted) return false;
+
+                  if (error != null) {
+                    // --- BƯỚC 2: Sử dụng các biến đã lưu ở trên, không dùng context trực tiếp ---
+                    scaffoldMessenger.showSnackBar(SnackBar(
+                      content: Text(error),
+                      backgroundColor: currentTheme.colorScheme.error,
+                    ));
+                    return false; // Hủy thao tác xóa
+                  }
+                  return true; // Cho phép xóa
+                }
+                // Xử lý khi vuốt sang phải để SỬA
+                else {
+                  // Vẫn an toàn vì _showEditClosetDialog không phải là async ở đây
+                  _showEditClosetDialog(context, ref, closet);
+                  // Luôn trả về false để item không bị "biến mất" sau khi vuốt
                   return false;
                 }
-
-                final error = await ref
-                    .read(closetsPageProvider.notifier)
-                    .deleteCloset(closet.id);
-
-                // Bây giờ, chúng ta dùng các biến đã lấy ra trước đó
-                // và kiểm tra mounted để đảm bảo an toàn tuyệt đối
-                if (!mounted) return false;
-
-                if (error != null) {
-                  scaffoldMessenger.showSnackBar(SnackBar(
-                    content: Text(error),
-                    backgroundColor: currentTheme.colorScheme.error,
-                  ));
-                  return false;
-                }
-
-                return true;
               },
               child: ListTile(
                 leading: const Icon(Icons.inventory_2_outlined),

@@ -9,6 +9,16 @@ class Closet {
     required this.name,
   });
 
+  Closet copyWith({
+    String? id,
+    String? name,
+  }) {
+    return Closet(
+      id: id ?? this.id,
+      name: name ?? this.name,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,

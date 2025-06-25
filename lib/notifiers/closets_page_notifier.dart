@@ -78,6 +78,35 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
       return 'An unexpected error occurred during deletion.';
     }
   }
+
+  Future<String?> updateCloset(Closet closetToUpdate, String newName) async {
+    final trimmedName = newName.trim();
+    if (trimmedName.isEmpty) {
+      return 'Closet name cannot be empty.';
+    }
+    if (trimmedName.length > 30) {
+      return 'Closet name cannot exceed 30 characters.';
+    }
+
+    try {
+      final closets = await _ref.read(closetsProvider.future);
+      // Kiểm tra xem tên mới có trùng với một closet *khác* không
+      final isDuplicate = closets.any((closet) =>
+          closet.id != closetToUpdate.id &&
+          closet.name.trim().toLowerCase() == trimmedName.toLowerCase());
+
+      if (isDuplicate) {
+        return 'A closet with this name already exists.';
+      }
+
+      // Cập nhật closet
+      await _closetRepo.updateCloset(closetToUpdate.copyWith(name: trimmedName));
+      _ref.invalidate(closetsProvider); // Tải lại danh sách
+      return null; // Thành công
+    } catch (e) {
+      return 'An unexpected error occurred.';
+    }
+  }
 }
 
 // Tạo provider cho notifier mới

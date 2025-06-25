@@ -345,7 +345,7 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
       sliver: SliverGrid.builder(
         itemCount: items.length + (hasMore && !isMultiSelectMode ? 1 : 0),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
+          crossAxisCount: 3,
           childAspectRatio: 3 / 4,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,

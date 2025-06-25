@@ -11,6 +11,16 @@ class ClosetsPageState {
   final bool isLoading;
   final String? error;
   const ClosetsPageState({this.isLoading = false, this.error});
+
+  ClosetsPageState copyWith({
+    bool? isLoading,
+    String? error,
+  }) {
+    return ClosetsPageState(
+      isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
+    );
+  }
 }
 
 class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
@@ -28,13 +38,14 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
       return 'Closet name cannot exceed 30 characters.';
     }
 
-    state = const ClosetsPageState(isLoading: true);
+    state = state.copyWith(isLoading: true);
     try {
       final closets = await _ref.read(closetsProvider.future);
+      // Kiểm tra mounted sau await
+      if (!mounted) return null;
 
-      // Thêm logic kiểm tra giới hạn số lượng
       if (closets.length >= 10) {
-        state = const ClosetsPageState(isLoading: false);
+        state = state.copyWith(isLoading: false);
         return 'Maximum number of closets (10) reached.';
       }
 
@@ -42,18 +53,57 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
           closet.name.trim().toLowerCase() == trimmedName.toLowerCase());
 
       if (isDuplicate) {
-        state = const ClosetsPageState(isLoading: false);
+        state = state.copyWith(isLoading: false);
         return 'A closet with this name already exists.';
       }
 
       final newCloset = Closet(id: const Uuid().v4(), name: trimmedName);
       await _closetRepo.insertCloset(newCloset);
+      // Kiểm tra mounted sau await
+      if (!mounted) return null;
 
       _ref.invalidate(closetsProvider);
-      state = const ClosetsPageState(isLoading: false);
+      state = state.copyWith(isLoading: false);
       return null;
     } catch (e) {
-      state = ClosetsPageState(isLoading: false, error: e.toString());
+      // Kiểm tra mounted trong khối catch
+      if (!mounted) return null;
+      state = state.copyWith(isLoading: false, error: e.toString());
+      return 'An unexpected error occurred.';
+    }
+  }
+
+  // Thay thế hàm updateCloset
+  Future<String?> updateCloset(Closet closetToUpdate, String newName) async {
+    final trimmedName = newName.trim();
+    if (trimmedName.isEmpty) {
+      return 'Closet name cannot be empty.';
+    }
+    if (trimmedName.length > 30) {
+      return 'Closet name cannot exceed 30 characters.';
+    }
+
+    try {
+      final closets = await _ref.read(closetsProvider.future);
+      // Kiểm tra mounted sau await
+      if (!mounted) return null;
+
+      final isDuplicate = closets.any((closet) =>
+          closet.id != closetToUpdate.id &&
+          closet.name.trim().toLowerCase() == trimmedName.toLowerCase());
+
+      if (isDuplicate) {
+        return 'A closet with this name already exists.';
+      }
+
+      await _closetRepo
+          .updateCloset(closetToUpdate.copyWith(name: trimmedName));
+      // Kiểm tra mounted sau await
+      if (!mounted) return null;
+      
+      _ref.invalidate(closetsProvider);
+      return null;
+    } catch (e) {
       return 'An unexpected error occurred.';
     }
   }
@@ -76,35 +126,6 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
       return null; // Xóa thành công
     } catch (e) {
       return 'An unexpected error occurred during deletion.';
-    }
-  }
-
-  Future<String?> updateCloset(Closet closetToUpdate, String newName) async {
-    final trimmedName = newName.trim();
-    if (trimmedName.isEmpty) {
-      return 'Closet name cannot be empty.';
-    }
-    if (trimmedName.length > 30) {
-      return 'Closet name cannot exceed 30 characters.';
-    }
-
-    try {
-      final closets = await _ref.read(closetsProvider.future);
-      // Kiểm tra xem tên mới có trùng với một closet *khác* không
-      final isDuplicate = closets.any((closet) =>
-          closet.id != closetToUpdate.id &&
-          closet.name.trim().toLowerCase() == trimmedName.toLowerCase());
-
-      if (isDuplicate) {
-        return 'A closet with this name already exists.';
-      }
-
-      // Cập nhật closet
-      await _closetRepo.updateCloset(closetToUpdate.copyWith(name: trimmedName));
-      _ref.invalidate(closetsProvider); // Tải lại danh sách
-      return null; // Thành công
-    } catch (e) {
-      return 'An unexpected error occurred.';
     }
   }
 }

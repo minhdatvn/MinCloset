@@ -242,7 +242,7 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
       padding: const EdgeInsets.all(16),
       itemCount: items.length + (hasMore && !state.isMultiSelectMode ? 1 : 0),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+        crossAxisCount: 3,
         childAspectRatio: 3 / 4,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,

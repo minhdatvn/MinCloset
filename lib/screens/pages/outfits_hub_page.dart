@@ -67,7 +67,7 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
               // itemCount = (số outfit) + 1 (cho nút thêm) + 1 (nếu đang tải thêm)
               itemCount: state.outfits.length + 1 + (state.isLoadingMore ? 1 : 0),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
+                crossAxisCount: 3,
                 childAspectRatio: 3 / 4,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,

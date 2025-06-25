@@ -90,6 +90,7 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
           weather: result['weather'] as Map<String, dynamic>?,
           suggestion: result['suggestion'] as String?,
           suggestionTimestamp: DateTime.now(),
+          suggestionId: state.suggestionId + 1,
         );
       }
     } catch (e, s) {

@@ -261,7 +261,8 @@ class _HomePageState extends ConsumerState<HomePage> {
             ))
           else
             AnimatedTextKit(
-              key: ValueKey(state.suggestion), 
+              // <<< THAY ĐỔI KEY Ở ĐÂY >>>
+              key: ValueKey(state.suggestionId), 
               animatedTexts: [
                 TypewriterAnimatedText(
                   state.suggestion ?? 'Tap "Get Suggestion" to see outfit recommendations!',
@@ -269,10 +270,6 @@ class _HomePageState extends ConsumerState<HomePage> {
                   speed: const Duration(milliseconds: 20),
                 ),
               ],
-              totalRepeatCount: 1,
-              pause: const Duration(milliseconds: 1000),
-              displayFullTextOnTap: true,
-              stopPauseOnTap: true,
             ),
           
           if (state.suggestionTimestamp != null) ...[

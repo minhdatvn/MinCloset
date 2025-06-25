@@ -8,14 +8,16 @@ class HomePageState extends Equatable {
   final String? suggestion;
   final Map<String, dynamic>? weather;
   final String? errorMessage;
-  final DateTime? suggestionTimestamp; // <<< THÊM TRƯỜNG MỚI
+  final DateTime? suggestionTimestamp;
+  final int suggestionId;
 
   const HomePageState({
     this.isLoading = false, // <<< THAY ĐỔI: Mặc định không loading
     this.suggestion,
     this.weather,
     this.errorMessage,
-    this.suggestionTimestamp, // <<< THÊM VÀO CONSTRUCTOR
+    this.suggestionTimestamp,
+    this.suggestionId = 0,
   });
 
   HomePageState copyWith({
@@ -23,7 +25,8 @@ class HomePageState extends Equatable {
     String? suggestion,
     Map<String, dynamic>? weather,
     String? errorMessage,
-    DateTime? suggestionTimestamp, // <<< THÊM VÀO ĐÂY
+    DateTime? suggestionTimestamp,
+    int? suggestionId,
     bool clearError = false,
   }) {
     return HomePageState(
@@ -31,7 +34,8 @@ class HomePageState extends Equatable {
       suggestion: suggestion ?? this.suggestion,
       weather: weather ?? this.weather,
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
-      suggestionTimestamp: suggestionTimestamp ?? this.suggestionTimestamp, // <<< THÊM VÀO ĐÂY
+      suggestionTimestamp: suggestionTimestamp ?? this.suggestionTimestamp,
+      suggestionId: suggestionId ?? this.suggestionId,
     );
   }
 
@@ -41,6 +45,7 @@ class HomePageState extends Equatable {
         suggestion,
         weather,
         errorMessage,
-        suggestionTimestamp // <<< THÊM VÀO ĐÂY
+        suggestionTimestamp,
+        suggestionId,
       ];
 }

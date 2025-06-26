@@ -5,14 +5,27 @@ import 'package:mincloset/models/city_suggestion.dart';
 import 'package:mincloset/notifiers/home_page_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/repositories/closet_repository.dart';
+import 'package:mincloset/repositories/clothing_item_repository.dart';
+import 'package:mincloset/repositories/outfit_repository.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   final Ref _ref;
+  // <<< THAY ĐỔI 1: Khai báo các dependency tường minh >>>
+  final ClosetRepository _closetRepo;
+  final ClothingItemRepository _itemRepo;
+  final OutfitRepository _outfitRepo;
 
-  ProfilePageNotifier(this._ref) : super(const ProfilePageState()) {
+  // <<< THAY ĐỔI 2: Truyền dependency vào constructor >>>
+  ProfilePageNotifier(
+    this._ref,
+    this._closetRepo,
+    this._itemRepo,
+    this._outfitRepo,
+  ) : super(const ProfilePageState()) {
     loadInitialData();
 
     _ref.listen<int>(itemChangedTriggerProvider, (previous, next) {
@@ -24,18 +37,12 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
 
   Future<void> loadInitialData() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
-
-    // Bọc toàn bộ logic trong try-catch để xử lý các lỗi không mong muốn
-    // hoặc lỗi từ SharedPreferences, vốn không dùng Either.
     try {
       logger.i('Loading profile data...');
       final prefs = await SharedPreferences.getInstance();
-      final closetRepo = _ref.read(closetRepositoryProvider);
-      final itemRepo = _ref.read(clothingItemRepositoryProvider);
-      final outfitRepo = _ref.read(outfitRepositoryProvider);
+      // <<< THAY ĐỔI 3: Không cần đọc repo từ ref ở đây nữa >>>
       logger.i('1, 2. Repositories and SharedPreferences initialized.');
 
-      // Lấy dữ liệu từ SharedPreferences
       final userName = prefs.getString('user_name') ?? 'MinCloset user';
       final avatarPath = prefs.getString('user_avatar_path');
       final gender = prefs.getString('user_gender');
@@ -44,69 +51,76 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       final height = prefs.getInt('user_height');
       final weight = prefs.getInt('user_weight');
       final personalStyles = prefs.getStringList('user_styles')?.toSet() ?? {};
-      final favoriteColors = prefs.getStringList('user_favorite_colors')?.toSet() ?? {};
+      final favoriteColors =
+          prefs.getStringList('user_favorite_colors')?.toSet() ?? {};
       final cityModeString = prefs.getString('city_mode') ?? 'auto';
       final cityMode = CityMode.values.byName(cityModeString);
       final manualCity = prefs.getString('manual_city_name') ?? 'Ha Noi, VN';
       logger.i('3. Successfully read SharedPreferences.');
 
-      // Bắt đầu chuỗi xử lý Either
-      final allItemsResult = await itemRepo.getAllItems();
+      // <<< THAY ĐỔI 4: Sử dụng trực tiếp các repo đã được inject >>>
+      final allItemsResult = await _itemRepo.getAllItems();
       allItemsResult.fold(
-        // Case 1: Lấy items thất bại
         (failure) {
           logger.e("Failed to load items", error: failure.message);
-          state = state.copyWith(isLoading: false, errorMessage: failure.message);
+          state =
+              state.copyWith(isLoading: false, errorMessage: failure.message);
         },
-        // Case 1: Lấy items thành công
         (allItems) async {
           logger.i('4. Successfully loaded all items from database.');
-          final allClosetsResult = await closetRepo.getClosets();
+          final allClosetsResult = await _closetRepo.getClosets();
           allClosetsResult.fold(
-            // Case 2: Lấy closets thất bại
             (failure) {
               logger.e("Failed to load closets", error: failure.message);
-              state = state.copyWith(isLoading: false, errorMessage: failure.message);
+              state = state.copyWith(
+                  isLoading: false, errorMessage: failure.message);
             },
-            // Case 2: Lấy closets thành công
             (allClosets) async {
               logger.i('5. Successfully loaded all closets from database.');
-              final allOutfitsResult = await outfitRepo.getOutfits();
+              final allOutfitsResult = await _outfitRepo.getOutfits();
               allOutfitsResult.fold(
-                // Case 3: Lấy outfits thất bại
                 (failure) {
                   logger.e("Failed to load outfits", error: failure.message);
-                  state = state.copyWith(isLoading: false, errorMessage: failure.message);
+                  state = state.copyWith(
+                      isLoading: false, errorMessage: failure.message);
                 },
-                // Case 3: Lấy outfits thành công -> TẤT CẢ THÀNH CÔNG
                 (allOutfits) {
-                  logger.i('6. Successfully loaded all outfits from database.');
-                  
+                  logger.i(
+                      '6. Successfully loaded all outfits from database.');
+
                   final colorDist = <String, int>{};
                   final categoryDist = <String, int>{};
                   final seasonDist = <String, int>{};
                   final occasionDist = <String, int>{};
 
-                  // Vòng lặp for bây giờ hoạt động vì `allItems` là List<ClothingItem>
                   for (final item in allItems) {
-                    final colors = item.color.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
+                    final colors = item.color
+                        .split(',')
+                        .map((e) => e.trim())
+                        .where((e) => e.isNotEmpty);
                     for (final color in colors) {
                       colorDist[color] = (colorDist[color] ?? 0) + 1;
                     }
-                    final mainCategory = item.category.split('>').first.trim();
+                    final mainCategory =
+                        item.category.split('>').first.trim();
                     if (mainCategory.isNotEmpty) {
-                      categoryDist[mainCategory] = (categoryDist[mainCategory] ?? 0) + 1;
+                      categoryDist[mainCategory] =
+                          (categoryDist[mainCategory] ?? 0) + 1;
                     }
                     if (item.season != null && item.season!.isNotEmpty) {
-                      final seasons = item.season!.split(',').map((e) => e.trim());
+                      final seasons =
+                          item.season!.split(',').map((e) => e.trim());
                       for (final season in seasons) {
                         seasonDist[season] = (seasonDist[season] ?? 0) + 1;
                       }
                     }
-                    if (item.occasion != null && item.occasion!.isNotEmpty) {
-                      final occasions = item.occasion!.split(',').map((e) => e.trim());
+                    if (item.occasion != null &&
+                        item.occasion!.isNotEmpty) {
+                      final occasions =
+                          item.occasion!.split(',').map((e) => e.trim());
                       for (final occasion in occasions) {
-                        occasionDist[occasion] = (occasionDist[occasion] ?? 0) + 1;
+                        occasionDist[occasion] =
+                            (occasionDist[occasion] ?? 0) + 1;
                       }
                     }
                   }
@@ -124,7 +138,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
                     favoriteColors: favoriteColors,
                     cityMode: cityMode,
                     manualCity: manualCity,
-                    // Các thuộc tính .length bây giờ hoạt động vì chúng là List
                     totalItems: allItems.length,
                     totalClosets: allClosets.length,
                     totalOutfits: allOutfits.length,
@@ -133,7 +146,8 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
                     seasonDistribution: seasonDist,
                     occasionDistribution: occasionDist,
                   );
-                  logger.i('8. State updated successfully! Profile page loading complete.');
+                  logger.i(
+                      '8. State updated successfully! Profile page loading complete.');
                 },
               );
             },
@@ -141,15 +155,15 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
         },
       );
     } catch (e, s) {
-      // Catch này vẫn cần thiết để xử lý lỗi từ SharedPreferences hoặc các lỗi không mong muốn khác
-      logger.e("An unexpected error occurred in loadInitialData.", error: e, stackTrace: s);
+      logger.e("An unexpected error occurred in loadInitialData.",
+          error: e, stackTrace: s);
       state = state.copyWith(
         isLoading: false,
         errorMessage: "An unexpected error occurred. Please try again.",
       );
     }
   }
-  
+
   Future<void> updateAvatar() async {
     final imagePicker = ImagePicker();
     final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
@@ -188,7 +202,8 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       await prefs.remove('user_styles');
     }
     if (favoriteColors != null) {
-      await prefs.setStringList('user_favorite_colors', favoriteColors.toList());
+      await prefs.setStringList(
+          'user_favorite_colors', favoriteColors.toList());
     } else {
       await prefs.remove('user_favorite_colors');
     }
@@ -243,9 +258,11 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   }
 }
 
-// <<< SỬA LỖI: Xóa .autoDispose >>>
 final profileProvider =
-    StateNotifierProvider<ProfilePageNotifier, ProfilePageState>(
-        (ref) {
-  return ProfilePageNotifier(ref);
+    StateNotifierProvider<ProfilePageNotifier, ProfilePageState>((ref) {
+  // <<< THAY ĐỔI 5: Lấy dependency và truyền vào Notifier >>>
+  final closetRepo = ref.watch(closetRepositoryProvider);
+  final itemRepo = ref.watch(clothingItemRepositoryProvider);
+  final outfitRepo = ref.watch(outfitRepositoryProvider);
+  return ProfilePageNotifier(ref, closetRepo, itemRepo, outfitRepo);
 });

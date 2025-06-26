@@ -4,6 +4,9 @@ import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mincloset/domain/use_cases/analyze_item_use_case.dart';
+import 'package:mincloset/domain/use_cases/validate_item_name_use_case.dart';
+import 'package:mincloset/domain/use_cases/validate_required_fields_use_case.dart';
 import 'package:mincloset/helpers/image_helper.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mincloset/constants/app_options.dart';
@@ -33,10 +36,20 @@ class ItemNotifierArgs extends Equatable {
 class AddItemNotifier extends StateNotifier<AddItemState> {
   final ClothingItemRepository _clothingItemRepo;
   final ImageHelper _imageHelper;
-  final Ref _ref;
+  final AnalyzeItemUseCase _analyzeItemUseCase;
+  final ValidateRequiredFieldsUseCase _validateRequiredUseCase;
+  final ValidateItemNameUseCase _validateNameUseCase;
+  // <<< THAY ĐỔI 1: Xóa 'final Ref _ref;' >>>
 
-  AddItemNotifier(this._clothingItemRepo, this._imageHelper, this._ref, ItemNotifierArgs args)
-      : super(
+  AddItemNotifier(
+    this._clothingItemRepo,
+    this._imageHelper,
+    this._analyzeItemUseCase,
+    this._validateRequiredUseCase,
+    this._validateNameUseCase,
+    // <<< THAY ĐỔI 2: Xóa 'this._ref' khỏi constructor >>>
+    ItemNotifierArgs args,
+  ) : super(
           args.preAnalyzedState ??
           (args.itemToEdit != null
               ? AddItemState.fromClothingItem(args.itemToEdit!)
@@ -50,7 +63,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
   }
 
-  // Các hàm on...Changed và pickImage/analyzeImage không thay đổi
+  // Toàn bộ logic bên trong các hàm không thay đổi vì đã dùng dependency trực tiếp
   Set<String> _normalizeColors(List<dynamic>? rawColors) {
     if (rawColors == null) return {};
     final validColorNames = AppOptions.colors.keys.toSet();
@@ -107,8 +120,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
 
   Future<void> analyzeImage(XFile image) async {
     state = state.copyWith(isAnalyzing: true);
-    final useCase = _ref.read(analyzeItemUseCaseProvider);
-    final result = await useCase.execute(image);
+    final result = await _analyzeItemUseCase.execute(image);
     if (result.isNotEmpty && mounted) {
       final category = _normalizeCategory(result['category'] as String?);
       final colors = _normalizeColors(result['colors'] as List<dynamic>?);
@@ -128,34 +140,28 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
     state = state.copyWith(isLoading: true, errorMessage: null);
 
-    final validateRequiredUseCase = _ref.read(validateRequiredFieldsUseCaseProvider);
-    final requiredResult = validateRequiredUseCase.executeForSingle(state);
+    final requiredResult = _validateRequiredUseCase.executeForSingle(state);
     if (!requiredResult.success) {
       state = state.copyWith(isLoading: false, errorMessage: requiredResult.errorMessage);
       return false;
     }
 
-    final validateNameUseCase = _ref.read(validateItemNameUseCaseProvider);
-    final nameValidationEither = await validateNameUseCase.forSingleItem(
+    final nameValidationEither = await _validateNameUseCase.forSingleItem(
       name: state.name,
       existingId: state.isEditing ? state.id : null,
     );
-
-    // <<< SỬA LỖI CỐT LÕI NẰM Ở ĐÂY >>>
+    
     return await nameValidationEither.fold(
-      // Trường hợp 1: UseCase trả về Left(Failure) - lỗi hệ thống
       (failure) {
         state = state.copyWith(isLoading: false, errorMessage: failure.message);
         return false;
       },
-      // Trường hợp 2: UseCase trả về Right(ValidationResult) - kết quả logic
       (nameValidationResult) async {
         if (!nameValidationResult.success) {
           state = state.copyWith(isLoading: false, errorMessage: nameValidationResult.errorMessage);
           return false;
         }
 
-        // Nếu tất cả validation thành công, tiếp tục lưu
         final String? thumbnailPath = state.image != null
             ? await _imageHelper.createThumbnail(sourceImagePath)
             : null;
@@ -224,5 +230,17 @@ final addItemProvider = StateNotifierProvider
     .family<AddItemNotifier, AddItemState, ItemNotifierArgs>((ref, args) {
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
   final imageHelper = ref.watch(imageHelperProvider);
-  return AddItemNotifier(clothingItemRepo, imageHelper, ref, args);
+  final analyzeItemUseCase = ref.watch(analyzeItemUseCaseProvider);
+  final validateRequiredUseCase = ref.watch(validateRequiredFieldsUseCaseProvider);
+  final validateNameUseCase = ref.watch(validateItemNameUseCaseProvider);
+  
+  return AddItemNotifier(
+    clothingItemRepo,
+    imageHelper,
+    analyzeItemUseCase,
+    validateRequiredUseCase,
+    validateNameUseCase,
+    // <<< THAY ĐỔI 3: Xóa 'ref' khỏi danh sách đối số >>>
+    args,
+  );
 });

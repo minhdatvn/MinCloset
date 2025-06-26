@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/domain/providers.dart';
+import 'package:mincloset/domain/use_cases/analyze_item_use_case.dart';
+import 'package:mincloset/domain/use_cases/validate_item_name_use_case.dart';
+import 'package:mincloset/domain/use_cases/validate_required_fields_use_case.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/providers/repository_providers.dart';
@@ -14,12 +17,22 @@ import 'package:uuid/uuid.dart';
 
 class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
   final ClothingItemRepository _clothingItemRepo;
+  // <<< THAY ĐỔI 1: Khai báo các UseCase dependencies >>>
+  final AnalyzeItemUseCase _analyzeItemUseCase;
+  final ValidateRequiredFieldsUseCase _validateRequiredUseCase;
+  final ValidateItemNameUseCase _validateNameUseCase;
   final Ref _ref;
 
-  BatchAddItemNotifier(this._clothingItemRepo, this._ref)
-      : super(const BatchAddItemState());
+  // <<< THAY ĐỔI 2: Truyền dependencies vào constructor >>>
+  BatchAddItemNotifier(
+    this._clothingItemRepo,
+    this._analyzeItemUseCase,
+    this._validateRequiredUseCase,
+    this._validateNameUseCase,
+    this._ref,
+  ) : super(const BatchAddItemState());
 
-  // Các hàm helper và analyzeAllImages không thay đổi
+  // Các hàm helper và setCurrentIndex/nextPage/previousPage không thay đổi
   Set<String> _normalizeColors(List<dynamic>? rawColors) {
     if (rawColors == null) return {};
     final validColorNames = AppOptions.colors.keys.toSet();
@@ -45,19 +58,20 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
     final validOptionsSet = validOptions.toSet();
     bool hasUnknowns = false;
     List<String> valuesToProcess = [];
-    if (rawValue is String) { valuesToProcess = [rawValue]; } 
+    if (rawValue is String) { valuesToProcess = [rawValue]; }
     else if (rawValue is List) { valuesToProcess = rawValue.map((e) => e.toString()).toList(); }
     for (final value in valuesToProcess) {
-      if (validOptionsSet.contains(value)) { selections.add(value); } 
+      if (validOptionsSet.contains(value)) { selections.add(value); }
       else { hasUnknowns = true; }
     }
     if (hasUnknowns && validOptionsSet.contains('Other')) { selections.add('Other'); }
     return selections;
   }
+
   Future<void> analyzeAllImages(List<XFile> images) async {
     state = state.copyWith(isLoading: true, clearAnalysisError: true);
-    final useCase = _ref.read(analyzeItemUseCaseProvider);
-    final analysisTasks = images.map((image) => useCase.execute(image)).toList();
+    // <<< THAY ĐỔI 3: Sử dụng trực tiếp UseCase đã được inject >>>
+    final analysisTasks = images.map((image) => _analyzeItemUseCase.execute(image)).toList();
     try {
       final results = await Future.wait(analysisTasks);
       final List<ItemNotifierArgs> itemArgsList = [];
@@ -75,7 +89,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
         );
         final args = ItemNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState);
         itemArgsList.add(args);
-        _ref.read(addItemProvider(args));
+        _ref.read(addItemProvider(args)); // Vẫn cần _ref ở đây
       }
       state = state.copyWith(isLoading: false, itemArgsList: itemArgsList, analysisSuccess: true);
     } catch (e) {
@@ -89,9 +103,10 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
 
   void nextPage() {
     final currentItemArgs = state.itemArgsList[state.currentIndex];
-    final currentItemState = _ref.read(addItemProvider(currentItemArgs));
+    final currentItemState = _ref.read(addItemProvider(currentItemArgs)); // Vẫn cần _ref
     
-    final validationResult = _ref.read(validateRequiredFieldsUseCaseProvider).executeForSingle(currentItemState);
+    // <<< THAY ĐỔI 4: Sử dụng trực tiếp UseCase đã được inject >>>
+    final validationResult = _validateRequiredUseCase.executeForSingle(currentItemState);
 
     if (validationResult.success) {
       if (state.currentIndex < state.itemArgsList.length - 1) {
@@ -114,36 +129,31 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
     }
   }
 
-  // <<< THAY ĐỔI CỐT LÕI NẰM Ở ĐÂY >>>
   Future<void> saveAll() async {
     state = state.copyWith(isSaving: true, clearSaveError: true);
-    final itemStates = state.itemArgsList.map((args) => _ref.read(addItemProvider(args))).toList();
+    final itemStates = state.itemArgsList.map((args) => _ref.read(addItemProvider(args))).toList(); // Vẫn cần _ref
     
-    final validateRequiredUseCase = _ref.read(validateRequiredFieldsUseCaseProvider);
-    final requiredResult = validateRequiredUseCase.executeForBatch(itemStates);
+    // <<< THAY ĐỔI 5: Sử dụng trực tiếp UseCase đã được inject >>>
+    final requiredResult = _validateRequiredUseCase.executeForBatch(itemStates);
     if (!requiredResult.success) {
       state = state.copyWith(isSaving: false, saveErrorMessage: requiredResult.errorMessage, currentIndex: requiredResult.errorIndex);
       return;
     }
-
-    final validateNameUseCase = _ref.read(validateItemNameUseCaseProvider);
-    final nameValidationEither = await validateNameUseCase.forBatch(itemStates);
+    
+    // <<< THAY ĐỔI 6: Sử dụng trực tiếp UseCase đã được inject >>>
+    final nameValidationEither = await _validateNameUseCase.forBatch(itemStates);
 
     if (!mounted) return;
 
     nameValidationEither.fold(
       (failure) {
-        // Lỗi hệ thống khi kiểm tra tên
         state = state.copyWith(isSaving: false, saveErrorMessage: failure.message);
       },
       (nameValidationResult) {
-        // Kiểm tra kết quả logic
         if (!nameValidationResult.success) {
           state = state.copyWith(isSaving: false, saveErrorMessage: nameValidationResult.errorMessage, currentIndex: nameValidationResult.errorIndex);
           return;
         }
-
-        // Nếu tất cả validation thành công, tiến hành lưu
         _performSave(itemStates);
       },
     );
@@ -175,6 +185,17 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
 }
 
 final batchAddItemProvider = StateNotifierProvider.autoDispose<BatchAddItemNotifier, BatchAddItemState>((ref) {
+  // <<< THAY ĐỔI 7: Lấy tất cả dependency và truyền vào Notifier >>>
   final repo = ref.watch(clothingItemRepositoryProvider);
-  return BatchAddItemNotifier(repo, ref);
+  final analyzeItemUseCase = ref.watch(analyzeItemUseCaseProvider);
+  final validateRequiredUseCase = ref.watch(validateRequiredFieldsUseCaseProvider);
+  final validateNameUseCase = ref.watch(validateItemNameUseCaseProvider);
+  
+  return BatchAddItemNotifier(
+    repo,
+    analyzeItemUseCase,
+    validateRequiredUseCase,
+    validateNameUseCase,
+    ref,
+  );
 });

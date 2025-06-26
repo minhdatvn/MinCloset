@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/domain/providers.dart';
+import 'package:mincloset/domain/use_cases/delete_multiple_items_use_case.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit_filter.dart';
 import 'package:mincloset/providers/event_providers.dart';
@@ -15,11 +16,15 @@ const _pageSize = 15;
 
 class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
   final ClothingItemRepository _repo;
+  // <<< THAY ĐỔI 1: Khai báo UseCase dependency >>>
+  final DeleteMultipleItemsUseCase _deleteMultipleItemsUseCase;
   final Ref _ref;
   Timer? _debounce;
   bool _isDisposed = false;
 
-  ItemFilterNotifier(this._repo, this._ref) : super(const ItemFilterState()) {
+  // <<< THAY ĐỔI 2: Truyền dependency vào constructor >>>
+  ItemFilterNotifier(this._repo, this._deleteMultipleItemsUseCase, this._ref)
+      : super(const ItemFilterState()) {
     fetchInitialItems();
 
     _ref.listen<int>(itemChangedTriggerProvider, (previous, next) {
@@ -29,6 +34,7 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
     });
   }
 
+  // Các hàm từ _fetchPage đến dispose không thay đổi
   Future<void> _fetchPage(int page) async {
     final result = await _repo.getFilteredItems(
       query: state.searchQuery,
@@ -113,9 +119,9 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
 
   Future<void> deleteSelectedItems() async {
     if (state.selectedItemIds.isEmpty) return;
-
-    final useCase = _ref.read(deleteMultipleItemsUseCaseProvider);
-    final result = await useCase.execute(state.selectedItemIds);
+    
+    // <<< THAY ĐỔI 3: Sử dụng UseCase đã được inject >>>
+    final result = await _deleteMultipleItemsUseCase.execute(state.selectedItemIds);
     
     result.fold(
       (failure) => state = state.copyWith(errorMessage: failure.message),
@@ -130,6 +136,8 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
 
 final itemFilterProvider = StateNotifierProvider.autoDispose
     .family<ItemFilterNotifier, ItemFilterState, String>((ref, id) {
+  // <<< THAY ĐỔI 4: Lấy dependency và truyền vào Notifier >>>
   final repo = ref.watch(clothingItemRepositoryProvider);
-  return ItemFilterNotifier(repo, ref);
+  final deleteUseCase = ref.watch(deleteMultipleItemsUseCaseProvider);
+  return ItemFilterNotifier(repo, deleteUseCase, ref);
 });

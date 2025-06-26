@@ -3,6 +3,8 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/domain/providers.dart';
+import 'package:mincloset/domain/use_cases/delete_multiple_items_use_case.dart';
+import 'package:mincloset/domain/use_cases/move_multiple_items_use_case.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
@@ -12,15 +14,26 @@ const _pageSize = 18;
 
 class ClosetDetailNotifier extends StateNotifier<ClosetDetailState> {
   final ClothingItemRepository _repo;
+  // <<< THAY ĐỔI 1: Khai báo các UseCase dependencies >>>
+  final DeleteMultipleItemsUseCase _deleteMultipleItemsUseCase;
+  final MoveMultipleItemsUseCase _moveMultipleItemsUseCase;
   final Ref _ref;
   final String _closetId;
   Timer? _debounce;
   bool _isDisposed = false;
 
-  ClosetDetailNotifier(this._repo, this._ref, this._closetId) : super(const ClosetDetailState()) {
+  // <<< THAY ĐỔI 2: Truyền dependencies vào constructor >>>
+  ClosetDetailNotifier(
+    this._repo,
+    this._deleteMultipleItemsUseCase,
+    this._moveMultipleItemsUseCase,
+    this._ref,
+    this._closetId,
+  ) : super(const ClosetDetailState()) {
     fetchInitialItems();
   }
 
+  // Các hàm từ _fetchPage đến clearSelectionAndExitMode không thay đổi
   Future<void> _fetchPage(int page) async {
     final result = await _repo.searchItemsInCloset(
       _closetId,
@@ -40,7 +53,7 @@ class ClosetDetailNotifier extends StateNotifier<ClosetDetailState> {
           isLoadingMore: false,
           items: [...currentItems, ...newItems],
           hasMore: newItems.length == _pageSize,
-          page: page + 1, // Cập nhật trang tiếp theo
+          page: page + 1,
         );
       },
     );
@@ -97,8 +110,8 @@ class ClosetDetailNotifier extends StateNotifier<ClosetDetailState> {
 
   Future<void> deleteSelectedItems() async {
     if (state.selectedItemIds.isEmpty) return;
-    final useCase = _ref.read(deleteMultipleItemsUseCaseProvider);
-    final result = await useCase.execute(state.selectedItemIds);
+    // <<< THAY ĐỔI 3: Sử dụng UseCase đã được inject >>>
+    final result = await _deleteMultipleItemsUseCase.execute(state.selectedItemIds);
     result.fold(
       (failure) => state = state.copyWith(errorMessage: failure.message),
       (_) {
@@ -111,8 +124,8 @@ class ClosetDetailNotifier extends StateNotifier<ClosetDetailState> {
 
   Future<void> moveSelectedItems(String targetClosetId) async {
     if (state.selectedItemIds.isEmpty) return;
-    final useCase = _ref.read(moveMultipleItemsUseCaseProvider);
-    final result = await useCase.execute(state.selectedItemIds, targetClosetId);
+    // <<< THAY ĐỔI 4: Sử dụng UseCase đã được inject >>>
+    final result = await _moveMultipleItemsUseCase.execute(state.selectedItemIds, targetClosetId);
     result.fold(
       (failure) => state = state.copyWith(errorMessage: failure.message),
       (_) {
@@ -125,6 +138,9 @@ class ClosetDetailNotifier extends StateNotifier<ClosetDetailState> {
 
 final closetDetailProvider = StateNotifierProvider.autoDispose
     .family<ClosetDetailNotifier, ClosetDetailState, String>((ref, closetId) {
+  // <<< THAY ĐỔI 5: Lấy dependency và truyền vào Notifier >>>
   final repo = ref.watch(clothingItemRepositoryProvider);
-  return ClosetDetailNotifier(repo, ref, closetId);
+  final deleteUseCase = ref.watch(deleteMultipleItemsUseCaseProvider);
+  final moveUseCase = ref.watch(moveMultipleItemsUseCaseProvider);
+  return ClosetDetailNotifier(repo, deleteUseCase, moveUseCase, ref, closetId);
 });

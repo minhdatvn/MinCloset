@@ -19,38 +19,28 @@ import 'package:mincloset/widgets/item_search_filter_bar.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 import 'package:uuid/uuid.dart';
 
-// <<< THÊM LỚP DELEGATE Ở ĐÂY >>>
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   final ItemSearchFilterBar _searchBar;
-
   _SliverAppBarDelegate(this._searchBar);
-
   @override
   double get minExtent => 72.0;
   @override
   double get maxExtent => 72.0;
-
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    // Thêm một lớp Material để đảm bảo màu nền và các hiệu ứng được vẽ đúng
-    return Material( 
+    return Material(
       color: Theme.of(context).scaffoldBackgroundColor.withAlpha(242),
       child: _searchBar,
     );
   }
-
   @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return false;
-  }
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) => false;
 }
 
 class OutfitBuilderPage extends ConsumerStatefulWidget {
-  // Khai báo các biến final MỘT LẦN DUY NHẤT ở đây
   final List<ClothingItem>? preselectedItems;
   final SuggestionResult? suggestionResult;
 
-  // Constructor chỉ cần tham chiếu đến các biến đã khai báo bằng `this.`
   const OutfitBuilderPage({
     super.key,
     this.preselectedItems,
@@ -66,103 +56,95 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   Uint8List? _imageData;
   final Map<String, ClothingItem> _itemsOnCanvas = {};
   bool _isSaving = false;
-  
   static const _itemBrowserProviderId = 'outfit_builder_items';
-
   Map<String, int> _itemCountsOnCanvas = {};
 
-  Rect _getPlaceholderRect(String slot, Size canvasSize) {
-    switch (slot) {
-      case 'topwear':
-        return Rect.fromLTWH(canvasSize.width * 0.15, canvasSize.height * 0.1, canvasSize.width * 0.7, canvasSize.height * 0.4);
-      case 'bottomwear':
-        return Rect.fromLTWH(canvasSize.width * 0.2, canvasSize.height * 0.5, canvasSize.width * 0.6, canvasSize.height * 0.45);
-      case 'outerwear':
-        return Rect.fromLTWH(canvasSize.width * 0.1, canvasSize.height * 0.05, canvasSize.width * 0.8, canvasSize.height * 0.8);
-      case 'footwear':
-        return Rect.fromLTWH(canvasSize.width * 0.25, canvasSize.height * 0.85, canvasSize.width * 0.5, canvasSize.height * 0.15);
-      case 'accessories':
-         return Rect.fromLTWH(canvasSize.width * 0.65, canvasSize.height * 0.05, canvasSize.width * 0.25, canvasSize.height * 0.15);
-      default:
-        return Rect.fromLTWH(0, 0, canvasSize.width * 0.5, canvasSize.height * 0.5);
-    }
-  }
-
   void _recalculateItemCounts() {
-    // Tạo một map tạm để đếm
     final newCounts = <String, int>{};
-
-    // Duyệt qua tất cả các giá trị (là các đối tượng ClothingItem) trong _itemsOnCanvas
     for (var item in _itemsOnCanvas.values) {
-      // Sử dụng ID của item làm khóa, tăng giá trị đếm lên 1
       newCounts[item.id] = (newCounts[item.id] ?? 0) + 1;
     }
-
-    // Cập nhật state của widget để giao diện được vẽ lại với số đếm mới
-    setState(() {
-      _itemCountsOnCanvas = newCounts;
-    });
+    if (mounted) {
+      setState(() {
+        _itemCountsOnCanvas = newCounts;
+      });
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    const canvasSize = Size(750, 1000);
-
-    _generateBlankImage(canvasSize).then((_) {
+    _generateBlankImage(const Size(750, 1000)).then((_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
 
         if (widget.suggestionResult != null) {
-          final composition = widget.suggestionResult!.composition;
-          final slots = ['outerwear', 'topwear', 'bottomwear', 'footwear', 'accessories'];
-
-          for (final slot in slots) {
-            final item = composition[slot];
-            if (item != null) {
-              final stickerId = const Uuid().v4();
-              _itemsOnCanvas[stickerId] = item;
-              
-              final rect = _getPlaceholderRect(slot, canvasSize);
-
-              // >>> PHẦN SỬA LỖI QUAN TRỌNG NHẤT NẰM Ở ĐÂY <<<
-              _editorKey.currentState?.addLayer(
-                WidgetLayer(
-                  id: stickerId,
-                  // Đặt vị trí của layer bằng tham số `offset`
-                  offset: rect.topLeft, 
-                  // Gán kích thước cho ảnh bằng cách bọc nó trong SizedBox
-                  widget: SizedBox(
-                    width: rect.width,
-                    height: rect.height,
-                    child: Image.file(
-                      File(item.imagePath),
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-              );
-            }
-          }
-          _recalculateItemCounts();
-        } 
-        else if (widget.preselectedItems != null && widget.preselectedItems!.isNotEmpty) {
-          for (final item in widget.preselectedItems!) {
-            final stickerId = const Uuid().v4();
-            _itemsOnCanvas[stickerId] = item;
-            _editorKey.currentState?.addLayer(
-              WidgetLayer(
-                id: stickerId,
-                widget: Image.file(File(item.imagePath), fit: BoxFit.contain),
-              ),
-            );
-          }
+          _addLayersFromSuggestion(widget.suggestionResult!);
+        } else if (widget.preselectedItems != null) {
+          _addLayersFromPreselection(widget.preselectedItems!);
         }
       });
     });
   }
+
+  // >>> THAY ĐỔI 1: TÁCH LOGIC THÊM LAYER RA HÀM RIÊNG <<<
+  void _addLayersFromSuggestion(SuggestionResult result) {
+    final List<ClothingItem> itemsToAdd = result.composition.values.where((item) => item != null).cast<ClothingItem>().toList();
+    
+    // Các giá trị để xếp tầng các vật phẩm
+    double initialX = 30.0;
+    double initialY = 50.0;
+    double yOffsetStep = 60.0; // Khoảng cách giữa các lớp theo chiều dọc
+
+    for (int i = 0; i < itemsToAdd.length; i++) {
+      final item = itemsToAdd[i];
+      final stickerId = const Uuid().v4();
+      _itemsOnCanvas[stickerId] = item;
+      
+      // Tính toán vị trí xếp tầng
+      final position = Offset(initialX, initialY + (i * yOffsetStep));
+      
+      _editorKey.currentState?.addLayer(
+        WidgetLayer(
+          id: stickerId,
+          offset: position, // Gán vị trí đã tính toán
+          widget: SizedBox(
+            width: 250, // Kích thước đồng nhất ban đầu
+            height: 250,
+            child: Image.file(File(item.imagePath), fit: BoxFit.contain),
+          ),
+        ),
+      );
+    }
+
+    _recalculateItemCounts();
+  }
+
+  void _addLayersFromPreselection(List<ClothingItem> items) {
+    double initialX = 30.0;
+    double initialY = 50.0;
+    double yOffsetStep = 60.0;
+
+    for (int i = 0; i < items.length; i++) {
+        final item = items[i];
+        final stickerId = const Uuid().v4();
+        _itemsOnCanvas[stickerId] = item;
+        final position = Offset(initialX, initialY + (i * yOffsetStep));
+        _editorKey.currentState?.addLayer(
+            WidgetLayer(
+              id: stickerId,
+              offset: position,
+              widget: SizedBox(
+                  width: 250,
+                  height: 250,
+                  child: Image.file(File(item.imagePath), fit: BoxFit.contain),
+              ),
+            ),
+        );
+    }
+    _recalculateItemCounts();
+  }
   
-  // Các hàm logic khác không thay đổi...
   Future<void> _generateBlankImage(Size size) async {
     final image = img.Image(width: size.width.toInt(), height: size.height.toInt());
     img.fill(image, color: img.ColorRgb8(255, 255, 255));
@@ -322,7 +304,6 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
     );
   }
   
-  // <<< SỬA LẠI HÀM NÀY ĐỂ DÙNG SLIVERS >>>
   Widget _buildItemBrowserSheet() {
     final notifier = ref.read(itemFilterProvider(_itemBrowserProviderId).notifier);
     final state = ref.watch(itemFilterProvider(_itemBrowserProviderId));
@@ -332,7 +313,6 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
       minChildSize: 0.07,
       maxChildSize: 0.92,
       builder: (BuildContext context, ScrollController scrollController) {
-        
         void onScroll() {
           if (scrollController.position.pixels >= scrollController.position.maxScrollExtent - 300 &&
               !state.isLoadingMore &&
@@ -340,19 +320,13 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
             notifier.fetchMoreItems();
           }
         }
-        
         scrollController.addListener(onScroll);
 
         return Container(
           decoration: BoxDecoration(
             color: Theme.of(context).scaffoldBackgroundColor.withAlpha(242),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(38),
-                blurRadius: 10,
-              ),
-            ],
+            boxShadow: [BoxShadow(color: Colors.black.withAlpha(38), blurRadius: 10)],
           ),
           child: CustomScrollView(
             controller: scrollController,
@@ -362,27 +336,29 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Center(
                     child: Container(
-                      width: 40,
-                      height: 5,
+                      width: 40, height: 5,
                       decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(12)),
                     ),
                   ),
                 ),
               ),
-              // Ghim thanh tìm kiếm bằng SliverPersistentHeader
               SliverPersistentHeader(
                 pinned: true,
-                delegate: _SliverAppBarDelegate(
-                  const ItemSearchFilterBar(providerId: _itemBrowserProviderId),
-                ),
+                delegate: _SliverAppBarDelegate(const ItemSearchFilterBar(providerId: _itemBrowserProviderId)),
               ),
               ItemBrowserView(
                 providerId: _itemBrowserProviderId,
                 onItemTapped: (item) {
                   final stickerId = const Uuid().v4();
                   _itemsOnCanvas[stickerId] = item;
+                  
+                  // >>> THAY ĐỔI 2: ĐƠN GIẢN HÓA LOGIC THÊM THỦ CÔNG <<<
+                  // Chỉ cần thêm layer, không cần vị trí và kích thước
                   _editorKey.currentState?.addLayer(
-                    WidgetLayer(widget: Image.file(File(item.imagePath), fit: BoxFit.contain), id: stickerId),
+                    WidgetLayer(
+                      id: stickerId,
+                      widget: Image.file(File(item.imagePath), fit: BoxFit.contain),
+                    ),
                   );
                   _recalculateItemCounts();
                 },

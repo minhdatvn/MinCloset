@@ -70,8 +70,8 @@ class RecentItemCard extends StatelessWidget {
           // Lớp 4: Badge đếm số lượng (nếu có)
           if (count > 0)
             Positioned(
-              top: -5,
-              right: -5,
+              top: 4,
+              right: 4,
                 child: Container(
                   padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(

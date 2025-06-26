@@ -69,6 +69,8 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   
   static const _itemBrowserProviderId = 'outfit_builder_items';
 
+  Map<String, int> _itemCountsOnCanvas = {};
+
   Rect _getPlaceholderRect(String slot, Size canvasSize) {
     switch (slot) {
       case 'topwear':
@@ -84,6 +86,22 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
       default:
         return Rect.fromLTWH(0, 0, canvasSize.width * 0.5, canvasSize.height * 0.5);
     }
+  }
+
+  void _recalculateItemCounts() {
+    // Tạo một map tạm để đếm
+    final newCounts = <String, int>{};
+
+    // Duyệt qua tất cả các giá trị (là các đối tượng ClothingItem) trong _itemsOnCanvas
+    for (var item in _itemsOnCanvas.values) {
+      // Sử dụng ID của item làm khóa, tăng giá trị đếm lên 1
+      newCounts[item.id] = (newCounts[item.id] ?? 0) + 1;
+    }
+
+    // Cập nhật state của widget để giao diện được vẽ lại với số đếm mới
+    setState(() {
+      _itemCountsOnCanvas = newCounts;
+    });
   }
 
   @override
@@ -126,6 +144,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
               );
             }
           }
+          _recalculateItemCounts();
         } 
         else if (widget.preselectedItems != null && widget.preselectedItems!.isNotEmpty) {
           for (final item in widget.preselectedItems!) {
@@ -365,7 +384,9 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                   _editorKey.currentState?.addLayer(
                     WidgetLayer(widget: Image.file(File(item.imagePath), fit: BoxFit.contain), id: stickerId),
                   );
+                  _recalculateItemCounts();
                 },
+                itemCounts: _itemCountsOnCanvas,
               ),
             ],
           ),

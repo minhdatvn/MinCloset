@@ -71,80 +71,93 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
     }
   }
 
+  // >>> THAY ĐỔI 1: HÀM TÍNH TOÁN LAYOUT MỚI <<<
+  // Hàm này sẽ tính toán Rect (vị trí + kích thước) dựa trên kích thước thực tế của editor
+  Rect _getLayoutRectForSlot(String slot, Size editorSize) {
+    switch (slot) {
+      case 'topwear':
+        return Rect.fromLTWH(
+            editorSize.width * 0.15, // 15% từ trái
+            editorSize.height * 0.1, // 10% từ trên
+            editorSize.width * 0.7,  // Rộng 70%
+            editorSize.height * 0.4);// Cao 40%
+      case 'bottomwear':
+        return Rect.fromLTWH(
+            editorSize.width * 0.2, 
+            editorSize.height * 0.45,
+            editorSize.width * 0.6, 
+            editorSize.height * 0.4);
+      case 'footwear':
+        return Rect.fromLTWH(
+            editorSize.width * 0.3, 
+            editorSize.height * 0.82,
+            editorSize.width * 0.4, 
+            editorSize.height * 0.15);
+      case 'accessories':
+        return Rect.fromLTWH(
+            editorSize.width * 0.7, 
+            editorSize.height * 0.05,
+            editorSize.width * 0.25, 
+            editorSize.height * 0.2);
+      case 'outerwear':
+        return Rect.fromLTWH(
+            editorSize.width * 0.05, 
+            editorSize.height * 0.05,
+            editorSize.width * 0.9, 
+            editorSize.height * 0.9);
+      default:
+        return Rect.fromCenter(
+            center: editorSize.center(Offset.zero), width: 200, height: 200);
+    }
+  }
+  
+  // >>> THAY ĐỔI 2: VIẾT LẠI HOÀN TOÀN HÀM initState <<<
   @override
   void initState() {
     super.initState();
-    _generateBlankImage(const Size(750, 1000)).then((_) {
+    // Tạo ảnh nền trắng trước
+    _generateBlankImage(const Size(1000, 1000)).then((_) {
+      // Đợi frame đầu tiên được vẽ xong để đảm bảo _editorKey có context
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
 
+        // Lấy kích thước thực tế của vùng editor
+        final editorSize = _editorKey.currentContext?.size;
+        if (editorSize == null) return; // Thoát nếu không lấy được kích thước
+
+        // Nếu có dữ liệu từ AI, tiến hành đặt layer
         if (widget.suggestionResult != null) {
-          _addLayersFromSuggestion(widget.suggestionResult!);
-        } else if (widget.preselectedItems != null) {
-          _addLayersFromPreselection(widget.preselectedItems!);
+          final composition = widget.suggestionResult!.composition;
+          final slots = ['outerwear', 'topwear', 'bottomwear', 'footwear', 'accessories'];
+
+          for (final slot in slots) {
+            final item = composition[slot];
+            if (item != null) {
+              final stickerId = const Uuid().v4();
+              _itemsOnCanvas[stickerId] = item;
+              
+              // Tính toán vị trí và kích thước DỰA TRÊN KÍCH THƯỚC THỰC TẾ
+              final rect = _getLayoutRectForSlot(slot, editorSize);
+
+              _editorKey.currentState?.addLayer(
+                WidgetLayer(
+                  id: stickerId,
+                  offset: rect.topLeft,
+                  widget: SizedBox(
+                    width: rect.width,
+                    height: rect.height,
+                    child: Image.file(File(item.imagePath), fit: BoxFit.contain),
+                  ),
+                ),
+              );
+            }
+          }
+          _recalculateItemCounts();
         }
       });
     });
   }
 
-  // >>> THAY ĐỔI 1: TÁCH LOGIC THÊM LAYER RA HÀM RIÊNG <<<
-  void _addLayersFromSuggestion(SuggestionResult result) {
-    final List<ClothingItem> itemsToAdd = result.composition.values.where((item) => item != null).cast<ClothingItem>().toList();
-    
-    // Các giá trị để xếp tầng các vật phẩm
-    double initialX = 30.0;
-    double initialY = 50.0;
-    double yOffsetStep = 60.0; // Khoảng cách giữa các lớp theo chiều dọc
-
-    for (int i = 0; i < itemsToAdd.length; i++) {
-      final item = itemsToAdd[i];
-      final stickerId = const Uuid().v4();
-      _itemsOnCanvas[stickerId] = item;
-      
-      // Tính toán vị trí xếp tầng
-      final position = Offset(initialX, initialY + (i * yOffsetStep));
-      
-      _editorKey.currentState?.addLayer(
-        WidgetLayer(
-          id: stickerId,
-          offset: position, // Gán vị trí đã tính toán
-          widget: SizedBox(
-            width: 250, // Kích thước đồng nhất ban đầu
-            height: 250,
-            child: Image.file(File(item.imagePath), fit: BoxFit.contain),
-          ),
-        ),
-      );
-    }
-
-    _recalculateItemCounts();
-  }
-
-  void _addLayersFromPreselection(List<ClothingItem> items) {
-    double initialX = 30.0;
-    double initialY = 50.0;
-    double yOffsetStep = 60.0;
-
-    for (int i = 0; i < items.length; i++) {
-        final item = items[i];
-        final stickerId = const Uuid().v4();
-        _itemsOnCanvas[stickerId] = item;
-        final position = Offset(initialX, initialY + (i * yOffsetStep));
-        _editorKey.currentState?.addLayer(
-            WidgetLayer(
-              id: stickerId,
-              offset: position,
-              widget: SizedBox(
-                  width: 250,
-                  height: 250,
-                  child: Image.file(File(item.imagePath), fit: BoxFit.contain),
-              ),
-            ),
-        );
-    }
-    _recalculateItemCounts();
-  }
-  
   Future<void> _generateBlankImage(Size size) async {
     final image = img.Image(width: size.width.toInt(), height: size.height.toInt());
     img.fill(image, color: img.ColorRgb8(255, 255, 255));
@@ -352,11 +365,10 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                   final stickerId = const Uuid().v4();
                   _itemsOnCanvas[stickerId] = item;
                   
-                  // >>> THAY ĐỔI 2: ĐƠN GIẢN HÓA LOGIC THÊM THỦ CÔNG <<<
-                  // Chỉ cần thêm layer, không cần vị trí và kích thước
                   _editorKey.currentState?.addLayer(
                     WidgetLayer(
                       id: stickerId,
+                      // Không cần cung cấp offset và size, để editor tự xử lý
                       widget: Image.file(File(item.imagePath), fit: BoxFit.contain),
                     ),
                   );

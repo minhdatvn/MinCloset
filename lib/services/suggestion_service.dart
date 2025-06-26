@@ -1,15 +1,17 @@
 // lib/services/suggestion_service.dart
 
-import 'dart:convert';
+import 'dart.convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:mincloset/domain/failures/failures.dart';
 import 'package:mincloset/utils/logger.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class SuggestionService {
   final String _apiKey = dotenv.env['GEMINI_API_KEY'] ?? 'API_KEY_NOT_FOUND';
 
-  // <<< THAY ĐỔI HOÀN TOÀN HÀM NÀY >>>
-  Future<Map<String, dynamic>> getOutfitSuggestion({
+  Future<Either<Failure, Map<String, dynamic>>> getOutfitSuggestion({
     required Map<String, dynamic> weather,
     required String cityName,
     required String gender,
@@ -19,14 +21,13 @@ class SuggestionService {
     required String wardrobeString,
   }) async {
     final model = GenerativeModel(
-      model: 'gemini-1.5-flash-latest', // Sử dụng model mới hơn nếu có thể
+      model: 'gemini-1.5-flash-latest',
       apiKey: _apiKey,
     );
 
     final temp = weather['main']['temp'].toStringAsFixed(0);
     final condition = weather['weather'][0]['description'];
 
-    // Xây dựng prompt mới, chi tiết
     final prompt = """
     Bạn là 'MinCloset', một trợ lý thời trang AI chuyên nghiệp.
 
@@ -81,10 +82,10 @@ class SuggestionService {
         logger.i("Phản hồi gợi ý từ AI (đã làm sạch): $cleanJsonString");
         final decodedJson = json.decode(cleanJsonString) as Map<String, dynamic>;
         
-        // Trả về toàn bộ đối tượng JSON mà AI đã tạo
-        return decodedJson;
+        return Right(decodedJson);
       }
-      throw Exception('AI response is null or invalid.');
+      // Trường hợp AI trả về null hoặc text rỗng
+      return const Left(ServerFailure('AI response was empty.'));
 
     } catch (e, s) {
       logger.e(
@@ -92,12 +93,8 @@ class SuggestionService {
         error: e,
         stackTrace: s,
       );
-      // Trả về một đối tượng JSON lỗi để xử lý ở phía UI
-      return {
-        'outfit_name': 'Lỗi gợi ý',
-        'reason': 'Đã có lỗi xảy ra khi kết nối với AI. Vui lòng thử lại.',
-        'outfit_composition': {},
-      };
+      Sentry.captureException(e, stackTrace: s);
+      return Left(ServerFailure('Could not connect to the AI service: $e'));
     }
   }
 }

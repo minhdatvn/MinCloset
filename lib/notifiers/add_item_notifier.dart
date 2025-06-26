@@ -13,7 +13,6 @@ import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/states/add_item_state.dart';
 
-
 class ItemNotifierArgs extends Equatable {
   final String tempId;
   final ClothingItem? itemToEdit;
@@ -31,13 +30,12 @@ class ItemNotifierArgs extends Equatable {
   List<Object?> get props => [tempId];
 }
 
-
 class AddItemNotifier extends StateNotifier<AddItemState> {
   final ClothingItemRepository _clothingItemRepo;
-  final ImageHelper _imageHelper; // <<< THÊM
+  final ImageHelper _imageHelper;
   final Ref _ref;
 
-  AddItemNotifier(this._clothingItemRepo, this._imageHelper, this._ref, ItemNotifierArgs args) // <<< SỬA
+  AddItemNotifier(this._clothingItemRepo, this._imageHelper, this._ref, ItemNotifierArgs args)
       : super(
           args.preAnalyzedState ??
           (args.itemToEdit != null
@@ -52,6 +50,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
   }
 
+  // Các hàm on...Changed và pickImage/analyzeImage không thay đổi
   Set<String> _normalizeColors(List<dynamic>? rawColors) {
     if (rawColors == null) return {};
     final validColorNames = AppOptions.colors.keys.toSet();
@@ -71,6 +70,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     if (!AppOptions.categories.containsKey(parts.first)) { return 'Other > Other'; }
     return rawCategory;
   }
+
   Set<String> _normalizeMultiSelect(dynamic rawValue, List<String> validOptions) {
     final selections = <String>{};
     if (rawValue == null) { return selections; }
@@ -86,6 +86,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     if (hasUnknowns && validOptionsSet.contains('Other')) { selections.add('Other'); }
     return selections;
   }
+
   void onNameChanged(String name) => state = state.copyWith(name: name);
   void onClosetChanged(String? closetId) => state = state.copyWith(selectedClosetId: closetId);
   void onCategoryChanged(String category) => state = state.copyWith(selectedCategoryValue: category);
@@ -94,6 +95,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   void onOccasionsChanged(Set<String> occasions) => state = state.copyWith(selectedOccasions: occasions);
   void onMaterialsChanged(Set<String> materials) => state = state.copyWith(selectedMaterials: materials);
   void onPatternsChanged(Set<String> patterns) => state = state.copyWith(selectedPatterns: patterns);
+
   Future<void> pickImage(ImageSource source) async {
     final imagePicker = ImagePicker();
     final pickedFile = await imagePicker.pickImage(source: source, maxWidth: 1024, imageQuality: 85);
@@ -102,6 +104,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       analyzeImage(pickedFile);
     }
   }
+
   Future<void> analyzeImage(XFile image) async {
     state = state.copyWith(isAnalyzing: true);
     final useCase = _ref.read(analyzeItemUseCaseProvider);
@@ -133,69 +136,93 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
 
     final validateNameUseCase = _ref.read(validateItemNameUseCaseProvider);
-    final nameValidationResult = await validateNameUseCase.forSingleItem(
+    final nameValidationEither = await validateNameUseCase.forSingleItem(
       name: state.name,
       existingId: state.isEditing ? state.id : null,
     );
-    if (!nameValidationResult.success) {
-      state = state.copyWith(isLoading: false, errorMessage: nameValidationResult.errorMessage);
-      return false;
-    }
-    
-    final String? thumbnailPath = state.image != null
-        ? await _imageHelper.createThumbnail(sourceImagePath)
-        : null;
-    
-    final clothingItem = ClothingItem(
-      id: state.isEditing ? state.id : const Uuid().v4(),
-      name: state.name.trim(),
-      category: state.selectedCategoryValue,
-      closetId: state.selectedClosetId!,
-      imagePath: sourceImagePath,
-      thumbnailPath: thumbnailPath ?? state.thumbnailPath,
-      color: state.selectedColors.join(', '),
-      season: state.selectedSeasons.join(', '),
-      occasion: state.selectedOccasions.join(', '),
-      material: state.selectedMaterials.join(', '),
-      pattern: state.selectedPatterns.join(', '),
-    );
 
-    try {
-      if (state.isEditing) {
-        await _clothingItemRepo.updateItem(clothingItem);
-      } else {
-        await _clothingItemRepo.insertItem(clothingItem);
-      }
-      state = state.copyWith(isLoading: false, isSuccess: true);
-      return true;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: 'Save error: $e');
-      return false;
-    }
+    // <<< SỬA LỖI CỐT LÕI NẰM Ở ĐÂY >>>
+    return await nameValidationEither.fold(
+      // Trường hợp 1: UseCase trả về Left(Failure) - lỗi hệ thống
+      (failure) {
+        state = state.copyWith(isLoading: false, errorMessage: failure.message);
+        return false;
+      },
+      // Trường hợp 2: UseCase trả về Right(ValidationResult) - kết quả logic
+      (nameValidationResult) async {
+        if (!nameValidationResult.success) {
+          state = state.copyWith(isLoading: false, errorMessage: nameValidationResult.errorMessage);
+          return false;
+        }
+
+        // Nếu tất cả validation thành công, tiếp tục lưu
+        final String? thumbnailPath = state.image != null
+            ? await _imageHelper.createThumbnail(sourceImagePath)
+            : null;
+        
+        final clothingItem = ClothingItem(
+          id: state.isEditing ? state.id : const Uuid().v4(),
+          name: state.name.trim(),
+          category: state.selectedCategoryValue,
+          closetId: state.selectedClosetId!,
+          imagePath: sourceImagePath,
+          thumbnailPath: thumbnailPath ?? state.thumbnailPath,
+          color: state.selectedColors.join(', '),
+          season: state.selectedSeasons.join(', '),
+          occasion: state.selectedOccasions.join(', '),
+          material: state.selectedMaterials.join(', '),
+          pattern: state.selectedPatterns.join(', '),
+        );
+
+        final result = state.isEditing
+            ? await _clothingItemRepo.updateItem(clothingItem)
+            : await _clothingItemRepo.insertItem(clothingItem);
+
+        if (!mounted) return false;
+
+        return result.fold(
+          (failure) {
+            state = state.copyWith(isLoading: false, errorMessage: failure.message);
+            return false;
+          },
+          (_) {
+            state = state.copyWith(isLoading: false, isSuccess: true);
+            return true;
+          },
+        );
+      },
+    );
   }
 
   Future<bool> deleteItem() async {
     if (!state.isEditing) return false;
     state = state.copyWith(isLoading: true, errorMessage: null);
-    try {
-      await _imageHelper.deleteImageAndThumbnail( // <<< SỬA
-        imagePath: state.imagePath,
-        thumbnailPath: state.thumbnailPath,
-      );
+    
+    await _imageHelper.deleteImageAndThumbnail(
+      imagePath: state.imagePath,
+      thumbnailPath: state.thumbnailPath,
+    );
 
-      await _clothingItemRepo.deleteItem(state.id);
-      state = state.copyWith(isLoading: false, isSuccess: true);
-      return true;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, errorMessage: 'Delete error: $e');
-      return false;
-    }
+    final result = await _clothingItemRepo.deleteItem(state.id);
+    
+    if (!mounted) return false;
+
+    return result.fold(
+      (failure) {
+        state = state.copyWith(isLoading: false, errorMessage: failure.message);
+        return false;
+      },
+      (_) {
+        state = state.copyWith(isLoading: false, isSuccess: true);
+        return true;
+      },
+    );
   }
 }
 
 final addItemProvider = StateNotifierProvider
     .family<AddItemNotifier, AddItemState, ItemNotifierArgs>((ref, args) {
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
-  final imageHelper = ref.watch(imageHelperProvider); // <<< THÊM
-  return AddItemNotifier(clothingItemRepo, imageHelper, ref, args); // <<< SỬA
+  final imageHelper = ref.watch(imageHelperProvider);
+  return AddItemNotifier(clothingItemRepo, imageHelper, ref, args);
 });

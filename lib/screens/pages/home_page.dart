@@ -22,9 +22,21 @@ import 'package:mincloset/widgets/stats_overview_card.dart';
 
 final recentItemsProvider =
     FutureProvider.autoDispose<List<ClothingItem>>((ref) async {
-  ref.watch(itemChangedTriggerProvider);
+  // Theo dõi trigger để làm mới provider khi item thay đổi
+  ref.watch(itemChangedTriggerProvider); 
+  
   final itemRepo = ref.watch(clothingItemRepositoryProvider);
-  return itemRepo.getRecentItems(5);
+  
+  // Lấy kết quả Either từ repository
+  final result = await itemRepo.getRecentItems(5);
+
+  // Xử lý kết quả Either
+  return result.fold(
+    // (Left) Nếu thất bại, throw Exception để widget .when(error:..) bắt được
+    (failure) => throw Exception(failure.message),
+    // (Right) Nếu thành công, trả về danh sách items
+    (items) => items,
+  );
 });
 
 // <<< THAY ĐỔI 1: Chuyển thành ConsumerStatefulWidget >>>

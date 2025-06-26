@@ -1,34 +1,61 @@
 // lib/repositories/outfit_repository.dart
 
+import 'package:fpdart/fpdart.dart';
+import 'package:mincloset/domain/failures/failures.dart';
+import 'package:mincloset/domain/core/type_defs.dart';
 import 'package:mincloset/helpers/db_helper.dart';
 import 'package:mincloset/models/outfit.dart';
+import 'package:sqflite/sqflite.dart';
 
 class OutfitRepository {
   final DatabaseHelper _dbHelper;
 
   OutfitRepository(this._dbHelper);
 
-  // <<< SỬA ĐỔI: Thêm limit, offset và logic chuyển đổi Map -> Model >>>
-  Future<List<Outfit>> getOutfits({int? limit, int? offset}) async {
-    final data = await _dbHelper.getOutfits(limit: limit, offset: offset);
-    return data.map((map) => Outfit.fromMap(map)).toList();
+  FutureEither<List<Outfit>> getOutfits({int? limit, int? offset}) async {
+    try {
+      final data = await _dbHelper.getOutfits(limit: limit, offset: offset);
+      final outfits = data.map((map) => Outfit.fromMap(map)).toList();
+      return Right(outfits);
+    } on DatabaseException catch (e) {
+      return Left(CacheFailure('Failed to get outfits: $e'));
+    }
   }
 
-  // Hàm này đã đúng vì _dbHelper.getFixedOutfits() trả về List<Map>
-  Future<List<Outfit>> getFixedOutfits() async {
-    final maps = await _dbHelper.getFixedOutfits();
-    return maps.map((map) => Outfit.fromMap(map)).toList();
+  FutureEither<List<Outfit>> getFixedOutfits() async {
+    try {
+      final maps = await _dbHelper.getFixedOutfits();
+      final outfits = maps.map((map) => Outfit.fromMap(map)).toList();
+      return Right(outfits);
+    } on DatabaseException catch (e) {
+      return Left(CacheFailure('Failed to get fixed outfits: $e'));
+    }
   }
 
-  Future<void> insertOutfit(Outfit outfit) async {
-    await _dbHelper.insertOutfit(outfit);
+  FutureEitherVoid insertOutfit(Outfit outfit) async {
+    try {
+      await _dbHelper.insertOutfit(outfit);
+      return const Right(unit);
+    } on DatabaseException catch (e) {
+      return Left(CacheFailure('Failed to insert outfit: $e'));
+    }
   }
 
-  Future<void> updateOutfit(Outfit outfit) async {
-    await _dbHelper.updateOutfit(outfit);
+  FutureEitherVoid updateOutfit(Outfit outfit) async {
+    try {
+      await _dbHelper.updateOutfit(outfit);
+      return const Right(unit);
+    } on DatabaseException catch (e) {
+      return Left(CacheFailure('Failed to update outfit: $e'));
+    }
   }
 
-  Future<void> deleteOutfit(String id) async {
-    await _dbHelper.deleteOutfit(id);
+  FutureEitherVoid deleteOutfit(String id) async {
+    try {
+      await _dbHelper.deleteOutfit(id);
+      return const Right(unit);
+    } on DatabaseException catch (e) {
+      return Left(CacheFailure('Failed to delete outfit: $e'));
+    }
   }
 }

@@ -48,18 +48,31 @@ class CitySelectionNotifier extends StateNotifier<CitySelectionState> {
         return;
       }
       state = state.copyWith(isSearching: true);
-      try {
-        final results = await _cityRepo.searchCities(query);
-        if (mounted) {
-          state = state.copyWith(isSearching: false, suggestions: results);
-        }
-      } catch (e, s) {
-        logger.e('Failed to search location', error: e, stackTrace: s);
-        if (mounted) {
+      
+      // <<< THAY ĐỔI CỐT LÕI NẰM Ở ĐÂY >>>
+      // Gọi repository, kết quả trả về là một Either
+      final result = await _cityRepo.searchCities(query);
+
+      // Nếu notifier đã bị hủy trong lúc chờ kết quả, không làm gì cả
+      if (!mounted) return;
+
+      // Dùng .fold() để xử lý cả 2 trường hợp
+      result.fold(
+        // (l) => Left: Xử lý khi có lỗi
+        (failure) {
           state = state.copyWith(
-              isSearching: false, errorMessage: 'Failed to search');
-        }
-      }
+            isSearching: false,
+            errorMessage: failure.message,
+          );
+        },
+        // (r) => Right: Xử lý khi thành công
+        (suggestions) {
+          state = state.copyWith(
+            isSearching: false,
+            suggestions: suggestions,
+          );
+        },
+      );
     });
   }
 
@@ -87,6 +100,8 @@ class CitySelectionNotifier extends StateNotifier<CitySelectionState> {
       return true;
     } catch (e) {
       logger.e('Failed to save location settings', error: e);
+      // Cập nhật state với lỗi để UI có thể hiển thị
+      state = state.copyWith(errorMessage: 'Failed to save location settings.');
       return false;
     }
   }

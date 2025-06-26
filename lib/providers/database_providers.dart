@@ -11,15 +11,28 @@ final dbHelperProvider = Provider<DatabaseHelper>((ref) {
   return DatabaseHelper.instance;
 });
 
-final closetsProvider = FutureProvider<List<Closet>>((ref) {
+// <<< THAY ĐỔI CỐT LÕI NẰM Ở ĐÂY >>>
+final closetsProvider = FutureProvider<List<Closet>>((ref) async {
   final closetRepository = ref.watch(closetRepositoryProvider);
-  return closetRepository.getClosets();
+  final result = await closetRepository.getClosets();
+
+  // Dùng fold để xử lý kết quả Either
+  // Nếu thành công (Right), trả về danh sách closets
+  // Nếu thất bại (Left), ném ra lỗi để FutureProvider bắt lại và chuyển sang trạng thái .error
+  return result.fold(
+    (failure) => throw failure.message,
+    (closets) => closets,
+  );
 });
 
-// <<< THAY ĐỔI Ở ĐÂY
 final itemsInClosetProvider =
-    FutureProvider.family<List<ClothingItem>, String>((ref, closetId) {
+    FutureProvider.family<List<ClothingItem>, String>((ref, closetId) async {
   ref.watch(itemChangedTriggerProvider);
   final clothingItemRepository = ref.watch(clothingItemRepositoryProvider);
-  return clothingItemRepository.getItemsInCloset(closetId);
+  final result = await clothingItemRepository.getItemsInCloset(closetId);
+
+  return result.fold(
+    (failure) => throw failure.message,
+    (items) => items,
+  );
 });

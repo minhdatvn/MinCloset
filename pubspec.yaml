@@ -39,6 +39,7 @@ dependencies:
   animated_text_kit: ^4.2.3
   sentry_flutter: ^9.1.0
   dotted_border: ^3.0.1
+  fpdart: ^1.1.1
 
 dev_dependencies:
   sentry_dart_plugin: ^3.0.0

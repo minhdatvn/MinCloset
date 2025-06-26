@@ -9,42 +9,45 @@ import 'package:mincloset/utils/logger.dart';
 class HomePageNotifier extends StateNotifier<HomePageState> {
   final Ref _ref;
 
-  // Sửa đổi constructor: gọi hàm init() mới
   HomePageNotifier(this._ref) : super(const HomePageState()) {
     init();
   }
 
-  // SỬA LẠI HÀM INIT
   Future<void> init() async {
-    // Tạm thời, khi khởi tạo, chúng ta chỉ làm mới thời tiết.
-    // Logic cache sẽ được thêm lại một cách hoàn chỉnh sau.
     await refreshWeatherOnly();
   }
 
   Future<void> refreshWeatherOnly() async {
     logger.i("Weather refresh triggered.");
-    try {
-      final getSuggestionUseCase = _ref.read(getOutfitSuggestionUseCaseProvider);
-      final weatherData = await getSuggestionUseCase.getWeatherForSuggestion();
+    final getSuggestionUseCase = _ref.read(getOutfitSuggestionUseCaseProvider);
+    final weatherEither = await getSuggestionUseCase.getWeatherForSuggestion();
 
-      if (mounted) {
-        state = state.copyWith(weather: weatherData);
-      }
-    } catch (e, s) {
-      logger.e('Failed to refresh weather only', error: e, stackTrace: s);
+    if (mounted) {
+      weatherEither.fold(
+        (failure) {
+          logger.e("Failed to refresh weather: ${failure.message}");
+          // Tùy chọn: hiển thị lỗi thời tiết cho người dùng
+          // state = state.copyWith(errorMessage: failure.message);
+        },
+        (weatherData) => state = state.copyWith(weather: weatherData),
+      );
     }
   }
 
-  // SỬA LẠI HÀM GETNEWSUGGESTION
   Future<void> getNewSuggestion() async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
-    try {
-      final getSuggestion = _ref.read(getOutfitSuggestionUseCaseProvider);
-      final result = await getSuggestion.execute();
+    state = state.copyWith(isLoading: true, clearError: true);
+    final getSuggestion = _ref.read(getOutfitSuggestionUseCaseProvider);
+    final resultEither = await getSuggestion.execute();
 
-      // Bỏ biến `prefs` không sử dụng
-      
-      if (mounted) {
+    if (!mounted) return;
+
+    resultEither.fold(
+      (failure) {
+        logger.e('Failed to get new suggestions', error: failure.message);
+        _ref.read(notificationServiceProvider).showBanner(message: failure.message);
+        state = state.copyWith(isLoading: false);
+      },
+      (result) {
         state = state.copyWith(
           isLoading: false,
           suggestionResult: result['suggestionResult'] as SuggestionResult?,
@@ -52,24 +55,11 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
           suggestionTimestamp: DateTime.now(),
           suggestionId: state.suggestionId + 1,
         );
-      }
-    } catch (e, s) {
-      logger.e('Failed to get new suggestions', error: e, stackTrace: s);
-  
-      // Gọi service để hiển thị banner lỗi
-      _ref.read(notificationServiceProvider).showBanner(
-        message: e.toString().replaceAll("Exception: ", "")
-      );
-
-      if (mounted) {
-        // Chỉ cần tắt trạng thái loading, không cần set errorMessage nữa
-        state = state.copyWith(isLoading: false);
-      }
-    }
+      },
+    );
   }
 }
 
-// Provider giữ nguyên
 final homeProvider = StateNotifierProvider<HomePageNotifier, HomePageState>((ref) {
   return HomePageNotifier(ref);
 });

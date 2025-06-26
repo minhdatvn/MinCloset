@@ -24,17 +24,18 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
 
   Future<void> loadInitialData() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
+
+    // Bọc toàn bộ logic trong try-catch để xử lý các lỗi không mong muốn
+    // hoặc lỗi từ SharedPreferences, vốn không dùng Either.
     try {
       logger.i('Loading profile data...');
-
       final prefs = await SharedPreferences.getInstance();
-      logger.i('1. SharedPreferences loaded successfully');
-
       final closetRepo = _ref.read(closetRepositoryProvider);
       final itemRepo = _ref.read(clothingItemRepositoryProvider);
       final outfitRepo = _ref.read(outfitRepositoryProvider);
-      logger.i('2. Repositories initialized successfully.');
+      logger.i('1, 2. Repositories and SharedPreferences initialized.');
 
+      // Lấy dữ liệu từ SharedPreferences
       final userName = prefs.getString('user_name') ?? 'MinCloset user';
       final avatarPath = prefs.getString('user_avatar_path');
       final gender = prefs.getString('user_gender');
@@ -43,78 +44,108 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       final height = prefs.getInt('user_height');
       final weight = prefs.getInt('user_weight');
       final personalStyles = prefs.getStringList('user_styles')?.toSet() ?? {};
-      final favoriteColors =
-          prefs.getStringList('user_favorite_colors')?.toSet() ?? {};
+      final favoriteColors = prefs.getStringList('user_favorite_colors')?.toSet() ?? {};
       final cityModeString = prefs.getString('city_mode') ?? 'auto';
       final cityMode = CityMode.values.byName(cityModeString);
       final manualCity = prefs.getString('manual_city_name') ?? 'Ha Noi, VN';
       logger.i('3. Successfully read SharedPreferences.');
 
-      final allItems = await itemRepo.getAllItems();
-      logger.i('4. Successfully loaded all items from database.');
+      // Bắt đầu chuỗi xử lý Either
+      final allItemsResult = await itemRepo.getAllItems();
+      allItemsResult.fold(
+        // Case 1: Lấy items thất bại
+        (failure) {
+          logger.e("Failed to load items", error: failure.message);
+          state = state.copyWith(isLoading: false, errorMessage: failure.message);
+        },
+        // Case 1: Lấy items thành công
+        (allItems) async {
+          logger.i('4. Successfully loaded all items from database.');
+          final allClosetsResult = await closetRepo.getClosets();
+          allClosetsResult.fold(
+            // Case 2: Lấy closets thất bại
+            (failure) {
+              logger.e("Failed to load closets", error: failure.message);
+              state = state.copyWith(isLoading: false, errorMessage: failure.message);
+            },
+            // Case 2: Lấy closets thành công
+            (allClosets) async {
+              logger.i('5. Successfully loaded all closets from database.');
+              final allOutfitsResult = await outfitRepo.getOutfits();
+              allOutfitsResult.fold(
+                // Case 3: Lấy outfits thất bại
+                (failure) {
+                  logger.e("Failed to load outfits", error: failure.message);
+                  state = state.copyWith(isLoading: false, errorMessage: failure.message);
+                },
+                // Case 3: Lấy outfits thành công -> TẤT CẢ THÀNH CÔNG
+                (allOutfits) {
+                  logger.i('6. Successfully loaded all outfits from database.');
+                  
+                  final colorDist = <String, int>{};
+                  final categoryDist = <String, int>{};
+                  final seasonDist = <String, int>{};
+                  final occasionDist = <String, int>{};
 
-      final allClosets = await closetRepo.getClosets();
-      logger.i('5. Successfully loaded all closets from database.');
+                  // Vòng lặp for bây giờ hoạt động vì `allItems` là List<ClothingItem>
+                  for (final item in allItems) {
+                    final colors = item.color.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
+                    for (final color in colors) {
+                      colorDist[color] = (colorDist[color] ?? 0) + 1;
+                    }
+                    final mainCategory = item.category.split('>').first.trim();
+                    if (mainCategory.isNotEmpty) {
+                      categoryDist[mainCategory] = (categoryDist[mainCategory] ?? 0) + 1;
+                    }
+                    if (item.season != null && item.season!.isNotEmpty) {
+                      final seasons = item.season!.split(',').map((e) => e.trim());
+                      for (final season in seasons) {
+                        seasonDist[season] = (seasonDist[season] ?? 0) + 1;
+                      }
+                    }
+                    if (item.occasion != null && item.occasion!.isNotEmpty) {
+                      final occasions = item.occasion!.split(',').map((e) => e.trim());
+                      for (final occasion in occasions) {
+                        occasionDist[occasion] = (occasionDist[occasion] ?? 0) + 1;
+                      }
+                    }
+                  }
+                  logger.i('7. Statistics calculated successfully.');
 
-      final allOutfits = await outfitRepo.getOutfits();
-      logger.i('6. Successfully loaded all outfits from database.');
-      
-      final colorDist = <String, int>{};
-      final categoryDist = <String, int>{};
-      final seasonDist = <String, int>{};
-      final occasionDist = <String, int>{};
-
-      for (final item in allItems) {
-        final colors = item.color.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
-        for (final color in colors) {
-          colorDist[color] = (colorDist[color] ?? 0) + 1;
-        }
-        final mainCategory = item.category.split('>').first.trim();
-        if (mainCategory.isNotEmpty) {
-          categoryDist[mainCategory] = (categoryDist[mainCategory] ?? 0) + 1;
-        }
-        if (item.season != null && item.season!.isNotEmpty) {
-          final seasons = item.season!.split(',').map((e) => e.trim());
-          for (final season in seasons) {
-            seasonDist[season] = (seasonDist[season] ?? 0) + 1;
-          }
-        }
-        if (item.occasion != null && item.occasion!.isNotEmpty) {
-          final occasions = item.occasion!.split(',').map((e) => e.trim());
-          for (final occasion in occasions) {
-            occasionDist[occasion] = (occasionDist[occasion] ?? 0) + 1;
-          }
-        }
-      }
-      logger.i('7. Statistics calculated successfully.');
-
-      state = state.copyWith(
-        isLoading: false,
-        userName: userName,
-        avatarPath: avatarPath,
-        gender: gender,
-        dob: dob,
-        height: height,
-        weight: weight,
-        personalStyles: personalStyles,
-        favoriteColors: favoriteColors,
-        cityMode: cityMode,
-        manualCity: manualCity,
-        totalItems: allItems.length,
-        totalClosets: allClosets.length,
-        totalOutfits: allOutfits.length,
-        colorDistribution: colorDist,
-        categoryDistribution: categoryDist,
-        seasonDistribution: seasonDist,
-        occasionDistribution: occasionDist,
+                  state = state.copyWith(
+                    isLoading: false,
+                    userName: userName,
+                    avatarPath: avatarPath,
+                    gender: gender,
+                    dob: dob,
+                    height: height,
+                    weight: weight,
+                    personalStyles: personalStyles,
+                    favoriteColors: favoriteColors,
+                    cityMode: cityMode,
+                    manualCity: manualCity,
+                    // Các thuộc tính .length bây giờ hoạt động vì chúng là List
+                    totalItems: allItems.length,
+                    totalClosets: allClosets.length,
+                    totalOutfits: allOutfits.length,
+                    colorDistribution: colorDist,
+                    categoryDistribution: categoryDist,
+                    seasonDistribution: seasonDist,
+                    occasionDistribution: occasionDist,
+                  );
+                  logger.i('8. State updated successfully! Profile page loading complete.');
+                },
+              );
+            },
+          );
+        },
       );
-      logger.i('8. State updated successfully! Profile page loading complete.');
-
     } catch (e, s) {
-      logger.e("Failed to load profile data.", error: e, stackTrace: s);
+      // Catch này vẫn cần thiết để xử lý lỗi từ SharedPreferences hoặc các lỗi không mong muốn khác
+      logger.e("An unexpected error occurred in loadInitialData.", error: e, stackTrace: s);
       state = state.copyWith(
         isLoading: false,
-        errorMessage: "Failed to load data. Please try again.",
+        errorMessage: "An unexpected error occurred. Please try again.",
       );
     }
   }

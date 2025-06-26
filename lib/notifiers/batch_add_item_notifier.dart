@@ -19,7 +19,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
   BatchAddItemNotifier(this._clothingItemRepo, this._ref)
       : super(const BatchAddItemState());
 
-  // <<< THÊM HÀM MỚI Ở ĐÂY >>>
+  // Các hàm helper và analyzeAllImages không thay đổi
   Set<String> _normalizeColors(List<dynamic>? rawColors) {
     if (rawColors == null) return {};
     final validColorNames = AppOptions.colors.keys.toSet();
@@ -66,7 +66,6 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
         final imageFile = images[i];
         final tempId = const Uuid().v4();
         
-        // <<< SỬA LOGIC Ở ĐÂY >>>
         final preAnalyzedState = AddItemState(
           id: tempId, name: result['name'] as String? ?? '', image: File(imageFile.path),
           selectedCategoryValue: _normalizeCategory(result['category'] as String?),
@@ -115,22 +114,43 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
     }
   }
 
+  // <<< THAY ĐỔI CỐT LÕI NẰM Ở ĐÂY >>>
   Future<void> saveAll() async {
     state = state.copyWith(isSaving: true, clearSaveError: true);
-    final List<AddItemState> itemStates = state.itemArgsList.map((args) => _ref.read(addItemProvider(args))).toList();
+    final itemStates = state.itemArgsList.map((args) => _ref.read(addItemProvider(args))).toList();
+    
     final validateRequiredUseCase = _ref.read(validateRequiredFieldsUseCaseProvider);
     final requiredResult = validateRequiredUseCase.executeForBatch(itemStates);
     if (!requiredResult.success) {
       state = state.copyWith(isSaving: false, saveErrorMessage: requiredResult.errorMessage, currentIndex: requiredResult.errorIndex);
       return;
     }
+
     final validateNameUseCase = _ref.read(validateItemNameUseCaseProvider);
-    final nameValidationResult = await validateNameUseCase.forBatch(itemStates);
-    if (!nameValidationResult.success) {
-      state = state.copyWith(isSaving: false, saveErrorMessage: nameValidationResult.errorMessage, currentIndex: nameValidationResult.errorIndex);
-      return;
-    }
-    final List<ClothingItem> itemsToSave = itemStates.map((itemState) {
+    final nameValidationEither = await validateNameUseCase.forBatch(itemStates);
+
+    if (!mounted) return;
+
+    nameValidationEither.fold(
+      (failure) {
+        // Lỗi hệ thống khi kiểm tra tên
+        state = state.copyWith(isSaving: false, saveErrorMessage: failure.message);
+      },
+      (nameValidationResult) {
+        // Kiểm tra kết quả logic
+        if (!nameValidationResult.success) {
+          state = state.copyWith(isSaving: false, saveErrorMessage: nameValidationResult.errorMessage, currentIndex: nameValidationResult.errorIndex);
+          return;
+        }
+
+        // Nếu tất cả validation thành công, tiến hành lưu
+        _performSave(itemStates);
+      },
+    );
+  }
+
+  Future<void> _performSave(List<AddItemState> itemStates) async {
+    final itemsToSave = itemStates.map((itemState) {
       return ClothingItem(
         id: const Uuid().v4(), name: itemState.name.trim(), category: itemState.selectedCategoryValue,
         closetId: itemState.selectedClosetId!, imagePath: itemState.image!.path, color: itemState.selectedColors.join(', '),
@@ -138,12 +158,19 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
         material: itemState.selectedMaterials.join(', '), pattern: itemState.selectedPatterns.join(', '),
       );
     }).toList();
-    try {
-      await _clothingItemRepo.insertBatchItems(itemsToSave);
-      state = state.copyWith(isSaving: false, saveSuccess: true);
-    } catch (e) {
-      state = state.copyWith(isSaving: false, saveErrorMessage: "Save error: $e");
-    }
+    
+    final result = await _clothingItemRepo.insertBatchItems(itemsToSave);
+    
+    if (!mounted) return;
+
+    result.fold(
+      (failure) {
+        state = state.copyWith(isSaving: false, saveErrorMessage: failure.message);
+      },
+      (_) {
+        state = state.copyWith(isSaving: false, saveSuccess: true);
+      },
+    );
   }
 }
 

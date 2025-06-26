@@ -9,18 +9,19 @@ import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
 import 'package:mincloset/states/outfit_builder_state.dart';
 import 'package:mincloset/domain/use_cases/save_outfit_use_case.dart';
+import 'package:mincloset/notifiers/outfits_hub_notifier.dart';
 
 class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
   final ClothingItemRepository _clothingItemRepo;
   final SaveOutfitUseCase _saveOutfitUseCase;
   final OutfitRepository _outfitRepo;
-  // <<< XÓA BỎ: không cần dùng đến _ref >>>
+  final Ref _ref;
 
   OutfitBuilderNotifier(
     this._clothingItemRepo,
     this._saveOutfitUseCase,
     this._outfitRepo,
-    // <<< XÓA BỎ: tham số _ref >>>
+    this._ref,
   ) : super(const OutfitBuilderState()) {
     loadAvailableItems();
   }
@@ -79,6 +80,7 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
         itemsOnCanvas: itemsOnCanvas,
         capturedImage: capturedImage,
       );
+      _ref.invalidate(outfitsHubProvider);
       state = state.copyWith(saveSuccess: true, isSaving: false);
     } catch (e) {
       state = state.copyWith(errorMessage: "Failed to save outfit: $e", isSaving: false);
@@ -91,5 +93,5 @@ final outfitBuilderProvider =
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
   final saveOutfitUseCase = ref.watch(saveOutfitUseCaseProvider);
   final outfitRepo = ref.watch(outfitRepositoryProvider);
-  return OutfitBuilderNotifier(clothingItemRepo, saveOutfitUseCase, outfitRepo); // <<< XÓA BỎ: đối số ref >>>
+  return OutfitBuilderNotifier(clothingItemRepo, saveOutfitUseCase, outfitRepo, ref); 
 });

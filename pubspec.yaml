@@ -58,6 +58,20 @@ flutter:
     - .env
     - assets/images/materials/
     - assets/images/patterns/ 
+
+fonts:
+    - family: BeVietnamPro
+      fonts:
+        - asset: fonts/BeVietnamPro-Regular.ttf
+        - asset: fonts/BeVietnamPro-Italic.ttf
+          style: italic
+        - asset: fonts/BeVietnamPro-Medium.ttf
+          weight: 500
+        - asset: fonts/BeVietnamPro-SemiBold.ttf
+          weight: 600
+        - asset: fonts/BeVietnamPro-Bold.ttf
+          weight: 700
+
 sentry:
   upload_debug_symbols: true
   upload_source_maps: true

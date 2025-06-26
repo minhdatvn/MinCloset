@@ -107,7 +107,7 @@ class GetOutfitSuggestionUseCase {
 
     // 5. Lấy thông tin người dùng từ SharedPreferences
     final gender = prefs.getString('user_gender') ?? 'Not specified';
-    final userStyle = prefs.getString('user_styles') ?? 'Any style';
+    final userStyle = prefs.getStringList('user_styles')?.join(', ') ?? 'Any style';
     final favoriteColors = prefs.getStringList('user_favorite_colors')?.join(', ') ?? 'Any color';
 
     // 6. Phân loại "Set Outfits" và "Vật phẩm lẻ"

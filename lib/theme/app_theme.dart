@@ -10,7 +10,7 @@ const Color midGray = Color(0xFFE5E5EA);     // Màu xám cho đường viền
 // 2. Tạo đối tượng ThemeData để Flutter sử dụng
 final ThemeData appTheme = ThemeData(
   useMaterial3: true,
-  fontFamily: 'Helvetica', 
+  fontFamily: 'BeVietnamPro', 
 
   // Thiết lập bảng màu chính
   colorScheme: ColorScheme.fromSeed(

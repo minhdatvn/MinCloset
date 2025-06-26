@@ -2,6 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/domain/providers.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/states/home_page_state.dart';
 import 'package:mincloset/utils/logger.dart';
 
@@ -54,11 +55,15 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
       }
     } catch (e, s) {
       logger.e('Failed to get new suggestions', error: e, stackTrace: s);
+  
+      // Gọi service để hiển thị banner lỗi
+      _ref.read(notificationServiceProvider).showBanner(
+        message: e.toString().replaceAll("Exception: ", "")
+      );
+
       if (mounted) {
-        state = state.copyWith(
-          isLoading: false,
-          errorMessage: e.toString().replaceAll("Exception: ", ""),
-        );
+        // Chỉ cần tắt trạng thái loading, không cần set errorMessage nữa
+        state = state.copyWith(isLoading: false);
       }
     }
   }

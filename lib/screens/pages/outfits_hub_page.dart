@@ -303,7 +303,14 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
 
                 return Card(
                   clipBehavior: Clip.antiAlias,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    // >>> THÊM THUỘC TÍNH `side` VÀO ĐÂY <<<
+                    side: BorderSide(
+                      color: Colors.grey.shade300, // Màu của đường viền
+                      width: 1.0,                   // Độ dày của đường viền
+                    ),
+                  ),
                   child: Stack(
                     fit: StackFit.expand,
                     children: [

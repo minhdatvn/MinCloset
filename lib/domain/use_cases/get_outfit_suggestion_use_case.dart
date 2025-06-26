@@ -1,7 +1,12 @@
+// lib/domain/use_cases/get_outfit_suggestion_use_case.dart
+
+import 'package:fpdart/fpdart.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:mincloset/domain/failures/failures.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/suggestion_repository.dart';
 import 'package:mincloset/repositories/weather_repository.dart';
@@ -21,149 +26,147 @@ class GetOutfitSuggestionUseCase {
     this._clothingItemRepo,
     this._weatherRepo,
     this._suggestionRepo,
-    this._outfitRepo, 
+    this._outfitRepo,
   );
 
-  Future<Map<String, dynamic>> getWeatherForSuggestion() async {
+  // Sửa lỗi `asyncMap` bằng cách await và fold một cách thủ công.
+  // Đây là cách tiếp cận đơn giản và rõ ràng nhất.
+  Future<Either<Failure, Map<String, dynamic>>> getWeatherForSuggestion() async {
     final prefs = await SharedPreferences.getInstance();
     final cityModeString = prefs.getString('city_mode') ?? 'auto';
     final cityMode = CityMode.values.byName(cityModeString);
+    const defaultCity = 'Da Nang';
 
-    Map<String, dynamic> weatherData;
-    String displayName = 'Da Nang'; // Tên hiển thị mặc định
-
-    try {
-      if (cityMode == CityMode.manual) {
-        final lat = prefs.getDouble('manual_city_lat');
-        final lon = prefs.getDouble('manual_city_lon');
-        final manualCityName = prefs.getString('manual_city_name');
-
-        if (lat != null && lon != null && manualCityName != null) {
-          logger.i('Get weather by saved coordinates: ($lat, $lon)');
-          weatherData = await _weatherRepo.getWeatherByCoords(lat, lon);
-          displayName = manualCityName;
-        } else {
-          logger.w('Manual location data missing, reverting to default.');
-          weatherData = await _weatherRepo.getWeather(displayName);
-        }
-      } else { // Chế độ tự động
+    if (cityMode == CityMode.manual) {
+      final lat = prefs.getDouble('manual_city_lat');
+      final lon = prefs.getDouble('manual_city_lon');
+      if (lat != null && lon != null) {
+        logger.i('Get weather by saved coordinates: ($lat, $lon)');
+        return _weatherRepo.getWeatherByCoords(lat, lon);
+      } else {
+        logger.w('Manual location data missing, reverting to default.');
+        return _weatherRepo.getWeather(defaultCity);
+      }
+    } else {
+      try {
         logger.i('Getting weather by auto-detecting location…');
         final serviceEnabled = await Geolocator.isLocationServiceEnabled();
         if (!serviceEnabled) {
-          throw Exception('Location services are disabled.');
+          return const Left(GenericFailure('Location services are disabled. Please enable it in your device settings.'));
         }
 
         LocationPermission permission = await Geolocator.checkPermission();
         if (permission == LocationPermission.denied) {
           permission = await Geolocator.requestPermission();
         }
-        if (permission == LocationPermission.denied ||
-            permission == LocationPermission.deniedForever) {
-          throw Exception('Location permissions are denied.');
+        if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+          return const Left(GenericFailure('Location permissions are denied. Please enable it for MinCloset in your device settings.'));
         }
-        
-        Position position = await Geolocator.getCurrentPosition(
-            desiredAccuracy: LocationAccuracy.high);
-        weatherData = await _weatherRepo.getWeatherByCoords(
-            position.latitude, position.longitude);
-            
-        List<Placemark> placemarks = await placemarkFromCoordinates(
-            position.latitude, position.longitude);
-        
-        // Ưu tiên lấy administrativeArea (tên tỉnh/thành phố), nếu không có mới lấy locality (quận/huyện)
-        displayName = placemarks.first.administrativeArea ?? placemarks.first.locality ?? displayName;
+
+        final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        final weatherEither = await _weatherRepo.getWeatherByCoords(position.latitude, position.longitude);
+
+        return weatherEither.fold(
+          (failure) => Left(failure),
+          (weatherData) async {
+            final placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+            weatherData['name'] = placemarks.first.administrativeArea ?? placemarks.first.locality ?? defaultCity;
+            return Right(weatherData);
+          },
+        );
+      } catch (e, s) {
+        logger.e("Failed to get auto location, using default.", error: e, stackTrace: s);
+        Sentry.captureException(e, stackTrace: s);
+        return _weatherRepo.getWeather(defaultCity);
       }
-    } catch (e, s) {
-      logger.e("Failed to load weather for suggestions, using default.", error: e, stackTrace: s);
-      // Báo cáo lỗi không lấy được thời tiết lên Sentry
-      await Sentry.captureException(e, stackTrace: s);
-      // Nếu có bất kỳ lỗi nào ở trên, chuyển sang dùng thành phố mặc định
-      weatherData = await _weatherRepo.getWeather(displayName);
     }
-    
-    // Đảm bảo gán tên hiển thị trước khi trả về
-    weatherData['name'] = displayName;
-    return weatherData;
+  }
+  
+  // Sửa lỗi `tryCatch` và kiểu trả về bằng cách dùng TaskEither đúng cách
+  Future<Either<Failure, Map<String, dynamic>>> execute() {
+    // Bọc hàm bất đồng bộ trả về Either vào trong TaskEither
+    final task = TaskEither(getWeatherForSuggestion)
+        .flatMap(_getItemsAndOutfits)      
+        .flatMap(_getSuggestionFromAI);    
+
+    return task.run(); 
   }
 
-  Future<Map<String, dynamic>> execute() async {
-    // 1. Lấy SharedPreferences instance
-    final prefs = await SharedPreferences.getInstance();
+  // Helper function cho Bước 2, giờ nhận và trả về đúng kiểu
+  TaskEither<Failure, (Map<String, dynamic>, List<ClothingItem>, List<Outfit>)>
+      _getItemsAndOutfits(Map<String, dynamic> weatherData) {
+    return TaskEither.tryCatch(
+      () async {
+        final itemsEither = await _clothingItemRepo.getAllItems();
+        final outfitsEither = await _outfitRepo.getOutfits();
+        
+        // Sử dụng getOrElse để ném lỗi nếu có Left, giúp code gọn hơn
+        final allItems = itemsEither.getOrElse((l) => throw Exception(l.message));
+        final allOutfits = outfitsEither.getOrElse((l) => throw Exception(l.message));
 
-    // 2. Lấy toàn bộ vật phẩm và các bộ đồ
-    final allItems = await _clothingItemRepo.getAllItems();
-    final allOutfits = await _outfitRepo.getOutfits();
-
-    // 3. KIỂM TRA ĐIỀU KIỆN TỐI THIỂU
-    final topwearCount = allItems.where((item) => item.category.startsWith('Áo')).length;
-    final bottomwearCount = allItems.where((item) => item.category.startsWith('Quần') || item.category.startsWith('Váy')).length;
-
-    if (topwearCount < 3 || bottomwearCount < 3) {
-      throw Exception('Please add at least 3 tops and 3 bottoms/skirts to your wardrobe to receive suggestions.');
-    }
-
-    // 4. Lấy dữ liệu thời tiết (tái sử dụng hàm cũ)
-    final weatherData = await getWeatherForSuggestion();
-
-    // 5. Lấy thông tin người dùng từ SharedPreferences
-    final gender = prefs.getString('user_gender') ?? 'Not specified';
-    final userStyle = prefs.getStringList('user_styles')?.join(', ') ?? 'Any style';
-    final favoriteColors = prefs.getStringList('user_favorite_colors')?.join(', ') ?? 'Any color';
-
-    // 6. Phân loại "Set Outfits" và "Vật phẩm lẻ"
-    final setOutfits = allOutfits.where((o) => o.isFixed).toList();
-    final fixedItemIds = setOutfits.expand((o) => o.itemIds.split(',')).toSet();
-    final individualItems = allItems.where((item) => !fixedItemIds.contains(item.id)).toList();
-
-    // 7. Định dạng chuỗi để gửi cho AI
-    final setOutfitsString = setOutfits.map((outfit) {
-      final itemNames = outfit.itemIds.split(',').map((id) {
-        return allItems.firstWhere((item) => item.id == id, orElse: () => ClothingItem(id: '', name: 'Unknown Item', category: '', color: '', imagePath: '', closetId: '')).name;
-      }).toList();
-      return '- Set "${outfit.name}": Gồm [${itemNames.join(', ')}]';
-    }).join('\n');
-
-    final wardrobeString = individualItems.map((item) => '- ${item.name} (${item.category}, màu ${item.color})').join('\n');
-
-    // Gọi service để lấy JSON thô từ AI
-    final suggestionJson = await _suggestionRepo.getOutfitSuggestion(
-      weather: weatherData,
-      cityName: weatherData['name'] as String,
-      gender: gender,
-      userStyle: userStyle,
-      favoriteColors: favoriteColors,
-      setOutfitsString: setOutfitsString.isNotEmpty ? setOutfitsString : "Không có",
-      wardrobeString: wardrobeString.isNotEmpty ? wardrobeString : "Không có",
+        return (weatherData, allItems, allOutfits);
+      },
+      // Bắt lỗi được ném ra và chuyển thành Failure
+      (error, stackTrace) => GenericFailure(error.toString()),
     );
+  }
 
-    // <<< LOGIC MỚI: XỬ LÝ JSON VÀ TẠO SUGGESTIONRESULT >>>
-    final compositionMap = suggestionJson['outfit_composition'] as Map<String, dynamic>? ?? {};
-    final Map<String, ClothingItem?> structuredComposition = {};
+  // Helper function cho Bước 3
+  TaskEither<Failure, Map<String, dynamic>> _getSuggestionFromAI(
+      (Map<String, dynamic>, List<ClothingItem>, List<Outfit>) data) {
+    return TaskEither.tryCatch(
+      () async {
+        final (weatherData, allItems, allOutfits) = data;
 
-    // Duyệt qua từng slot (topwear, bottomwear,...) mà AI trả về
-    compositionMap.forEach((slot, itemName) {
-      if (itemName != null) {
-        // Tìm vật phẩm trong `allItems` có tên tương ứng
-        final foundItem = allItems.cast<ClothingItem?>().firstWhere(
-          (item) => item?.name == itemName,
-          orElse: () => null,
+        final topwearCount = allItems.where((item) => item.category.startsWith('Áo')).length;
+        final bottomwearCount = allItems.where((item) => item.category.startsWith('Quần') || item.category.startsWith('Váy')).length;
+        if (topwearCount < 3 || bottomwearCount < 3) {
+          throw Exception('Please add at least 3 tops and 3 bottoms/skirts to your wardrobe to receive suggestions.');
+        }
+
+        final prefs = await SharedPreferences.getInstance();
+        final gender = prefs.getString('user_gender') ?? 'Not specified';
+        final userStyle = prefs.getStringList('user_styles')?.join(', ') ?? 'Any style';
+        final favoriteColors = prefs.getStringList('user_favorite_colors')?.join(', ') ?? 'Any color';
+        final setOutfits = allOutfits.where((o) => o.isFixed).toList();
+        final fixedItemIds = setOutfits.expand((o) => o.itemIds.split(',')).toSet();
+        final individualItems = allItems.where((item) => !fixedItemIds.contains(item.id)).toList();
+        final setOutfitsString = setOutfits.map((outfit) => '- Set "${outfit.name}": Gồm [${outfit.itemIds.split(',').map((id) => allItems.firstWhere((item) => item.id == id, orElse: () => ClothingItem(id: '', name: 'Unknown Item', category: '', color: '', imagePath: '', closetId: '')).name).join(', ')}]').join('\n');
+        final wardrobeString = individualItems.map((item) => '- ${item.name} (${item.category}, màu ${item.color})').join('\n');
+
+        final suggestionJsonEither = await _suggestionRepo.getOutfitSuggestion(
+          weather: weatherData,
+          cityName: weatherData['name'] as String,
+          gender: gender,
+          userStyle: userStyle,
+          favoriteColors: favoriteColors,
+          setOutfitsString: setOutfitsString.isNotEmpty ? setOutfitsString : "Không có",
+          wardrobeString: wardrobeString.isNotEmpty ? wardrobeString : "Không có",
         );
-        structuredComposition[slot] = foundItem;
-      } else {
-        structuredComposition[slot] = null;
-      }
-    });
 
-    final result = SuggestionResult(
-      outfitName: suggestionJson['outfit_name'] as String? ?? 'Stylish Outfit',
-      reason: suggestionJson['reason'] as String? ?? 'A great choice for today!',
-      composition: structuredComposition,
+        final suggestionJson = suggestionJsonEither.getOrElse((l) => throw Exception(l.message));
+        final compositionMap = suggestionJson['outfit_composition'] as Map<String, dynamic>? ?? {};
+        final Map<String, ClothingItem?> structuredComposition = {};
+        compositionMap.forEach((slot, itemName) {
+            if (itemName != null) {
+            final foundItem = allItems.cast<ClothingItem?>().firstWhere((item) => item?.name == itemName, orElse: () => null);
+            structuredComposition[slot] = foundItem;
+            } else {
+            structuredComposition[slot] = null;
+            }
+        });
+        final suggestionResult = SuggestionResult(
+            outfitName: suggestionJson['outfit_name'] as String? ?? 'Stylish Outfit',
+            reason: suggestionJson['reason'] as String? ?? 'A great choice for today!',
+            composition: structuredComposition,
+        );
+
+        return {
+          'weather': weatherData,
+          'suggestionResult': suggestionResult,
+        };
+      },
+      (error, stackTrace) => GenericFailure(error.toString()),
     );
-
-    // Giờ đây hàm execute trả về một đối tượng có cấu trúc rõ ràng
-    return {
-      'weather': weatherData,
-      'suggestionResult': result,
-    };
   }
 }

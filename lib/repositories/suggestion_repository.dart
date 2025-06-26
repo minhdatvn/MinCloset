@@ -1,4 +1,7 @@
 // lib/repositories/suggestion_repository.dart
+import 'package:fpdart/fpdart.dart';
+import 'package:mincloset/domain/failures/failures.dart';
+import 'package:mincloset/domain/core/type_defs.dart';
 import 'package:mincloset/services/suggestion_service.dart';
 
 class SuggestionRepository {
@@ -6,8 +9,7 @@ class SuggestionRepository {
 
   SuggestionRepository(this._suggestionService);
 
-  // <<< THAY ĐỔI CHỮ KÝ HÀM VÀ THÊM CÁC THAM SỐ MỚI >>>
-  Future<Map<String, dynamic>> getOutfitSuggestion({
+  FutureEither<Map<String, dynamic>> getOutfitSuggestion({
     required Map<String, dynamic> weather,
     required String cityName,
     required String gender,

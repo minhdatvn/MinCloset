@@ -29,6 +29,7 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
 
   ClosetsPageNotifier(this._closetRepo, this._ref) : super(const ClosetsPageState());
 
+  // <<< THAY ĐỔI 1: Cập nhật hàm addCloset >>>
   Future<String?> addCloset(String name) async {
     final trimmedName = name.trim();
     if (trimmedName.isEmpty) {
@@ -39,41 +40,41 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
     }
 
     state = state.copyWith(isLoading: true);
-    try {
-      final closets = await _ref.read(closetsProvider.future);
-      // Kiểm tra mounted sau await
-      if (!mounted) return null;
 
-      if (closets.length >= 10) {
-        state = state.copyWith(isLoading: false);
-        return 'Maximum number of closets (10) reached.';
-      }
+    // Dùng .future sẽ tự động xử lý lỗi của FutureProvider
+    final closets = await _ref.read(closetsProvider.future);
+    if (!mounted) return null;
 
-      final isDuplicate = closets.any((closet) =>
-          closet.name.trim().toLowerCase() == trimmedName.toLowerCase());
-
-      if (isDuplicate) {
-        state = state.copyWith(isLoading: false);
-        return 'A closet with this name already exists.';
-      }
-
-      final newCloset = Closet(id: const Uuid().v4(), name: trimmedName);
-      await _closetRepo.insertCloset(newCloset);
-      // Kiểm tra mounted sau await
-      if (!mounted) return null;
-
-      _ref.invalidate(closetsProvider);
+    if (closets.length >= 10) {
       state = state.copyWith(isLoading: false);
-      return null;
-    } catch (e) {
-      // Kiểm tra mounted trong khối catch
-      if (!mounted) return null;
-      state = state.copyWith(isLoading: false, error: e.toString());
-      return 'An unexpected error occurred.';
+      return 'Maximum number of closets (10) reached.';
     }
+
+    final isDuplicate = closets.any((closet) =>
+        closet.name.trim().toLowerCase() == trimmedName.toLowerCase());
+
+    if (isDuplicate) {
+      state = state.copyWith(isLoading: false);
+      return 'A closet with this name already exists.';
+    }
+
+    final newCloset = Closet(id: const Uuid().v4(), name: trimmedName);
+    final result = await _closetRepo.insertCloset(newCloset);
+
+    if (!mounted) return null;
+    
+    state = state.copyWith(isLoading: false);
+    
+    return result.fold(
+      (failure) => failure.message, // Trả về thông báo lỗi nếu thất bại
+      (_) {
+        _ref.invalidate(closetsProvider); // Làm mới danh sách
+        return null; // Trả về null nếu thành công
+      },
+    );
   }
 
-  // Thay thế hàm updateCloset
+  // <<< THAY ĐỔI 2: Cập nhật hàm updateCloset >>>
   Future<String?> updateCloset(Closet closetToUpdate, String newName) async {
     final trimmedName = newName.trim();
     if (trimmedName.isEmpty) {
@@ -83,54 +84,58 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
       return 'Closet name cannot exceed 30 characters.';
     }
 
-    try {
-      final closets = await _ref.read(closetsProvider.future);
-      // Kiểm tra mounted sau await
-      if (!mounted) return null;
+    final closets = await _ref.read(closetsProvider.future);
+    if (!mounted) return null;
 
-      final isDuplicate = closets.any((closet) =>
-          closet.id != closetToUpdate.id &&
-          closet.name.trim().toLowerCase() == trimmedName.toLowerCase());
+    final isDuplicate = closets.any((closet) =>
+        closet.id != closetToUpdate.id &&
+        closet.name.trim().toLowerCase() == trimmedName.toLowerCase());
 
-      if (isDuplicate) {
-        return 'A closet with this name already exists.';
-      }
-
-      await _closetRepo
-          .updateCloset(closetToUpdate.copyWith(name: trimmedName));
-      // Kiểm tra mounted sau await
-      if (!mounted) return null;
-      
-      _ref.invalidate(closetsProvider);
-      return null;
-    } catch (e) {
-      return 'An unexpected error occurred.';
+    if (isDuplicate) {
+      return 'A closet with this name already exists.';
     }
+    
+    final result = await _closetRepo.updateCloset(closetToUpdate.copyWith(name: trimmedName));
+    
+    if (!mounted) return null;
+
+    return result.fold(
+      (failure) => failure.message,
+      (_) {
+        _ref.invalidate(closetsProvider);
+        return null;
+      },
+    );
   }
 
+  // <<< THAY ĐỔI 3: Cập nhật hàm deleteCloset >>>
   Future<String?> deleteCloset(String closetId) async {
-    try {
-      // Lấy danh sách các repo từ ref
-      final closetRepo = _ref.read(closetRepositoryProvider);
-      final clothingItemRepo = _ref.read(clothingItemRepositoryProvider);
+    final clothingItemRepo = _ref.read(clothingItemRepositoryProvider);
+    final itemsResult = await clothingItemRepo.getItemsInCloset(closetId);
 
-      // Kiểm tra xem closet có trống không
-      final itemsInCloset = await clothingItemRepo.getItemsInCloset(closetId);
-      if (itemsInCloset.isNotEmpty) {
-        return 'Closet is not empty. Move or delete items first.';
-      }
+    if (!mounted) return null;
 
-      // Nếu closet trống, tiến hành xóa
-      await closetRepo.deleteCloset(closetId);
-      _ref.invalidate(closetsProvider); // Cập nhật lại danh sách closets
-      return null; // Xóa thành công
-    } catch (e) {
-      return 'An unexpected error occurred during deletion.';
+    // Xử lý kết quả Either từ getItemsInCloset
+    final itemsInCloset = itemsResult.getOrElse((_) => []);
+    if (itemsInCloset.isNotEmpty) {
+      return 'Closet is not empty. Move or delete items first.';
     }
+
+    // Nếu closet trống, tiến hành xóa
+    final deleteResult = await _closetRepo.deleteCloset(closetId);
+    
+    if (!mounted) return null;
+    
+    return deleteResult.fold(
+      (failure) => failure.message,
+      (_) {
+        _ref.invalidate(closetsProvider);
+        return null;
+      },
+    );
   }
 }
 
-// Tạo provider cho notifier mới
 final closetsPageProvider = StateNotifierProvider.autoDispose<ClosetsPageNotifier, ClosetsPageState>((ref) {
   final repo = ref.watch(closetRepositoryProvider);
   return ClosetsPageNotifier(repo, ref);

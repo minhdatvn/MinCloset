@@ -10,7 +10,6 @@ import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/states/item_filter_state.dart';
-import 'package:mincloset/utils/logger.dart';
 
 const _pageSize = 15;
 
@@ -31,38 +30,32 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
   }
 
   Future<void> _fetchPage(int page) async {
-    try {
-      // <<< SỬA ĐỔI QUAN TRỌNG: Gọi hàm lọc mới >>>
-      final newItems = await _repo.getFilteredItems(
-        query: state.searchQuery,
-        filters: state.activeFilters, // Truyền cả bộ lọc vào
-        limit: _pageSize,
-        offset: page * _pageSize,
-      );
+    final result = await _repo.getFilteredItems(
+      query: state.searchQuery,
+      filters: state.activeFilters,
+      limit: _pageSize,
+      offset: page * _pageSize,
+    );
 
-      if (_isDisposed) return;
+    if (_isDisposed) return;
 
-      final currentItems = (page == 0) ? <ClothingItem>[] : state.items;
-      
-      state = state.copyWith(
-        isLoading: false,
-        isLoadingMore: false,
-        items: [...currentItems, ...newItems],
-        hasMore: newItems.length == _pageSize,
-      );
-    } catch (e, s) {
-      if (_isDisposed) return;
-      logger.e("Failed to load items", error: e, stackTrace: s);
-      state = state.copyWith(
-        isLoading: false,
-        isLoadingMore: false,
-        errorMessage: "Failed to load items.",
-      );
-    }
+    result.fold(
+      (failure) => state = state.copyWith(isLoading: false, isLoadingMore: false, errorMessage: failure.message),
+      (newItems) {
+        final currentItems = (page == 0) ? <ClothingItem>[] : state.items;
+        state = state.copyWith(
+          isLoading: false,
+          isLoadingMore: false,
+          items: [...currentItems, ...newItems],
+          hasMore: newItems.length == _pageSize,
+          page: page + 1,
+        );
+      },
+    );
   }
 
   Future<void> fetchInitialItems() async {
-    state = state.copyWith(isLoading: true, items: [], hasMore: true, clearError: true);
+    state = state.copyWith(isLoading: true, items: [], hasMore: true, page: 0, clearError: true);
     await _fetchPage(0);
   }
 
@@ -70,21 +63,19 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
     if (state.isLoadingMore || !state.hasMore || state.isLoading) return;
 
     state = state.copyWith(isLoadingMore: true);
-    final nextPage = (state.items.length / _pageSize).floor();
-    await _fetchPage(nextPage);
+    await _fetchPage(state.page);
   }
 
   void setSearchQuery(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () {
-      // Chỉ cập nhật state và tải lại, không cần so sánh query cũ
-      state = state.copyWith(searchQuery: query);
+      state = state.copyWith(searchQuery: query, page: 0, items: [], hasMore: true);
       fetchInitialItems();
     });
   }
 
   void applyFilters(OutfitFilter filters) {
-    state = state.copyWith(activeFilters: filters);
+    state = state.copyWith(activeFilters: filters, page: 0, items: [], hasMore: true);
     fetchInitialItems();
   }
 
@@ -96,10 +87,7 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
   }
 
   void enableMultiSelectMode(String initialItemId) {
-    state = state.copyWith(
-      isMultiSelectMode: true,
-      selectedItemIds: {initialItemId},
-    );
+    state = state.copyWith(isMultiSelectMode: true, selectedItemIds: {initialItemId});
   }
 
   void toggleItemSelection(String itemId) {
@@ -112,7 +100,6 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
       newSet.add(itemId);
     }
     
-    // Nếu không còn item nào được chọn, thoát khỏi chế độ multi-select
     if (newSet.isEmpty) {
       clearSelectionAndExitMode();
     } else {
@@ -121,22 +108,23 @@ class ItemFilterNotifier extends StateNotifier<ItemFilterState> {
   }
 
   void clearSelectionAndExitMode() {
-    state = state.copyWith(
-      isMultiSelectMode: false,
-      selectedItemIds: {},
-    );
+    state = state.copyWith(isMultiSelectMode: false, selectedItemIds: {});
   }
 
   Future<void> deleteSelectedItems() async {
     if (state.selectedItemIds.isEmpty) return;
 
     final useCase = _ref.read(deleteMultipleItemsUseCaseProvider);
-    await useCase.execute(state.selectedItemIds);
+    final result = await useCase.execute(state.selectedItemIds);
     
-    _ref.read(itemChangedTriggerProvider.notifier).state++;
-    // Sau khi xóa, thoát chế độ và tải lại dữ liệu
-    clearSelectionAndExitMode();
-    await fetchInitialItems();
+    result.fold(
+      (failure) => state = state.copyWith(errorMessage: failure.message),
+      (_) {
+        _ref.read(itemChangedTriggerProvider.notifier).state++;
+        clearSelectionAndExitMode();
+        fetchInitialItems();
+      }
+    );
   }
 }
 

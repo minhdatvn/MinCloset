@@ -22,7 +22,7 @@ class WeatherService {
       : _apiKey = apiKey,
         _client = client ?? http.Client();
 
-  Future<Either<Failure, Map<String, dynamic>>> getWeather(String city) async {
+  FutureEither<Map<String, dynamic>> getWeather(String city) async {
     final uri = Uri.https(_weatherApiHost, _weatherApiPath, {
       'q': city,
       'appid': _apiKey,
@@ -47,7 +47,7 @@ class WeatherService {
     }
   }
 
-  Future<Either<Failure, Map<String, dynamic>>> getWeatherByCoords(double lat, double lon) async {
+  FutureEither<Map<String, dynamic>> getWeatherByCoords(double lat, double lon) async {
     final uri = Uri.https( _weatherApiHost, _weatherApiPath, {
       'lat': lat.toString(),
       'lon': lon.toString(),
@@ -73,7 +73,7 @@ class WeatherService {
     }
   }
 
-  Future<Either<Failure, List<CitySuggestion>>> searchCities(String query) async {
+  FutureEither<List<CitySuggestion>> searchCities(String query) async {
     if (query.isEmpty) {
       return const Right([]);
     }

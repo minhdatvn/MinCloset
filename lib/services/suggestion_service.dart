@@ -11,7 +11,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 class SuggestionService {
   final String _apiKey = dotenv.env['GEMINI_API_KEY'] ?? 'API_KEY_NOT_FOUND';
 
-  Future<Either<Failure, Map<String, dynamic>>> getOutfitSuggestion({
+  FutureEither<Map<String, dynamic>> getOutfitSuggestion({
     required Map<String, dynamic> weather,
     required String cityName,
     required String gender,

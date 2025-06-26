@@ -20,71 +20,88 @@ class OutfitDetailNotifier extends StateNotifier<Outfit> {
       return;
     }
     final updatedOutfit = state.copyWith(name: newName.trim());
-    try {
-      await _outfitRepo.updateOutfit(updatedOutfit);
-      state = updatedOutfit;
-    } catch (e, s) {
-      logger.e("Lỗi khi cập nhật tên bộ đồ", error: e, stackTrace: s);
-    }
+    final result = await _outfitRepo.updateOutfit(updatedOutfit);
+    
+    result.fold(
+      (failure) => logger.e("Lỗi khi cập nhật tên bộ đồ: ${failure.message}"),
+      (_) => state = updatedOutfit,
+    );
   }
 
-  // <<< THAY ĐỔI LOGIC HÀM NÀY ĐỂ SỬ DỤNG _clothingItemRepo >>>
-  // Hàm giờ sẽ trả về String? (null nếu thành công, chuỗi lỗi nếu thất bại)
+  // <<< VIẾT LẠI HOÀN TOÀN HÀM NÀY ĐỂ SỬA LỖI >>>
   Future<String?> toggleIsFixed(bool isFixed) async {
     if (state.isFixed == isFixed) return null;
 
     if (isFixed == true) {
       final currentItemIds = state.itemIds.split(',').toSet();
-      final existingFixedOutfits = (await _outfitRepo.getFixedOutfits())
-          .where((outfit) => outfit.id != state.id)
-          .toList();
+      final existingFixedOutfitsEither = await _outfitRepo.getFixedOutfits();
 
-      for (final fixedOutfit in existingFixedOutfits) {
-        final existingItemIds = fixedOutfit.itemIds.split(',').toSet();
-        final intersection = currentItemIds.intersection(existingItemIds);
+      // Sử dụng fold để xử lý kết quả
+      return await existingFixedOutfitsEither.fold(
+        (failure) => failure.message, // Lỗi hệ thống khi lấy fixed outfits
+        (existingFixedOutfits) async {
+          final outfitsToCheck = existingFixedOutfits.where((outfit) => outfit.id != state.id).toList();
 
-        if (intersection.isNotEmpty) {
-          // <<< SỬ DỤNG REPO ĐỂ LẤY TÊN VẬT PHẨM >>>
-          final conflictingItemId = intersection.first;
-          final conflictingItem = await _clothingItemRepo.getItemById(conflictingItemId);
-          final conflictingItemName = conflictingItem?.name ?? 'An item';
-          
-          final errorMessage = "Error: '$conflictingItemName' already belongs to another fixed outfit.";
-          logger.w(errorMessage);
-          return errorMessage; 
-        }
-      }
+          for (final fixedOutfit in outfitsToCheck) {
+            final existingItemIds = fixedOutfit.itemIds.split(',').toSet();
+            final intersection = currentItemIds.intersection(existingItemIds);
+
+            if (intersection.isNotEmpty) {
+              final conflictingItemId = intersection.first;
+              final conflictingItemEither = await _clothingItemRepo.getItemById(conflictingItemId);
+              
+              return conflictingItemEither.fold(
+                (failure) => failure.message, // Lỗi hệ thống khi lấy item
+                (conflictingItem) => "Error: '${conflictingItem?.name ?? 'An item'}' already belongs to another fixed outfit." // Lỗi validation
+              );
+            }
+          }
+          // Nếu không có xung đột, thực hiện cập nhật
+          return _updateFixedStatus(isFixed);
+        },
+      );
+    } else {
+      // Nếu chỉ là tắt isFixed, không cần kiểm tra, cứ cập nhật
+      return _updateFixedStatus(isFixed);
     }
-
+  }
+  
+  // Hàm helper để cập nhật trạng thái isFixed
+  Future<String?> _updateFixedStatus(bool isFixed) async {
     final updatedOutfit = state.copyWith(isFixed: isFixed);
-    try {
-      await _outfitRepo.updateOutfit(updatedOutfit);
-      state = updatedOutfit;
-      return null; // Trả về null báo hiệu thành công
-    } catch (e, s) {
-      logger.e("Failed to update fixed outfit", error: e, stackTrace: s);
-      return "Something went wrong."; // Trả về chuỗi lỗi chung
-    }
+    final result = await _outfitRepo.updateOutfit(updatedOutfit);
+    
+    return result.fold(
+      (failure) {
+        logger.e("Failed to update fixed outfit", error: failure.message);
+        return "Something went wrong.";
+      },
+      (_) {
+        state = updatedOutfit;
+        return null; // Thành công
+      },
+    );
   }
 
   Future<bool> deleteOutfit() async {
-    // Đọc tất cả các giá trị cần thiết từ state ra biến cục bộ NGAY LẬP TỨC.
     final outfitId = state.id;
     final imagePath = state.imagePath;
     final thumbnailPath = state.thumbnailPath;
 
-    try {
-      // Từ đây trở đi, chỉ sử dụng các biến cục bộ, không truy cập 'state' nữa.
-      await _imageHelper.deleteImageAndThumbnail(
-        imagePath: imagePath,
-        thumbnailPath: thumbnailPath,
-      );
-      await _outfitRepo.deleteOutfit(outfitId);
-      return true; // Trả về true khi tất cả các bước thành công
-    } catch (e, s) {
-      logger.e("Failed to delete outfit", error: e, stackTrace: s);
-      return false; // Trả về false nếu có bất kỳ lỗi nào xảy ra
-    }
+    await _imageHelper.deleteImageAndThumbnail(
+      imagePath: imagePath,
+      thumbnailPath: thumbnailPath,
+    );
+    
+    final result = await _outfitRepo.deleteOutfit(outfitId);
+    
+    return result.fold(
+      (failure) {
+        logger.e("Failed to delete outfit", error: failure.message);
+        return false;
+      },
+      (_) => true,
+    );
   }
 }
 
@@ -92,6 +109,6 @@ final outfitDetailProvider = StateNotifierProvider.autoDispose
     .family<OutfitDetailNotifier, Outfit, Outfit>((ref, initialOutfit) {
   final outfitRepo = ref.watch(outfitRepositoryProvider);
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
-  final imageHelper = ref.watch(imageHelperProvider); // <<< Lấy dependency từ provider
-  return OutfitDetailNotifier(outfitRepo, clothingItemRepo, imageHelper, initialOutfit); // <<< Truyền vào constructor
+  final imageHelper = ref.watch(imageHelperProvider);
+  return OutfitDetailNotifier(outfitRepo, clothingItemRepo, imageHelper, initialOutfit);
 });

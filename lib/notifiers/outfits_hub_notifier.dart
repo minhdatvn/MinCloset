@@ -59,17 +59,26 @@ class OutfitsHubNotifier extends StateNotifier<OutfitsHubState> {
     // Bắt đầu tải trang đầu tiên
     state = state.copyWith(isLoading: true, outfits: [], hasMore: true, clearError: true);
     try {
-      final newOutfits = await _outfitRepository.getOutfits(limit: _pageSize, offset: 0);
-      
-      // Cập nhật state với dữ liệu mới
-      state = state.copyWith(
-        isLoading: false,
-        outfits: newOutfits,
-        // Nếu số lượng trả về ít hơn kích thước trang, nghĩa là đã hết dữ liệu
-        hasMore: newOutfits.length == _pageSize,
+      final result = await _outfitRepository.getOutfits(limit: _pageSize, offset: 0);
+
+      // Sử dụng fold để xử lý kết quả Either
+      result.fold(
+        // Trường hợp thất bại (Left)
+        (failure) {
+          state = state.copyWith(isLoading: false, error: failure.message); // Giả sử Failure có thuộc tính message
+        },
+        // Trường hợp thành công (Right)
+        (newOutfits) {
+          state = state.copyWith(
+            isLoading: false,
+            outfits: newOutfits,
+            // Nếu số lượng trả về ít hơn kích thước trang, nghĩa là đã hết dữ liệu
+            hasMore: newOutfits.length == _pageSize,
+          );
+        },
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: "Failed to load outfits.");
+      state = state.copyWith(isLoading: false, error: "An unexpected error occurred.");
     }
   }
 
@@ -83,18 +92,29 @@ class OutfitsHubNotifier extends StateNotifier<OutfitsHubState> {
     final offset = state.outfits.length;
 
     try {
-      final newOutfits = await _outfitRepository.getOutfits(limit: _pageSize, offset: offset);
+      final result = await _outfitRepository.getOutfits(limit: _pageSize, offset: offset);
 
       if (mounted) {
-        state = state.copyWith(
-          isLoadingMore: false,
-          // Thêm các bộ đồ mới vào danh sách hiện tại
-          outfits: [...state.outfits, ...newOutfits],
-          hasMore: newOutfits.length == _pageSize,
+        result.fold(
+          // Trường hợp thất bại (Left)
+          (failure) {
+            state = state.copyWith(isLoadingMore: false, error: failure.message); // Giả sử Failure có thuộc tính message
+          },
+          // Trường hợp thành công (Right)
+          (newOutfits) {
+            state = state.copyWith(
+              isLoadingMore: false,
+              // Thêm các bộ đồ mới vào danh sách hiện tại
+              outfits: [...state.outfits, ...newOutfits],
+              hasMore: newOutfits.length == _pageSize,
+            );
+          },
         );
       }
     } catch (e) {
-      state = state.copyWith(isLoadingMore: false, error: "Failed to load more outfits.");
+       if (mounted) {
+        state = state.copyWith(isLoadingMore: false, error: "An unexpected error occurred while loading more.");
+      }
     }
   }
 }

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:fpdart/fpdart.dart';
 import 'package:http/http.dart' as http;
+import 'package:mincloset/domain/core/type_defs.dart'; // <<< THÊM DÒNG NÀY
 import 'package:mincloset/domain/failures/failures.dart';
 import 'package:mincloset/models/city_suggestion.dart';
 import 'package:mincloset/utils/logger.dart';
@@ -22,6 +23,7 @@ class WeatherService {
       : _apiKey = apiKey,
         _client = client ?? http.Client();
 
+  // <<< THAY ĐỔI: Sử dụng typedef >>>
   FutureEither<Map<String, dynamic>> getWeather(String city) async {
     final uri = Uri.https(_weatherApiHost, _weatherApiPath, {
       'q': city,
@@ -47,6 +49,7 @@ class WeatherService {
     }
   }
 
+  // <<< THAY ĐỔI: Sử dụng typedef >>>
   FutureEither<Map<String, dynamic>> getWeatherByCoords(double lat, double lon) async {
     final uri = Uri.https( _weatherApiHost, _weatherApiPath, {
       'lat': lat.toString(),
@@ -73,6 +76,7 @@ class WeatherService {
     }
   }
 
+  // <<< THAY ĐỔI: Sử dụng typedef >>>
   FutureEither<List<CitySuggestion>> searchCities(String query) async {
     if (query.isEmpty) {
       return const Right([]);

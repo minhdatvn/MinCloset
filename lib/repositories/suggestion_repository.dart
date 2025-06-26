@@ -1,6 +1,4 @@
 // lib/repositories/suggestion_repository.dart
-import 'package:fpdart/fpdart.dart';
-import 'package:mincloset/domain/failures/failures.dart';
 import 'package:mincloset/domain/core/type_defs.dart';
 import 'package:mincloset/services/suggestion_service.dart';
 

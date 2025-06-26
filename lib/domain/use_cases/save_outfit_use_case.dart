@@ -2,7 +2,9 @@
 
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:mincloset/helpers/image_helper.dart'; // Sửa import
+import 'package:fpdart/fpdart.dart';
+import 'package:mincloset/domain/failures/failures.dart';
+import 'package:mincloset/helpers/image_helper.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
@@ -13,12 +15,12 @@ import 'package:path/path.dart' as p;
 
 class SaveOutfitUseCase {
   final OutfitRepository _outfitRepo;
-  final ImageHelper _imageHelper; // <<< Thêm dependency
+  final ImageHelper _imageHelper;
 
-  // <<< Sửa constructor >>>
   SaveOutfitUseCase(this._outfitRepo, this._imageHelper);
 
-  Future<void> execute({
+  // <<< THAY ĐỔI: Chữ ký hàm giờ trả về Future<Either<Failure, Unit>> >>>
+  Future<Either<Failure, Unit>> execute({
     required String name,
     required bool isFixed,
     required Map<String, ClothingItem> itemsOnCanvas,
@@ -35,24 +37,23 @@ class SaveOutfitUseCase {
 
     } catch (e, s) {
       logger.e('File write error when saving outfit', error: e, stackTrace: s);
-      throw Exception('Could not save outfit photo. Please try again.');
+      return Left(GenericFailure('Could not save outfit photo. Please try again.'));
     }
 
-    // <<< THÊM MỚI: TẠO ẢNH THU NHỎ >>>
     final String? thumbnailPath = await _imageHelper.createThumbnail(imagePath);
 
-    // --- TẠO ĐỐI TƯỢNG OUTFIT VÀ LƯU VÀO CSDL ---
     final itemIds = itemsOnCanvas.values.map((item) => item.id).join(',');
 
     final newOutfit = Outfit(
       id: const Uuid().v4(),
       name: name,
       imagePath: imagePath,
-      thumbnailPath: thumbnailPath, // Gán đường dẫn ảnh thu nhỏ
+      thumbnailPath: thumbnailPath,
       itemIds: itemIds,
       isFixed: isFixed,
     );
     
-    await _outfitRepo.insertOutfit(newOutfit);
+    // <<< THAY ĐỔI: Trả về kết quả Either từ repository >>>
+    return _outfitRepo.insertOutfit(newOutfit);
   }
 }

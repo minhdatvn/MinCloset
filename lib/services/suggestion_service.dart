@@ -1,10 +1,11 @@
 // lib/services/suggestion_service.dart
 
-import 'dart.convert';
+import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:mincloset/domain/failures/failures.dart';
+import 'package:mincloset/domain/core/type_defs.dart'; 
 import 'package:mincloset/utils/logger.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 

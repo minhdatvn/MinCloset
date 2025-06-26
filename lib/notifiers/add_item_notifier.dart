@@ -136,48 +136,60 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
 
     final validateNameUseCase = _ref.read(validateItemNameUseCaseProvider);
-    final nameValidationResult = await validateNameUseCase.forSingleItem(
+    final nameValidationEither = await validateNameUseCase.forSingleItem(
       name: state.name,
       existingId: state.isEditing ? state.id : null,
     );
-    if (!nameValidationResult.success) {
-      state = state.copyWith(isLoading: false, errorMessage: nameValidationResult.errorMessage);
-      return false;
-    }
-    
-    final String? thumbnailPath = state.image != null
-        ? await _imageHelper.createThumbnail(sourceImagePath)
-        : null;
-    
-    final clothingItem = ClothingItem(
-      id: state.isEditing ? state.id : const Uuid().v4(),
-      name: state.name.trim(),
-      category: state.selectedCategoryValue,
-      closetId: state.selectedClosetId!,
-      imagePath: sourceImagePath,
-      thumbnailPath: thumbnailPath ?? state.thumbnailPath,
-      color: state.selectedColors.join(', '),
-      season: state.selectedSeasons.join(', '),
-      occasion: state.selectedOccasions.join(', '),
-      material: state.selectedMaterials.join(', '),
-      pattern: state.selectedPatterns.join(', '),
-    );
 
-    // <<< THAY ĐỔI CỐT LÕI NẰM Ở ĐÂY >>>
-    final result = state.isEditing
-        ? await _clothingItemRepo.updateItem(clothingItem)
-        : await _clothingItemRepo.insertItem(clothingItem);
-
-    if (!mounted) return false;
-
-    return result.fold(
+    // <<< SỬA LỖI CỐT LÕI NẰM Ở ĐÂY >>>
+    return await nameValidationEither.fold(
+      // Trường hợp 1: UseCase trả về Left(Failure) - lỗi hệ thống
       (failure) {
         state = state.copyWith(isLoading: false, errorMessage: failure.message);
         return false;
       },
-      (_) {
-        state = state.copyWith(isLoading: false, isSuccess: true);
-        return true;
+      // Trường hợp 2: UseCase trả về Right(ValidationResult) - kết quả logic
+      (nameValidationResult) async {
+        if (!nameValidationResult.success) {
+          state = state.copyWith(isLoading: false, errorMessage: nameValidationResult.errorMessage);
+          return false;
+        }
+
+        // Nếu tất cả validation thành công, tiếp tục lưu
+        final String? thumbnailPath = state.image != null
+            ? await _imageHelper.createThumbnail(sourceImagePath)
+            : null;
+        
+        final clothingItem = ClothingItem(
+          id: state.isEditing ? state.id : const Uuid().v4(),
+          name: state.name.trim(),
+          category: state.selectedCategoryValue,
+          closetId: state.selectedClosetId!,
+          imagePath: sourceImagePath,
+          thumbnailPath: thumbnailPath ?? state.thumbnailPath,
+          color: state.selectedColors.join(', '),
+          season: state.selectedSeasons.join(', '),
+          occasion: state.selectedOccasions.join(', '),
+          material: state.selectedMaterials.join(', '),
+          pattern: state.selectedPatterns.join(', '),
+        );
+
+        final result = state.isEditing
+            ? await _clothingItemRepo.updateItem(clothingItem)
+            : await _clothingItemRepo.insertItem(clothingItem);
+
+        if (!mounted) return false;
+
+        return result.fold(
+          (failure) {
+            state = state.copyWith(isLoading: false, errorMessage: failure.message);
+            return false;
+          },
+          (_) {
+            state = state.copyWith(isLoading: false, isSuccess: true);
+            return true;
+          },
+        );
       },
     );
   }

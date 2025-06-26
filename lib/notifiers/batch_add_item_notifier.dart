@@ -114,9 +114,10 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
     }
   }
 
+  // <<< THAY ĐỔI CỐT LÕI NẰM Ở ĐÂY >>>
   Future<void> saveAll() async {
     state = state.copyWith(isSaving: true, clearSaveError: true);
-    final List<AddItemState> itemStates = state.itemArgsList.map((args) => _ref.read(addItemProvider(args))).toList();
+    final itemStates = state.itemArgsList.map((args) => _ref.read(addItemProvider(args))).toList();
     
     final validateRequiredUseCase = _ref.read(validateRequiredFieldsUseCaseProvider);
     final requiredResult = validateRequiredUseCase.executeForBatch(itemStates);
@@ -124,15 +125,32 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
       state = state.copyWith(isSaving: false, saveErrorMessage: requiredResult.errorMessage, currentIndex: requiredResult.errorIndex);
       return;
     }
-    
+
     final validateNameUseCase = _ref.read(validateItemNameUseCaseProvider);
-    final nameValidationResult = await validateNameUseCase.forBatch(itemStates);
-    if (!nameValidationResult.success) {
-      state = state.copyWith(isSaving: false, saveErrorMessage: nameValidationResult.errorMessage, currentIndex: nameValidationResult.errorIndex);
-      return;
-    }
-    
-    final List<ClothingItem> itemsToSave = itemStates.map((itemState) {
+    final nameValidationEither = await validateNameUseCase.forBatch(itemStates);
+
+    if (!mounted) return;
+
+    nameValidationEither.fold(
+      (failure) {
+        // Lỗi hệ thống khi kiểm tra tên
+        state = state.copyWith(isSaving: false, saveErrorMessage: failure.message);
+      },
+      (nameValidationResult) {
+        // Kiểm tra kết quả logic
+        if (!nameValidationResult.success) {
+          state = state.copyWith(isSaving: false, saveErrorMessage: nameValidationResult.errorMessage, currentIndex: nameValidationResult.errorIndex);
+          return;
+        }
+
+        // Nếu tất cả validation thành công, tiến hành lưu
+        _performSave(itemStates);
+      },
+    );
+  }
+
+  Future<void> _performSave(List<AddItemState> itemStates) async {
+    final itemsToSave = itemStates.map((itemState) {
       return ClothingItem(
         id: const Uuid().v4(), name: itemState.name.trim(), category: itemState.selectedCategoryValue,
         closetId: itemState.selectedClosetId!, imagePath: itemState.image!.path, color: itemState.selectedColors.join(', '),
@@ -141,7 +159,6 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
       );
     }).toList();
     
-    // <<< THAY ĐỔI CỐT LÕI NẰM Ở ĐÂY >>>
     final result = await _clothingItemRepo.insertBatchItems(itemsToSave);
     
     if (!mounted) return;

@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
@@ -10,137 +9,12 @@ import 'package:mincloset/notifiers/closets_page_notifier.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/providers/event_providers.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/pages/outfit_builder_page.dart';
+import 'package:mincloset/widgets/closet_form_dialog.dart';
 import 'package:mincloset/widgets/item_search_filter_bar.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
-import 'package:mincloset/providers/service_providers.dart';
-
-// Hàm _showAddClosetDialog không thay đổi
-void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
-  final nameController = TextEditingController();
-  String? errorText;
-
-  showDialog(
-    context: context,
-    // barrierDismissible: false, // Không cho phép đóng khi nhấn ra ngoài
-    builder: (ctx) {
-      // Dùng StatefulBuilder để dialog có thể tự cập nhật trạng thái
-      return StatefulBuilder(
-        builder: (dialogContext, setDialogState) {
-          return AlertDialog(
-            title: const Text('Create new closet'),
-            content: TextField(
-              controller: nameController,
-              autofocus: true,
-              maxLength: 30,
-              decoration: InputDecoration(
-                labelText: 'Closet name',
-                // Hiển thị lỗi ngay trên TextField
-                errorText: errorText,
-              ),
-              // Xóa lỗi khi người dùng bắt đầu nhập lại
-              onChanged: (_) {
-                if (errorText != null) {
-                  setDialogState(() {
-                    errorText = null;
-                  });
-                }
-              },
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  child: const Text('Cancel')),
-              ElevatedButton(
-                onPressed: () async {
-                  // Lấy ra Navigator TRƯỚC khi gọi await
-                  final navigator = Navigator.of(ctx);
-                  final notifier = ref.read(closetsPageProvider.notifier);
-                  final notificationService = ref.read(notificationServiceProvider);
-
-                  final error = await notifier.addCloset(nameController.text);
-
-                  if (error == null) {
-                    // <<< THAY ĐỔI CỐT LÕI NẰM Ở ĐÂY >>>
-                    // Thành công, đóng dialog và hiển thị thông báo
-                    navigator.pop();
-                    notificationService.showBanner(
-                      message: 'Successfully created "${nameController.text}" closet.',
-                      type: NotificationType.success,
-                    );
-                  } else {
-                    // Thất bại, cập nhật state của dialog để hiển thị lỗi
-                    setDialogState(() {
-                      errorText = error;
-                    });
-                  }
-                },
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
-
-void _showEditClosetDialog(
-    BuildContext context, WidgetRef ref, Closet closetToEdit) {
-  final nameController = TextEditingController(text: closetToEdit.name);
-  String? errorText;
-
-  showDialog(
-    context: context,
-    builder: (ctx) {
-      return StatefulBuilder(
-        builder: (dialogContext, setDialogState) {
-          return AlertDialog(
-            title: const Text('Edit closet name'),
-            content: TextField(
-              controller: nameController,
-              autofocus: true,
-              maxLength: 30,
-              decoration: InputDecoration(
-                labelText: 'New name',
-                errorText: errorText,
-              ),
-              onChanged: (_) {
-                if (errorText != null) {
-                  setDialogState(() {
-                    errorText = null;
-                  });
-                }
-              },
-            ),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.of(ctx).pop(),
-                  child: const Text('Cancel')),
-              ElevatedButton(
-                onPressed: () async {
-                  final notifier = ref.read(closetsPageProvider.notifier);
-                  final error = await notifier.updateCloset(
-                      closetToEdit, nameController.text);
-
-                  if (error == null) {
-                    if (ctx.mounted) Navigator.of(ctx).pop();
-                  } else {
-                    setDialogState(() {
-                      errorText = error;
-                    });
-                  }
-                },
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
-}
 
 class ClosetsPage extends ConsumerStatefulWidget {
   const ClosetsPage({super.key});
@@ -486,13 +360,26 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                 );
               }
               return ListTile(
-                leading: Icon(Icons.add_circle_outline,
-                    color: theme.colorScheme.primary),
-                title: Text('Add new closet',
-                    style: TextStyle(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.bold)),
-                onTap: () => _showAddClosetDialog(context, ref),
+                leading: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),
+                title: Text('Add new closet', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
+                // SỬA LẠI onTAP CHO NÚT ADD
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => ClosetFormDialog(
+                      onSubmit: (name) async {
+                        final error = await ref.read(closetsPageProvider.notifier).addCloset(name);
+                        if (error == null && context.mounted) {
+                          ref.read(notificationServiceProvider).showBanner(
+                                message: 'Successfully created "$name" closet.',
+                                type: NotificationType.success,
+                              );
+                        }
+                        return error;
+                      },
+                    ),
+                  );
+                },
               );
             }
             final closet = closets[index - 1];
@@ -561,10 +448,17 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                 }
                 // Xử lý khi vuốt sang phải để SỬA
                 else {
-                  // Vẫn an toàn vì _showEditClosetDialog không phải là async ở đây
-                  _showEditClosetDialog(context, ref, closet);
-                  // Luôn trả về false để item không bị "biến mất" sau khi vuốt
-                  return false;
+                  // SỬA LẠI LOGIC KHI VUỐT ĐỂ EDIT
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => ClosetFormDialog(
+                      initialName: closet.name,
+                      onSubmit: (newName) {
+                        return ref.read(closetsPageProvider.notifier).updateCloset(closet, newName);
+                      },
+                    ),
+                  );
+                  return false; // Luôn trả về false để item không bị xóa
                 }
               },
               child: ListTile(

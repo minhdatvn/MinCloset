@@ -343,10 +343,11 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
       data: (closets) {
         final isLimitReached = closets.length >= 10;
         return ListView.builder(
-          padding: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           itemCount: closets.length + 1,
           itemBuilder: (ctx, index) {
             if (index == 0) {
+              // ... Mục "Add new closet" giữ nguyên, không có gì thay đổi
               if (isLimitReached) {
                 return Container(
                   padding: const EdgeInsets.all(16.0),
@@ -359,117 +360,142 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                   ),
                 );
               }
-              return ListTile(
-                leading: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),
-                title: Text('Add new closet', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
-                // SỬA LẠI onTAP CHO NÚT ADD
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => ClosetFormDialog(
-                      onSubmit: (name) async {
-                        final error = await ref.read(closetsPageProvider.notifier).addCloset(name);
-                        if (error == null && context.mounted) {
-                          ref.read(notificationServiceProvider).showBanner(
-                                message: 'Successfully created "$name" closet.',
-                                type: NotificationType.success,
-                              );
-                        }
-                        return error;
-                      },
-                    ),
-                  );
-                },
+              return Card(
+                elevation: 0,
+                color: theme.colorScheme.primary.withValues(alpha:0.05),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: ListTile(
+                  leading: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),
+                  title: Text('Add new closet', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => ClosetFormDialog(
+                        onSubmit: (name) async {
+                          final error = await ref.read(closetsPageProvider.notifier).addCloset(name);
+                          if (error == null && context.mounted) {
+                            ref.read(notificationServiceProvider).showBanner(
+                                  message: 'Successfully created "$name" closet.',
+                                  type: NotificationType.success,
+                                );
+                          }
+                          return error;
+                        },
+                      ),
+                    );
+                  },
+                ),
               );
             }
             final closet = closets[index - 1];
-            return Dismissible(
-              key: ValueKey(closet.id),
-              // Nền cho thao tác vuốt trái (xóa)
-              background: Container(
-                color: Colors.green,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                alignment: Alignment.centerLeft,
-                child: const Icon(Icons.edit, color: Colors.white),
-              ),
-              // Nền cho thao tác vuốt phải (sửa)
-              secondaryBackground: Container(
-                color: Colors.red,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                alignment: Alignment.centerRight,
-                child: const Icon(Icons.delete, color: Colors.white),
-              ),
-              confirmDismiss: (direction) async {
-
-                // Xử lý khi vuốt sang trái để XÓA
-                if (direction == DismissDirection.endToStart) {
-                  final confirmed = await showDialog<bool>(
-                    context: context, // An toàn khi dùng context ở đây vì chưa có await
-                    builder: (dialogCtx) => AlertDialog(
-                      title: const Text('Confirm Deletion'),
-                      content: Text(
-                          'Are you sure you want to delete the "${closet.name}" closet?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(dialogCtx).pop(false),
-                          child: const Text('Cancel'),
+            // <<< BẮT ĐẦU TÁI CẤU TRÚC HOÀN TOÀN TỪ ĐÂY >>>
+            return Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12.0),
+                child: Dismissible(
+                  key: ValueKey(closet.id),
+                  background: Container(
+                    color: Colors.green,
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    alignment: Alignment.centerLeft,
+                    child: const Icon(Icons.edit, color: Colors.white),
+                  ),
+                  secondaryBackground: Container(
+                    color: Colors.red,
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    alignment: Alignment.centerRight,
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                  confirmDismiss: (direction) async {
+                    if (direction == DismissDirection.endToStart) {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (dialogCtx) => AlertDialog(
+                          title: const Text('Confirm Deletion'),
+                          content: Text('Are you sure you want to delete the "${closet.name}" closet?'),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.of(dialogCtx).pop(false), child: const Text('Cancel')),
+                            TextButton(
+                              style: TextButton.styleFrom(foregroundColor: Colors.red),
+                              onPressed: () => Navigator.of(dialogCtx).pop(true),
+                              child: const Text('Delete'),
+                            ),
+                          ],
                         ),
-                        TextButton(
-                          style: TextButton.styleFrom(
-                              foregroundColor: Colors.red),
-                          onPressed: () => Navigator.of(dialogCtx).pop(true),
-                          child: const Text('Delete'),
+                      );
+                      if (!mounted || confirmed != true) return false;
+                      final error = await ref.read(closetsPageProvider.notifier).deleteCloset(closet.id);
+                      if (!mounted) return false;
+                      if (error != null) {
+                        ref.read(notificationServiceProvider).showBanner(message: error);
+                        return false;
+                      }
+                      return true;
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (ctx) => ClosetFormDialog(
+                          initialName: closet.name,
+                          onSubmit: (newName) {
+                            return ref.read(closetsPageProvider.notifier).updateCloset(closet, newName);
+                          },
                         ),
-                      ],
+                      );
+                      return false;
+                    }
+                  },
+                  child: SizedBox(
+                    height: 90,
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      elevation: 0,
+                      color: theme.colorScheme.surfaceContainerHighest,
+                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                      clipBehavior: Clip.antiAlias,
+                      child: Center(
+                          child: InkWell(
+                            onTap: () => Navigator.pushNamed(context, AppRoutes.closetDetail, arguments: closet),
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+                              leading: AspectRatio(
+                              aspectRatio: 1,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                // Icon tạm thời, sẵn sàng để thay bằng hình ảnh
+                                child: const Icon(Icons.style_outlined, color: Colors.grey, size: 32),
+                              ),
+                            ),
+                            // TIÊU ĐỀ: Tên closet
+                            title: Text(closet.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            // PHỤ ĐỀ: Số lượng item
+                            subtitle: Consumer(
+                              builder: (context, ref, child) {
+                                // Lắng nghe provider để lấy số lượng item
+                                final itemsCountAsync = ref.watch(itemsInClosetProvider(closet.id));
+                                return itemsCountAsync.when(
+                                  data: (items) {
+                                    // Định dạng số nhiều/ít cho "item"
+                                    final itemText = items.length == 1 ? 'item' : 'items';
+                                    return Text('${items.length} $itemText');
+                                  },
+                                  // Hiển thị tạm thời trong khi tải
+                                  loading: () => const Text('...'),
+                                  error: (err, stack) => const Text('Error'),
+                                );
+                              },
+                            ),
+                            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                          ),
+                        ),
                     ),
-                  );
-
-                  // Kiểm tra mounted sau await đầu tiên, và kiểm tra người dùng có xác nhận không
-                  if (!mounted || confirmed != true) {
-                    return false;
-                  }
-
-                  final error = await ref
-                      .read(closetsPageProvider.notifier)
-                      .deleteCloset(closet.id);
-
-                  // Kiểm tra mounted lần nữa sau await thứ hai
-                  if (!mounted) return false;
-
-                  if (error != null) {
-                    // --- BƯỚC 2: Sử dụng các biến đã lưu ở trên, không dùng context trực tiếp ---
-                    ref.read(notificationServiceProvider).showBanner(
-                          message: error,
-                          // type mặc định là error nên không cần truyền
-                        );
-                    return false; // Hủy thao tác xóa
-                  }
-                  return true; // Cho phép xóa
-                }
-                // Xử lý khi vuốt sang phải để SỬA
-                else {
-                  // SỬA LẠI LOGIC KHI VUỐT ĐỂ EDIT
-                  showDialog(
-                    context: context,
-                    builder: (ctx) => ClosetFormDialog(
-                      initialName: closet.name,
-                      onSubmit: (newName) {
-                        return ref.read(closetsPageProvider.notifier).updateCloset(closet, newName);
-                      },
-                    ),
-                  );
-                  return false; // Luôn trả về false để item không bị xóa
-                }
-              },
-              child: ListTile(
-                leading: const Icon(Icons.inventory_2_outlined),
-                title: Text(closet.name,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: () => Navigator.pushNamed(
-                    context, AppRoutes.closetDetail,
-                    arguments: closet),
+                  ),
+                ),
               ),
+              )
             );
           },
         );

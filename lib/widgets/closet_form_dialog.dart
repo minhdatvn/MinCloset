@@ -1,5 +1,6 @@
 // lib/widgets/closet_form_dialog.dart
 import 'package:flutter/material.dart';
+import 'package:material_symbols_icons/symbols.dart';
 
 class ClosetFormDialog extends StatefulWidget {
   // Tham số để truyền vào tên closet ban đầu (dùng cho chế độ Edit)
@@ -58,7 +59,9 @@ class _ClosetFormDialogState extends State<ClosetFormDialog> {
     final bool isEditing = widget.initialName != null;
 
     return AlertDialog(
-      icon: Icon(isEditing ? Icons.edit_note_outlined : Icons.create_new_folder_outlined, size: 32),
+      iconPadding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 3.0),
+      icon: Icon(isEditing ? Symbols.edit_square : Symbols.add_column_right, size: 32),
+      titlePadding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 0),
       title: Text(isEditing ? 'Edit closet name' : 'Create new closet'),
       content: Column(
         mainAxisSize: MainAxisSize.min,

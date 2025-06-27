@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/locale_provider.dart';
 import 'package:mincloset/routing/app_routes.dart';
+import 'package:mincloset/providers/settings_provider.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 
 class SettingsPage extends ConsumerWidget {

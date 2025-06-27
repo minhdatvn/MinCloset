@@ -29,9 +29,30 @@ class GetOutfitSuggestionUseCase {
     this._outfitRepo,
   );
 
+  
+
   // Sửa lỗi `asyncMap` bằng cách await và fold một cách thủ công.
   // Đây là cách tiếp cận đơn giản và rõ ràng nhất.
   Future<Either<Failure, Map<String, dynamic>>> getWeatherForSuggestion() async {
+
+    // <<< BẮT ĐẦU VÙNG GIẢ LẬP DỮ LIỆU - KHÔNG XÓA >>>
+    // CHỈ CẦN THAY ĐỔI GIÁ TRỊ 'icon' DƯỚI ĐÂY ĐỂ TEST
+    // '01d' -> Nắng, '04d' -> Mây, '10d' -> Mưa, '11d' -> Bão, '13d' -> Tuyết, '50d' -> Sương mù
+    // const String debugWeatherIcon = '01d'; // <--- THAY ĐỔI ICON Ở ĐÂY ĐỂ TEST
+    // final Map<String, dynamic> mockWeatherData = {
+    //   "weather": [
+    //     {
+    //       "icon": debugWeatherIcon, 
+    //       "description": "Debug Weather"
+    //     }
+    //   ],
+    //   "main": {"temp": 25.0},
+    //   "name": "Test Location"
+    // };
+    // // Lệnh return này sẽ trả về dữ liệu giả và bỏ qua toàn bộ logic gọi API thật
+    // return Right(mockWeatherData); 
+    // <<< KẾT THÚC VÙNG GIẢ LẬP DỮ LIỆU >>>
+
     final prefs = await SharedPreferences.getInstance();
     final cityModeString = prefs.getString('city_mode') ?? 'auto';
     final cityMode = CityMode.values.byName(cityModeString);

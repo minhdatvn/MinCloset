@@ -19,6 +19,7 @@ import 'package:mincloset/widgets/action_card.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:mincloset/widgets/section_header.dart';
 import 'package:mincloset/widgets/stats_overview_card.dart';
+import 'package:mincloset/helpers/weather_helper.dart';
 
 final recentItemsProvider =
     FutureProvider.autoDispose<List<ClothingItem>>((ref) async {
@@ -211,131 +212,175 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget _buildTodaysSuggestionCard(BuildContext context, WidgetRef ref, HomePageState state) {
     final theme = Theme.of(context);
     final notifier = ref.read(homeProvider.notifier);
+    final String backgroundImagePath = WeatherHelper.getBackgroundImageForWeather(
+      state.weather?['weather'][0]['icon'] as String?,
+    );
 
-    // SỬA LỖI: Dùng widget Card và tùy chỉnh shape
     return Card(
-      elevation: 0, // Không dùng đổ bóng
-      color: Colors.transparent, // Nền trong suốt
+      elevation: 0,
+      color: Colors.transparent,
       shape: RoundedRectangleBorder(
-        // Thêm đường viền
         side: BorderSide(
-          color: theme.colorScheme.outline, // Dùng màu viền từ theme
+          color: theme.colorScheme.outline,
           width: 1,
         ),
         borderRadius: BorderRadius.circular(16),
       ),
       clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ===== HEADER SECTION =====
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(15.0)),
+            child: Stack(
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (state.weather?['name'] != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                          child: Text(
-                            state.weather!['name'] as String,
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      (state.weather != null
-                        ? Row(
-                            children: [
-                              Icon(_getWeatherIcon(state.weather!['weather'][0]['icon'] as String), color: Colors.orange.shade700, size: 32),
-                              const SizedBox(width: 8),
-                              Text('${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-                            ],
-                          )
-                        : const SizedBox(height: 40, child: Center(child: Text("Weather data unavailable.")))
-                      )
-                    ],
+                // LỚP 1: HÌNH ẢNH NỀN (GIỮ NGUYÊN)
+                Positioned.fill(
+                  child: Image.asset(
+                    backgroundImagePath,
+                    fit: BoxFit.cover,
                   ),
                 ),
-                // FilledTonalButton vẫn giữ nguyên
-                ElevatedButton.icon(
-                  key: const ValueKey('new_suggestion_button'),
-                  icon: const Icon(Icons.auto_awesome, size: 18),
-                  label: const Text('Get Suggestion'),
-                  onPressed: state.isLoading ? null : notifier.getNewSuggestion,
-                  style: ElevatedButton.styleFrom(
-                    // Màu nền là màu chính nhưng mờ đi
-                    backgroundColor: theme.colorScheme.primary.withValues(alpha:0.1),
-                    // Màu chữ và icon là màu chính
-                    foregroundColor: theme.colorScheme.primary,
-                    elevation: 0, // Không có bóng đổ
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), 
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),)
+                // LỚP 2: LỚP GRADIENT (Ở GIỮA)
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        // <<< THAY ĐỔI HƯỚNG GRADIENT TẠI ĐÂY >>>
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.white, // Bắt đầu bằng màu trắng đục ở dưới
+                          Colors.white.withValues(alpha:0.0), // Kết thúc bằng màu trong suốt ở trên
+                        ],
+                        // Điều chỉnh điểm dừng để gradient bắt đầu mờ dần từ khoảng giữa
+                        stops: const [0.0, 0.8], 
+                      ),
+                    ),
+                  ),
+                ),
+
+                // LỚP 3: NỘI DUNG (GIỮ NGUYÊN)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (state.weather?['name'] != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
+                                child: Text(
+                                  state.weather!['name'] as String,
+                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            (state.weather != null
+                              ? Row(
+                                  children: [
+                                    Icon(_getWeatherIcon(state.weather!['weather'][0]['icon'] as String), color: Colors.orange.shade700, size: 32),
+                                    const SizedBox(width: 8),
+                                    Text('${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                                  ],
+                                )
+                              : const SizedBox(height: 40, child: Center(child: Text("Weather data unavailable.")))
+                            )
+                          ],
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        key: const ValueKey('new_suggestion_button'),
+                        icon: const Icon(Icons.auto_awesome, size: 18),
+                        label: const Text('Get Suggestion'),
+                        onPressed: state.isLoading ? null : notifier.getNewSuggestion,
+                        
+                        // <<< THAY THẾ TOÀN BỘ KHỐI style BẰNG KHỐI NÀY >>>
+                        style: ElevatedButton.styleFrom(
+                          // Màu nền xanh trong suốt 60%
+                          backgroundColor: theme.colorScheme.primary.withValues(alpha:0.4), 
+                          // Màu chữ và icon là màu đen
+                          foregroundColor: Colors.black, 
+                          // Bỏ độ bóng và độ nổi
+                          elevation: 0, 
+                          // Thêm đường viền
+                          side: BorderSide(
+                            color: theme.colorScheme.primary, // Màu viền là màu chủ đạo
+                            width: 1.5,
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            const Divider(height: 24, thickness: 0.5),
-            // ... phần logic còn lại của hàm không thay đổi
-            if (state.isLoading)
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 48.0),
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else if (state.suggestionResult != null)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSuggestionPlaceholder(state.suggestionResult!),
-                  const SizedBox(height: 16),
-                  Text(
-                    state.suggestionResult!.outfitName,
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    state.suggestionResult!.reason,
-                    style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.edit_outlined),
-                      label: const Text('Edit & Save'),
-                      onPressed: () {
-                        Navigator.pushNamed(context, AppRoutes.outfitBuilder, arguments: state.suggestionResult);
-                      },
+          ),
+
+          // ===== PHẦN 2: NỘI DUNG GỢI Ý (NỀN TRẮNG) =====
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: // Phần logic hiển thị kết quả gợi ý không thay đổi
+            state.isLoading
+              ? const Center(heightFactor: 5, child: CircularProgressIndicator())
+              : state.suggestionResult != null
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSuggestionPlaceholder(state.suggestionResult!),
+                    const SizedBox(height: 16),
+                    Text(
+                      state.suggestionResult!.outfitName,
+                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                  ),
-                ],
-              )
-            else
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 48.0),
-                child: Center(
+                    const SizedBox(height: 8),
+                    Text(
+                      state.suggestionResult!.reason,
+                      style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.edit_outlined),
+                        label: const Text('Edit & Save'),
+                        onPressed: () {
+                          Navigator.pushNamed(context, AppRoutes.outfitBuilder, arguments: state.suggestionResult);
+                        },
+                      ),
+                    ),
+                  ],
+                )
+              : Center(
+                  heightFactor: 5,
                   child: Text(
                     state.errorMessage ?? 'Tap "Get Suggestions" to see outfit recommendations!',
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
                   ),
                 ),
-              ),
-            
-            if (state.suggestionTimestamp != null) ...[
-              const SizedBox(height: 16),
-              Align(
+          ),
+          
+          if (state.suggestionTimestamp != null && state.suggestionResult != null) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Align(
                 alignment: Alignment.centerRight,
                 child: Text(
                   'Last updated: ${DateFormat('HH:mm, dd/MM/yyyy').format(state.suggestionTimestamp!)}',
                   style: TextStyle(fontSize: 12, color: Colors.grey.shade700, fontStyle: FontStyle.italic),
                 ),
               ),
-            ]
-          ],
-        ),
+            ),
+          ]
+        ],
       ),
     );
   }

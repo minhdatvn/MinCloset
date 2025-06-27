@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/notifiers/closets_page_notifier.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
@@ -56,12 +57,18 @@ void _showAddClosetDialog(BuildContext context, WidgetRef ref) {
                   // Lấy ra Navigator TRƯỚC khi gọi await
                   final navigator = Navigator.of(ctx);
                   final notifier = ref.read(closetsPageProvider.notifier);
+                  final notificationService = ref.read(notificationServiceProvider);
 
                   final error = await notifier.addCloset(nameController.text);
 
                   if (error == null) {
-                    // Thành công, sử dụng navigator đã được lưu để đóng dialog
+                    // <<< THAY ĐỔI CỐT LÕI NẰM Ở ĐÂY >>>
+                    // Thành công, đóng dialog và hiển thị thông báo
                     navigator.pop();
+                    notificationService.showBanner(
+                      message: 'Successfully created "${nameController.text}" closet.',
+                      type: NotificationType.success,
+                    );
                   } else {
                     // Thất bại, cập nhật state của dialog để hiển thị lỗi
                     setDialogState(() {

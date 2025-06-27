@@ -118,8 +118,8 @@ class GetOutfitSuggestionUseCase {
       () async {
         final (weatherData, allItems, allOutfits) = data;
 
-        final topwearCount = allItems.where((item) => item.category.startsWith('Áo')).length;
-        final bottomwearCount = allItems.where((item) => item.category.startsWith('Quần') || item.category.startsWith('Váy')).length;
+        final topwearCount = allItems.where((item) => item.category.startsWith('Tops')).length;
+        final bottomwearCount = allItems.where((item) => item.category.startsWith('Bottoms') || item.category.startsWith('Dresses/Jumpsuits')).length;
         if (topwearCount < 3 || bottomwearCount < 3) {
           throw Exception('Please add at least 3 tops and 3 bottoms/skirts to your wardrobe to receive suggestions.');
         }

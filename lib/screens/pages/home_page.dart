@@ -212,125 +212,130 @@ class _HomePageState extends ConsumerState<HomePage> {
     final theme = Theme.of(context);
     final notifier = ref.read(homeProvider.notifier);
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: theme.colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (state.weather?['name'] != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Text(
-                          state.weather!['name'] as String,
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    (state.weather != null
-                      ? Row(
-                          children: [
-                            Icon(_getWeatherIcon(state.weather!['weather'][0]['icon'] as String), color: Colors.orange.shade700, size: 32),
-                            const SizedBox(width: 8),
-                            Text('${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-                          ],
-                        )
-                      : const SizedBox(height: 40, child: Center(child: Text("Weather data unavailable.")))
-                    )
-                  ],
-                ),
-              ),
-              TextButton.icon(
-                key: const ValueKey('new_suggestion_button'),
-                icon: const Icon(Icons.auto_awesome, size: 18),
-                label: const Text('Get Suggestion'),
-                onPressed: state.isLoading ? null : notifier.getNewSuggestion,
-                style: TextButton.styleFrom(
-                  foregroundColor: theme.colorScheme.primary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                ),
-              ),
-            ],
-          ),
-
-          const Divider(height: 24, thickness: 0.5),
-
-          // >>> PHẦN SỬA LỖI VÀ THAY ĐỔI CHÍNH NẰM Ở ĐÂY <<<
-          if (state.isLoading)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 48.0),
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else if (state.suggestionResult != null)
-            // Nếu có kết quả, hiển thị giao diện trực quan
-            Column(
+    // SỬA LỖI: Dùng widget Card và tùy chỉnh shape
+    return Card(
+      elevation: 0, // Không dùng đổ bóng
+      color: Colors.transparent, // Nền trong suốt
+      shape: RoundedRectangleBorder(
+        // Thêm đường viền
+        side: BorderSide(
+          color: theme.colorScheme.outline, // Dùng màu viền từ theme
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSuggestionPlaceholder(state.suggestionResult!),
-                const SizedBox(height: 16),
-                Text(
-                  state.suggestionResult!.outfitName,
-                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (state.weather?['name'] != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+                          child: Text(
+                            state.weather!['name'] as String,
+                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      (state.weather != null
+                        ? Row(
+                            children: [
+                              Icon(_getWeatherIcon(state.weather!['weather'][0]['icon'] as String), color: Colors.orange.shade700, size: 32),
+                              const SizedBox(width: 8),
+                              Text('${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                            ],
+                          )
+                        : const SizedBox(height: 40, child: Center(child: Text("Weather data unavailable.")))
+                      )
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  state.suggestionResult!.reason,
-                  style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.edit_outlined),
-                    label: const Text('Edit & Save'),
-                    onPressed: () {
-                      // Điều hướng đến Outfit Studio và truyền dữ liệu gợi ý
-                      Navigator.pushNamed(
-                        context,
-                        AppRoutes.outfitBuilder,
-                        arguments: state.suggestionResult,
-                      );
-                    },
+                // FilledTonalButton vẫn giữ nguyên
+                ElevatedButton.icon(
+                  key: const ValueKey('new_suggestion_button'),
+                  icon: const Icon(Icons.auto_awesome, size: 18),
+                  label: const Text('Get Suggestion'),
+                  onPressed: state.isLoading ? null : notifier.getNewSuggestion,
+                  style: ElevatedButton.styleFrom(
+                    // Màu nền là màu chính nhưng mờ đi
+                    backgroundColor: theme.colorScheme.primary.withValues(alpha:0.1),
+                    // Màu chữ và icon là màu chính
+                    foregroundColor: theme.colorScheme.primary,
+                    elevation: 0, // Không có bóng đổ
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10), 
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.0),)
                   ),
                 ),
               ],
-            )
-          else
-            // Trạng thái ban đầu hoặc khi có lỗi
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 48.0),
-              child: Center(
+            ),
+            const Divider(height: 24, thickness: 0.5),
+            // ... phần logic còn lại của hàm không thay đổi
+            if (state.isLoading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 48.0),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (state.suggestionResult != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSuggestionPlaceholder(state.suggestionResult!),
+                  const SizedBox(height: 16),
+                  Text(
+                    state.suggestionResult!.outfitName,
+                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    state.suggestionResult!.reason,
+                    style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.edit_outlined),
+                      label: const Text('Edit & Save'),
+                      onPressed: () {
+                        Navigator.pushNamed(context, AppRoutes.outfitBuilder, arguments: state.suggestionResult);
+                      },
+                    ),
+                  ),
+                ],
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 48.0),
+                child: Center(
+                  child: Text(
+                    state.errorMessage ?? 'Tap "Get Suggestions" to see outfit recommendations!',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
+                  ),
+                ),
+              ),
+            
+            if (state.suggestionTimestamp != null) ...[
+              const SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerRight,
                 child: Text(
-                  // Sửa lỗi ở đây: Thay state.suggestion bằng state.errorMessage
-                  state.errorMessage ?? 'Tap "Get Suggestions" to see outfit recommendations!',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
+                  'Last updated: ${DateFormat('HH:mm, dd/MM/yyyy').format(state.suggestionTimestamp!)}',
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade700, fontStyle: FontStyle.italic),
                 ),
               ),
-            ),
-          
-          if (state.suggestionTimestamp != null) ...[
-            const SizedBox(height: 16),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                'Last updated: ${DateFormat('HH:mm, dd/MM/yyyy').format(state.suggestionTimestamp!)}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade700,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ),
-          ]
-        ],
+            ]
+          ],
+        ),
       ),
     );
   }

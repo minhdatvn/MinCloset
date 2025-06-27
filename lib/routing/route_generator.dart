@@ -20,6 +20,7 @@ import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/screens/splash_screen.dart';
 
 class RouteGenerator {
+  static const Widget _mainScreen = MainScreen();
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     final args = settings.arguments;
 
@@ -28,7 +29,7 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const SplashScreen());
 
       case AppRoutes.main:
-        return FadeRoute(page: const MainScreen(), settings: settings);
+        return FadeRoute(page: _mainScreen, settings: settings);
 
       case AppRoutes.analysisLoading:
         if (args is List<XFile>) {

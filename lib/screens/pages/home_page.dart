@@ -132,7 +132,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         Row(
           children: [
             ActionCard(
-              label: 'Create a new outfit',
+              label: 'Create new outfits',
               icon: Icons.auto_awesome_outlined,
               onTap: () => Navigator.pushNamed(context, AppRoutes.outfitBuilder),
             ),

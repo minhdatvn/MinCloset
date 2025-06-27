@@ -92,4 +92,16 @@ final ThemeData appTheme = ThemeData(
       elevation: 2,
     ),
   ),
+
+  navigationBarTheme: NavigationBarThemeData(
+    height: 75,
+    backgroundColor: Colors.white.withValues(alpha:0.9), // Hơi trong suốt để thấy nội dung phía sau
+    elevation: 0, // Bỏ elevation vì đã có nền trong suốt
+    indicatorShape: const StadiumBorder(),
+    labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
+      (Set<WidgetState> states) => states.contains(WidgetState.selected)
+          ? const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)
+          : const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+    ),
+  ),
 );

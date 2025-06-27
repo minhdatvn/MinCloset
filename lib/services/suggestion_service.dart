@@ -1,13 +1,16 @@
 // lib/services/suggestion_service.dart
 
 import 'dart:convert';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:mincloset/constants/prompt_strings.dart'; // <<< THÊM DÒNG NÀY
+import 'package:mincloset/domain/core/type_defs.dart';
 import 'package:mincloset/domain/failures/failures.dart';
-import 'package:mincloset/domain/core/type_defs.dart'; 
 import 'package:mincloset/utils/logger.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SuggestionService {
   final String _apiKey = dotenv.env['GEMINI_API_KEY'] ?? 'API_KEY_NOT_FOUND';
@@ -29,45 +32,48 @@ class SuggestionService {
     final temp = weather['main']['temp'].toStringAsFixed(0);
     final condition = weather['weather'][0]['description'];
 
+    // <<< LOGIC MỚI: XÂY DỰNG PROMPT ĐỘNG >>>
+    final prefs = await SharedPreferences.getInstance();
+    final langCode = prefs.getString('language_code') ?? 'en';
+    final strings = PromptStrings.localized[langCode]!; // Lấy bộ chuỗi dịch tương ứng
+
     final prompt = """
-    Bạn là 'MinCloset', một trợ lý thời trang AI chuyên nghiệp.
+    ${strings['assistant_role']}
 
-    **Thông tin người dùng:**
-    - Giới tính: $gender
-    - Phong cách cá nhân: $userStyle
-    - Màu sắc yêu thích: $favoriteColors
+    ${strings['user_info_title']}
+    ${strings['gender_label']} $gender
+    ${strings['style_label']} $userStyle
+    ${strings['colors_label']} $favoriteColors
 
-    **Ngữ cảnh:**
-    - Địa điểm: $cityName
-    - Thời tiết: $temp°C, $condition
+    ${strings['context_title']}
+    ${strings['location_label']} $cityName
+    ${strings['weather_label']} $temp°C, $condition
 
-    **Tủ đồ của người dùng bao gồm 2 phần:**
-
-    **1. Các "Set Outfit" (Các món đồ trong một set BẮT BUỘC phải mặc cùng nhau):**
+    ${strings['wardrobe_title']}
+    ${strings['set_outfits_title']}
     $setOutfitsString
-
-    **2. Các vật phẩm lẻ (Có thể phối tự do):**
+    ${strings['individual_items_title']}
     $wardrobeString
 
-    **YÊU CẦU:**
-    1. Dựa vào TẤT CẢ thông tin trên (sở thích, thời tiết, tủ đồ), hãy gợi ý MỘT bộ trang phục phù hợp nhất.
-    2. **LUẬT PHỐI ĐỒ:** Nếu bạn chọn MỘT món đồ bất kỳ từ một "Set Outfit", bạn BẮT BUỘC phải chọn TẤT CẢ các món đồ còn lại trong set đó. Bạn có thể kết hợp một "Set Outfit" hoàn chỉnh với các "vật phẩm lẻ" khác.
-    3. **KẾT QUẢ TRẢ VỀ:** Hãy trả lời bằng một đối tượng JSON duy nhất, không có bất kỳ văn bản nào khác, với cấu trúc sau:
+    ${strings['request_title']}
+    ${strings['request_1']}
+    ${strings['request_2']}
+    ${strings['request_3']}
        {
          "outfit_composition": {
-           "topwear": "[Tên món đồ áo]",
-           "bottomwear": "[Tên món đồ quần/váy]",
-           "outerwear": "[Tên áo khoác (nếu có)]",
-           "footwear": "[Tên giày/dép]",
-           "accessories": "[Tên phụ kiện (nếu có)]"
+           ${strings['composition_topwear']},
+           ${strings['composition_bottomwear']},
+           ${strings['composition_outerwear']},
+           ${strings['composition_footwear']},
+           ${strings['composition_accessories']}
          },
-         "outfit_name": "[Một cái tên sáng tạo cho bộ đồ]",
-         "reason": "[Giải thích ngắn gọn tại sao bộ đồ này phù hợp]"
+         ${strings['outfit_name_desc']},
+         ${strings['reason_desc']}
        }
 
-    **Lưu ý quan trọng:**
-    - Với mỗi vị trí trong "outfit_composition", hãy điền tên món đồ CHÍNH XÁC như trong danh sách tủ đồ.
-    - Nếu không có món đồ nào phù hợp cho một vị trí (ví dụ: không cần áo khoác), hãy điền `null` cho giá trị đó.
+    ${strings['important_notes_title']}
+    ${strings['note_1']}
+    ${strings['note_2']}
     """;
 
     try {
@@ -85,7 +91,6 @@ class SuggestionService {
         
         return Right(decodedJson);
       }
-      // Trường hợp AI trả về null hoặc text rỗng
       return const Left(ServerFailure('AI response was empty.'));
 
     } catch (e, s) {

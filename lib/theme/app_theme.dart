@@ -2,10 +2,10 @@
 import 'package:flutter/material.dart';
 
 // 1. Định nghĩa các màu sắc cốt lõi của bạn
-const Color mochaMousse = Color(0xFF644D3C); // Màu nhấn chính (Màu của năm 2025)
+const Color mintyTeal = Color(0xFF1ABC9C);    // Màu nhấn chính (Xanh bạc hà)
 const Color almostBlack = Color(0xFF1C1C1E); // Màu đen tuyền cho chữ và các yếu tố chính
-const Color lightGray = Color(0xFFF2F2F7);   // Màu xám rất nhạt cho nền của các thẻ
-const Color midGray = Color(0xFFE5E5EA);     // Màu xám cho đường viền
+const Color faintGray = Color(0xFFF5F5F5);   // Màu xám rất nhạt cho nền của các thẻ
+const Color lightBorderGray = Color(0xFFE0E0E0); 
 
 // 2. Tạo đối tượng ThemeData để Flutter sử dụng
 final ThemeData appTheme = ThemeData(
@@ -14,16 +14,16 @@ final ThemeData appTheme = ThemeData(
 
   // Thiết lập bảng màu chính
   colorScheme: ColorScheme.fromSeed(
-    seedColor: mochaMousse,
-    primary: mochaMousse,
+    seedColor: mintyTeal,
+    primary: mintyTeal,
     brightness: Brightness.light,
     surface: Colors.white,
     onSurface: almostBlack,
-    surfaceContainerHighest: lightGray,
-    outline: midGray,
+    surfaceContainerHighest: faintGray,
+    outline: lightBorderGray,
     // Màu surfaceTint được dùng để tạo hiệu ứng phủ màu trên các bề mặt,
     // giúp chúng có chiều sâu hoặc tương tác tốt hơn với màu chính.
-    surfaceTint: mochaMousse, 
+    surfaceTint: mintyTeal, 
   ),
 
   scaffoldBackgroundColor: Colors.white,
@@ -47,13 +47,13 @@ final ThemeData appTheme = ThemeData(
     centerTitle: false,
     // Sử dụng TextStyle từ TextTheme để nhất quán
     titleTextStyle: const TextStyle(
-      fontFamily: 'Helvetica',
+      fontFamily: 'BeVietnamPro',
       fontSize: 18, // Thay đổi fontSize cho AppBar
       fontWeight: FontWeight.bold,
       color: almostBlack,
     ),
     // Thêm surfaceTintColor để tạo điểm nhấn
-    surfaceTintColor: mochaMousse.withValues(alpha:0.05),
+    surfaceTintColor: mintyTeal.withValues(alpha:0.05),
   ),
 
   // SỬA LỖI TẠI ĐÂY: Thay CardTheme thành CardThemeData
@@ -62,14 +62,14 @@ final ThemeData appTheme = ThemeData(
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(12), // Bo góc cho Card
     ),
-    color: lightGray, // Màu nền mặc định cho Card
-    surfaceTintColor: mochaMousse.withValues(alpha:0.05), // Thêm hiệu ứng màu cho Card
+    color: faintGray, // Màu nền mặc định cho Card
+    surfaceTintColor: mintyTeal.withValues(alpha:0.05), // Thêm hiệu ứng màu cho Card
   ),
 
   chipTheme: ChipThemeData(
-    backgroundColor: lightGray,
-    disabledColor: lightGray,
-    selectedColor: mochaMousse.withAlpha(50),
+    backgroundColor: faintGray,
+    disabledColor: faintGray,
+    selectedColor: mintyTeal.withAlpha(50),
     labelStyle: const TextStyle(color: almostBlack, fontWeight: FontWeight.w500),
     secondaryLabelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
     shape: const StadiumBorder(),
@@ -79,7 +79,7 @@ final ThemeData appTheme = ThemeData(
 
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
-      backgroundColor: mochaMousse, 
+      backgroundColor: mintyTeal, 
       foregroundColor: Colors.white, 
       padding: const EdgeInsets.symmetric(vertical: 14),
       shape: RoundedRectangleBorder(

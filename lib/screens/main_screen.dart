@@ -10,7 +10,6 @@ import 'package:mincloset/screens/pages/home_page.dart';
 import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/screens/pages/profile_page.dart';
 
-// BƯỚC 1: Chuyển MainScreen thành ConsumerStatefulWidget
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
 
@@ -18,9 +17,7 @@ class MainScreen extends ConsumerStatefulWidget {
   ConsumerState<MainScreen> createState() => _MainScreenState();
 }
 
-// BƯỚC 2: Thêm "with SingleTickerProviderStateMixin" để quản lý animation
 class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProviderStateMixin {
-  // BƯỚC 3: Khai báo các biến trạng thái và animation
   late final AnimationController _animationController;
   OverlayEntry? _overlayEntry;
   bool _isMenuOpen = false;
@@ -48,34 +45,31 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
     super.dispose();
   }
 
-  // BƯỚC 4: Logic đóng/mở menu và animation
   void _toggleMenu() {
+    setState(() {
+      _isMenuOpen = !_isMenuOpen;
+      if (_isMenuOpen) {
+        _animationController.forward();
+        _overlayEntry = _buildMenuOverlay();
+        Overlay.of(context).insert(_overlayEntry!);
+      } else {
+        _animationController.reverse();
+        _removeOverlay();
+      }
+    });
+  }
+  
+  void _closeMenu() {
     if (_isMenuOpen) {
-      _closeMenu();
-    } else {
-      _openMenu();
+      _toggleMenu();
     }
   }
 
-  void _openMenu() {
-    setState(() => _isMenuOpen = true);
-    _animationController.forward();
-    _overlayEntry = _buildMenuOverlay();
-    Overlay.of(context).insert(_overlayEntry!);
-  }
-
-  void _closeMenu() {
-    setState(() => _isMenuOpen = false);
-    _animationController.reverse();
-    _removeOverlay();
-  }
-  
   void _removeOverlay() {
     _overlayEntry?.remove();
     _overlayEntry = null;
   }
 
-  // BƯỚC 5: Widget xây dựng giao diện cho menu nổi (Overlay)
   OverlayEntry _buildMenuOverlay() {
     final theme = Theme.of(context);
     final bottomPadding = MediaQuery.of(context).padding.bottom;
@@ -92,12 +86,12 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
         return GestureDetector(
           onTap: _closeMenu,
           child: Material(
-            color: Colors.black.withValues(alpha:0.5),
+            color: Colors.black.withOpacity(0.5),
             child: SafeArea(
               child: Stack(
                 children: [
                   Positioned(
-                    bottom: 85 + bottomPadding, // 75 (navbar) + 10 (margin)
+                    bottom: 85 + bottomPadding,
                     left: 16,
                     right: 16,
                     child: GestureDetector(
@@ -110,16 +104,14 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
                           child: Stack(
                             alignment: Alignment.bottomCenter,
                             children: [
-                              // Hình tam giác nhỏ
                               CustomPaint(
                                 size: const Size(20, 10),
-                                painter: TrianglePainter(color: theme.cardColor),
+                                painter: TrianglePainter(color: theme.cardTheme.color ?? Colors.white),
                               ),
-                              // Nội dung menu
                               Container(
-                                margin: const EdgeInsets.only(bottom: 10), // Để chỗ cho tam giác
+                                margin: const EdgeInsets.only(bottom: 10),
                                 decoration: BoxDecoration(
-                                  color: theme.cardColor,
+                                  color: theme.cardTheme.color ?? Colors.white,
                                   borderRadius: BorderRadius.circular(16),
                                 ),
                                 child: Column(
@@ -154,7 +146,6 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
     );
   }
 
-  // Logic điều hướng tab và xử lý ảnh (giữ nguyên, chỉ điều chỉnh lại)
   void _onItemTapped(int index) {
     if (index == 2) {
       _toggleMenu();
@@ -200,12 +191,19 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final selectedPageIndex = ref.watch(mainScreenIndexProvider);
     
     int destinationIndex = selectedPageIndex >= 2 ? selectedPageIndex + 1 : selectedPageIndex;
     if (_isMenuOpen) destinationIndex = 2;
 
-    // BƯỚC 6: Bọc Scaffold bằng PopScope để xử lý nút back của hệ thống
+
+    // Lấy style cho label từ theme
+    final navBarTheme = theme.navigationBarTheme;
+    final Set<WidgetState> states = _isMenuOpen ? {WidgetState.selected} : {};
+    final labelStyle = navBarTheme.labelTextStyle?.resolve(states);
+    final iconColor = navBarTheme.iconTheme?.resolve(states)?.color;
+
     return PopScope(
       canPop: !_isMenuOpen,
       onPopInvokedWithResult: (didPop, result) {
@@ -219,20 +217,47 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
           children: _pages,
         ),
         bottomNavigationBar: NavigationBar(
-          height: 75,
           selectedIndex: destinationIndex,
           onDestinationSelected: _onItemTapped,
           destinations: [
             const NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
             const NavigationDestination(icon: Icon(Icons.door_sliding_outlined), selectedIcon: Icon(Icons.door_sliding), label: 'Closets'),
             
-            // BƯỚC 7: Cập nhật widget cho nút "Add" ở giữa
-            NavigationDestination(
-              icon: RotationTransition(
-                turns: Tween(begin: 0.0, end: 0.125).animate(_animationController),
-                child: const Icon(Icons.add_circle),
+            // THAY ĐỔI Ở ĐÂY:
+            // Bọc icon và text trong một Column
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6.0), // <-- CHỈNH SỬA GIÁ TRỊ NÀY ĐỂ ĐẨY LÊN
+              child: GestureDetector(
+                onTap: _toggleMenu,
+                behavior: HitTestBehavior.opaque,
+                child: Tooltip(
+                  message: "Add item",
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                          child: _isMenuOpen 
+                            ? Icon(
+                                Icons.cancel,
+                                key: const ValueKey('cancel_icon'),
+                                size: 45,
+                                color: iconColor, // <-- SỬ DỤNG BIẾN MỚI
+                              )
+                            : Icon(
+                                Icons.add_circle_outline,
+                                key: const ValueKey('add_icon'),
+                                size: 45,
+                                color: iconColor, // <-- SỬ DỤNG BIẾN MỚI
+                              ),
+                        ),
+                      const SizedBox(height: 0),
+                      Text('Add items', style: labelStyle),
+                    ],
+                  ),
+                ),
               ),
-              label: 'Add items',
             ),
             const NavigationDestination(icon: Icon(Icons.collections_bookmark_outlined), selectedIcon: Icon(Icons.collections_bookmark), label: 'Outfits'),
             const NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile'),
@@ -243,7 +268,6 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
   }
 }
 
-// BƯỚC 8: Thêm class CustomPainter để vẽ hình tam giác
 class TrianglePainter extends CustomPainter {
   final Color color;
   TrianglePainter({required this.color});
@@ -251,11 +275,11 @@ class TrianglePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()..color = color;
-    final path = Path();
-    path.moveTo(size.width / 2, size.height); // Đỉnh dưới cùng (ở giữa)
-    path.lineTo(0, 0); // Đỉnh trái trên
-    path.lineTo(size.width, 0); // Đỉnh phải trên
-    path.close();
+    final path = Path()
+      ..moveTo(size.width / 2, size.height)
+      ..lineTo(0, 0)
+      ..lineTo(size.width, 0)
+      ..close();
     canvas.drawPath(path, paint);
   }
 

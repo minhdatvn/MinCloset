@@ -95,13 +95,19 @@ final ThemeData appTheme = ThemeData(
 
   navigationBarTheme: NavigationBarThemeData(
     height: 75,
-    backgroundColor: Colors.white.withValues(alpha:0.9), // Hơi trong suốt để thấy nội dung phía sau
-    elevation: 0, // Bỏ elevation vì đã có nền trong suốt
+    backgroundColor: Colors.white.withValues(alpha:0.9),
+    elevation: 0,
+    indicatorColor: mintyTeal.withValues(alpha:0.1), // Thêm màu nền cho mục được chọn
     indicatorShape: const StadiumBorder(),
+    iconTheme: WidgetStateProperty.resolveWith<IconThemeData>(
+      (Set<WidgetState> states) => states.contains(WidgetState.selected)
+        ? const IconThemeData(color: mintyTeal) // Màu icon khi được chọn
+        : IconThemeData(color: almostBlack.withValues(alpha:0.8)), // Màu icon khi không được chọn
+    ),
     labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>(
       (Set<WidgetState> states) => states.contains(WidgetState.selected)
-          ? const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)
-          : const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+        ? TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: mintyTeal) // Màu chữ khi được chọn
+        : TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: almostBlack.withValues(alpha:0.8)), // Màu chữ khi không được chọn
     ),
   ),
 );

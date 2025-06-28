@@ -108,7 +108,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   void onOccasionsChanged(Set<String> occasions) => state = state.copyWith(selectedOccasions: occasions);
   void onMaterialsChanged(Set<String> materials) => state = state.copyWith(selectedMaterials: materials);
   void onPatternsChanged(Set<String> patterns) => state = state.copyWith(selectedPatterns: patterns);
-
+  
   Future<void> pickImage(ImageSource source) async {
     final imagePicker = ImagePicker();
     final pickedFile = await imagePicker.pickImage(source: source, maxWidth: 1024, imageQuality: 85);
@@ -130,6 +130,10 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     } else if (mounted) {
       state = state.copyWith(isAnalyzing: false);
     }
+  }
+
+  void toggleFavorite() {
+    state = state.copyWith(isFavorite: !state.isFavorite);
   }
 
   Future<bool> saveItem() async {
@@ -178,6 +182,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
           occasion: state.selectedOccasions.join(', '),
           material: state.selectedMaterials.join(', '),
           pattern: state.selectedPatterns.join(', '),
+          isFavorite: state.isFavorite,
         );
 
         final result = state.isEditing

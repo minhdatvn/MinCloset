@@ -122,13 +122,28 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(state.isEditing ? 'Edit item' : 'Add item'),
+        // <<< BẮT ĐẦU THAY THẾ TỪ ĐÂY >>>
         actions: [
-          if (state.isEditing || state.image == null)
+          // 1. Chỉ hiện nút "Thêm ảnh" khi TẠO MỚI và CHƯA CÓ ẢNH
+          if (!state.isEditing && state.image == null)
             IconButton(
               icon: const Icon(Icons.add_a_photo_outlined),
               onPressed: () => _showImageSourceActionSheet(context),
-              tooltip: 'Choose another photo',
+              tooltip: 'Add a photo',
             ),
+
+          // 2. Chỉ hiện nút "Favorite" khi SỬA
+          if (state.isEditing)
+            IconButton(
+              icon: Icon(
+                state.isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: state.isFavorite ? Colors.pink : null,
+              ),
+              onPressed: () => notifier.toggleFavorite(),
+              tooltip: state.isFavorite ? 'Remove from favorites' : 'Add to favorites',
+            ),
+          
+          // 3. Giữ nguyên nút "Delete" khi SỬA
           if (state.isEditing)
             IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.red),

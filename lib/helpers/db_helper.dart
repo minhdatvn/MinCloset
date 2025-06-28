@@ -32,7 +32,7 @@ class DatabaseHelper {
         imagePath TEXT,
         thumbnailPath TEXT, 
         closetId TEXT, season TEXT, occasion TEXT,
-        material TEXT, pattern TEXT
+        material TEXT, pattern TEXT, isFavorite INTEGER DEFAULT 0
       )""");
     
     // <<< THAY ĐỔI 2: Thêm cột thumbnailPath >>>
@@ -100,7 +100,7 @@ class DatabaseHelper {
     final db = await instance.database;
     return db.query(
       'clothing_items',
-      orderBy: 'id DESC',
+      orderBy: 'isFavorite DESC, id DESC',
       limit: limit,
       offset: offset,
     );
@@ -112,7 +112,7 @@ class DatabaseHelper {
       'clothing_items',
       where: 'closetId = ?',
       whereArgs: [closetId],
-      orderBy: 'id DESC',
+      orderBy: 'isFavorite DESC, id DESC',
       limit: limit,
       offset: offset,
     );
@@ -142,7 +142,7 @@ class DatabaseHelper {
       'clothing_items',
       where: 'name LIKE ?',
       whereArgs: ['%$query%'],
-      orderBy: 'id DESC',
+      orderBy: 'isFavorite DESC, id DESC',
       limit: limit,
       offset: offset,
     );

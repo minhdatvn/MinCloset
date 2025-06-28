@@ -11,7 +11,7 @@ class AddItemState extends Equatable {
   final String name;
   final File? image;
   final String? imagePath;
-  final String? thumbnailPath; // <<< THÊM MỚI
+  final String? thumbnailPath;
   final String? selectedClosetId;
   final String selectedCategoryValue;
   final Set<String> selectedColors;
@@ -19,6 +19,7 @@ class AddItemState extends Equatable {
   final Set<String> selectedOccasions;
   final Set<String> selectedMaterials;
   final Set<String> selectedPatterns;
+  final bool isFavorite; // <<< THÊM DÒNG NÀY
 
   // Trạng thái của UI
   final bool isLoading;
@@ -32,7 +33,7 @@ class AddItemState extends Equatable {
     this.name = '',
     this.image,
     this.imagePath,
-    this.thumbnailPath, // <<< THÊM MỚI
+    this.thumbnailPath,
     this.selectedClosetId,
     this.selectedCategoryValue = '',
     this.selectedColors = const {},
@@ -40,6 +41,7 @@ class AddItemState extends Equatable {
     this.selectedOccasions = const {},
     this.selectedMaterials = const {},
     this.selectedPatterns = const {},
+    this.isFavorite = false, // <<< THÊM GIÁ TRỊ MẶC ĐỊNH
     this.isLoading = false,
     this.isEditing = false,
     this.isAnalyzing = false,
@@ -54,7 +56,7 @@ class AddItemState extends Equatable {
       id: item.id,
       name: item.name,
       imagePath: item.imagePath,
-      thumbnailPath: item.thumbnailPath, // <<< THÊM MỚI
+      thumbnailPath: item.thumbnailPath,
       selectedClosetId: item.closetId,
       selectedCategoryValue: item.category,
       selectedColors: stringToSet(item.color),
@@ -62,6 +64,7 @@ class AddItemState extends Equatable {
       selectedOccasions: stringToSet(item.occasion),
       selectedMaterials: stringToSet(item.material),
       selectedPatterns: stringToSet(item.pattern),
+      isFavorite: item.isFavorite, // <<< THÊM DÒNG NÀY
       isEditing: true,
     );
   }
@@ -71,7 +74,7 @@ class AddItemState extends Equatable {
     String? name,
     File? image,
     String? imagePath,
-    String? thumbnailPath, // <<< THÊM MỚI
+    String? thumbnailPath,
     String? selectedClosetId,
     String? selectedCategoryValue,
     Set<String>? selectedColors,
@@ -79,6 +82,7 @@ class AddItemState extends Equatable {
     Set<String>? selectedOccasions,
     Set<String>? selectedMaterials,
     Set<String>? selectedPatterns,
+    bool? isFavorite, // <<< THÊM DÒNG NÀY
     bool? isLoading,
     bool? isEditing,
     bool? isAnalyzing,
@@ -90,7 +94,7 @@ class AddItemState extends Equatable {
       name: name ?? this.name,
       image: image ?? this.image,
       imagePath: imagePath ?? this.imagePath,
-      thumbnailPath: thumbnailPath ?? this.thumbnailPath, // <<< THÊM MỚI
+      thumbnailPath: thumbnailPath ?? this.thumbnailPath,
       selectedClosetId: selectedClosetId ?? this.selectedClosetId,
       selectedCategoryValue: selectedCategoryValue ?? this.selectedCategoryValue,
       selectedColors: selectedColors ?? this.selectedColors,
@@ -98,6 +102,7 @@ class AddItemState extends Equatable {
       selectedOccasions: selectedOccasions ?? this.selectedOccasions,
       selectedMaterials: selectedMaterials ?? this.selectedMaterials,
       selectedPatterns: selectedPatterns ?? this.selectedPatterns,
+      isFavorite: isFavorite ?? this.isFavorite, // <<< THÊM DÒNG NÀY
       isLoading: isLoading ?? this.isLoading,
       isEditing: isEditing ?? this.isEditing,
       isAnalyzing: isAnalyzing ?? this.isAnalyzing,
@@ -108,22 +113,10 @@ class AddItemState extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        image,
-        imagePath,
-        thumbnailPath, // <<< THÊM MỚI
-        selectedClosetId,
-        selectedCategoryValue,
-        selectedColors,
-        selectedSeasons,
-        selectedOccasions,
-        selectedMaterials,
-        selectedPatterns,
-        isLoading,
-        isEditing,
-        isAnalyzing,
-        errorMessage,
-        isSuccess,
+        id, name, image, imagePath, thumbnailPath, selectedClosetId,
+        selectedCategoryValue, selectedColors, selectedSeasons,
+        selectedOccasions, selectedMaterials, selectedPatterns,
+        isFavorite, // <<< THÊM isFavorite VÀO ĐÂY
+        isLoading, isEditing, isAnalyzing, errorMessage, isSuccess,
       ];
 }

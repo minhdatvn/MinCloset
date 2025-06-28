@@ -53,7 +53,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           children: <Widget>[
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('Choose from album'),
+              title: const Text('From album'),
               onTap: () {
                 Navigator.of(ctx).pop();
                 notifier.pickImage(ImageSource.gallery);

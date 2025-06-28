@@ -84,7 +84,7 @@ class SettingsPage extends ConsumerWidget {
 
           SwitchListTile(
             title: const Text('Show weather background'),
-            subtitle: const Text('Display image based on weather on Outfit suggestions'),
+            subtitle: const Text('Display image based on weather'),
             value: state.showWeatherImage,
             onChanged: (bool value) {
               notifier.updateShowWeatherImage(value);

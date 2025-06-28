@@ -44,7 +44,7 @@ class _GlobalAddButtonState extends ConsumerState<GlobalAddButton> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Choose from album (up to 10)'),
+              title: const Text('From album (up to 10)'),
               onTap: () {
                 Navigator.of(ctx).pop();
                 _pickAndAnalyzeImages(ImageSource.gallery);

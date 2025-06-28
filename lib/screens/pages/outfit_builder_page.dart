@@ -400,7 +400,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Outfit Studio'),
+        title: const Text('Outfit studio'),
         leading: IconButton(icon: const Icon(Icons.close), onPressed: () => _editorKey.currentState?.closeEditor()),
         actions: [
           if (_isSaving)

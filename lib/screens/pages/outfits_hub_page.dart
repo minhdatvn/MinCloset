@@ -378,7 +378,7 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
               Icon(Icons.add_circle_outline, size: 40, color: Colors.grey.shade600),
               const SizedBox(height: 8),
               const Text(
-                'Create new outfits', // <<< SỬA LẠI CHUỖI TEXT Ở ĐÂY >>>
+                'Create outfits', // <<< SỬA LẠI CHUỖI TEXT Ở ĐÂY >>>
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ],

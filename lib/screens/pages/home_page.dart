@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
+import 'package:mincloset/helpers/weather_helper.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/notifiers/home_page_notifier.dart';
@@ -15,11 +16,10 @@ import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/home_page_state.dart';
-import 'package:mincloset/widgets/action_card.dart';
+import 'package:mincloset/widgets/gradient_action_card.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:mincloset/widgets/section_header.dart';
 import 'package:mincloset/widgets/stats_overview_card.dart';
-import 'package:mincloset/helpers/weather_helper.dart';
 
 final recentItemsProvider =
     FutureProvider.autoDispose<List<ClothingItem>>((ref) async {
@@ -90,7 +90,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               _buildRecentlyAddedSection(context, ref),
               const SizedBox(height: 32),
               const SectionHeader(
-                title: 'Outfit Suggestions',
+                title: 'Outfit suggestion',
               ),
               const SizedBox(height: 16),
               // Truyền ref vào hàm build card
@@ -132,15 +132,21 @@ class _HomePageState extends ConsumerState<HomePage> {
         const SizedBox(height: 16),
         Row(
           children: [
-            ActionCard(
-              label: 'Create new outfits',
-              icon: Icons.auto_awesome_outlined,
+            // SỬ DỤNG WIDGET MỚI
+            GradientActionCard(
+              label: 'Create outfits',
+              icon: Icons.design_services_outlined,
+              // THAY THẾ BẰNG ĐƯỜNG DẪN ẢNH CỦA BẠN
+              imagePath: 'assets/images/cards/create_outfits_bg.webp', 
               onTap: () => Navigator.pushNamed(context, AppRoutes.outfitBuilder),
             ),
             const SizedBox(width: 16),
-            ActionCard(
+            // SỬ DỤNG WIDGET MỚI
+            GradientActionCard(
               label: 'Saved outfits',
               icon: Icons.collections_bookmark_outlined,
+              // THAY THẾ BẰNG ĐƯỜNG DẪN ẢNH CỦA BẠN
+              imagePath: 'assets/images/cards/saved_outfits_bg.webp',
               onTap: () => ref.read(mainScreenIndexProvider.notifier).state = 2,
             ),
           ],
@@ -154,7 +160,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Column(
       children: [
         SectionHeader(
-          title: 'Latest Items',
+          title: 'Newest items',
           seeAllText: 'View all',
           onSeeAll: () {
             ref.read(mainScreenIndexProvider.notifier).state = 1;
@@ -304,7 +310,10 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ElevatedButton.icon(
                       key: const ValueKey('new_suggestion_button'),
                       icon: const Icon(Icons.auto_awesome, size: 18),
-                      label: const Text('Get Suggestion'),
+                      label: const Text(
+                        'Get',
+                        style: TextStyle(fontWeight: FontWeight.normal), // <-- THÊM DÒNG NÀY
+                      ),
                       onPressed: state.isLoading ? null : notifier.getNewSuggestion,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: theme.colorScheme.primary.withValues(alpha:0.4),
@@ -314,7 +323,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           color: theme.colorScheme.primary,
                           width: 1.5,
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.0),
                         ),
@@ -364,7 +373,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               : Center(
                   heightFactor: 5,
                   child: Text(
-                    state.errorMessage ?? 'Tap "Get Suggestions" to see outfit recommendations!',
+                    state.errorMessage ?? 'Tap "Get" to see outfit recommendation!',
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
                   ),

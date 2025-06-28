@@ -125,7 +125,7 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
                                     const Divider(height: 1),
                                     ListTile(
                                       leading: const Icon(Icons.photo_library_outlined),
-                                      title: const Text('Choose from album (up to 10)'),
+                                      title: const Text('From album (up to 10)'),
                                       onTap: () => performAction(ImageSource.gallery),
                                     ),
                                   ],

@@ -86,7 +86,7 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
         return GestureDetector(
           onTap: _closeMenu,
           child: Material(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha:0.5),
             child: SafeArea(
               child: Stack(
                 children: [
@@ -226,7 +226,7 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
             // THAY ĐỔI Ở ĐÂY:
             // Bọc icon và text trong một Column
             Padding(
-              padding: const EdgeInsets.only(bottom: 6.0), // <-- CHỈNH SỬA GIÁ TRỊ NÀY ĐỂ ĐẨY LÊN
+              padding: const EdgeInsets.only(bottom: 5.8), // <-- CHỈNH SỬA GIÁ TRỊ NÀY ĐỂ ĐẨY LÊN
               child: GestureDetector(
                 onTap: _toggleMenu,
                 behavior: HitTestBehavior.opaque,
@@ -252,7 +252,6 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
                                 color: iconColor, // <-- SỬ DỤNG BIẾN MỚI
                               ),
                         ),
-                      const SizedBox(height: 0),
                       Text('Add items', style: labelStyle),
                     ],
                   ),

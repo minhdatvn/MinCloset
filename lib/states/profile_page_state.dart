@@ -10,13 +10,14 @@ class ProfilePageState extends Equatable {
   final String? userName;
   final String? avatarPath;
   final String? gender;
-  final DateTime? dob; // <<< THAY age (int) BẰNG dob (DateTime) >>>
+  final DateTime? dob;
   final int? height;
   final int? weight;
-  final Set<String> personalStyles; // <<< THÊM MỚI >>>
-  final Set<String> favoriteColors; // <<< THÊM MỚI >>>
+  final Set<String> personalStyles;
+  final Set<String> favoriteColors;
   final CityMode cityMode;
   final String manualCity;
+  final bool showWeatherImage; // <<< THÊM DÒNG NÀY
   final int totalItems;
   final int totalClosets;
   final int totalOutfits;
@@ -38,6 +39,7 @@ class ProfilePageState extends Equatable {
     this.favoriteColors = const {},
     this.cityMode = CityMode.auto,
     this.manualCity = 'Da Nang',
+    this.showWeatherImage = true, // <<< THÊM DÒNG NÀY (giá trị mặc định là true)
     this.totalItems = 0,
     this.totalClosets = 0,
     this.totalOutfits = 0,
@@ -48,7 +50,6 @@ class ProfilePageState extends Equatable {
     this.errorMessage,
   });
 
-  // <<< THÊM GETTER TÍNH TUỔI TỪ NGÀY SINH >>>
   int? get age {
     if (dob == null) return null;
     final today = DateTime.now();
@@ -72,6 +73,7 @@ class ProfilePageState extends Equatable {
     Set<String>? favoriteColors,
     CityMode? cityMode,
     String? manualCity,
+    bool? showWeatherImage, // <<< THÊM DÒNG NÀY
     int? totalItems,
     int? totalClosets,
     int? totalOutfits,
@@ -93,6 +95,7 @@ class ProfilePageState extends Equatable {
       favoriteColors: favoriteColors ?? this.favoriteColors,
       cityMode: cityMode ?? this.cityMode,
       manualCity: manualCity ?? this.manualCity,
+      showWeatherImage: showWeatherImage ?? this.showWeatherImage, // <<< THÊM DÒNG NÀY
       totalItems: totalItems ?? this.totalItems,
       totalClosets: totalClosets ?? this.totalClosets,
       totalOutfits: totalOutfits ?? this.totalOutfits,
@@ -117,6 +120,7 @@ class ProfilePageState extends Equatable {
         favoriteColors,
         cityMode,
         manualCity,
+        showWeatherImage, // <<< THÊM DÒNG NÀY
         totalItems,
         totalClosets,
         totalOutfits,

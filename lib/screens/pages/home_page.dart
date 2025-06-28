@@ -210,119 +210,122 @@ class _HomePageState extends ConsumerState<HomePage> {
   
   // <<< THAY ĐỔI 3: Thêm tham số ref và sửa đổi logic hiển thị địa điểm >>>
   Widget _buildTodaysSuggestionCard(BuildContext context, WidgetRef ref, HomePageState state) {
-    final theme = Theme.of(context);
-    final notifier = ref.read(homeProvider.notifier);
-    final String backgroundImagePath = WeatherHelper.getBackgroundImageForWeather(
-      state.weather?['weather'][0]['icon'] as String?,
-    );
+  final theme = Theme.of(context);
+  final notifier = ref.read(homeProvider.notifier);
+  // Đọc trạng thái từ profileProvider để lấy cài đặt mới
+  final profileState = ref.watch(profileProvider);
 
-    return Card(
-      elevation: 0,
-      color: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(
-          color: theme.colorScheme.outline,
-          width: 1,
-        ),
-        borderRadius: BorderRadius.circular(16),
+  final String backgroundImagePath = WeatherHelper.getBackgroundImageForWeather(
+    state.weather?['weather'][0]['icon'] as String?,
+  );
+
+  return Card(
+    elevation: 0,
+    color: Colors.transparent,
+    shape: RoundedRectangleBorder(
+      side: BorderSide(
+        color: theme.colorScheme.outline,
+        width: 1,
       ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ===== HEADER SECTION =====
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(15.0)),
-            child: Stack(
-              children: [
-                // LỚP 1: HÌNH ẢNH NỀN (GIỮ NGUYÊN)
-                Positioned.fill(
-                  child: Image.asset(
-                    backgroundImagePath,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                // LỚP 2: LỚP GRADIENT (Ở GIỮA)
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        // <<< THAY ĐỔI HƯỚNG GRADIENT TẠI ĐÂY >>>
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [
-                          Colors.white, // Bắt đầu bằng màu trắng đục ở dưới
-                          Colors.white.withValues(alpha:0.0), // Kết thúc bằng màu trong suốt ở trên
-                        ],
-                        // Điều chỉnh điểm dừng để gradient bắt đầu mờ dần từ khoảng giữa
-                        stops: const [0.0, 0.8], 
+      borderRadius: BorderRadius.circular(16),
+    ),
+    clipBehavior: Clip.antiAlias,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ===== HEADER SECTION =====
+        ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(15.0)),
+          child: Stack(
+            children: [
+              // LỚP 1: HÌNH ẢNH NỀN (ĐÃ ĐƯỢC THAY ĐỔI)
+              Positioned.fill(
+                // <<< THAY ĐỔI CỐT LÕI NẰM Ở ĐÂY >>>
+                child: profileState.showWeatherImage
+                    ? Image.asset( // Nếu BẬT, hiện ảnh
+                        backgroundImagePath,
+                        fit: BoxFit.cover,
+                      )
+                    : Container( // Nếu TẮT, hiện màu nền
+                        color: theme.colorScheme.surfaceContainerHighest,
                       ),
+              ),
+              // LỚP 2: LỚP GRADIENT (GIỮ NGUYÊN)
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        // Điều chỉnh để gradient đẹp hơn trên nền màu
+                        profileState.showWeatherImage ? Colors.white : theme.colorScheme.surfaceContainerHighest,
+                        profileState.showWeatherImage
+                            ? Colors.white.withValues(alpha:0.0)
+                            : theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.0),
+                      ],
+                      stops: const [0.0, 0.8],
                     ),
                   ),
                 ),
+              ),
 
-                // LỚP 3: NỘI DUNG (GIỮ NGUYÊN)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (state.weather?['name'] != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
-                                child: Text(
-                                  state.weather!['name'] as String,
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                ),
+              // LỚP 3: NỘI DUNG (GIỮ NGUYÊN)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 4, 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (state.weather?['name'] != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
+                              child: Text(
+                                state.weather!['name'] as String,
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               ),
-                            (state.weather != null
-                              ? Row(
-                                  children: [
-                                    Icon(_getWeatherIcon(state.weather!['weather'][0]['icon'] as String), color: Colors.orange.shade700, size: 32),
-                                    const SizedBox(width: 8),
-                                    Text('${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-                                  ],
-                                )
-                              : const SizedBox(height: 40, child: Center(child: Text("Weather data unavailable.")))
-                            )
-                          ],
+                            ),
+                          (state.weather != null
+                            ? Row(
+                                children: [
+                                  Icon(_getWeatherIcon(state.weather!['weather'][0]['icon'] as String), color: Colors.orange.shade700, size: 32),
+                                  const SizedBox(width: 8),
+                                  Text('${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                                ],
+                              )
+                            : const SizedBox(height: 40, child: Center(child: Text("Weather data unavailable.")))
+                          )
+                        ],
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      key: const ValueKey('new_suggestion_button'),
+                      icon: const Icon(Icons.auto_awesome, size: 18),
+                      label: const Text('Get Suggestion'),
+                      onPressed: state.isLoading ? null : notifier.getNewSuggestion,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.colorScheme.primary.withValues(alpha:0.4),
+                        foregroundColor: Colors.black,
+                        elevation: 0,
+                        side: BorderSide(
+                          color: theme.colorScheme.primary,
+                          width: 1.5,
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.0),
                         ),
                       ),
-                      ElevatedButton.icon(
-                        key: const ValueKey('new_suggestion_button'),
-                        icon: const Icon(Icons.auto_awesome, size: 18),
-                        label: const Text('Get Suggestion'),
-                        onPressed: state.isLoading ? null : notifier.getNewSuggestion,
-                        
-                        // <<< THAY THẾ TOÀN BỘ KHỐI style BẰNG KHỐI NÀY >>>
-                        style: ElevatedButton.styleFrom(
-                          // Màu nền xanh trong suốt 60%
-                          backgroundColor: theme.colorScheme.primary.withValues(alpha:0.4), 
-                          // Màu chữ và icon là màu đen
-                          foregroundColor: Colors.black, 
-                          // Bỏ độ bóng và độ nổi
-                          elevation: 0, 
-                          // Thêm đường viền
-                          side: BorderSide(
-                            color: theme.colorScheme.primary, // Màu viền là màu chủ đạo
-                            width: 1.5,
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+        ),
 
           // ===== PHẦN 2: NỘI DUNG GỢI Ý (NỀN TRẮNG) =====
           Padding(

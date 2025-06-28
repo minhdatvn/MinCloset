@@ -14,12 +14,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   final Ref _ref;
-  // <<< THAY ĐỔI 1: Khai báo các dependency tường minh >>>
   final ClosetRepository _closetRepo;
   final ClothingItemRepository _itemRepo;
   final OutfitRepository _outfitRepo;
 
-  // <<< THAY ĐỔI 2: Truyền dependency vào constructor >>>
   ProfilePageNotifier(
     this._ref,
     this._closetRepo,
@@ -40,7 +38,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     try {
       logger.i('Loading profile data...');
       final prefs = await SharedPreferences.getInstance();
-      // <<< THAY ĐỔI 3: Không cần đọc repo từ ref ở đây nữa >>>
       logger.i('1, 2. Repositories and SharedPreferences initialized.');
 
       final userName = prefs.getString('user_name') ?? 'MinCloset user';
@@ -56,9 +53,10 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       final cityModeString = prefs.getString('city_mode') ?? 'auto';
       final cityMode = CityMode.values.byName(cityModeString);
       final manualCity = prefs.getString('manual_city_name') ?? 'Ha Noi, VN';
+      // <<< THÊM MỚI: Đọc giá trị cài đặt ảnh nền thời tiết >>>
+      final showWeatherImage = prefs.getBool('show_weather_image') ?? true;
       logger.i('3. Successfully read SharedPreferences.');
 
-      // <<< THAY ĐỔI 4: Sử dụng trực tiếp các repo đã được inject >>>
       final allItemsResult = await _itemRepo.getAllItems();
       allItemsResult.fold(
         (failure) {
@@ -138,6 +136,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
                     favoriteColors: favoriteColors,
                     cityMode: cityMode,
                     manualCity: manualCity,
+                    showWeatherImage: showWeatherImage, // <<< THÊM MỚI: Cập nhật state >>>
                     totalItems: allItems.length,
                     totalClosets: allClosets.length,
                     totalOutfits: allOutfits.length,
@@ -164,7 +163,16 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     }
   }
 
+  // <<< BẮT ĐẦU: THÊM HÀM MỚI Ở ĐÂY >>>
+  Future<void> updateShowWeatherImage(bool newValue) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('show_weather_image', newValue);
+    state = state.copyWith(showWeatherImage: newValue);
+  }
+  // <<< KẾT THÚC: THÊM HÀM MỚI Ở ĐÂY >>>
+
   Future<void> updateAvatar() async {
+    // ... (logic không đổi)
     final imagePicker = ImagePicker();
     final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
 
@@ -177,6 +185,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   }
 
   Future<void> updateProfileInfo(Map<String, dynamic> data) async {
+    // ... (logic không đổi)
     final prefs = await SharedPreferences.getInstance();
 
     final name = data['name'] as String?;
@@ -221,6 +230,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
 
   Future<void> updateCityPreference(
       CityMode mode, CitySuggestion? suggestion) async {
+    // ... (logic không đổi)
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('city_mode', mode.name);
 
@@ -242,6 +252,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
 
   Future<void> _saveString(
       SharedPreferences prefs, String key, String? value) async {
+    // ... (logic không đổi)
     if (value != null && value.isNotEmpty) {
       await prefs.setString(key, value);
     } else {
@@ -250,6 +261,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   }
 
   Future<void> _saveInt(SharedPreferences prefs, String key, int? value) async {
+    // ... (logic không đổi)
     if (value != null) {
       await prefs.setInt(key, value);
     } else {
@@ -260,7 +272,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
 
 final profileProvider =
     StateNotifierProvider<ProfilePageNotifier, ProfilePageState>((ref) {
-  // <<< THAY ĐỔI 5: Lấy dependency và truyền vào Notifier >>>
   final closetRepo = ref.watch(closetRepositoryProvider);
   final itemRepo = ref.watch(clothingItemRepositoryProvider);
   final outfitRepo = ref.watch(outfitRepositoryProvider);

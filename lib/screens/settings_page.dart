@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/locale_provider.dart';
 import 'package:mincloset/routing/app_routes.dart';
-import 'package:mincloset/providers/settings_provider.dart';
+
 import 'package:mincloset/states/profile_page_state.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -53,11 +53,13 @@ class SettingsPage extends ConsumerWidget {
         );
       },
     );
+    
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(profileProvider);
+    final notifier = ref.read(profileProvider.notifier);
     final locale = ref.watch(localeProvider);
 
     return Scaffold(
@@ -79,6 +81,18 @@ class SettingsPage extends ConsumerWidget {
             },
           ),
           const Divider(),
+
+          SwitchListTile(
+            title: const Text('Show weather background'),
+            subtitle: const Text('Display image based on weather on Outfit suggestions'),
+            value: state.showWeatherImage,
+            onChanged: (bool value) {
+              notifier.updateShowWeatherImage(value);
+            },
+            secondary: const Icon(Icons.image_outlined),
+          ),
+          const Divider(),
+          
           ListTile(
             leading: const Icon(Icons.language_outlined),
             title: const Text('Language'),

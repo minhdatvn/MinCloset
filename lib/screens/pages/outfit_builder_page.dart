@@ -287,32 +287,35 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   }
 
   Widget _buildSecondaryToolbar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          TextButton.icon(
-            icon: const Icon(Icons.photo_library_outlined, size: 18),
-            label: const Text('Change background'),
-            onPressed: _pickBackgroundImage,
-            style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
-          ),
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.undo),
-                tooltip: 'Undo',
-                onPressed: () => _editorKey.currentState?.undoAction(),
-              ),
-              IconButton(
-                icon: const Icon(Icons.redo),
-                tooltip: 'Redo',
-                onPressed: () => _editorKey.currentState?.redoAction(),
-              ),
-            ],
-          ),
-        ],
+    return Material( // Thêm Material widget
+      color: Theme.of(context).scaffoldBackgroundColor, // Đặt màu nền
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton.icon(
+              icon: const Icon(Icons.photo_library_outlined, size: 18),
+              label: const Text('Change background'),
+              onPressed: _pickBackgroundImage,
+              style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
+            ),
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.undo),
+                  tooltip: 'Undo',
+                  onPressed: () => _editorKey.currentState?.undoAction(),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.redo),
+                  tooltip: 'Redo',
+                  onPressed: () => _editorKey.currentState?.redoAction(),
+                ),
+              ],
+            ),
+          ],
+        )
       ),
     );
   }
@@ -424,46 +427,56 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
       ),
       body: Stack(
         children: [
+          // Lớp dưới cùng: Nền xám và Editor
           Column(
             children: [
-              _buildSecondaryToolbar(),
-              const Divider(height: 1),
+              const SizedBox(height: 48), // Giữ khoảng trống cho toolbar
               Expanded(
-                child: _imageData == null
-                    ? const Center(child: CircularProgressIndicator())
-                    : ProImageEditor.memory(
-                        _imageData!,
-                        key: _editorKey,
-                        callbacks: ProImageEditorCallbacks(
-                          onImageEditingComplete: (_) async {},
-                          onCloseEditor: (EditorMode mode) {
-                            if (Navigator.of(context).canPop()) {
-                              Navigator.of(context).pop();
-                            }
-                          },
-                        ),
-                        configs: ProImageEditorConfigs(
-                          mainEditor: MainEditorConfigs(
-                            style: MainEditorStyle(background: Colors.grey.shade200),
-                            widgets: MainEditorWidgets(appBar: (_, __) => null),
-                          ),
-                          stickerEditor: StickerEditorConfigs(
-                            enabled: true,
-                            builder: (setLayer, scrollController) {
-                              return const Center(
-                                child: Text('Stickers will be available soon.'),
-                              );
+                child: Container(
+                  // 1. TẠO VÙNG ĐỆM MÀU XÁM
+                  color: Colors.grey.shade200,
+                  child: _imageData == null
+                      ? const Center(child: CircularProgressIndicator())
+                      : ProImageEditor.memory(
+                          _imageData!,
+                          key: _editorKey,
+                          callbacks: ProImageEditorCallbacks(
+                            onImageEditingComplete: (_) async {},
+                            onCloseEditor: (EditorMode mode) {
+                              if (Navigator.of(context).canPop()) {
+                                Navigator.of(context).pop();
+                              }
                             },
                           ),
-                          cropRotateEditor: const CropRotateEditorConfigs(enabled: false),
-                          filterEditor: const FilterEditorConfigs(enabled: false),
-                          blurEditor: const BlurEditorConfigs(enabled: false),
-                          tuneEditor: const TuneEditorConfigs(enabled: false),
+                          configs: ProImageEditorConfigs(
+                            mainEditor: MainEditorConfigs(
+                              // 2. LÀM TRONG SUỐT NỀN EDITOR ĐỂ THẤY NỀN XÁM
+                              style: const MainEditorStyle(background: Colors.transparent),
+                              widgets: MainEditorWidgets(appBar: (_, __) => null),
+                            ),
+                            stickerEditor: StickerEditorConfigs(
+                              enabled: true,
+                              builder: (setLayer, scrollController) {
+                                return const Center(
+                                  child: Text('Stickers will be available soon.'),
+                                );
+                              },
+                            ),
+                            cropRotateEditor: const CropRotateEditorConfigs(enabled: false),
+                            filterEditor: const FilterEditorConfigs(enabled: false),
+                            blurEditor: const BlurEditorConfigs(enabled: false),
+                            tuneEditor: const TuneEditorConfigs(enabled: false),
+                          ),
                         ),
-                      ),
+                ),
               ),
             ],
           ),
+
+          // Lớp trên cùng: Thanh công cụ "Change background"
+          _buildSecondaryToolbar(),
+
+          // Lớp trên cùng nhất: Thanh trượt vật phẩm (không thay đổi)
           Positioned(
             bottom: 60.0,
             left: 0,

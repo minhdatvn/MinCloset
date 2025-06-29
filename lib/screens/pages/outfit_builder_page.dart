@@ -1,7 +1,7 @@
 // lib/screens/pages/outfit_builder_page.dart
 import 'dart:io';
 import 'dart:typed_data';
-
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image/image.dart' as img;
@@ -341,7 +341,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
 
         return Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor.withAlpha(242),
+            color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20.0)),
             boxShadow: [BoxShadow(color: Colors.black.withAlpha(38), blurRadius: 10)],
           ),
@@ -465,6 +465,16 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                                   background: Colors.transparent),
                               widgets:
                                   MainEditorWidgets(appBar: (_, __) => null),
+                            ),
+                            textEditor: TextEditorConfigs(
+                              showSelectFontStyleBottomBar: true,
+                              customTextStyles: [
+                                GoogleFonts.roboto(),
+                                GoogleFonts.beVietnamPro(),
+                                GoogleFonts.lora(),
+                                GoogleFonts.montserrat(),
+                                GoogleFonts.pacifico(),
+                              ],
                             ),
                             stickerEditor: StickerEditorConfigs(
                               enabled: true,

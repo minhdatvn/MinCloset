@@ -1,49 +1,84 @@
 // lib/helpers/weather_helper.dart
+import 'dart:math';
 
 class WeatherHelper {
-  // Hàm tĩnh để có thể gọi trực tiếp mà không cần tạo instance
-  static String getBackgroundImageForWeather(String? iconCode) {
-    const String basePath = 'assets/images/weather/';
+  // Trình tạo số ngẫu nhiên
+  static final _random = Random();
 
-    // Nếu không có iconCode, trả về ảnh mặc định
-    if (iconCode == null) {
-      return '${basePath}default.webp';
-    }
+  // Ánh xạ từ mã thời tiết sang số lượng ảnh có sẵn
+  // <<< QUAN TRỌNG: Hãy cập nhật các con số này cho đúng với số lượng ảnh bạn có >>>
+  static const Map<String, int> _imageCounts = {
+    '01d': 1, // Trời nắng
+    '04d': 1, // Nhiều mây
+    '10d': 1, // Mưa
+    '11d': 1, // Bão
+    '13d': 1, // Tuyết
+    '50d': 1, // Sương mù
+    'default': 1,
+  };
 
-    // Ánh xạ iconCode từ API thời tiết sang tên file ảnh của bạn
+  // Hàm private để nhóm các mã thời tiết tương tự nhau
+  static String _mapIconToCode(String? iconCode) {
+    if (iconCode == null) return 'default';
+
     switch (iconCode) {
-      case '01d': // clear sky day
-      case '01n': // clear sky night
-        return '${basePath}sunny.webp';
+      case '01d':
+      case '01n':
+        return '01d'; // Nắng/Quang
 
-      case '02d': // few clouds day
-      case '02n': // few clouds night
-      case '03d': // scattered clouds day
-      case '03n': // scattered clouds night
-      case '04d': // broken clouds day
-      case '04n': // broken clouds night
-        return '${basePath}cloudy.webp';
-      
-      case '09d': // shower rain day
-      case '09n': // shower rain night
-      case '10d': // rain day
-      case '10n': // rain night
-        return '${basePath}rainy.webp';
+      case '02d':
+      case '02n':
+      case '03d':
+      case '03n':
+      case '04d':
+      case '04n':
+        return '04d'; // Các loại mây
 
-      case '11d': // thunderstorm day
-      case '11n': // thunderstorm night
-        return '${basePath}storm.webp';
-      
-      case '13d': // snow day
-      case '13n': // snow night
-        return '${basePath}snow.webp';
+      case '09d':
+      case '09n':
+      case '10d':
+      case '10n':
+        return '10d'; // Các loại mưa
 
-      case '50d': // mist day
-      case '50n': // mist night
-        return '${basePath}mist.webp';
-      
+      case '11d':
+      case '11n':
+        return '11d'; // Bão
+
+      case '13d':
+      case '13n':
+        return '13d'; // Tuyết
+
+      case '50d':
+      case '50n':
+        return '50d'; // Sương mù
+
       default:
-        return '${basePath}default.webp';
+        return 'default';
     }
+  }
+
+  // Hàm chính đã được viết lại hoàn toàn
+  static String getBackgroundImageForWeather(String? iconCode) {
+    const String basePath = 'assets/images/weather_backgrounds/';
+
+    // 1. Lấy mã đại diện (ví dụ: '02d', '03n' đều trở thành '04d')
+    final String representativeCode = _mapIconToCode(iconCode);
+
+    // 2. Lấy số lượng ảnh cho mã đó từ Map, nếu không có thì mặc định là 1
+    final int count = _imageCounts[representativeCode] ?? 1;
+
+    // 3. Tạo một số ngẫu nhiên từ 1 đến `count`
+    //    _random.nextInt(count) sẽ tạo số từ 0 -> (count-1)
+    final int randomIndex = _random.nextInt(count) + 1;
+
+    // 4. Dựng lại đường dẫn file hoàn chỉnh
+    final path = '$basePath${representativeCode}_$randomIndex.webp';
+    
+    // 5. Trả về đường dẫn. Chúng ta sẽ thêm một bước kiểm tra nhỏ ở đây
+    //    để phòng trường hợp file không tồn tại, sẽ trả về ảnh mặc định.
+    //    Lưu ý: cơ chế này cần file `AssetManifest.json` nên không thể
+    //    kiểm tra trực tiếp, nhưng đây là một ví dụ về cách làm an toàn hơn.
+    //    Trong trường hợp này, chúng ta giả định file luôn tồn tại.
+    return path;
   }
 }

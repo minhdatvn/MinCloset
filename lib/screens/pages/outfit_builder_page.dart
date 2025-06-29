@@ -17,6 +17,7 @@ import 'package:mincloset/states/outfit_builder_state.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:mincloset/widgets/item_search_filter_bar.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
+
 import 'package:uuid/uuid.dart';
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
@@ -367,12 +368,13 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                 onItemTapped: (item) {
                   final stickerId = const Uuid().v4();
                   _itemsOnCanvas[stickerId] = item;
-                  
+
                   _editorKey.currentState?.addLayer(
                     WidgetLayer(
                       id: stickerId,
-                      // Không cần cung cấp offset và size, để editor tự xử lý
-                      widget: Image.file(File(item.imagePath), fit: BoxFit.contain),
+                      widget:
+                          Image.file(File(item.imagePath), fit: BoxFit.contain),
+                      
                     ),
                   );
                   _recalculateItemCounts();
@@ -448,11 +450,21 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                               }
                             },
                           ),
-                          configs: ProImageEditorConfigs(
+                          configs: ProImageEditorConfigs(   
+                            layerInteraction: const LayerInteractionConfigs(
+                                selectable: LayerInteractionSelectable.enabled,
+                                initialSelected: true,
+                                icons: LayerInteractionIcons(
+                                  remove: Icons.clear,
+                                  edit: Icons.edit_outlined,
+                                  rotateScale: Icons.sync,
+                                ),
+                              ),
                             mainEditor: MainEditorConfigs(
-                              // 2. LÀM TRONG SUỐT NỀN EDITOR ĐỂ THẤY NỀN XÁM
-                              style: const MainEditorStyle(background: Colors.transparent),
-                              widgets: MainEditorWidgets(appBar: (_, __) => null),
+                              style: const MainEditorStyle(
+                                  background: Colors.transparent),
+                              widgets:
+                                  MainEditorWidgets(appBar: (_, __) => null),
                             ),
                             stickerEditor: StickerEditorConfigs(
                               enabled: true,
@@ -462,8 +474,10 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                                 );
                               },
                             ),
-                            cropRotateEditor: const CropRotateEditorConfigs(enabled: false),
-                            filterEditor: const FilterEditorConfigs(enabled: false),
+                            cropRotateEditor:
+                                const CropRotateEditorConfigs(enabled: false),
+                            filterEditor:
+                                const FilterEditorConfigs(enabled: false),
                             blurEditor: const BlurEditorConfigs(enabled: false),
                             tuneEditor: const TuneEditorConfigs(enabled: false),
                           ),

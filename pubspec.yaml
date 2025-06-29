@@ -34,7 +34,7 @@ dependencies:
   geocoding: ^3.0.0 
   fl_chart: ^0.68.0
   font_awesome_flutter: ^10.7.0
-  pro_image_editor: ^9.13.0
+  pro_image_editor: ^10.1.1
   flutter_animate: ^4.5.2
   animated_text_kit: ^4.2.3
   sentry_flutter: ^9.1.0

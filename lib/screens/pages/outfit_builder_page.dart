@@ -159,7 +159,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
   }
 
   Future<void> _generateBlankImage(Size size) async {
-    final image = img.Image(width: size.width.toInt(), height: size.height.toInt());
+    final image = img.Image(width: 750, height: 1000);
     img.fill(image, color: img.ColorRgb8(255, 255, 255));
     if (mounted) {
       setState(() {
@@ -444,7 +444,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                         ),
                         configs: ProImageEditorConfigs(
                           mainEditor: MainEditorConfigs(
-                            style: const MainEditorStyle(background: Colors.white),
+                            style: MainEditorStyle(background: Colors.grey.shade200),
                             widgets: MainEditorWidgets(appBar: (_, __) => null),
                           ),
                           stickerEditor: StickerEditorConfigs(

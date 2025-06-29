@@ -25,7 +25,6 @@ class RecentItemCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
       ),
-      // Clip.antiAlias giúp các widget con bên trong (như ảnh) cũng được bo góc theo
       clipBehavior: Clip.antiAlias,
       child: Stack(
         fit: StackFit.expand,
@@ -43,20 +42,19 @@ class RecentItemCard extends StatelessWidget {
             ),
           ),
 
-          // Lớp 2: Viền ngoài (chỉ vẽ viền, không có nền)
-          // Được đặt trong AnimatedContainer để có hiệu ứng chuyển đổi mượt mà
+          // Lớp 2: Viền ngoài (khi được chọn)
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: isSelected ? theme.colorScheme.primary : Colors.transparent, // Trong suốt khi không được chọn
+                color: isSelected ? theme.colorScheme.primary : Colors.transparent,
                 width: isSelected ? 2.5 : 1.0,
               ),
             ),
           ),
 
-          // Lớp 3: Lớp phủ và icon check khi được chọn
+          // Lớp 3: Lớp phủ và icon check (khi được chọn)
           if (isSelected)
             Container(
               decoration: BoxDecoration(
@@ -67,38 +65,56 @@ class RecentItemCard extends StatelessWidget {
               ),
             ),
 
-          // Lớp 4: Badge đếm số lượng (nếu có)
+          // Lớp 4: Badge đếm số lượng (nếu có) - ĐÃ CHUYỂN SANG BÊN TRÁI
           if (count > 0)
             Positioned(
               top: 4,
-              right: 4,
-                child: Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: Colors.deepPurple,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 1.5),
-                  ),
-                  constraints: const BoxConstraints(
-                    minWidth: 22,
-                    minHeight: 22,
-                  ),
-                  child: Center(
-                    child: Text(
-                      count.toString(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
+              left: 4, // <-- Chuyển sang trái để tránh xung đột
+              child: Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: Colors.deepPurple,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 1.5),
+                ),
+                constraints: const BoxConstraints(
+                  minWidth: 22,
+                  minHeight: 22,
+                ),
+                child: Center(
+                  child: Text(
+                    count.toString(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
                     ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
-          ],
-        ),
-      );
-    
+            ),
+          
+          // Lớp 5: Icon trái tim (YÊU CẦU CỦA BẠN)
+          if (item.isFavorite)
+            Positioned(
+              top: 6,
+              right: 6, // <-- Đảm bảo luôn ở bên phải
+              child: Icon(
+                Icons.favorite,
+                color: Colors.pink,
+                size: 20,
+                shadows: [
+                  Shadow(
+                    blurRadius: 4.0,
+                    color: Colors.black.withValues(alpha:0.5),
+                    offset: const Offset(1.0, 1.0),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
   }
 }

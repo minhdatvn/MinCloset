@@ -133,9 +133,33 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   }
 
   void toggleFavorite() {
-    state = state.copyWith(isFavorite: !state.isFavorite);
-  }
+    // 1. Cập nhật UI ngay lập tức để người dùng thấy phản hồi
+    final newFavoriteState = !state.isFavorite;
+    state = state.copyWith(isFavorite: newFavoriteState);
 
+    // 2. Tạo một đối tượng ClothingItem hoàn chỉnh từ trạng thái hiện tại
+    // để chuẩn bị cho việc lưu vào database.
+    final itemToUpdate = ClothingItem(
+      id: state.id,
+      name: state.name.trim(),
+      category: state.selectedCategoryValue,
+      closetId: state.selectedClosetId!,
+      imagePath: state.image?.path ?? state.imagePath!,
+      thumbnailPath: state.thumbnailPath,
+      color: state.selectedColors.join(', '),
+      season: state.selectedSeasons.join(', '),
+      occasion: state.selectedOccasions.join(', '),
+      material: state.selectedMaterials.join(', '),
+      pattern: state.selectedPatterns.join(', '),
+      isFavorite: newFavoriteState, // Sử dụng trạng thái mới ở đây
+    );
+
+    // 3. Gọi repository để cập nhật item trong cơ sở dữ liệu.
+    // Chúng ta không cần `await` ở đây vì đã cập nhật UI ở trên (Optimistic Update)
+    // và không cần đợi kết quả để làm gì tiếp theo trong hàm này.
+    _clothingItemRepo.updateItem(itemToUpdate);
+  }
+  
   Future<bool> saveItem() async {
     final sourceImagePath = state.image?.path ?? state.imagePath;
     if (sourceImagePath == null) {

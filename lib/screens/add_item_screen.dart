@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
+import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
@@ -139,11 +140,18 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 state.isFavorite ? Icons.favorite : Icons.favorite_border,
                 color: state.isFavorite ? Colors.pink : null,
               ),
-              onPressed: () => notifier.toggleFavorite(),
+              // <<< THAY ĐỔI DUY NHẤT LÀ Ở HÀM onPressed NÀY >>>
+              onPressed: () {
+                // 1. Gọi hàm toggleFavorite trong notifier như bình thường
+                notifier.toggleFavorite();
+                
+                // 2. Kích hoạt trigger ngay tại màn hình này.
+                // Vì _AddItemScreenState là một ConsumerState, nó có quyền truy cập `ref`.
+                ref.read(itemChangedTriggerProvider.notifier).state++;
+              },
               tooltip: state.isFavorite ? 'Remove from favorites' : 'Add to favorites',
             ),
           
-          // 3. Giữ nguyên nút "Delete" khi SỬA
           if (state.isEditing)
             IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.red),
@@ -191,7 +199,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           icon: state.isLoading ? const SizedBox.shrink() : const Icon(Icons.save),
           label: state.isLoading 
               ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3,)) 
-              : Text('Save'),
+              : const Text('Save'),
         ),
       ),
     );

@@ -226,7 +226,7 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
             // THAY ĐỔI Ở ĐÂY:
             // Bọc icon và text trong một Column
             Padding(
-              padding: const EdgeInsets.only(bottom: 5.8), // <-- CHỈNH SỬA GIÁ TRỊ NÀY ĐỂ ĐẨY LÊN
+              padding: const EdgeInsets.only(bottom: 9.5), // <-- CHỈNH SỬA GIÁ TRỊ NÀY ĐỂ ĐẨY LÊN
               child: GestureDetector(
                 onTap: _toggleMenu,
                 behavior: HitTestBehavior.opaque,

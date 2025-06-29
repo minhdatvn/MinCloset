@@ -23,6 +23,7 @@ class SuggestionService {
     required String favoriteColors,
     required String setOutfitsString,
     required String wardrobeString,
+    String? purpose,
   }) async {
     final model = GenerativeModel(
       model: 'gemini-2.0-flash-lite',
@@ -48,6 +49,8 @@ class SuggestionService {
     ${strings['context_title']}
     ${strings['location_label']} $cityName
     ${strings['weather_label']} $temp°C, $condition
+
+    ${purpose != null && purpose.isNotEmpty ? '**Purpose:**\n- $purpose\n' : ''}
 
     ${strings['wardrobe_title']}
     ${strings['set_outfits_title']}

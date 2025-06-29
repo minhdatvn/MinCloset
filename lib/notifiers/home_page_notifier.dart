@@ -38,10 +38,10 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
     }
   }
 
-  Future<void> getNewSuggestion() async {
+  Future<void> getNewSuggestion({String? purpose}) async {
     state = state.copyWith(isLoading: true, clearError: true);
     // <<< THAY ĐỔI 4: Sử dụng UseCase đã được inject >>>
-    final resultEither = await _getSuggestionUseCase.execute();
+    final resultEither = await _getSuggestionUseCase.execute(purpose: purpose);
 
     if (!mounted) return;
 

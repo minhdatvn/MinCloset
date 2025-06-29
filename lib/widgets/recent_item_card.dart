@@ -104,13 +104,6 @@ class RecentItemCard extends StatelessWidget {
                 Icons.favorite,
                 color: Colors.pink,
                 size: 20,
-                shadows: [
-                  Shadow(
-                    blurRadius: 4.0,
-                    color: Colors.black.withValues(alpha:0.5),
-                    offset: const Offset(1.0, 1.0),
-                  ),
-                ],
               ),
             ),
         ],

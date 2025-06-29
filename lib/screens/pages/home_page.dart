@@ -1,7 +1,7 @@
 // lib/screens/pages/home_page.dart
 import 'dart:io';
 
-import 'package:dotted_border/dotted_border.dart'; // Sẽ cần thêm package này
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -49,15 +49,31 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
+  // <<< THAY ĐỔI 2: Thêm TextEditingController >>>
+  final TextEditingController _purposeController = TextEditingController();
+  int _currentPurposeLength = 0;
 
-  // <<< THAY ĐỔI 2: Kích hoạt notifier trong initState >>>
   @override
   void initState() {
     super.initState();
-    // Đảm bảo notifier được khởi tạo và bắt đầu tải dữ liệu khi widget được tạo
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(homeProvider.notifier);
+    // Khởi tạo controller
+    _purposeController.addListener(() {
+      setState(() {
+        _currentPurposeLength = _purposeController.text.length;
+      });
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(homeProvider.notifier).refreshWeatherOnly();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // Hủy controller khi widget bị xóa
+    _purposeController.dispose();
+    super.dispose();
   }
 
   @override
@@ -214,132 +230,140 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
   
-  // <<< THAY ĐỔI 3: Thêm tham số ref và sửa đổi logic hiển thị địa điểm >>>
   Widget _buildTodaysSuggestionCard(BuildContext context, WidgetRef ref, HomePageState state) {
-  final theme = Theme.of(context);
-  final notifier = ref.read(homeProvider.notifier);
-  // Đọc trạng thái từ profileProvider để lấy cài đặt mới
-  final profileState = ref.watch(profileProvider);
+    final theme = Theme.of(context);
+    final profileState = ref.watch(profileProvider);
 
-  final String backgroundImagePath = WeatherHelper.getBackgroundImageForWeather(
-    state.weather?['weather'][0]['icon'] as String?,
-  );
+    final String backgroundImagePath = WeatherHelper.getBackgroundImageForWeather(
+      state.weather?['weather'][0]['icon'] as String?,
+    );
 
-  return Card(
-    elevation: 0,
-    color: Colors.transparent,
-    shape: RoundedRectangleBorder(
-      side: BorderSide(
-        color: theme.colorScheme.outline,
-        width: 1,
+    return Card(
+      elevation: 0,
+      color: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(
+          color: theme.colorScheme.outline,
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(16),
       ),
-      borderRadius: BorderRadius.circular(16),
-    ),
-    clipBehavior: Clip.antiAlias,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // ===== HEADER SECTION =====
-        ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(15.0)),
-          child: Stack(
-            children: [
-              // LỚP 1: HÌNH ẢNH NỀN (ĐÃ ĐƯỢC THAY ĐỔI)
-              Positioned.fill(
-                // <<< THAY ĐỔI CỐT LÕI NẰM Ở ĐÂY >>>
-                child: profileState.showWeatherImage
-                    ? Image.asset( // Nếu BẬT, hiện ảnh
-                        backgroundImagePath,
-                        fit: BoxFit.cover,
-                      )
-                    : Container( // Nếu TẮT, hiện màu nền
-                        color: theme.colorScheme.surfaceContainerHighest,
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ===== HEADER SECTION =====
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(15.0)),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: profileState.showWeatherImage
+                      ? Image.asset(
+                          backgroundImagePath,
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          color: theme.colorScheme.surfaceContainerHighest,
+                        ),
+                ),
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          profileState.showWeatherImage ? Colors.white : theme.colorScheme.surfaceContainerHighest,
+                          profileState.showWeatherImage
+                              ? Colors.white.withValues(alpha:0.0)
+                              : theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.0),
+                        ],
+                        stops: const [0.0, 0.8],
                       ),
-              ),
-              // LỚP 2: LỚP GRADIENT (GIỮ NGUYÊN)
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        // Điều chỉnh để gradient đẹp hơn trên nền màu
-                        profileState.showWeatherImage ? Colors.white : theme.colorScheme.surfaceContainerHighest,
-                        profileState.showWeatherImage
-                            ? Colors.white.withValues(alpha:0.0)
-                            : theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.0),
-                      ],
-                      stops: const [0.0, 0.8],
                     ),
                   ),
                 ),
-              ),
-
-              // LỚP 3: NỘI DUNG (GIỮ NGUYÊN)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 4, 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (state.weather?['name'] != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0, bottom: 4.0),
-                              child: Text(
-                                state.weather!['name'] as String,
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (state.weather?['name'] != null)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 4.0),
+                                child: Text(
+                                  state.weather!['name'] as String,
+                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                ),
                               ),
-                            ),
-                          (state.weather != null
-                            ? Row(
-                                children: [
-                                  Icon(_getWeatherIcon(state.weather!['weather'][0]['icon'] as String), color: Colors.orange.shade700, size: 32),
-                                  const SizedBox(width: 8),
-                                  Text('${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-                                ],
-                              )
-                            : const SizedBox(height: 40, child: Center(child: Text("Weather data unavailable.")))
-                          )
-                        ],
-                      ),
-                    ),
-                    ElevatedButton.icon(
-                      key: const ValueKey('new_suggestion_button'),
-                      icon: const Icon(Icons.auto_awesome, size: 18),
-                      label: const Text(
-                        'Get',
-                        style: TextStyle(fontWeight: FontWeight.normal), // <-- THÊM DÒNG NÀY
-                      ),
-                      onPressed: state.isLoading ? null : notifier.getNewSuggestion,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.colorScheme.primary.withValues(alpha:0.4),
-                        foregroundColor: Colors.black,
-                        elevation: 0,
-                        side: BorderSide(
-                          color: theme.colorScheme.primary,
-                          width: 1.5,
-                        ),
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12.0),
+                            (state.weather != null
+                              ? Row(
+                                  children: [
+                                    Icon(_getWeatherIcon(state.weather!['weather'][0]['icon'] as String), color: Colors.orange.shade700, size: 32),
+                                    const SizedBox(width: 8),
+                                    Text('${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                                  ],
+                                )
+                              : const SizedBox(height: 40, child: Center(child: Text("Weather data unavailable.")))
+                            )
+                          ],
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // <<< THAY ĐỔI 3: Thêm ô nhập liệu và nút bấm mới >>>
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end, // Căn lề phải cho bộ đếm
+            children: [
+              TextField(
+                controller: _purposeController,
+                maxLength: 150,
+                maxLines: null, // <<< KHÔI PHỤC LẠI: Để tự động xuống dòng
+                decoration: InputDecoration(
+                  hintText: 'Purpose? (e.g. coffee, date night...)',
+                  border: const OutlineInputBorder(),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  counterText: "", // Quan trọng: Ẩn bộ đếm mặc định
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.send),
+                    onPressed: state.isLoading 
+                      ? null
+                      : () {
+                          final notifier = ref.read(homeProvider.notifier);
+                          notifier.getNewSuggestion(purpose: _purposeController.text);
+                          FocusScope.of(context).unfocus();
+                      }
+                  )
+                ),
+              ),
+              // <<< BỘ ĐẾM MỚI CỦA CHÚNG TA >>>
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Text(
+                  '$_currentPurposeLength/150',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha:0.6),
+                      ),
                 ),
               ),
             ],
           ),
-        ),
+          // <<< KẾT THÚC THAY ĐỔI 3 >>>
 
           // ===== PHẦN 2: NỘI DUNG GỢI Ý (NỀN TRẮNG) =====
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: // Phần logic hiển thị kết quả gợi ý không thay đổi
+            child: 
             state.isLoading
               ? const Center(heightFactor: 5, child: CircularProgressIndicator())
               : state.suggestionResult != null
@@ -373,7 +397,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               : Center(
                   heightFactor: 5,
                   child: Text(
-                    state.errorMessage ?? 'Tap "Get" to see outfit recommendation!',
+                    state.errorMessage ?? 'Describe your purpose and tap the send button to get suggestions!',
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
                   ),
@@ -397,11 +421,10 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
+  // Các hàm còn lại (_buildSuggestionPlaceholder, _getWeatherIcon) giữ nguyên
   Widget _buildSuggestionPlaceholder(SuggestionResult result) {
-    // Hàm nhỏ để tạo một placeholder
     Widget singlePlaceholder(ClothingItem? item, {double? width, double? height}) {
       if (item == null) {
-        // >>> PHẦN SỬA LỖI CUỐI CÙNG NẰM Ở ĐÂY <<<
         return DottedBorder(
           options: RoundedRectDottedBorderOptions(
             // XÓA DÒNG BÁO LỖI "borderType: BorderType.RRect,"
@@ -427,7 +450,6 @@ class _HomePageState extends ConsumerState<HomePage> {
       );
     }
 
-    // Phần còn lại của hàm không thay đổi
     return AspectRatio(
       aspectRatio: 3 / 4,
       child: Container(
@@ -438,52 +460,16 @@ class _HomePageState extends ConsumerState<HomePage> {
         ),
         child: Stack(
           children: [
-            // Outerwear (áo khoác) - nằm dưới cùng
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: singlePlaceholder(result.composition['outerwear']),
-            ),
-            // Topwear (áo)
-            Positioned(
-              top: 20,
-              left: 20,
-              right: 20,
-              height: 150,
-              child: singlePlaceholder(result.composition['topwear']),
-            ),
-            // Bottomwear (quần/váy)
-            Positioned(
-              bottom: 60,
-              left: 40,
-              right: 40,
-              height: 180,
-              child: singlePlaceholder(result.composition['bottomwear']),
-            ),
-            // Footwear (giày)
-            Positioned(
-              bottom: 10,
-              left: 60,
-              right: 60,
-              height: 60,
-              child: singlePlaceholder(result.composition['footwear']),
-            ),
-            // Accessories (phụ kiện)
-            Positioned(
-              top: 10,
-              right: 10,
-              width: 50,
-              height: 50,
-              child: singlePlaceholder(result.composition['accessories']),
-            ),
+            Positioned(top: 0, left: 0, right: 0, bottom: 0, child: singlePlaceholder(result.composition['outerwear'])),
+            Positioned(top: 20, left: 20, right: 20, height: 150, child: singlePlaceholder(result.composition['topwear'])),
+            Positioned(bottom: 60, left: 40, right: 40, height: 180, child: singlePlaceholder(result.composition['bottomwear'])),
+            Positioned(bottom: 10, left: 60, right: 60, height: 60, child: singlePlaceholder(result.composition['footwear'])),
+            Positioned(top: 10, right: 10, width: 50, height: 50, child: singlePlaceholder(result.composition['accessories'])),
           ],
         ),
       ),
     );
   }
-
 
   IconData _getWeatherIcon(String iconCode) {
     switch (iconCode) {

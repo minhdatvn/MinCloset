@@ -104,11 +104,11 @@ class GetOutfitSuggestionUseCase {
   }
   
   // Sửa lỗi `tryCatch` và kiểu trả về bằng cách dùng TaskEither đúng cách
-  Future<Either<Failure, Map<String, dynamic>>> execute() {
+  Future<Either<Failure, Map<String, dynamic>>> execute({String? purpose}) {
     // Bọc hàm bất đồng bộ trả về Either vào trong TaskEither
     final task = TaskEither(getWeatherForSuggestion)
-        .flatMap(_getItemsAndOutfits)      
-        .flatMap(_getSuggestionFromAI);    
+    .flatMap(_getItemsAndOutfits)
+    .flatMap((data) => _getSuggestionFromAI(data, purpose: purpose));    
 
     return task.run(); 
   }
@@ -134,17 +134,24 @@ class GetOutfitSuggestionUseCase {
 
   // Helper function cho Bước 3
   TaskEither<Failure, Map<String, dynamic>> _getSuggestionFromAI(
-      (Map<String, dynamic>, List<ClothingItem>, List<Outfit>) data) {
+      (Map<String, dynamic>, List<ClothingItem>, List<Outfit>) data, {String? purpose}) {
+        
+    final (weatherData, allItems, allOutfits) = data;
+
+    // --- BƯỚC XÁC THỰC (VALIDATION) ---
+    // Thực hiện kiểm tra logic nghiệp vụ ở đây
+    final topwearCount = allItems.where((item) => item.category.startsWith('Tops')).length;
+    final bottomwearCount = allItems.where((item) => item.category.startsWith('Bottoms') || item.category.startsWith('Dresses/Jumpsuits')).length;
+    
+    // Nếu không đủ điều kiện, trả về một `Left` chứa `Failure` một cách tường minh.
+    if (topwearCount < 3 || bottomwearCount < 3) {
+      return TaskEither.left(const GenericFailure('Please add at least 3 tops and 3 bottoms/skirts to your wardrobe to receive suggestions.'));
+    }
+
+    // --- BƯỚC GỌI API ---
+    // Nếu đã qua bước xác thực, tiếp tục với logic gọi AI trong một khối try-catch an toàn.
     return TaskEither.tryCatch(
       () async {
-        final (weatherData, allItems, allOutfits) = data;
-
-        final topwearCount = allItems.where((item) => item.category.startsWith('Tops')).length;
-        final bottomwearCount = allItems.where((item) => item.category.startsWith('Bottoms') || item.category.startsWith('Dresses/Jumpsuits')).length;
-        if (topwearCount < 3 || bottomwearCount < 3) {
-          throw Exception('Please add at least 3 tops and 3 bottoms/skirts to your wardrobe to receive suggestions.');
-        }
-
         final prefs = await SharedPreferences.getInstance();
         final gender = prefs.getString('user_gender') ?? 'Not specified';
         final userStyle = prefs.getStringList('user_styles')?.join(', ') ?? 'Any style';
@@ -152,6 +159,7 @@ class GetOutfitSuggestionUseCase {
         final setOutfits = allOutfits.where((o) => o.isFixed).toList();
         final fixedItemIds = setOutfits.expand((o) => o.itemIds.split(',')).toSet();
         final individualItems = allItems.where((item) => !fixedItemIds.contains(item.id)).toList();
+        
         final setOutfitsString = setOutfits.map((outfit) => '- Set "${outfit.name}": Gồm [${outfit.itemIds.split(',').map((id) => allItems.firstWhere((item) => item.id == id, orElse: () => ClothingItem(id: '', name: 'Unknown Item', category: '', color: '', imagePath: '', closetId: '')).name).join(', ')}]').join('\n');
         final wardrobeString = individualItems.map((item) => '- ${item.name} (${item.category}, màu ${item.color})').join('\n');
 
@@ -163,6 +171,7 @@ class GetOutfitSuggestionUseCase {
           favoriteColors: favoriteColors,
           setOutfitsString: setOutfitsString.isNotEmpty ? setOutfitsString : "Không có",
           wardrobeString: wardrobeString.isNotEmpty ? wardrobeString : "Không có",
+          purpose: purpose,
         );
 
         final suggestionJson = suggestionJsonEither.getOrElse((l) => throw Exception(l.message));

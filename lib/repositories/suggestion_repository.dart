@@ -15,6 +15,7 @@ class SuggestionRepository {
     required String favoriteColors,
     required String setOutfitsString,
     required String wardrobeString,
+    String? purpose, // <<< THÊM VÀO
   }) {
     return _suggestionService.getOutfitSuggestion(
       weather: weather,
@@ -24,6 +25,7 @@ class SuggestionRepository {
       favoriteColors: favoriteColors,
       setOutfitsString: setOutfitsString,
       wardrobeString: wardrobeString,
+      purpose: purpose, // <<< THÊM VÀO
     );
   }
 }

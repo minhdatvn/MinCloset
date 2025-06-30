@@ -6,7 +6,7 @@ class AppRoutes {
   
   static const String addItem = '/add-item';
   static const String batchAddItem = '/batch-add-item';
-  static const String analysisLoading = '/analysis-loading'; // Route cho màn hình xử lý AI
+  static const String analysisLoading = '/analysis-loading';
   
   static const String outfitBuilder = '/outfit-builder';
   static const String outfitDetail = '/outfit-detail';
@@ -18,4 +18,7 @@ class AppRoutes {
   static const String citySelection = '/city-selection';
 
   static const String aboutLegal = '/about-legal';
+  static const String webview = '/webview';
+
+  static const String calendar = '/calendar';
 }

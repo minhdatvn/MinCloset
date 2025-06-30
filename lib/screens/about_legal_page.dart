@@ -1,22 +1,11 @@
 // lib/screens/about_legal_page.dart
 import 'package:flutter/material.dart';
+import 'package:mincloset/routing/app_routes.dart'; // <<< THÊM IMPORT
+import 'package:mincloset/screens/webview_page.dart'; // <<< THÊM IMPORT
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class AboutLegalPage extends StatelessWidget {
   const AboutLegalPage({super.key});
-
-  // Hàm helper để mở URL
-  Future<void> _launchUrl(BuildContext context, String url) async {
-    final uri = Uri.parse(url);
-    if (!await launchUrl(uri)) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not launch $url')),
-        );
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +21,15 @@ class AboutLegalPage extends StatelessWidget {
             title: const Text('Privacy Policy'),
             subtitle: const Text('How we handle your data.'),
             onTap: () {
-              _launchUrl(context, 'https://minhdatvn.github.io/MinCloset/privacy-policy.html');
+              // --- THAY ĐỔI Ở ĐÂY ---
+              Navigator.pushNamed(
+                context,
+                AppRoutes.webview,
+                arguments: const WebViewPageArgs(
+                  title: 'Privacy Policy',
+                  url:'https://minhdatvn.github.io/MinCloset/privacy-policy.html'
+           ),
+              );
             },
           ),
           const Divider(),
@@ -41,7 +38,15 @@ class AboutLegalPage extends StatelessWidget {
             title: const Text('Terms of Use'),
             subtitle: const Text('Rules for using the app.'),
             onTap: () {
-              _launchUrl(context, 'https://minhdatvn.github.io/MinCloset/terms-of-use.html');
+              // --- THAY ĐỔI Ở ĐÂY ---
+              Navigator.pushNamed(
+                context,
+                AppRoutes.webview,
+                arguments: const WebViewPageArgs(
+                  title: 'Terms of Use',
+                  url: 'https://minhdatvn.github.io/MinCloset/terms-of-use.html'
+                )
+              );
             },
           ),
           const Divider(),

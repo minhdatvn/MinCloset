@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/helpers/weather_helper.dart';
 import 'package:mincloset/models/clothing_item.dart';
-import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/notifiers/home_page_notifier.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
@@ -17,9 +16,9 @@ import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/home_page_state.dart';
 import 'package:mincloset/widgets/gradient_action_card.dart';
-import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:mincloset/widgets/section_header.dart';
 import 'package:mincloset/widgets/stats_overview_card.dart';
+import 'package:mincloset/widgets/weekly_planner.dart';
 
 final recentItemsProvider =
     FutureProvider.autoDispose<List<ClothingItem>>((ref) async {
@@ -103,7 +102,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               const SizedBox(height: 32),
               _buildAiStylistSection(context, ref),
               const SizedBox(height: 32),
-              _buildRecentlyAddedSection(context, ref),
+              const WeeklyPlanner(), // Thay thế _buildRecentlyAddedSection
               const SizedBox(height: 32),
               const SectionHeader(
                 title: 'Outfit suggestion',
@@ -189,65 +188,6 @@ class _HomePageState extends ConsumerState<HomePage> {
               onTap: () => ref.read(mainScreenIndexProvider.notifier).state = 2,
             ),
           ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRecentlyAddedSection(BuildContext context, WidgetRef ref) {
-    final recentItemsAsync = ref.watch(recentItemsProvider);
-    return Column(
-      children: [
-        SectionHeader(
-          title: 'Newest items',
-          seeAllText: 'View all',
-          onSeeAll: () {
-            ref.read(mainScreenIndexProvider.notifier).state = 1;
-          },
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          height: 120,
-          child: recentItemsAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, stack) => const Center(child: Text('Cannot load items...')),
-            data: (items) {
-              if (items.isEmpty) {
-                return const Center(
-                  child: Text(
-                    "Your latest items will appear here.",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                );
-              }
-              return ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: items.length,
-                itemBuilder: (ctx, index) {
-                  final item = items[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 12.0),
-                    child: SizedBox(
-                      width: 120 * (3 / 4),
-                      child: GestureDetector(
-                        onTap: () async {
-                          final wasChanged = await Navigator.pushNamed(
-                            context, 
-                            AppRoutes.addItem, 
-                            arguments: ItemNotifierArgs(tempId: item.id, itemToEdit: item)
-                          );
-                          if (wasChanged == true) {
-                            ref.read(itemChangedTriggerProvider.notifier).state++;
-                          }
-                        },
-                        child: RecentItemCard(item: item),
-                      ),
-                    ),
-                  );
-                },
-              );
-            },
-          ),
         ),
       ],
     );

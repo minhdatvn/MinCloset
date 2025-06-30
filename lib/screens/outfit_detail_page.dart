@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/outfit.dart';
+import 'package:mincloset/notifiers/calendar_notifier.dart';
 import 'package:mincloset/notifiers/outfit_detail_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/widgets/outfit_actions_menu.dart';
@@ -50,6 +51,33 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
             ),
           ],
         ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () async {
+            final scaffoldMessenger = ScaffoldMessenger.of(context);
+            final success = await notifier.markAsWornToday();
+            
+            if (mounted && success) {
+              // Làm mới lại dữ liệu lịch để Weekly Planner cập nhật
+              ref.read(calendarProvider.notifier).loadEvents();
+              scaffoldMessenger.showSnackBar(
+                const SnackBar(
+                  content: Text('Marked as worn today!'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            } else if (mounted) {
+              scaffoldMessenger.showSnackBar(
+                const SnackBar(
+                  content: Text('Could not mark as worn. Please try again.'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            }
+          },
+          label: const Text('Wear Today'),
+          icon: const Icon(Icons.check_circle_outline),
+        ),
         body: SingleChildScrollView(
           child: Column(
             children: [
@@ -80,7 +108,8 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
                     }
                   },
                 ),
-              )
+              ),
+              const SizedBox(height: 80),
             ],
           ),
         ),

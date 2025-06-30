@@ -52,6 +52,7 @@ class OutfitRepository {
 
   FutureEitherVoid deleteOutfit(String id) async {
     try {
+      // Hàm này giờ đây sẽ tự động xử lý cả việc cập nhật log
       await _dbHelper.deleteOutfit(id);
       return const Right(unit);
     } on DatabaseException catch (e) {

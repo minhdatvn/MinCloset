@@ -8,6 +8,7 @@ import 'package:mincloset/repositories/closet_repository.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
 import 'package:mincloset/repositories/suggestion_repository.dart';
+import 'package:mincloset/repositories/wear_log_repository.dart';
 import 'package:mincloset/repositories/weather_repository.dart';
 
 final closetRepositoryProvider = Provider<ClosetRepository>((ref) {
@@ -41,4 +42,9 @@ final cityRepositoryProvider = Provider<CityRepository>((ref) {
   // Tương tự, cũng sử dụng `weatherServiceProvider`
   final weatherService = ref.watch(weatherServiceProvider);
   return CityRepository(weatherService);
+});
+
+final wearLogRepositoryProvider = Provider<WearLogRepository>((ref) {
+  final dbHelper = ref.watch(dbHelperProvider);
+  return WearLogRepository(dbHelper);
 });

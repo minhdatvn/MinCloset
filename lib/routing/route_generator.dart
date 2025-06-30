@@ -19,6 +19,8 @@ import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 import 'package:mincloset/screens/outfit_detail_page.dart';
 import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/screens/splash_screen.dart';
+import 'package:mincloset/screens/webview_page.dart';
+import 'package:mincloset/screens/calendar_page.dart';
 
 class RouteGenerator {
   static const Widget _mainScreen = MainScreen();
@@ -92,6 +94,15 @@ class RouteGenerator {
 
       case AppRoutes.aboutLegal:
         return FadeRoute(page: const AboutLegalPage(), settings: settings);
+      
+      case AppRoutes.webview:
+        if (args is WebViewPageArgs) {
+          return MaterialPageRoute(builder: (_) => WebViewPage(args: args));
+        }
+        return _errorRoute();
+      
+      case AppRoutes.calendar:
+        return MaterialPageRoute(builder: (_) => const CalendarPage());
         
       default:
         return _errorRoute();

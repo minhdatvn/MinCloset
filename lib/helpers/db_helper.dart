@@ -45,6 +45,14 @@ class DatabaseHelper {
         is_fixed INTEGER NOT NULL DEFAULT 0,
         lastWornDate TEXT
       )""");
+
+    await db.execute("""CREATE TABLE wear_log (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        item_id TEXT NOT NULL,
+        outfit_id TEXT,
+        wear_date TEXT NOT NULL,
+        FOREIGN KEY (item_id) REFERENCES clothing_items (id) ON DELETE CASCADE
+      )""");
   }
 
   // === Closet Functions ===
@@ -198,9 +206,25 @@ class DatabaseHelper {
     );
   }
 
+  Future<void> disassociateLogsFromOutfit(sql.DatabaseExecutor db, String outfitId) async {
+    await db.update(
+      'wear_log',
+      {'outfit_id': null},
+      where: 'outfit_id = ?',
+      whereArgs: [outfitId],
+    );
+  }
+  
+  // Sửa đổi hàm deleteOutfit để sử dụng transaction
   Future<void> deleteOutfit(String id) async {
     final db = await instance.database;
-    await db.delete('outfits', where: 'id = ?', whereArgs: [id]);
+    // Sử dụng transaction để đảm bảo cả hai hành động cùng thành công hoặc thất bại
+    await db.transaction((txn) async {
+      // 1. Cập nhật các log liên quan
+      await disassociateLogsFromOutfit(txn, id);
+      // 2. Xóa bộ đồ
+      await txn.delete('outfits', where: 'id = ?', whereArgs: [id]);
+    });
   }
 
   Future<void> updateOutfit(Outfit outfit) async {

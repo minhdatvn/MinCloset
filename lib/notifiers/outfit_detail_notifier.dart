@@ -5,6 +5,7 @@ import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
+import 'package:mincloset/repositories/wear_log_repository.dart'; 
 import 'package:mincloset/utils/logger.dart';
 import 'package:mincloset/helpers/image_helper.dart';
 
@@ -12,8 +13,9 @@ class OutfitDetailNotifier extends StateNotifier<Outfit> {
   final OutfitRepository _outfitRepo;
   final ClothingItemRepository _clothingItemRepo;
   final ImageHelper _imageHelper;
+  final WearLogRepository _wearLogRepo; 
 
-  OutfitDetailNotifier(this._outfitRepo, this._clothingItemRepo, this._imageHelper, Outfit initialOutfit) : super(initialOutfit);
+  OutfitDetailNotifier(this._outfitRepo, this._clothingItemRepo, this._imageHelper, this._wearLogRepo, Outfit initialOutfit) : super(initialOutfit);
 
   Future<void> updateName(String newName) async {
     if (newName.trim().isEmpty || newName.trim() == state.name) {
@@ -103,6 +105,10 @@ class OutfitDetailNotifier extends StateNotifier<Outfit> {
       (_) => true,
     );
   }
+  Future<bool> markAsWornToday() async {
+    final result = await _wearLogRepo.addWearLogForOutfit(state, DateTime.now());
+    return result.isRight(); // Trả về true nếu thành công
+  }
 }
 
 final outfitDetailProvider = StateNotifierProvider.autoDispose
@@ -110,5 +116,6 @@ final outfitDetailProvider = StateNotifierProvider.autoDispose
   final outfitRepo = ref.watch(outfitRepositoryProvider);
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
   final imageHelper = ref.watch(imageHelperProvider);
-  return OutfitDetailNotifier(outfitRepo, clothingItemRepo, imageHelper, initialOutfit);
+  final wearLogRepo = ref.watch(wearLogRepositoryProvider);
+  return OutfitDetailNotifier(outfitRepo, clothingItemRepo, imageHelper, wearLogRepo, initialOutfit);
 });

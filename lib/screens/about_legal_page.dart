@@ -32,8 +32,7 @@ class AboutLegalPage extends StatelessWidget {
             title: const Text('Privacy Policy'),
             subtitle: const Text('How we handle your data.'),
             onTap: () {
-              // TODO: Thay thế bằng URL Privacy Policy của bạn
-              _launchUrl(context, 'https://github.com/minhdatvn');
+              _launchUrl(context, 'https://minhdatvn.github.io/MinCloset/privacy-policy.html');
             },
           ),
           const Divider(),
@@ -42,8 +41,7 @@ class AboutLegalPage extends StatelessWidget {
             title: const Text('Terms of Use'),
             subtitle: const Text('Rules for using the app.'),
             onTap: () {
-              // TODO: Thay thế bằng URL Terms of Use của bạn
-              _launchUrl(context, 'https://github.com/minhdatvn');
+              _launchUrl(context, 'https://minhdatvn.github.io/MinCloset/terms-of-use.html');
             },
           ),
           const Divider(),

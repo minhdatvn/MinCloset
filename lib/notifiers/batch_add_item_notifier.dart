@@ -10,6 +10,7 @@ import 'package:mincloset/domain/use_cases/validate_required_fields_use_case.dar
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
@@ -70,30 +71,52 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
 
   Future<void> analyzeAllImages(List<XFile> images) async {
     state = state.copyWith(isLoading: true, clearAnalysisError: true);
-    // <<< THAY ĐỔI 3: Sử dụng trực tiếp UseCase đã được inject >>>
-    final analysisTasks = images.map((image) => _analyzeItemUseCase.execute(image)).toList();
-    try {
-      final results = await Future.wait(analysisTasks);
-      final List<ItemNotifierArgs> itemArgsList = [];
-      for (int i = 0; i < images.length; i++) {
-        final result = results[i];
-        final imageFile = images[i];
-        final tempId = const Uuid().v4();
-        
-        final preAnalyzedState = AddItemState(
-          id: tempId, name: result['name'] as String? ?? '', image: File(imageFile.path),
-          selectedCategoryValue: _normalizeCategory(result['category'] as String?),
-          selectedColors: _normalizeColors(result['colors'] as List<dynamic>?),
-          selectedMaterials: _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList()),
-          selectedPatterns: _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList()),
-        );
-        final args = ItemNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState);
-        itemArgsList.add(args);
-        _ref.read(addItemProvider(args)); // Vẫn cần _ref ở đây
-      }
+    
+    final List<ItemNotifierArgs> itemArgsList = [];
+
+    for (final image in images) {
+      if (!mounted) return;
+      
+      final resultEither = await _analyzeItemUseCase.execute(image);
+
+      // Xử lý kết quả Either
+      resultEither.fold(
+        // Trường hợp Lỗi (Left)
+        (failure) {
+          // 1. Hiển thị thông báo lỗi cho người dùng
+          _ref.read(notificationServiceProvider).showBanner(
+            message: "Pre-filling information failed.\nReason: ${failure.message}",
+          );
+          // 2. Tạo một vật phẩm rỗng và tiếp tục
+          final tempId = const Uuid().v4();
+          final preAnalyzedState = AddItemState(
+            id: tempId,
+            image: File(image.path),
+          );
+          final args = ItemNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState);
+          itemArgsList.add(args);
+          _ref.read(addItemProvider(args));
+        },
+        // Trường hợp Thành công (Right)
+        (result) {
+          final tempId = const Uuid().v4();
+          final preAnalyzedState = AddItemState(
+            id: tempId, name: result['name'] as String? ?? '', image: File(image.path),
+            selectedCategoryValue: _normalizeCategory(result['category'] as String?),
+            selectedColors: _normalizeColors(result['colors'] as List<dynamic>?),
+            selectedMaterials: _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList()),
+            selectedPatterns: _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList()),
+          );
+          final args = ItemNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState);
+          itemArgsList.add(args);
+          _ref.read(addItemProvider(args));
+        },
+      );
+    }
+
+    // Nếu vòng lặp đã hoàn thành (dù thành công hay thất bại), cập nhật state để điều hướng
+    if (mounted) {
       state = state.copyWith(isLoading: false, itemArgsList: itemArgsList, analysisSuccess: true);
-    } catch (e) {
-      state = state.copyWith(isLoading: false, analysisErrorMessage: e.toString());
     }
   }
   

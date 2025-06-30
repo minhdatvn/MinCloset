@@ -6,7 +6,6 @@ import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
-import 'package:mincloset/providers/service_providers.dart';
 
 class AnalysisLoadingScreen extends ConsumerStatefulWidget {
   final List<XFile> images;
@@ -29,19 +28,17 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final navigator = Navigator.of(context);
-
-    // <<< Listener chỉ phản ứng với lỗi phân tích >>>
+    // THAY ĐỔI: Chỉ lắng nghe `analysisSuccess`
     ref.listen<BatchAddItemState>(batchAddItemProvider, (previous, next) async {
       if (!mounted) return;
 
-      // Xử lý khi phân tích thành công
+      // Khi quá trình phân tích hoàn tất (dù có dữ liệu hay không)
       if (next.analysisSuccess && previous?.analysisSuccess == false) {
         final analyzedItemArgs = ref.read(batchAddItemProvider).itemArgsList;
+        final navigator = Navigator.of(context);
         bool? result;
 
         if (analyzedItemArgs.length == 1) {
-          // Sử dụng pushNamed để mở AddItemScreen
           result = await navigator.pushNamed<bool>(
             AppRoutes.addItem,
             arguments: ItemNotifierArgs(
@@ -50,19 +47,13 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
             ),
           );
         } else if (analyzedItemArgs.length > 1) {
-          // Sử dụng pushNamed để mở BatchAddItemScreen
           result = await navigator.pushNamed<bool>(AppRoutes.batchAddItem);
         }
-        if (mounted) { navigator.pop(result); }
-      }
-      
-      // Xử lý khi chỉ có lỗi phân tích
-      else if (next.analysisErrorMessage != null && previous?.analysisErrorMessage == null) {
-        // Thay thế SnackBar ở đây
-        ref.read(notificationServiceProvider).showBanner(
-              message: 'Error analyzing item: ${next.analysisErrorMessage}',
-            );
-        navigator.pop(false);
+        
+        // Luôn pop màn hình loading sau khi màn hình nhập liệu được đóng
+        if (mounted && navigator.canPop()) { 
+          navigator.pop(result); 
+        }
       }
     });
 
@@ -77,7 +68,7 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
               const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
               const SizedBox(height: 24),
               Text(
-                'Pre-filling item information...',
+                'Analyzing images with AI...\nThis might take a moment.', // Thay đổi thông báo
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, height: 1.5),
               ),

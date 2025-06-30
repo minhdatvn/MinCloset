@@ -1,20 +1,22 @@
 // lib/notifiers/add_item_notifier.dart
 
 import 'dart:io';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mincloset/constants/app_options.dart';
+import 'package:mincloset/domain/providers.dart';
 import 'package:mincloset/domain/use_cases/analyze_item_use_case.dart';
 import 'package:mincloset/domain/use_cases/validate_item_name_use_case.dart';
 import 'package:mincloset/domain/use_cases/validate_required_fields_use_case.dart';
 import 'package:mincloset/helpers/image_helper.dart';
-import 'package:uuid/uuid.dart';
-import 'package:mincloset/constants/app_options.dart';
-import 'package:mincloset/domain/providers.dart';
 import 'package:mincloset/models/clothing_item.dart';
-import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/states/add_item_state.dart';
+import 'package:uuid/uuid.dart';
 
 class ItemNotifierArgs extends Equatable {
   final String tempId;
@@ -39,7 +41,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   final AnalyzeItemUseCase _analyzeItemUseCase;
   final ValidateRequiredFieldsUseCase _validateRequiredUseCase;
   final ValidateItemNameUseCase _validateNameUseCase;
-  // <<< THAY ĐỔI 1: Xóa 'final Ref _ref;' >>>
+  final Ref _ref;
 
   AddItemNotifier(
     this._clothingItemRepo,
@@ -47,7 +49,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     this._analyzeItemUseCase,
     this._validateRequiredUseCase,
     this._validateNameUseCase,
-    // <<< THAY ĐỔI 2: Xóa 'this._ref' khỏi constructor >>>
+    this._ref,
     ItemNotifierArgs args,
   ) : super(
           args.preAnalyzedState ??
@@ -120,16 +122,36 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
 
   Future<void> analyzeImage(XFile image) async {
     state = state.copyWith(isAnalyzing: true);
-    final result = await _analyzeItemUseCase.execute(image);
-    if (result.isNotEmpty && mounted) {
-      final category = _normalizeCategory(result['category'] as String?);
-      final colors = _normalizeColors(result['colors'] as List<dynamic>?);
-      final materials = _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList());
-      final patterns = _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList());
-      state = state.copyWith(isAnalyzing: false, name: result['name'] as String? ?? state.name, selectedCategoryValue: category, selectedColors: colors, selectedMaterials: materials.isNotEmpty ? materials : state.selectedMaterials, selectedPatterns: patterns.isNotEmpty ? patterns : state.selectedPatterns);
-    } else if (mounted) {
-      state = state.copyWith(isAnalyzing: false);
-    }
+    final resultEither = await _analyzeItemUseCase.execute(image);
+
+    if (!mounted) return;
+
+    resultEither.fold(
+      // (l) => Left: Xử lý khi có lỗi
+      (failure) {
+        // Gọi service để hiển thị banner lỗi cho người dùng
+        _ref.read(notificationServiceProvider).showBanner(
+          message: "Pre-filling information failed.\nReason: ${failure.message}"
+        );
+        state = state.copyWith(isAnalyzing: false);
+      },
+      // (r) => Right: Xử lý khi thành công
+      (result) {
+        final category = _normalizeCategory(result['category'] as String?);
+        final colors = _normalizeColors(result['colors'] as List<dynamic>?);
+        final materials = _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList());
+        final patterns = _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList());
+        
+        state = state.copyWith(
+          isAnalyzing: false, 
+          name: result['name'] as String? ?? state.name, 
+          selectedCategoryValue: category, 
+          selectedColors: colors, 
+          selectedMaterials: materials.isNotEmpty ? materials : state.selectedMaterials, 
+          selectedPatterns: patterns.isNotEmpty ? patterns : state.selectedPatterns
+        );
+      }
+    );
   }
 
   void toggleFavorite() {
@@ -269,7 +291,7 @@ final addItemProvider = StateNotifierProvider
     analyzeItemUseCase,
     validateRequiredUseCase,
     validateNameUseCase,
-    // <<< THAY ĐỔI 3: Xóa 'ref' khỏi danh sách đối số >>>
+    ref,
     args,
   );
 });

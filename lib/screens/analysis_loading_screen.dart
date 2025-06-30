@@ -77,7 +77,7 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
               const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
               const SizedBox(height: 24),
               Text(
-                'Pre-filling item information. You can edit later.',
+                'Pre-filling item information...',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, height: 1.5),
               ),

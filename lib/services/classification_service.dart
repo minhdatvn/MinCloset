@@ -1,11 +1,14 @@
 // lib/services/classification_service.dart
 
 import 'dart:convert';
+
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/constants/app_options.dart';
+import 'package:mincloset/constants/prompt_strings.dart'; // <<< THÊM IMPORT
 import 'package:mincloset/services/generative_ai_wrapper.dart';
 import 'package:mincloset/utils/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ClassificationService {
   final IGenerativeAIWrapper _aiWrapper;
@@ -16,16 +19,20 @@ class ClassificationService {
     final imageBytes = await image.readAsBytes();
     final dataPart = DataPart('image/jpeg', imageBytes);
 
-    // <<< THAY ĐỔI: BỎ CÁC BIẾN TRUNG GIAN VÀ ĐƯA TRỰC TIẾP VÀO PROMPT >>>
-    final prompt = TextPart("""
-      Bạn là một chuyên gia phân loại thời trang. Dựa vào hình ảnh được cung cấp, hãy trả về một đối tượng JSON duy nhất có các key sau: "name", "category", "colors", "material", "pattern".
+    // --- BẮT ĐẦU THAY ĐỔI LOGIC ---
+    final prefs = await SharedPreferences.getInstance();
+    final langCode = prefs.getString('language_code') ?? 'en';
+    final strings = PromptStrings.localized[langCode]!; // Lấy bộ chuỗi dịch
 
-      1. "name": Gợi ý một tên ngắn gọn, mô tả bằng tiếng Việt cho món đồ (tối đa 5 từ). Ví dụ: "Áo thun trắng cơ bản", "Quần jeans xanh bạc".
-      2. "category": Phân tích theo 2 bước. Đầu tiên, xác định danh mục chính (Tầng 1). Sau đó, tìm danh mục con phù hợp nhất (Tầng 2) trong danh sách tương ứng được cung cấp. Trả về kết quả dưới dạng chuỗi "Danh mục chính > Danh mục con". Nếu không tìm thấy danh mục con phù hợp, hãy dùng "Khác" làm danh mục con. Nếu không xác định được cả danh mục chính, trả về "Khác > Khác". Cấu trúc danh mục: ${jsonEncode(AppOptions.categories)}
-      3. "colors": Trả về một MẢNG CHỨA CÁC CHUỖI TÊN MÀU có trong ảnh. Cố gắng xác định tất cả các màu có thể từ danh sách sau: ${jsonEncode(AppOptions.colors.keys.toList())}
-      4. "material": CHỈ CHỌN MỘT chất liệu gần đúng nhất từ danh sách sau: ${jsonEncode(AppOptions.materials.map((e) => e.name).toList())}. Nếu không chắc chắn, trả về "Khác".
-      5. "pattern": CHỈ CHỌN MỘT họa tiết gần đúng nhất từ danh sách sau: ${jsonEncode(AppOptions.patterns.map((e) => e.name).toList())}. Nếu không chắc chắn, trả về "Khác".
+    final prompt = TextPart("""
+      ${strings['classification_role']}
+      ${strings['classification_name_instruction']}
+      ${strings['classification_category_instruction']} ${jsonEncode(AppOptions.categories)}
+      ${strings['classification_colors_instruction']} ${jsonEncode(AppOptions.colors.keys.toList())}
+      ${strings['classification_material_instruction']} ${jsonEncode(AppOptions.materials.map((e) => e.name).toList())}
+      ${strings['classification_pattern_instruction']} ${jsonEncode(AppOptions.patterns.map((e) => e.name).toList())}
       """);
+    // --- KẾT THÚC THAY ĐỔI LOGIC ---
       
     try {
       final responseText = await _aiWrapper.generateContent([

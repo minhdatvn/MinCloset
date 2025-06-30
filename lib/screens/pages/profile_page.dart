@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
+import 'package:mincloset/theme/app_theme.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/widgets/stats_overview_card.dart';
 import 'package:mincloset/widgets/stats_pie_chart.dart';
@@ -20,12 +21,6 @@ class ProfilePage extends ConsumerStatefulWidget {
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   final PageController _pageController = PageController(viewportFraction: 0.9);
   int _activePageIndex = 0;
-
-  final List<Color> _chartColors = const [
-    Color(0xFF0288D1), Color(0xFF388E3C), Color(0xFFFBC02D),
-    Color(0xFFE64A19), Color(0xFF512DA8), Color(0xFFD81B60),
-    Color(0xFF00796B),
-  ];
 
   @override
   void dispose() {
@@ -266,7 +261,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         title: '',
                         dataMap: dataMap,
                         showChartTitle: false,
-                        colors: specificColors ?? _chartColors,
+                        colors: specificColors ?? AppChartColors.defaultChartColors,
                         size: chartSize,
                       ),
                     ),
@@ -277,7 +272,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: topEntries.map((entry) {
                         final percentage = (entry.value / totalValue * 100);
-                        final color = (specificColors ?? _chartColors)[sortedEntries.indexOf(entry) % (specificColors ?? _chartColors).length];
+                        final color = (specificColors ?? AppChartColors.defaultChartColors)[sortedEntries.indexOf(entry) % (specificColors ?? AppChartColors.defaultChartColors).length];
                         
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 2.0),

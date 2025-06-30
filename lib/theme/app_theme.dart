@@ -111,3 +111,16 @@ final ThemeData appTheme = ThemeData(
     ),
   ),
 );
+
+class AppChartColors {
+  // Danh sách màu mặc định cho các biểu đồ thống kê
+  static const List<Color> defaultChartColors = [
+    Color(0xFF0288D1), // Xanh dương
+    Color(0xFF388E3C), // Xanh lá
+    Color(0xFFFBC02D), // Vàng
+    Color(0xFFE64A19), // Cam
+    Color(0xFF512DA8), // Tím
+    Color(0xFFD81B60), // Hồng
+    Color.fromARGB(255, 70, 0, 27), // Tím sen đậm
+  ];
+}

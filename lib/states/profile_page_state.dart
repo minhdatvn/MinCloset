@@ -17,7 +17,7 @@ class ProfilePageState extends Equatable {
   final Set<String> favoriteColors;
   final CityMode cityMode;
   final String manualCity;
-  final bool showWeatherImage; // <<< THÊM DÒNG NÀY
+  final bool showWeatherImage;
   final int totalItems;
   final int totalClosets;
   final int totalOutfits;
@@ -25,6 +25,8 @@ class ProfilePageState extends Equatable {
   final Map<String, int> categoryDistribution;
   final Map<String, int> seasonDistribution;
   final Map<String, int> occasionDistribution;
+  final Map<String, int> materialDistribution; // <<< THÊM DÒNG NÀY
+  final Map<String, int> patternDistribution;  // <<< THÊM DÒNG NÀY
   final String? errorMessage;
 
   const ProfilePageState({
@@ -39,7 +41,7 @@ class ProfilePageState extends Equatable {
     this.favoriteColors = const {},
     this.cityMode = CityMode.auto,
     this.manualCity = 'Da Nang',
-    this.showWeatherImage = true, // <<< THÊM DÒNG NÀY (giá trị mặc định là true)
+    this.showWeatherImage = true,
     this.totalItems = 0,
     this.totalClosets = 0,
     this.totalOutfits = 0,
@@ -47,6 +49,8 @@ class ProfilePageState extends Equatable {
     this.categoryDistribution = const {},
     this.seasonDistribution = const {},
     this.occasionDistribution = const {},
+    this.materialDistribution = const {}, // <<< THÊM DÒNG NÀY
+    this.patternDistribution = const {},  // <<< THÊM DÒNG NÀY
     this.errorMessage,
   });
 
@@ -73,7 +77,7 @@ class ProfilePageState extends Equatable {
     Set<String>? favoriteColors,
     CityMode? cityMode,
     String? manualCity,
-    bool? showWeatherImage, // <<< THÊM DÒNG NÀY
+    bool? showWeatherImage,
     int? totalItems,
     int? totalClosets,
     int? totalOutfits,
@@ -81,6 +85,8 @@ class ProfilePageState extends Equatable {
     Map<String, int>? categoryDistribution,
     Map<String, int>? seasonDistribution,
     Map<String, int>? occasionDistribution,
+    Map<String, int>? materialDistribution, // <<< THÊM DÒNG NÀY
+    Map<String, int>? patternDistribution,  // <<< THÊM DÒNG NÀY
     String? errorMessage,
   }) {
     return ProfilePageState(
@@ -95,7 +101,7 @@ class ProfilePageState extends Equatable {
       favoriteColors: favoriteColors ?? this.favoriteColors,
       cityMode: cityMode ?? this.cityMode,
       manualCity: manualCity ?? this.manualCity,
-      showWeatherImage: showWeatherImage ?? this.showWeatherImage, // <<< THÊM DÒNG NÀY
+      showWeatherImage: showWeatherImage ?? this.showWeatherImage,
       totalItems: totalItems ?? this.totalItems,
       totalClosets: totalClosets ?? this.totalClosets,
       totalOutfits: totalOutfits ?? this.totalOutfits,
@@ -103,6 +109,8 @@ class ProfilePageState extends Equatable {
       categoryDistribution: categoryDistribution ?? this.categoryDistribution,
       seasonDistribution: seasonDistribution ?? this.seasonDistribution,
       occasionDistribution: occasionDistribution ?? this.occasionDistribution,
+      materialDistribution: materialDistribution ?? this.materialDistribution, // <<< THÊM DÒNG NÀY
+      patternDistribution: patternDistribution ?? this.patternDistribution,   // <<< THÊM DÒNG NÀY
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
@@ -120,7 +128,7 @@ class ProfilePageState extends Equatable {
         favoriteColors,
         cityMode,
         manualCity,
-        showWeatherImage, // <<< THÊM DÒNG NÀY
+        showWeatherImage,
         totalItems,
         totalClosets,
         totalOutfits,
@@ -128,6 +136,8 @@ class ProfilePageState extends Equatable {
         categoryDistribution,
         seasonDistribution,
         occasionDistribution,
+        materialDistribution, // <<< THÊM DÒNG NÀY
+        patternDistribution,  // <<< THÊM DÒNG NÀY
         errorMessage
       ];
 }

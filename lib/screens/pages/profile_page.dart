@@ -145,6 +145,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     if (state.occasionDistribution.isNotEmpty) {
       statPages.add(_buildStatPage('Occasion', state.occasionDistribution));
     }
+    if (state.materialDistribution.isNotEmpty) {
+      statPages.add(_buildStatPage('Material', state.materialDistribution));
+    }
+    if (state.patternDistribution.isNotEmpty) {
+      statPages.add(_buildStatPage('Pattern', state.patternDistribution));
+    }
 
     return RefreshIndicator(
       onRefresh: notifier.loadInitialData,

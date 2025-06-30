@@ -90,6 +90,8 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
                   final categoryDist = <String, int>{};
                   final seasonDist = <String, int>{};
                   final occasionDist = <String, int>{};
+                  final materialDist = <String, int>{};
+                  final patternDist = <String, int>{}; 
 
                   for (final item in allItems) {
                     final colors = item.color
@@ -121,6 +123,22 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
                             (occasionDist[occasion] ?? 0) + 1;
                       }
                     }
+                    if (item.material != null && item.material!.isNotEmpty) {
+                      final materials =
+                          item.material!.split(',').map((e) => e.trim());
+                      for (final material in materials) {
+                        materialDist[material] =
+                            (materialDist[material] ?? 0) + 1;
+                      }
+                    }
+                    if (item.pattern != null && item.pattern!.isNotEmpty) {
+                      final patterns =
+                          item.pattern!.split(',').map((e) => e.trim());
+                      for (final pattern in patterns) {
+                        patternDist[pattern] =
+                            (patternDist[pattern] ?? 0) + 1;
+                      }
+                    }
                   }
                   logger.i('7. Statistics calculated successfully.');
 
@@ -136,7 +154,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
                     favoriteColors: favoriteColors,
                     cityMode: cityMode,
                     manualCity: manualCity,
-                    showWeatherImage: showWeatherImage, // <<< THÊM MỚI: Cập nhật state >>>
+                    showWeatherImage: showWeatherImage,
                     totalItems: allItems.length,
                     totalClosets: allClosets.length,
                     totalOutfits: allOutfits.length,
@@ -144,6 +162,8 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
                     categoryDistribution: categoryDist,
                     seasonDistribution: seasonDist,
                     occasionDistribution: occasionDist,
+                    materialDistribution: materialDist, 
+                    patternDistribution: patternDist,
                   );
                   logger.i(
                       '8. State updated successfully! Profile page loading complete.');

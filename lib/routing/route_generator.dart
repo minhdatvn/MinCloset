@@ -7,6 +7,7 @@ import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
+import 'package:mincloset/screens/about_legal_page.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/analysis_loading_screen.dart';
 import 'package:mincloset/screens/batch_add_item_screen.dart';
@@ -89,6 +90,9 @@ class RouteGenerator {
       case AppRoutes.citySelection:
         return FadeRoute(page: const CitySelectionScreen(), settings: settings);
 
+      case AppRoutes.aboutLegal:
+        return FadeRoute(page: const AboutLegalPage(), settings: settings);
+        
       default:
         return _errorRoute();
     }

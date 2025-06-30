@@ -103,13 +103,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final state = ref.watch(profileProvider);
     final notifier = ref.read(profileProvider.notifier);
     return Scaffold(
+      // --- THAY ĐỔI AppBar ---
       appBar: AppBar(
         title: const Text('Profile'),
         actions: [
+          // Thay nút refresh bằng nút settings
           IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => notifier.loadInitialData(),
-            tooltip: 'Refresh page',
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => Navigator.pushNamed(context, AppRoutes.settings),
+            tooltip: 'Settings',
           )
         ],
       ),
@@ -164,12 +166,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             const Divider(height: 32),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.settings_outlined),
-              title: const Text('Settings'),
+              leading: const Icon(Icons.info_outline), // Đổi icon
+              title: const Text('About & Legal'), // Đổi tiêu đề
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () => Navigator.pushNamed(context, AppRoutes.settings),
+              onTap: () => Navigator.pushNamed(context, AppRoutes.aboutLegal), // Điều hướng đến trang mới
             ),
             const Divider(height: 32),
+
             Text('Closets overview', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             StatsOverviewCard(

@@ -16,4 +16,6 @@ class AppRoutes {
   static const String editProfile = '/edit-profile';
   static const String settings = '/settings';
   static const String citySelection = '/city-selection';
+
+  static const String aboutLegal = '/about-legal';
 }

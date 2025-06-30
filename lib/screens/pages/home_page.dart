@@ -122,16 +122,39 @@ class _HomePageState extends ConsumerState<HomePage> {
   // Các hàm build UI con không thay đổi, chỉ cần truyền ref nếu cần
   Widget _buildHeader(BuildContext context, WidgetRef ref) {
     final userName = ref.watch(profileProvider.select((state) => state.userName));
+    final avatarPath = ref.watch(profileProvider.select((state) => state.avatarPath));
+
     return Row(
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Hello,',
-                style: TextStyle(fontSize: 16, color: Colors.grey)),
-            Text(userName ?? 'User',
-                style: Theme.of(context).appBarTheme.titleTextStyle),
-          ],
+        // Bọc avatar và text trong một InkWell
+        InkWell(
+          onTap: () {
+            // Chuyển sang tab Profile (index = 3)
+            ref.read(mainScreenIndexProvider.notifier).state = 3;
+          },
+          borderRadius: BorderRadius.circular(30),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 24,
+                backgroundColor: Colors.grey.shade200,
+                backgroundImage: avatarPath != null ? FileImage(File(avatarPath)) : null,
+                child: avatarPath == null
+                    ? const Icon(Icons.person, size: 24, color: Colors.grey)
+                    : null,
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Hello,',
+                      style: TextStyle(fontSize: 16, color: Colors.grey)),
+                  Text(userName ?? 'User',
+                      style: Theme.of(context).appBarTheme.titleTextStyle),
+                ],
+              ),
+            ],
+          ),
         ),
         const Spacer(),
         IconButton(

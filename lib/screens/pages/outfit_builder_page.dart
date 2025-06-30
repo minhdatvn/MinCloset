@@ -453,7 +453,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                           configs: ProImageEditorConfigs(   
                             layerInteraction: const LayerInteractionConfigs(
                                 selectable: LayerInteractionSelectable.enabled,
-                                initialSelected: true,
+                                initialSelected: false,
                                 icons: LayerInteractionIcons(
                                   remove: Icons.clear,
                                   edit: Icons.edit_outlined,

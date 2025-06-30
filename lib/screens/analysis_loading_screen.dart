@@ -36,10 +36,10 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
       if (next.analysisSuccess && previous?.analysisSuccess == false) {
         final analyzedItemArgs = ref.read(batchAddItemProvider).itemArgsList;
         final navigator = Navigator.of(context);
-        bool? result;
 
         if (analyzedItemArgs.length == 1) {
-          result = await navigator.pushNamed<bool>(
+          // THAY THẾ 'pushNamed' BẰNG 'pushReplacementNamed'
+          navigator.pushReplacementNamed(
             AppRoutes.addItem,
             arguments: ItemNotifierArgs(
               tempId: analyzedItemArgs.first.tempId,
@@ -47,13 +47,17 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
             ),
           );
         } else if (analyzedItemArgs.length > 1) {
-          result = await navigator.pushNamed<bool>(AppRoutes.batchAddItem);
+          // THAY THẾ 'pushNamed' BẰNG 'pushReplacementNamed'
+          navigator.pushReplacementNamed(
+            AppRoutes.batchAddItem,
+            // Không cần truyền argument cho batch screen
+          );
+        } else {
+          // Trường hợp không có ảnh nào để xử lý, chỉ cần đóng lại
+          navigator.pop();
         }
-        
-        // Luôn pop màn hình loading sau khi màn hình nhập liệu được đóng
-        if (mounted && navigator.canPop()) { 
-          navigator.pop(result); 
-        }
+        // XÓA BỎ HOÀN TOÀN KHỐI LỆNH POP CŨ
+        // <<< KẾT THÚC SỬA ĐỔI >>>
       }
     });
 
@@ -68,7 +72,7 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
               const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
               const SizedBox(height: 24),
               Text(
-                'Analyzing images with AI...\nThis might take a moment.', // Thay đổi thông báo
+                'Pre-filling information...',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, height: 1.5),
               ),

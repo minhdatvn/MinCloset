@@ -68,8 +68,8 @@ class _WeeklyPlannerState extends ConsumerState<WeeklyPlanner> {
     return Column(
       children: [
         SectionHeader(
-          title: 'Weekly planner',
-          seeAllText: 'View Calendar',
+          title: "Week's journal",
+          seeAllText: 'View more',
           onSeeAll: () {
             Navigator.pushNamed(context, AppRoutes.calendar);
           },

@@ -6,21 +6,23 @@ import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
+import 'package:mincloset/notifiers/log_wear_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/about_legal_page.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/analysis_loading_screen.dart';
 import 'package:mincloset/screens/batch_add_item_screen.dart';
+import 'package:mincloset/screens/calendar_page.dart';
 import 'package:mincloset/screens/city_selection_screen.dart';
 import 'package:mincloset/screens/edit_profile_screen.dart';
+import 'package:mincloset/screens/log_wear_screen.dart';
 import 'package:mincloset/screens/main_screen.dart';
+import 'package:mincloset/screens/outfit_detail_page.dart';
 import 'package:mincloset/screens/pages/closet_detail_page.dart';
 import 'package:mincloset/screens/pages/outfit_builder_page.dart';
-import 'package:mincloset/screens/outfit_detail_page.dart';
 import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/screens/splash_screen.dart';
 import 'package:mincloset/screens/webview_page.dart';
-import 'package:mincloset/screens/calendar_page.dart';
 
 class RouteGenerator {
   static const Widget _mainScreen = MainScreen();
@@ -108,7 +110,16 @@ class RouteGenerator {
         return MaterialPageRoute(
           builder: (_) => CalendarPage(initialDate: initialDate),
         );
-        
+
+      case AppRoutes.logWearSelection:
+        if (args is LogWearNotifierArgs) {
+          // Màn hình này sẽ trả về một Set<String>
+          return MaterialPageRoute<Set<String>>(
+            builder: (_) => LogWearScreen(args: args),
+          );
+        }
+        return _errorRoute();
+
       default:
         return _errorRoute();
     }

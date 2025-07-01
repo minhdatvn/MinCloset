@@ -1,14 +1,13 @@
 // lib/screens/outfit_detail_page.dart
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/outfit.dart';
-import 'package:mincloset/notifiers/calendar_notifier.dart';
 import 'package:mincloset/notifiers/outfit_detail_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/widgets/outfit_actions_menu.dart';
 
-// <<< CHUYỂN THÀNH ConsumerStatefulWidget >>>
 class OutfitDetailPage extends ConsumerStatefulWidget {
   final Outfit outfit;
   const OutfitDetailPage({super.key, required this.outfit});
@@ -18,23 +17,17 @@ class OutfitDetailPage extends ConsumerStatefulWidget {
 }
 
 class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
-  // Biến để theo dõi xem có thay đổi nào không
   bool _didChange = false;
 
   @override
   Widget build(BuildContext context) {
-    // <<< SỬA LẠI CÁCH LẤY PROVIDER CHO ĐÚNG VỚI STATEFULWIDGET >>>
     final provider = outfitDetailProvider(widget.outfit);
     final currentOutfit = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
     
-    // <<< BỌC SCAFFOLD BẰNG WillPopScope ĐỂ TRẢ VỀ KẾT QUẢ >>>
     return PopScope(
-      // Chặn việc pop tự động để chúng ta có thể điều khiển và trả về giá trị
       canPop: false,
       onPopInvokedWithResult: (bool didPop, dynamic result) {
-        // Nếu việc pop chưa được thực hiện, chúng ta sẽ tự gọi nó
-        // với giá trị _didChange để báo cho màn hình trước biết.
         if (!didPop) {
           Navigator.of(context).pop(_didChange);
         }
@@ -46,38 +39,11 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
           actions: [
             OutfitActionsMenu(
               outfit: currentOutfit,
-              // Thêm onUpdate để ghi nhận thay đổi khi sửa tên
               onUpdate: () => setState(() => _didChange = true),
             ),
           ],
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () async {
-            final scaffoldMessenger = ScaffoldMessenger.of(context);
-            final success = await notifier.markAsWornToday();
-            
-            if (mounted && success) {
-              // Làm mới lại dữ liệu lịch để Weekly Planner cập nhật
-              ref.read(calendarProvider.notifier).loadEvents();
-              scaffoldMessenger.showSnackBar(
-                const SnackBar(
-                  content: Text('Marked as worn today!'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-            } else if (mounted) {
-              scaffoldMessenger.showSnackBar(
-                const SnackBar(
-                  content: Text('Could not mark as worn. Please try again.'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-            }
-          },
-          label: const Text('Wear Today'),
-          icon: const Icon(Icons.check_circle_outline),
-        ),
+        // <<< THAY ĐỔI: Toàn bộ FloatingActionButton đã được xóa bỏ >>>
         body: SingleChildScrollView(
           child: Column(
             children: [
@@ -101,7 +67,6 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
                     if (errorMessage == null) {
                       setState(() => _didChange = true);
                     } else {
-                      // Thay thế SnackBar ở đây
                       ref
                           .read(notificationServiceProvider)
                           .showBanner(message: errorMessage);

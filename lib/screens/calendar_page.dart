@@ -5,7 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/calendar_notifier.dart';
+import 'package:mincloset/notifiers/log_wear_notifier.dart';
+import 'package:mincloset/routing/app_routes.dart';
+import 'package:mincloset/states/log_wear_state.dart';
 import 'package:table_calendar/table_calendar.dart';
+
 
 class CalendarPage extends ConsumerStatefulWidget {
   final DateTime? initialDate;
@@ -16,18 +20,65 @@ class CalendarPage extends ConsumerStatefulWidget {
 }
 
 class _CalendarPageState extends ConsumerState<CalendarPage> {
-  // <<< THÊM MỚI: Biến trạng thái để lưu định dạng lịch >>>
   CalendarFormat _calendarFormat = CalendarFormat.month;
-
   late DateTime _focusedDay;
-  late DateTime? _selectedDay;
+  DateTime? _selectedDay;
 
   @override
   void initState() {
     super.initState();
+    // <<< SỬA LỖI: Sửa lại logic initState >>>
     _focusedDay = widget.initialDate ?? DateTime.now();
-    _selectedDay = _focusedDay;
+    // Chọn ngày được truyền vào hoặc ngày hôm nay làm ngày được chọn mặc định
+    _selectedDay = widget.initialDate ?? _focusedDay;
   }
+
+  void _showLogWearActionSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.library_books_outlined),
+                title: const Text('Select outfits'),
+                onTap: () async {
+                  Navigator.of(ctx).pop(); // Đóng bottom sheet trước
+                  final selectedIds = await Navigator.pushNamed<Set<String>>(
+                    context,
+                    AppRoutes.logWearSelection,
+                    arguments: LogWearNotifierArgs(type: SelectionType.outfits),
+                  );
+
+                  if (mounted && _selectedDay != null && selectedIds != null && selectedIds.isNotEmpty) {
+                    ref.read(calendarProvider.notifier).logWearForDate(_selectedDay!, selectedIds, SelectionType.outfits);
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.dry_cleaning_outlined),
+                title: const Text('Select items'),
+                onTap: () async {
+                  Navigator.of(ctx).pop(); // Đóng bottom sheet trước
+                  final selectedIds = await Navigator.pushNamed<Set<String>>(
+                    context,
+                    AppRoutes.logWearSelection,
+                    arguments: LogWearNotifierArgs(type: SelectionType.items),
+                  );
+
+                  if (mounted && _selectedDay != null && selectedIds != null && selectedIds.isNotEmpty) {
+                    ref.read(calendarProvider.notifier).logWearForDate(_selectedDay!, selectedIds, SelectionType.items);
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -39,24 +90,31 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Outfit Calendar'),
+        title: const Text('Style journal'),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: TextButton.icon(
+              onPressed: _selectedDay == null
+                  ? null
+                  : () => _showLogWearActionSheet(context),
+              icon: const Icon(Icons.add_task_outlined),
+              label: const Text('Add'),
+            ),
+          )
+        ],
       ),
       body: Column(
         children: [
           TableCalendar<ClothingItem>(
             headerStyle: const HeaderStyle(
-              // Thuộc tính này sẽ làm cho nút hiển thị định dạng hiện tại
               formatButtonShowsNext: false,
             ),
             firstDay: DateTime.utc(2020, 1, 1),
             lastDay: DateTime.utc(2030, 12, 31),
             focusedDay: _focusedDay,
-            // <<< THÊM MỚI: Kết nối UI với biến trạng thái >>>
             calendarFormat: _calendarFormat,
-
             selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-
-            // <<< THÊM MỚI: Xử lý sự kiện khi người dùng thay đổi định dạng >>>
             onFormatChanged: (format) {
               if (_calendarFormat != format) {
                 setState(() {
@@ -64,7 +122,6 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                 });
               }
             },
-
             onDaySelected: (selectedDay, focusedDay) {
               setState(() {
                 _selectedDay = selectedDay;

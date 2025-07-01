@@ -189,6 +189,17 @@ class DatabaseHelper {
     return null;
   }
 
+  Future<void> insertWearLogs(List<Map<String, dynamic>> logs) async {
+    if (logs.isEmpty) return;
+    final db = await instance.database;
+    final batch = db.batch();
+    for (final log in logs) {
+      // Dùng insert thay vì insert...replace để cho phép nhiều bản ghi giống nhau (mặc lại)
+      batch.insert('wear_log', log);
+    }
+    await batch.commit(noResult: true);
+  }
+
   // === Outfit Functions ===
   Future<void> insertOutfit(Outfit outfit) async {
     final db = await instance.database;

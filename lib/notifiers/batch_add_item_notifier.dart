@@ -71,34 +71,34 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
   }
 
   Future<void> analyzeAllImages(List<XFile> images) async {
-    state = state.copyWith(isLoading: true, clearAnalysisError: true);
+    // 1. Cập nhật state để báo hiệu bắt đầu giai đoạn phân tích
+    state = state.copyWith(
+      isLoading: true, 
+      clearAnalysisError: true,
+      stage: AnalysisStage.analyzing, // Chuyển sang giai đoạn analyzing
+      totalItemsToProcess: images.length, // Đặt tổng số ảnh
+      itemsProcessed: 0, // Reset số ảnh đã xử lý
+    );
     
     final List<ItemNotifierArgs> itemArgsList = [];
 
-    for (final image in images) {
+    // 2. Bắt đầu vòng lặp
+    for (int i = 0; i < images.length; i++) {
       if (!mounted) return;
       
+      final image = images[i];
       final resultEither = await _analyzeItemUseCase.execute(image);
 
-      // Xử lý kết quả Either
       resultEither.fold(
-        // Trường hợp Lỗi (Left)
         (failure) {
-          // 1. Hiển thị thông báo lỗi cho người dùng
           _ref.read(notificationServiceProvider).showBanner(
             message: "Pre-filling information failed.\nReason: ${failure.message}",
           );
-          // 2. Tạo một vật phẩm rỗng và tiếp tục
           final tempId = const Uuid().v4();
-          final preAnalyzedState = AddItemState(
-            id: tempId,
-            image: File(image.path),
-          );
-          final args = ItemNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState);
-          itemArgsList.add(args);
-          _ref.read(addItemProvider(args));
+          final preAnalyzedState = AddItemState(id: tempId, image: File(image.path));
+          itemArgsList.add(ItemNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState));
+          _ref.read(addItemProvider(itemArgsList.last));
         },
-        // Trường hợp Thành công (Right)
         (result) {
           final tempId = const Uuid().v4();
           final preAnalyzedState = AddItemState(
@@ -108,14 +108,18 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
             selectedMaterials: _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList()),
             selectedPatterns: _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList()),
           );
-          final args = ItemNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState);
-          itemArgsList.add(args);
-          _ref.read(addItemProvider(args));
+          itemArgsList.add(ItemNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState));
+          _ref.read(addItemProvider(itemArgsList.last));
         },
       );
+
+      // 3. Sau mỗi vòng lặp, cập nhật số lượng đã xử lý
+      if (mounted) {
+        state = state.copyWith(itemsProcessed: i + 1);
+      }
     }
 
-    // Nếu vòng lặp đã hoàn thành (dù thành công hay thất bại), cập nhật state để điều hướng
+    // 4. Khi vòng lặp kết thúc, cập nhật state cuối cùng để điều hướng
     if (mounted) {
       state = state.copyWith(isLoading: false, itemArgsList: itemArgsList, analysisSuccess: true);
     }

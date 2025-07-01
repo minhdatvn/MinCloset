@@ -74,9 +74,12 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // <<< THAY ĐỔI: Giờ chúng ta sẽ watch toàn bộ state >>>
+    final batchState = ref.watch(batchAddItemProvider);
+    
+    // Lắng nghe để điều hướng
     ref.listen<BatchAddItemState>(batchAddItemProvider, (previous, next) {
       if (!mounted) return;
-
       if (next.analysisSuccess && previous?.analysisSuccess == false) {
         final analyzedItemArgs = ref.read(batchAddItemProvider).itemArgsList;
         final navigator = Navigator.of(context);
@@ -92,7 +95,6 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
         } else if (analyzedItemArgs.length > 1) {
           navigator.pushReplacementNamed(AppRoutes.batchAddItem);
         } else {
-           // Trường hợp không có ảnh nào để xử lý, đóng lại
           navigator.pop();
         }
       }
@@ -106,9 +108,17 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
+              // <<< THAY ĐỔI: Hiển thị thanh tiến độ hoặc vòng xoay tùy giai đoạn >>>
+              if (batchState.stage == AnalysisStage.analyzing && batchState.totalItemsToProcess > 0)
+                // Giai đoạn 2: Hiển thị thanh tiến độ
+                _CustomProgressBar(
+                  value: batchState.itemsProcessed / batchState.totalItemsToProcess,
+                )
+              else
+                // Giai đoạn 1 (mặc định): Hiển thị vòng xoay vô định
+                const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
               const SizedBox(height: 24),
               Text(
                 _loadingMessage,
@@ -118,6 +128,26 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+// <<< Widget thanh tiến độ tùy chỉnh >>>
+class _CustomProgressBar extends StatelessWidget {
+  final double value; // Giá trị từ 0.0 đến 1.0
+
+  const _CustomProgressBar({required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: LinearProgressIndicator(
+        value: value,
+        minHeight: 12, // Tăng chiều cao thanh
+        backgroundColor: Colors.white.withValues(alpha:0.2),
+        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
       ),
     );
   }

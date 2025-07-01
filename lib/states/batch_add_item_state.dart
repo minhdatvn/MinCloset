@@ -3,6 +3,8 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 
+enum AnalysisStage { preparing, analyzing } // <<< Enum để định nghĩa các giai đoạn loading >>>
+
 @immutable
 class BatchAddItemState extends Equatable {
   final bool isLoading;
@@ -12,9 +14,14 @@ class BatchAddItemState extends Equatable {
   final bool isSaving;
   final bool saveSuccess;
   
-  // <<< THAY ĐỔI: Tách thành 2 trạng thái lỗi riêng biệt >>>
+  // <<< Tách thành 2 trạng thái lỗi riêng biệt >>>
   final String? analysisErrorMessage;
   final String? saveErrorMessage;
+
+  // <<< Các thuộc tính để theo dõi tiến độ >>>
+  final AnalysisStage stage;
+  final int totalItemsToProcess;
+  final int itemsProcessed;
 
   const BatchAddItemState({
     this.isLoading = false,
@@ -25,6 +32,9 @@ class BatchAddItemState extends Equatable {
     this.saveSuccess = false,
     this.analysisErrorMessage,
     this.saveErrorMessage,
+    this.stage = AnalysisStage.preparing,
+    this.totalItemsToProcess = 0,
+    this.itemsProcessed = 0,
   });
 
   BatchAddItemState copyWith({
@@ -36,6 +46,9 @@ class BatchAddItemState extends Equatable {
     bool? saveSuccess,
     String? analysisErrorMessage,
     String? saveErrorMessage,
+    AnalysisStage? stage,
+    int? totalItemsToProcess,
+    int? itemsProcessed,
     bool clearAnalysisError = false,
     bool clearSaveError = false,
   }) {
@@ -48,6 +61,9 @@ class BatchAddItemState extends Equatable {
       saveSuccess: saveSuccess ?? this.saveSuccess,
       analysisErrorMessage: clearAnalysisError ? null : analysisErrorMessage ?? this.analysisErrorMessage,
       saveErrorMessage: clearSaveError ? null : saveErrorMessage ?? this.saveErrorMessage,
+      stage: stage ?? this.stage,
+      totalItemsToProcess: totalItemsToProcess ?? this.totalItemsToProcess,
+      itemsProcessed: itemsProcessed ?? this.itemsProcessed,
     );
   }
 
@@ -61,5 +77,8 @@ class BatchAddItemState extends Equatable {
         saveSuccess,
         analysisErrorMessage,
         saveErrorMessage,
+        stage,
+        totalItemsToProcess,
+        itemsProcessed,
       ];
 }

@@ -9,6 +9,7 @@ import 'package:mincloset/domain/use_cases/validate_item_name_use_case.dart';
 import 'package:mincloset/domain/use_cases/validate_required_fields_use_case.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
+import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
@@ -201,6 +202,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
         state = state.copyWith(isSaving: false, saveErrorMessage: failure.message);
       },
       (_) {
+        _ref.read(itemChangedTriggerProvider.notifier).state++;
         state = state.copyWith(isSaving: false, saveSuccess: true);
       },
     );

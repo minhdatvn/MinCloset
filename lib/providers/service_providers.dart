@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/services/notification_service.dart';
 import 'package:mincloset/services/suggestion_service.dart';
 import 'package:mincloset/services/weather_service.dart';
+import 'package:mincloset/services/weather_image_service.dart';
 
 final weatherServiceProvider = Provider<WeatherService>((ref) {
   // <<< THAY ĐỔI: Đọc key ở đây và truyền vào service >>>
@@ -26,4 +27,10 @@ final notificationServiceProvider = Provider((ref) {
   final navigatorKey = ref.watch(navigatorKeyProvider);
   // Tạo và trả về một instance của NotificationService
   return NotificationService(navigatorKey);
+});
+
+final weatherImageServiceProvider = FutureProvider<WeatherImageService>((ref) async {
+  final service = WeatherImageService();
+  await service.init(); // Chờ cho service khởi tạo xong
+  return service;
 });

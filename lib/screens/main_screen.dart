@@ -223,10 +223,9 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
             const NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
             const NavigationDestination(icon: Icon(Icons.door_sliding_outlined), selectedIcon: Icon(Icons.door_sliding), label: 'Closets'),
             
-            // THAY ĐỔI Ở ĐÂY:
             // Bọc icon và text trong một Column
             Padding(
-              padding: const EdgeInsets.only(bottom: 9.5), // <-- CHỈNH SỬA GIÁ TRỊ NÀY ĐỂ ĐẨY LÊN
+              padding: const EdgeInsets.only(bottom: 9.5),
               child: GestureDetector(
                 onTap: _toggleMenu,
                 behavior: HitTestBehavior.opaque,
@@ -243,13 +242,13 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
                                 Icons.cancel,
                                 key: const ValueKey('cancel_icon'),
                                 size: 45,
-                                color: iconColor, // <-- SỬ DỤNG BIẾN MỚI
+                                color: iconColor, 
                               )
                             : Icon(
                                 Icons.add_circle_outline,
                                 key: const ValueKey('add_icon'),
                                 size: 45,
-                                color: iconColor, // <-- SỬ DỤNG BIẾN MỚI
+                                color: iconColor, 
                               ),
                         ),
                       Text('Add items', style: labelStyle),

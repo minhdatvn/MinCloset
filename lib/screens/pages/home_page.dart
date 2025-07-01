@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
-import 'package:mincloset/helpers/weather_helper.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/home_page_notifier.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/home_page_state.dart';
@@ -197,8 +197,15 @@ class _HomePageState extends ConsumerState<HomePage> {
     final theme = Theme.of(context);
     final profileState = ref.watch(profileProvider);
 
-    final String backgroundImagePath = WeatherHelper.getBackgroundImageForWeather(
-      state.weather?['weather'][0]['icon'] as String?,
+    final weatherImageServiceAsync = ref.watch(weatherImageServiceProvider);
+
+    final String backgroundImagePath = weatherImageServiceAsync.when(
+      data: (service) => service.getBackgroundImageForWeather(
+        state.weather?['weather'][0]['icon'] as String?,
+      ),
+      // Cung cấp ảnh mặc định trong lúc chờ hoặc khi có lỗi
+      loading: () => 'assets/images/weather_backgrounds/default_1.webp',
+      error: (_, __) => 'assets/images/weather_backgrounds/default_1.webp',
     );
 
     return Card(

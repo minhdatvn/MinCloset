@@ -9,9 +9,9 @@ class WeatherHelper {
   // <<< QUAN TRỌNG: Hãy cập nhật các con số này cho đúng với số lượng ảnh bạn có >>>
   static const Map<String, int> _imageCounts = {
     '01d': 1, // Trời nắng
-    '04d': 1, // Nhiều mây
-    '10d': 1, // Mưa
-    '11d': 1, // Bão
+    '04d': 2, // Nhiều mây
+    '10d': 2, // Mưa
+    '11d': 2, // Bão
     '13d': 1, // Tuyết
     '50d': 1, // Sương mù
     'default': 1,

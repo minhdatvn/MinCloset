@@ -31,16 +31,17 @@ class _WeeklyPlannerState extends ConsumerState<WeeklyPlanner> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Chỉ thực hiện khi controller đã được gắn vào ListView
       if (_scrollController.hasClients) {
-        // Tính toán vị trí cần cuộn đến
+        // Lấy chiều rộng thực của màn hình
         final screenWidth = MediaQuery.of(context).size.width;
-        // Vị trí của thẻ "Today" luôn là index 3
-        // Vị trí trung tâm của thẻ "Today" = (3.5 * chiều rộng thẻ)
-        final todayCardCenter = 3.5 * _cardWidth;
-        // Vị trí trung tâm của màn hình
-        final screenCenter = screenWidth / 2;
 
-        // Vị trí cần cuộn tới để đưa tâm của thẻ "Today" về tâm màn hình
-        final targetOffset = todayCardCenter - screenCenter;
+        // Vị trí của thẻ "Today" (thẻ thứ 4, index 3)
+        final todayCardCenter = 3.5 * _cardWidth;
+
+        // Tính toán lại tâm của khu vực cuộn bằng cách trừ đi 32px padding (16 trái + 16 phải)
+        final scrollableAreaCenter = (screenWidth - 32.0) / 2;
+
+        // Vị trí cuộn mục tiêu mới
+        final targetOffset = todayCardCenter - scrollableAreaCenter;
 
         // Dùng jumpTo để di chuyển ngay lập tức mà không có animation
         _scrollController.jumpTo(targetOffset);

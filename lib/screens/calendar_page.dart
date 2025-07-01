@@ -7,15 +7,28 @@ import 'package:table_calendar/table_calendar.dart';
 import 'dart:io';
 
 class CalendarPage extends ConsumerStatefulWidget {
-  const CalendarPage({super.key});
+// Tham số để nhận ngày ban đầu >>>
+  final DateTime? initialDate;
+
+  // Cập nhật constructor để nhận tham số
+  const CalendarPage({super.key, this.initialDate});
 
   @override
   ConsumerState<CalendarPage> createState() => _CalendarPageState();
 }
 
 class _CalendarPageState extends ConsumerState<CalendarPage> {
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
+  late DateTime _focusedDay;
+  late DateTime? _selectedDay;
+
+  // initState để xử lý ngày ban đầu >>>
+  @override
+  void initState() {
+    super.initState();
+    // Nếu có ngày được truyền vào, dùng ngày đó. Nếu không, dùng ngày hôm nay.
+    _focusedDay = widget.initialDate ?? DateTime.now();
+    _selectedDay = _focusedDay;
+  }
 
   @override
   Widget build(BuildContext context) {

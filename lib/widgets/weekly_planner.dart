@@ -99,7 +99,7 @@ class _WeeklyPlannerState extends ConsumerState<WeeklyPlanner> {
                 itemImagePaths: dayEvents.map((e) => e.thumbnailPath ?? e.imagePath).toList(),
                 onAdd: () {
                   // Điều hướng đến trang lịch khi nhấn vào
-                  Navigator.pushNamed(context, AppRoutes.calendar);
+                  Navigator.pushNamed(context, AppRoutes.calendar, arguments: day);
                 },
               );
             },

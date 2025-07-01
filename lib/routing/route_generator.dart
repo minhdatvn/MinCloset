@@ -102,7 +102,11 @@ class RouteGenerator {
         return _errorRoute();
       
       case AppRoutes.calendar:
-        return MaterialPageRoute(builder: (_) => const CalendarPage());
+        // Lấy ngày được truyền qua arguments (có thể là null)
+        final initialDate = args as DateTime?;
+        return MaterialPageRoute(
+          builder: (_) => CalendarPage(initialDate: initialDate),
+        );
         
       default:
         return _errorRoute();

@@ -198,12 +198,12 @@ class _HomePageState extends ConsumerState<HomePage> {
     final profileState = ref.watch(profileProvider);
 
     final weatherImageServiceAsync = ref.watch(weatherImageServiceProvider);
+    ref.watch(homeProvider.select((s) => s.backgroundImageTrigger));
 
     final String backgroundImagePath = weatherImageServiceAsync.when(
       data: (service) => service.getBackgroundImageForWeather(
         state.weather?['weather'][0]['icon'] as String?,
       ),
-      // Cung cấp ảnh mặc định trong lúc chờ hoặc khi có lỗi
       loading: () => 'assets/images/weather_backgrounds/default_1.webp',
       error: (_, __) => 'assets/images/weather_backgrounds/default_1.webp',
     );
@@ -231,6 +231,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   child: profileState.showWeatherImage
                       ? Image.asset(
                           backgroundImagePath,
+                          key: ValueKey(backgroundImagePath + state.backgroundImageTrigger.toString()),
                           fit: BoxFit.cover,
                         )
                       : Container(
@@ -287,6 +288,24 @@ class _HomePageState extends ConsumerState<HomePage> {
                     ],
                   ),
                 ),
+                if (profileState.showWeatherImage)
+                  Positioned(
+                    top: 3,
+                    right: 3,
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(maxWidth: 32, maxHeight: 32),
+                      icon: const Icon(Icons.refresh, color: Colors.black54),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white.withValues(alpha:0.5),
+                        iconSize: 16,
+                      ),
+                      tooltip: 'Change background',
+                      onPressed: () {
+                        ref.read(homeProvider.notifier).refreshBackgroundImage();
+                      },
+                    ),
+                  ),
               ],
             ),
           ),

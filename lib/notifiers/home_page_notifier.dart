@@ -38,6 +38,11 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
     }
   }
 
+  void refreshBackgroundImage() {
+    // Chỉ cần tăng giá trị của trigger để kích hoạt việc build lại UI
+    state = state.copyWith(backgroundImageTrigger: state.backgroundImageTrigger + 1);
+  }
+
   Future<void> getNewSuggestion({String? purpose}) async {
     state = state.copyWith(isLoading: true, clearError: true);
     // <<< THAY ĐỔI 4: Sử dụng UseCase đã được inject >>>

@@ -93,12 +93,8 @@ class _WeeklyPlannerState extends ConsumerState<WeeklyPlanner> {
               return DayPlannerCard(
                 dayLabel: dayLabel,
                 isToday: isToday,
-                // TODO: Kết nối thời tiết thật cho 7 ngày
-                weatherIcon: Icons.cloud_outlined,
-                temperature: '34° 26°',
                 itemImagePaths: dayEvents.map((e) => e.thumbnailPath ?? e.imagePath).toList(),
                 onAdd: () {
-                  // Điều hướng đến trang lịch khi nhấn vào
                   Navigator.pushNamed(context, AppRoutes.calendar, arguments: day);
                 },
               );

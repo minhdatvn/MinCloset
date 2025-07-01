@@ -5,17 +5,14 @@ import 'package:flutter/material.dart';
 class DayPlannerCard extends StatelessWidget {
   final String dayLabel;
   final bool isToday;
-  final IconData weatherIcon;
-  final String temperature;
-  final List<String> itemImagePaths; // Danh sách đường dẫn ảnh
+  // <<< XÓA BỎ: weatherIcon và temperature đã được loại bỏ >>>
+  final List<String> itemImagePaths;
   final VoidCallback onAdd;
 
   const DayPlannerCard({
     super.key,
     required this.dayLabel,
     this.isToday = false,
-    required this.weatherIcon,
-    required this.temperature,
     required this.itemImagePaths,
     required this.onAdd,
   });
@@ -28,7 +25,7 @@ class DayPlannerCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: Column(
         children: [
-          // --- Phần Ngày và Thời tiết ---
+          // --- Phần Ngày ---
           Text(
             dayLabel,
             style: TextStyle(
@@ -36,14 +33,8 @@ class DayPlannerCard extends StatelessWidget {
               color: isToday ? theme.colorScheme.primary : theme.colorScheme.onSurface,
             ),
           ),
-          const SizedBox(height: 8),
-          Icon(weatherIcon, color: theme.colorScheme.onSurface, size: 20),
-          const SizedBox(height: 4),
-          Text(
-            temperature,
-            style: theme.textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
-          ),
-          const SizedBox(height: 12),
+          // <<< XÓA BỎ: Toàn bộ phần hiển thị Icon và Text thời tiết >>>
+          const SizedBox(height: 8), // Giữ lại một khoảng trống nhỏ cho cân đối
 
           // --- Phần Thẻ chứa trang phục ---
           Expanded(

@@ -35,14 +35,15 @@ class RouteGenerator {
         return FadeRoute(page: _mainScreen, settings: settings);
 
       case AppRoutes.analysisLoading:
-        if (args is List<XFile>) {
+          // Logic mới: màn hình loading giờ đây có thể nhận một danh sách ảnh
+          // (cho trường hợp camera) hoặc không nhận gì cả (cho trường hợp album)
+          final images = args as List<XFile>?; // args có thể là null
           return PageRouteBuilder(
             opaque: false,
-            pageBuilder: (_, __, ___) => AnalysisLoadingScreen(images: args),
+            // Truyền `images` vào, có thể là null
+            pageBuilder: (_, __, ___) => AnalysisLoadingScreen(images: images),
             settings: settings,
           );
-        }
-        return _errorRoute();
 
       case AppRoutes.addItem:
         final itemArgs = args as ItemNotifierArgs?;

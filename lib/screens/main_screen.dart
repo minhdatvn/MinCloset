@@ -162,27 +162,28 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
   
   Future<void> _pickAndAnalyzeImages(ImageSource source) async {
     final navigator = Navigator.of(context);
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final imagePicker = ImagePicker();
 
+    // Xử lý riêng cho trường hợp chọn từ Album
+    if (source == ImageSource.gallery) {
+      // Điều hướng thẳng đến màn hình loading mà không cần await image picker
+      navigator.pushNamed(AppRoutes.analysisLoading);
+      return; // Kết thúc hàm tại đây
+    }
+
+    // --- Logic cho trường hợp dùng Camera (giữ nguyên như cũ) ---
+    final imagePicker = ImagePicker();
     List<XFile> pickedFiles = [];
 
-    if (source == ImageSource.gallery) {
-      pickedFiles = await imagePicker.pickMultiImage(maxWidth: 1024, imageQuality: 85);
-    } else {
-      final singleFile = await imagePicker.pickImage(source: source, maxWidth: 1024, imageQuality: 85);
-      if (singleFile != null) pickedFiles.add(singleFile);
+    // Chỉ còn lại logic cho ImageSource.camera
+    final singleFile = await imagePicker.pickImage(source: source, maxWidth: 1024, imageQuality: 85);
+    if (singleFile != null) {
+      pickedFiles.add(singleFile);
     }
-
+    
     if (!mounted || pickedFiles.isEmpty) return;
 
-    List<XFile> filesToProcess = pickedFiles;
-    if (pickedFiles.length > 10) {
-      filesToProcess = pickedFiles.take(10).toList();
-      scaffoldMessenger.showSnackBar(const SnackBar(content: Text('Maximum of 10 photos selected. Extra photos were skipped.')));
-    }
-
-    final itemsWereAdded = await navigator.pushNamed(AppRoutes.analysisLoading, arguments: filesToProcess);
+    // Logic này chỉ còn áp dụng cho Camera
+    final itemsWereAdded = await navigator.pushNamed(AppRoutes.analysisLoading, arguments: pickedFiles);
 
     if (itemsWereAdded == true) {
       ref.read(itemChangedTriggerProvider.notifier).state++;

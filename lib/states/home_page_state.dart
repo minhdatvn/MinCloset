@@ -11,7 +11,8 @@ class HomePageState extends Equatable {
   final String? errorMessage;
   final DateTime? suggestionTimestamp;
   final int suggestionId;
-  final int backgroundImageTrigger;
+  final bool isRefreshingBackground;
+  final String? backgroundImagePath;
 
   const HomePageState({
     this.isLoading = false,
@@ -20,7 +21,8 @@ class HomePageState extends Equatable {
     this.errorMessage,
     this.suggestionTimestamp,
     this.suggestionId = 0,
-    this.backgroundImageTrigger = 0,
+    this.isRefreshingBackground = false,
+    this.backgroundImagePath,
   });
 
   HomePageState copyWith({
@@ -30,7 +32,8 @@ class HomePageState extends Equatable {
     String? errorMessage,
     DateTime? suggestionTimestamp,
     int? suggestionId,
-    int? backgroundImageTrigger,
+    bool? isRefreshingBackground,
+    String? backgroundImagePath,
     bool clearError = false,
   }) {
     return HomePageState(
@@ -40,7 +43,8 @@ class HomePageState extends Equatable {
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
       suggestionTimestamp: suggestionTimestamp ?? this.suggestionTimestamp,
       suggestionId: suggestionId ?? this.suggestionId,
-      backgroundImageTrigger: backgroundImageTrigger ?? this.backgroundImageTrigger,
+      isRefreshingBackground: isRefreshingBackground ?? this.isRefreshingBackground,
+      backgroundImagePath: backgroundImagePath ?? this.backgroundImagePath,
     );
   }
 
@@ -52,7 +56,7 @@ class HomePageState extends Equatable {
         errorMessage,
         suggestionTimestamp,
         suggestionId,
-        // <<< THÊM MỚI: Thêm trigger vào props >>>
-        backgroundImageTrigger,
+        isRefreshingBackground,
+        backgroundImagePath,
       ];
 }

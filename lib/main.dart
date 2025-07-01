@@ -8,6 +8,7 @@ import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/routing/route_generator.dart';
 import 'package:mincloset/theme/app_theme.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:mincloset/services/weather_image_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,6 +34,13 @@ class MinClosetApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<AsyncValue<WeatherImageService>>(weatherImageServiceProvider, (previous, next) {
+      // Khi provider đã tải xong dữ liệu (từ trạng thái loading chuyển sang có data)
+      if (next is AsyncData<WeatherImageService>) {
+        // Gọi hàm để tải trước tất cả các ảnh vào cache
+        next.value.precacheWeatherImages(context);
+      }
+    });
     final locale = ref.watch(localeProvider);
     final navigatorKey = ref.watch(navigatorKeyProvider);
 

@@ -1,44 +1,60 @@
 // lib/services/weather_image_service.dart
 import 'dart:convert';
 import 'dart:math';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 class WeatherImageService {
   final _random = Random();
   List<String> _weatherImagePaths = [];
 
-  // Hàm init sẽ được gọi một lần duy nhất để tải và xử lý danh sách assets
   Future<void> init() async {
-    // 1. Tải nội dung của file AssetManifest.json
     final manifestContent = await rootBundle.loadString('AssetManifest.json');
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
 
-    // 2. Lọc ra tất cả các đường dẫn ảnh thuộc thư mục weather_backgrounds
     _weatherImagePaths = manifestMap.keys
         .where((String key) => key.contains('assets/images/weather_backgrounds/'))
         .toList();
   }
 
-  // Hàm này sẽ thay thế cho hàm cũ trong WeatherHelper
-  String getBackgroundImageForWeather(String? iconCode) {
+  void precacheWeatherImages(BuildContext context) {
+    for (final path in _weatherImagePaths) {
+      precacheImage(AssetImage(path), context);
+    }
+  }
+
+  // <<< BẮT ĐẦU THAY ĐỔI TẠI ĐÂY >>>
+  String getBackgroundImageForWeather(String? iconCode, {String? currentPath}) {
     const String defaultImage = 'assets/images/weather_backgrounds/default_1.webp';
     final String representativeCode = _mapIconToCode(iconCode);
 
-    // Tìm tất cả các ảnh phù hợp với mã thời tiết
+    // 1. Lấy danh sách tất cả các ảnh phù hợp
     final matchingImages = _weatherImagePaths
         .where((path) => path.contains('/$representativeCode'))
         .toList();
 
-    // Nếu không có ảnh nào phù hợp, trả về ảnh mặc định
     if (matchingImages.isEmpty) {
       return defaultImage;
     }
+    
+    // Nếu chỉ có một ảnh, trả về chính ảnh đó
+    if (matchingImages.length == 1) {
+      return matchingImages.first;
+    }
 
-    // Chọn ngẫu nhiên một ảnh từ danh sách phù hợp
-    return matchingImages[_random.nextInt(matchingImages.length)];
+    // 2. Tạo một danh sách mới, loại bỏ ảnh hiện tại
+    final eligibleImages = matchingImages.where((path) => path != currentPath).toList();
+
+    // 3. Chọn ngẫu nhiên từ danh sách đã được lọc
+    // Nếu sau khi lọc không còn ảnh nào (trường hợp hiếm), thì vẫn chọn từ danh sách gốc
+    if (eligibleImages.isEmpty) {
+      return matchingImages[_random.nextInt(matchingImages.length)];
+    }
+    
+    return eligibleImages[_random.nextInt(eligibleImages.length)];
   }
+  // <<< KẾT THÚC THAY ĐỔI >>>
 
-  // Hàm map này vẫn giữ nguyên như cũ
   String _mapIconToCode(String? iconCode) {
     if (iconCode == null) return 'default';
     switch (iconCode) {

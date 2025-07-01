@@ -11,7 +11,6 @@ import 'package:mincloset/notifiers/home_page_notifier.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
-import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/home_page_state.dart';
@@ -196,18 +195,8 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget _buildTodaysSuggestionCard(BuildContext context, WidgetRef ref, HomePageState state) {
     final theme = Theme.of(context);
     final profileState = ref.watch(profileProvider);
-
-    final weatherImageServiceAsync = ref.watch(weatherImageServiceProvider);
-    ref.watch(homeProvider.select((s) => s.backgroundImageTrigger));
-
-    final String backgroundImagePath = weatherImageServiceAsync.when(
-      data: (service) => service.getBackgroundImageForWeather(
-        state.weather?['weather'][0]['icon'] as String?,
-      ),
-      loading: () => 'assets/images/weather_backgrounds/default_1.webp',
-      error: (_, __) => 'assets/images/weather_backgrounds/default_1.webp',
-    );
-
+    final String backgroundImagePath = state.backgroundImagePath ?? 'assets/images/weather_backgrounds/default_1.webp';
+    
     return Card(
       elevation: 0,
       color: Colors.transparent,
@@ -231,7 +220,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   child: profileState.showWeatherImage
                       ? Image.asset(
                           backgroundImagePath,
-                          key: ValueKey(backgroundImagePath + state.backgroundImageTrigger.toString()),
+                          key: ValueKey(backgroundImagePath),
                           fit: BoxFit.cover,
                         )
                       : Container(
@@ -290,34 +279,45 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
                 if (profileState.showWeatherImage)
                   Positioned(
-                    top: 3,
-                    right: 3,
+                    top: 2,
+                    right: 2,
                     child: IconButton(
                       padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(maxWidth: 32, maxHeight: 32),
-                      icon: const Icon(Icons.refresh, color: Colors.black54),
+                      constraints: const BoxConstraints(maxWidth: 28, maxHeight: 28),
+                      icon: state.isRefreshingBackground
+                          ? const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black54),
+                            )
+                          : const Icon(Icons.refresh, color: Colors.black54),
+
                       style: IconButton.styleFrom(
                         backgroundColor: Colors.white.withValues(alpha:0.5),
-                        iconSize: 16,
+                        iconSize: 20,
                       ),
                       tooltip: 'Change background',
-                      onPressed: () {
-                        ref.read(homeProvider.notifier).refreshBackgroundImage();
-                      },
+
+                      // <<< Vô hiệu hóa nút bấm khi đang refresh >>>
+                      onPressed: state.isRefreshingBackground
+                          ? null
+                          : () {
+                              ref.read(homeProvider.notifier).refreshBackgroundImage();
+                            },
                     ),
                   ),
               ],
             ),
           ),
           
-          // <<< THAY ĐỔI 3: Thêm ô nhập liệu và nút bấm mới >>>
+          // <<< Thêm ô nhập liệu và nút bấm mới >>>
           Column(
             crossAxisAlignment: CrossAxisAlignment.end, // Căn lề phải cho bộ đếm
             children: [
               TextField(
                 controller: _purposeController,
                 maxLength: 150,
-                maxLines: null, // <<< KHÔI PHỤC LẠI: Để tự động xuống dòng
+                maxLines: null, 
                 decoration: InputDecoration(
                   hintText: 'Purpose? (e.g. coffee, date night...)',
                   border: const OutlineInputBorder(),

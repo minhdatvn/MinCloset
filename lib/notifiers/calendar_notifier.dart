@@ -30,11 +30,32 @@ class WornGroup extends Equatable {
 class CalendarState extends Equatable {
   final Map<DateTime, List<WornGroup>> events;
   final bool isLoading;
+  final bool isMultiSelectMode;
+  final Set<int> selectedLogIds; // Dùng Set<int> để lưu các log_id
 
-  const CalendarState({this.events = const {}, this.isLoading = true});
+  const CalendarState({
+    this.events = const {},
+    this.isLoading = true,
+    this.isMultiSelectMode = false,
+    this.selectedLogIds = const {},
+  });
+
+  CalendarState copyWith({
+    Map<DateTime, List<WornGroup>>? events,
+    bool? isLoading,
+    bool? isMultiSelectMode,
+    Set<int>? selectedLogIds,
+  }) {
+    return CalendarState(
+      events: events ?? this.events,
+      isLoading: isLoading ?? this.isLoading,
+      isMultiSelectMode: isMultiSelectMode ?? this.isMultiSelectMode,
+      selectedLogIds: selectedLogIds ?? this.selectedLogIds,
+    );
+  }
 
   @override
-  List<Object> get props => [events, isLoading];
+  List<Object> get props => [events, isLoading, isMultiSelectMode, selectedLogIds];
 }
 
 class CalendarNotifier extends StateNotifier<CalendarState> {
@@ -89,7 +110,6 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
         if (outfitId != null) {
           final outfitDetails = outfitMap[outfitId];
           final itemsInOutfit = outfitLogs.map((log) => itemMap[log.itemId]).whereType<ClothingItem>().toList();
-          // Lấy ID của các bản ghi log
           final logIds = outfitLogs.map((log) => log.id).toList(); 
 
           if (outfitDetails != null && itemsInOutfit.isNotEmpty) {
@@ -98,20 +118,55 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
         }
       });
 
-      // Xử lý các item riêng lẻ
+      // <<< THAY ĐỔI: Coi mỗi item lẻ là một WornGroup riêng >>>
       final individualItemsLogs = logsByOutfit[null] ?? [];
-      final individualItems = individualItemsLogs.map((log) => itemMap[log.itemId]).whereType<ClothingItem>().toList();
-      // Lấy ID của các bản ghi log
-      final individualLogIds = individualItemsLogs.map((log) => log.id).toList();
-
-      if (individualItems.isNotEmpty) {
-         groupsForDay.add(WornGroup(items: individualItems, logIds: individualLogIds));
+      for (final log in individualItemsLogs) {
+        final item = itemMap[log.itemId];
+        if (item != null) {
+          // Mỗi item lẻ giờ là một nhóm riêng với 1 item và 1 logId
+          groupsForDay.add(WornGroup(items: [item], logIds: [log.id]));
+        }
       }
 
       finalEvents[date] = groupsForDay;
     });
 
-    state = CalendarState(isLoading: false, events: finalEvents);
+    state = state.copyWith(isLoading: false, events: finalEvents);
+  }
+
+  void enableMultiSelectMode(List<int> logIds) {
+    state = state.copyWith(isMultiSelectMode: true, selectedLogIds: logIds.toSet());
+  }
+  
+  void toggleSelection(List<int> logIds) {
+    if (!state.isMultiSelectMode) return;
+
+    final newSet = Set<int>.from(state.selectedLogIds);
+    // Nếu tất cả các logId của group đã có trong set, thì xóa chúng đi
+    if (newSet.containsAll(logIds)) {
+      newSet.removeAll(logIds);
+    } else { // Nếu không, thêm chúng vào
+      newSet.addAll(logIds);
+    }
+    
+    // Nếu không còn mục nào được chọn, thoát khỏi chế độ chọn nhiều
+    if (newSet.isEmpty) {
+      clearMultiSelectMode();
+    } else {
+      state = state.copyWith(selectedLogIds: newSet);
+    }
+  }
+
+  void clearMultiSelectMode() {
+    state = state.copyWith(isMultiSelectMode: false, selectedLogIds: {});
+  }
+  
+  Future<void> deleteSelected() async {
+    if (state.selectedLogIds.isEmpty) return;
+    // Hàm deleteWornGroup đã có sẵn logic để xóa và tải lại events
+    await deleteWornGroup(WornGroup(logIds: state.selectedLogIds.toList(), items: []));
+    // Sau khi xóa, tự động thoát khỏi chế độ chọn nhiều
+    clearMultiSelectMode();
   }
 
   Future<void> logWearForDate(DateTime date, Set<String> ids, SelectionType type) async {

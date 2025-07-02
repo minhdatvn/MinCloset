@@ -80,24 +80,67 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
   @override
   Widget build(BuildContext context) {
     final calendarState = ref.watch(calendarProvider);
+    final notifier = ref.read(calendarProvider.notifier);
     final eventsForDay = _selectedDay != null
         ? (calendarState.events[DateTime(_selectedDay!.year, _selectedDay!.month, _selectedDay!.day)] ?? [])
         : <WornGroup>[];
+    
+    // <<< THAY ĐỔI 2: Logic đếm số nhóm đã chọn >>>
+    final selectedGroupCount = eventsForDay.where((group) {
+      return calendarState.selectedLogIds.containsAll(group.logIds);
+    }).length;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Style Journal'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: TextButton.icon(
-              onPressed: _selectedDay == null ? null : () => _showLogWearActionSheet(context),
-              icon: const Icon(Icons.add_task_outlined),
-              label: const Text('Add'),
+      appBar: calendarState.isMultiSelectMode
+          ? AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: notifier.clearMultiSelectMode,
+              ),
+              // Hiển thị số nhóm đã chọn
+              title: Text('$selectedGroupCount selected'),
+              actions: [
+                IconButton(
+                  // <<< THAY ĐỔI 1: Đổi màu icon thùng rác >>>
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  onPressed: () async {
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text('Confirm Deletion'),
+                        // Dùng số nhóm đã chọn trong thông báo
+                        content: Text('Are you sure you want to remove $selectedGroupCount selection(s) from this day?'),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+                          TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(true),
+                            style: TextButton.styleFrom(foregroundColor: Colors.red),
+                            child: const Text('Delete'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirmed == true) {
+                      await notifier.deleteSelected();
+                    }
+                  },
+                )
+              ],
+            )
+          // AppBar mặc định
+          : AppBar(
+              title: const Text('Style Journal'),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: TextButton.icon(
+                    onPressed: _selectedDay == null ? null : () => _showLogWearActionSheet(context),
+                    icon: const Icon(Icons.add_task_outlined),
+                    label: const Text('Add'),
+                  ),
+                )
+              ],
             ),
-          )
-        ],
-      ),
       body: Column(
         children: [
           TableCalendar<WornGroup>(
@@ -138,7 +181,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
           ),
           const SizedBox(height: 8.0),
           Expanded(
-            child: _buildEventList(eventsForDay),
+            child: _buildEventList(eventsForDay, calendarState, notifier),
           ),
         ],
       ),
@@ -167,7 +210,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
 
   // <<< BẮT ĐẦU CẬP NHẬT TỪ ĐÂY >>>
 
-  Widget _buildEventList(List<WornGroup> groups) {
+  Widget _buildEventList(List<WornGroup> groups, CalendarState calendarState, CalendarNotifier notifier) {
     if (groups.isEmpty) {
       return const Center(child: Text("No items logged for this day."));
     }
@@ -179,146 +222,157 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final group = groups[index];
-        final bool isOutfit = group.outfit != null;
-        
-        // Bọc toàn bộ hàng trong một Dismissible
-        return Dismissible(
-          // Key phải là duy nhất để Flutter xác định đúng widget
-          key: ValueKey('worn_group_${group.logIds.join("-")}'),
-          direction: DismissDirection.endToStart, // Chỉ cho phép vút từ phải sang trái
-          background: Container(
-            color: Colors.red,
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            child: const Icon(Icons.delete_outline, color: Colors.white),
-          ),
-          // Hiển thị hộp thoại xác nhận trước khi xóa
-          confirmDismiss: (direction) async {
-            return await showDialog<bool>(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                title: const Text('Confirm Deletion'),
-                content: Text(isOutfit
-                    ? "Are you sure you want to remove the outfit '${group.outfit!.name}' from this day's journal?"
-                    : "Are you sure you want to remove ${group.items.length} item(s) from this day's journal?"),
-                actions: [
-                  TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-                  TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(true),
-                    style: TextButton.styleFrom(foregroundColor: Colors.red),
-                    child: const Text('Delete'),
-                  ),
-                ],
+        final isOutfit = group.outfit != null;
+        final isSelected = calendarState.selectedLogIds.containsAll(group.logIds);
+
+        // Bọc GestureDetector ra ngoài cùng để có vùng nhấn lớn nhất
+        return GestureDetector(
+          // <<< SỬA LỖI 2: Thêm behavior: HitTestBehavior.opaque >>>
+          behavior: HitTestBehavior.opaque,
+          onLongPress: () {
+            notifier.enableMultiSelectMode(group.logIds);
+          },
+          onTap: () {
+            if (calendarState.isMultiSelectMode) {
+              notifier.toggleSelection(group.logIds);
+            }
+          },
+          child: Card(
+            // <<< SỬA LỖI 1: Thêm color: Colors.white >>>
+            surfaceTintColor: Colors.white,
+            elevation: 0,
+            margin: EdgeInsets.zero,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(
+                color: isSelected ? Theme.of(context).colorScheme.primary : Colors.transparent,
+                width: 2,
               ),
-            ) ?? false; // Nếu người dùng đóng dialog, mặc định là false
-          },
-          // Hành động sau khi đã xác nhận xóa
-          onDismissed: (direction) {
-            ref.read(calendarProvider.notifier).deleteWornGroup(group);
-          },
-          // Nội dung của hàng
-          child: isOutfit
-              ? _buildOutfitRow(group.outfit!)
-              : _buildIndividualItemsCard(group.items),
+            ),
+            // Đặt Dismissible bên trong để nó không ảnh hưởng đến vùng nhấn
+            child: Dismissible(
+              key: ValueKey('worn_group_${group.logIds.join("-")}'),
+              direction: calendarState.isMultiSelectMode ? DismissDirection.none : DismissDirection.endToStart,
+              background: Container(
+                color: Colors.red,
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: const Icon(Icons.delete_outline, color: Colors.white),
+              ),
+              confirmDismiss: (direction) async {
+                  return await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Confirm Deletion'),
+                      content: Text(isOutfit
+                          ? "Are you sure you want to remove the outfit '${group.outfit!.name}' from this day's journal?"
+                          : "Are you sure you want to remove the item '${group.items.first.name}' from this day's journal?"),
+                      actions: [
+                        TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+                        TextButton(
+                          onPressed: () => Navigator.of(ctx).pop(true),
+                          style: TextButton.styleFrom(foregroundColor: Colors.red),
+                          child: const Text('Delete'),
+                        ),
+                      ],
+                    ),
+                  ) ?? false;
+              },
+              onDismissed: (direction) {
+                notifier.deleteWornGroup(group);
+              },
+              child: isOutfit
+                  ? _buildOutfitRow(group.outfit!)
+                  : _buildIndividualItemRow(group.items.first),
+            ),
+          ),
         );
       },
     );
   }
 
-  Widget _buildIndividualItemsCard(List<ClothingItem> items) {
-    return Card(
-      elevation: 2,
-      margin: EdgeInsets.zero,
-      // <<< THÊM DÒNG NÀY ĐỂ ĐẶT MÀU NỀN TRẮNG >>>
-      color: Colors.white,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        // Mỗi item trong nhóm item lẻ sẽ là một hàng
-        child: Column(
-          children: items.map((item) => _buildIndividualItemRow(item)).toList(),
-        ),
-      ),
-    );
-  }
-
   // Widget để hiển thị một hàng Outfit
   Widget _buildOutfitRow(Outfit outfit) {
-    return Row(
-      children: [
-        // Khung ảnh 3:4 cho outfit
-        SizedBox(
-          width: 84,
-          child: AspectRatio(
-            aspectRatio: 3 / 4,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey.shade300, width: 1),
-              ),
-              clipBehavior: Clip.antiAlias,
-              // Hiển thị ảnh thumbnail của outfit
-              child: Image.file(
-                File(outfit.thumbnailPath ?? outfit.imagePath),
-                fit: BoxFit.cover,
-                errorBuilder: (ctx, err, stack) => const Icon(Icons.broken_image_outlined, color: Colors.grey),
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 84,
+            child: AspectRatio(
+              aspectRatio: 3 / 4,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Image.file(
+                  File(outfit.thumbnailPath ?? outfit.imagePath),
+                  fit: BoxFit.cover,
+                  errorBuilder: (ctx, err, stack) => const Icon(Icons.broken_image_outlined, color: Colors.grey),
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 16),
-        // Thông tin outfit
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(outfit.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              const SizedBox(height: 4),
-              Text("Outfit", style: Theme.of(context).textTheme.bodySmall),
-            ],
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(outfit.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 4),
+                Text("Outfit", style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   // Widget để hiển thị một hàng Item lẻ
   Widget _buildIndividualItemRow(ClothingItem item) {
-    return Row(
-      children: [
-        // Khung ảnh 3:4 cho item
-        SizedBox(
-          width: 84,
-          child: AspectRatio(
-            aspectRatio: 3 / 4,
-            child: Container(
-              padding: const EdgeInsets.all(4.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey.shade300, width: 1),
-              ),
-              child: Image.file(
-                File(item.thumbnailPath ?? item.imagePath),
-                fit: BoxFit.contain,
-                errorBuilder: (ctx, err, stack) => const Icon(Icons.broken_image_outlined, color: Colors.grey),
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.all(8.0),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 84,
+            child: AspectRatio(
+              aspectRatio: 3 / 4,
+              child: Container(
+                padding: const EdgeInsets.all(4.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Image.file(
+                  File(item.thumbnailPath ?? item.imagePath),
+                  fit: BoxFit.contain,
+                  errorBuilder: (ctx, err, stack) => const Icon(Icons.broken_image_outlined, color: Colors.grey),
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 16),
-        // Thông tin item
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              const SizedBox(height: 4),
-              Text(item.category, style: Theme.of(context).textTheme.bodySmall),
-            ],
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 4),
+                Text(item.category, style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

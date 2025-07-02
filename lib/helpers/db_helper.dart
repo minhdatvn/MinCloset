@@ -200,6 +200,17 @@ class DatabaseHelper {
     await batch.commit(noResult: true);
   }
 
+  Future<void> deleteWearLogs(List<int> logIds) async {
+    if (logIds.isEmpty) return;
+    final db = await instance.database;
+    // Xóa tất cả các bản ghi có ID nằm trong danh sách được cung cấp
+    await db.delete(
+      'wear_log',
+      where: 'id IN (${List.filled(logIds.length, '?').join(',')})',
+      whereArgs: logIds,
+    );
+  }
+
   // === Outfit Functions ===
   Future<void> insertOutfit(Outfit outfit) async {
     final db = await instance.database;

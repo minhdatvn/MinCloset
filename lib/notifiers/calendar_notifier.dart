@@ -2,6 +2,7 @@
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit.dart'; // <<< THÊM IMPORT
 import 'package:mincloset/models/wear_log.dart';
@@ -13,9 +14,20 @@ import 'package:mincloset/states/log_wear_state.dart'; // <<< THÊM IMPORT
 import 'package:mincloset/utils/logger.dart'; // <<< THÊM IMPORT LOGGER
 
 // State cho Calendar
+class WornGroup extends Equatable {
+  final Outfit? outfit; // Là một outfit nếu được nhóm theo outfit
+  final List<ClothingItem> items; // Danh sách các item trong nhóm
+
+  const WornGroup({this.outfit, required this.items});
+  
+  @override
+  List<Object?> get props => [outfit, items];
+}
+
+
+// <<< THAY ĐỔI: State giờ sẽ chứa một Map<DateTime, List<WornGroup>> >>>
 class CalendarState extends Equatable {
-  // Map từ ngày sang danh sách các vật phẩm đã mặc
-  final Map<DateTime, List<ClothingItem>> events;
+  final Map<DateTime, List<WornGroup>> events;
   final bool isLoading;
 
   const CalendarState({this.events = const {}, this.isLoading = true});
@@ -33,44 +45,68 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
     loadEvents();
   }
 
+  // <<< THAY ĐỔI HOÀN TOÀN LOGIC CỦA HÀM NÀY >>>
   Future<void> loadEvents() async {
     state = const CalendarState(isLoading: true);
 
-    final startDate = DateTime.now().subtract(const Duration(days: 365));
-    final endDate = DateTime.now().add(const Duration(days: 365));
+    final results = await Future.wait([
+      _wearLogRepo.getLogsForDateRange(DateTime.now().subtract(const Duration(days: 365)), DateTime.now().add(const Duration(days: 365))),
+      _itemRepo.getAllItems(),
+      _outfitRepo.getOutfits(),
+    ]);
 
-    final logsEither = await _wearLogRepo.getLogsForDateRange(startDate, endDate);
+    final logsEither = results[0] as Either<dynamic, List<WearLog>>;
+    final itemsEither = results[1] as Either<dynamic, List<ClothingItem>>;
+    final outfitsEither = results[2] as Either<dynamic, List<Outfit>>;
 
-    await logsEither.fold(
-      (l) async => state = const CalendarState(isLoading: false),
-      (logs) async {
-        final allItemsEither = await _itemRepo.getAllItems();
-        await allItemsEither.fold(
-          (l) async => state = const CalendarState(isLoading: false),
-          (allItems) {
-            final Map<String, ClothingItem> itemMap = {
-              for (var item in allItems) item.id: item
-            };
+    // Xử lý khi có lỗi xảy ra ở bất kỳ đâu
+    if (logsEither.isLeft() || itemsEither.isLeft() || outfitsEither.isLeft()) {
+      state = const CalendarState(isLoading: false);
+      return;
+    }
+    
+    final allLogs = logsEither.getOrElse((_) => []);
+    final allItems = itemsEither.getOrElse((_) => []);
+    final allOutfits = outfitsEither.getOrElse((_) => []);
 
-            final groupedByDate = groupBy(
-              logs, (WearLog log) => DateTime(log.wearDate.year, log.wearDate.month, log.wearDate.day)
-            );
+    // Tạo các map để tra cứu nhanh
+    final itemMap = {for (var item in allItems) item.id: item};
+    final outfitMap = {for (var o in allOutfits) o.id: o};
 
-            final Map<DateTime, List<ClothingItem>> finalEvents = {};
-            groupedByDate.forEach((date, dateLogs) {
-              final itemsForDay = dateLogs
-                  .map((log) => itemMap[log.itemId])
-                  .where((item) => item != null)
-                  .cast<ClothingItem>()
-                  .toList();
-              finalEvents[date] = itemsForDay.toSet().toList();
-            });
+    // Nhóm tất cả các log theo ngày
+    final groupedByDate = groupBy(allLogs, (WearLog log) => DateTime(log.wearDate.year, log.wearDate.month, log.wearDate.day));
 
-            state = CalendarState(isLoading: false, events: finalEvents);
+    final Map<DateTime, List<WornGroup>> finalEvents = {};
+
+    // Duyệt qua mỗi ngày
+    groupedByDate.forEach((date, logsForDay) {
+      final List<WornGroup> groupsForDay = [];
+      
+      // Nhóm các log theo outfit_id
+      final logsByOutfit = groupBy(logsForDay, (log) => log.outfitId);
+
+      // Xử lý các nhóm outfit
+      logsByOutfit.forEach((outfitId, outfitLogs) {
+        if (outfitId != null) {
+          final outfitDetails = outfitMap[outfitId];
+          final itemsInOutfit = outfitLogs.map((log) => itemMap[log.itemId]).whereType<ClothingItem>().toList();
+          if (outfitDetails != null && itemsInOutfit.isNotEmpty) {
+            groupsForDay.add(WornGroup(outfit: outfitDetails, items: itemsInOutfit));
           }
-        );
+        }
+      });
+
+      // Xử lý các item riêng lẻ
+      final individualItemsLogs = logsByOutfit[null] ?? [];
+      final individualItems = individualItemsLogs.map((log) => itemMap[log.itemId]).whereType<ClothingItem>().toList();
+      if (individualItems.isNotEmpty) {
+         groupsForDay.add(WornGroup(items: individualItems));
       }
-    );
+
+      finalEvents[date] = groupsForDay;
+    });
+
+    state = CalendarState(isLoading: false, events: finalEvents);
   }
 
   Future<void> logWearForDate(DateTime date, Set<String> ids, SelectionType type) async {

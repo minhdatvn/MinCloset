@@ -20,6 +20,15 @@ class WearLogRepository {
     }
   }
 
+  FutureEitherVoid deleteWearLogs(List<int> logIds) async {
+    try {
+      await _dbHelper.deleteWearLogs(logIds);
+      return const Right(unit);
+    } on DatabaseException catch (e) {
+      return Left(CacheFailure('Failed to delete wear logs: $e'));
+    }
+  }
+
   FutureEither<List<WearLog>> getLogsForDateRange(DateTime start, DateTime end) async {
     try {
       final db = await _dbHelper.database;

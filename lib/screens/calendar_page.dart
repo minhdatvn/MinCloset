@@ -171,32 +171,73 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     if (groups.isEmpty) {
       return const Center(child: Text("No items logged for this day."));
     }
-
-    // 1. "Làm phẳng" danh sách: chuyển List<WornGroup> thành List<Widget>
-    List<Widget> builtRows = [];
-    // Sắp xếp: outfit lên trước, item lẻ xuống sau
     groups.sort((a, b) => (a.outfit == null ? 1 : 0).compareTo(b.outfit == null ? 1 : 0));
 
-    for (var group in groups) {
-      if (group.outfit != null) {
-        // Nếu là outfit, tạo 1 hàng cho cả outfit
-        builtRows.add(_buildOutfitRow(group.outfit!));
-      } else {
-        // Nếu là item lẻ, tạo một hàng cho MỖI item
-        for (var item in group.items) {
-          builtRows.add(_buildIndividualItemRow(item));
-        }
-      }
-    }
-
-    // 2. Dùng ListView.separated để hiển thị danh sách widget đã được tạo
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 80),
-      itemCount: builtRows.length,
+      itemCount: groups.length,
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
-        return builtRows[index];
+        final group = groups[index];
+        final bool isOutfit = group.outfit != null;
+        
+        // Bọc toàn bộ hàng trong một Dismissible
+        return Dismissible(
+          // Key phải là duy nhất để Flutter xác định đúng widget
+          key: ValueKey('worn_group_${group.logIds.join("-")}'),
+          direction: DismissDirection.endToStart, // Chỉ cho phép vút từ phải sang trái
+          background: Container(
+            color: Colors.red,
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: const Icon(Icons.delete_outline, color: Colors.white),
+          ),
+          // Hiển thị hộp thoại xác nhận trước khi xóa
+          confirmDismiss: (direction) async {
+            return await showDialog<bool>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Confirm Deletion'),
+                content: Text(isOutfit
+                    ? "Are you sure you want to remove the outfit '${group.outfit!.name}' from this day's journal?"
+                    : "Are you sure you want to remove ${group.items.length} item(s) from this day's journal?"),
+                actions: [
+                  TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+                  TextButton(
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                    style: TextButton.styleFrom(foregroundColor: Colors.red),
+                    child: const Text('Delete'),
+                  ),
+                ],
+              ),
+            ) ?? false; // Nếu người dùng đóng dialog, mặc định là false
+          },
+          // Hành động sau khi đã xác nhận xóa
+          onDismissed: (direction) {
+            ref.read(calendarProvider.notifier).deleteWornGroup(group);
+          },
+          // Nội dung của hàng
+          child: isOutfit
+              ? _buildOutfitRow(group.outfit!)
+              : _buildIndividualItemsCard(group.items),
+        );
       },
+    );
+  }
+
+  Widget _buildIndividualItemsCard(List<ClothingItem> items) {
+    return Card(
+      elevation: 2,
+      margin: EdgeInsets.zero,
+      // <<< THÊM DÒNG NÀY ĐỂ ĐẶT MÀU NỀN TRẮNG >>>
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        // Mỗi item trong nhóm item lẻ sẽ là một hàng
+        child: Column(
+          children: items.map((item) => _buildIndividualItemRow(item)).toList(),
+        ),
+      ),
     );
   }
 

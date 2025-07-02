@@ -15,13 +15,14 @@ import 'package:mincloset/utils/logger.dart'; // <<< THÊM IMPORT LOGGER
 
 // State cho Calendar
 class WornGroup extends Equatable {
-  final Outfit? outfit; // Là một outfit nếu được nhóm theo outfit
-  final List<ClothingItem> items; // Danh sách các item trong nhóm
+  final Outfit? outfit;
+  final List<ClothingItem> items;
+  final List<int> logIds; // Danh sách các ID của bản ghi wear_log
 
-  const WornGroup({this.outfit, required this.items});
+  const WornGroup({this.outfit, required this.items, required this.logIds});
   
   @override
-  List<Object?> get props => [outfit, items];
+  List<Object?> get props => [outfit, items, logIds];
 }
 
 
@@ -81,8 +82,6 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
     // Duyệt qua mỗi ngày
     groupedByDate.forEach((date, logsForDay) {
       final List<WornGroup> groupsForDay = [];
-      
-      // Nhóm các log theo outfit_id
       final logsByOutfit = groupBy(logsForDay, (log) => log.outfitId);
 
       // Xử lý các nhóm outfit
@@ -90,8 +89,11 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
         if (outfitId != null) {
           final outfitDetails = outfitMap[outfitId];
           final itemsInOutfit = outfitLogs.map((log) => itemMap[log.itemId]).whereType<ClothingItem>().toList();
+          // Lấy ID của các bản ghi log
+          final logIds = outfitLogs.map((log) => log.id).toList(); 
+
           if (outfitDetails != null && itemsInOutfit.isNotEmpty) {
-            groupsForDay.add(WornGroup(outfit: outfitDetails, items: itemsInOutfit));
+            groupsForDay.add(WornGroup(outfit: outfitDetails, items: itemsInOutfit, logIds: logIds));
           }
         }
       });
@@ -99,8 +101,11 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
       // Xử lý các item riêng lẻ
       final individualItemsLogs = logsByOutfit[null] ?? [];
       final individualItems = individualItemsLogs.map((log) => itemMap[log.itemId]).whereType<ClothingItem>().toList();
+      // Lấy ID của các bản ghi log
+      final individualLogIds = individualItemsLogs.map((log) => log.id).toList();
+
       if (individualItems.isNotEmpty) {
-         groupsForDay.add(WornGroup(items: individualItems));
+         groupsForDay.add(WornGroup(items: individualItems, logIds: individualLogIds));
       }
 
       finalEvents[date] = groupsForDay;
@@ -156,6 +161,16 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
         (_) => loadEvents(),
       );
     }
+  }
+
+  Future<void> deleteWornGroup(WornGroup group) async {
+    if (group.logIds.isEmpty) return;
+
+    final result = await _wearLogRepo.deleteWearLogs(group.logIds);
+    result.fold(
+      (l) => logger.e("Error deleting wear logs", error: l.message),
+      (_) => loadEvents(), // Tải lại sự kiện sau khi xóa thành công
+    );
   }
 }
 

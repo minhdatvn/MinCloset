@@ -172,23 +172,51 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
 
   Widget _buildEventList(List<ClothingItem> events) {
     if (events.isEmpty) {
-      return const Center(child: Text("No outfits logged for this day."));
+      return const Center(child: Text("No items logged for this day."));
     }
-    return ListView.builder(
+    // Dùng ListView.separated để tự động thêm khoảng cách giữa các Card
+    return ListView.separated(
+      padding: const EdgeInsets.all(16.0),
       itemCount: events.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12), // Khoảng cách giữa các hàng
       itemBuilder: (context, index) {
         final item = events[index];
-        return ListTile(
-          leading: SizedBox(
-            width: 50,
-            height: 50,
-            child: Image.file(
-              File(item.thumbnailPath ?? item.imagePath),
-              fit: BoxFit.cover,
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Khung ảnh 3:4
+            Container(
+              width: 84, // Chiều rộng cố định
+              height: 112, // Chiều cao tương ứng tỷ lệ 3:4
+              padding: const EdgeInsets.all(4.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.grey.shade300, width: 1),
+              ),
+              child: Image.file(
+                File(item.thumbnailPath ?? item.imagePath),
+                fit: BoxFit.contain,
+                errorBuilder: (ctx, err, stack) =>
+                    const Icon(Icons.broken_image_outlined, color: Colors.grey),
+              ),
             ),
-          ),
-          title: Text(item.name),
-          subtitle: Text(item.category),
+            const SizedBox(width: 16),
+            // Thông tin item
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(item.name,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 4),
+                  Text(item.category,
+                      style: Theme.of(context).textTheme.bodySmall),
+                ],
+              ),
+            )
+          ],
         );
       },
     );

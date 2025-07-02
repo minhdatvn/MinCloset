@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 class DayPlannerCard extends StatelessWidget {
   final String dayLabel;
   final bool isToday;
-  // <<< XÓA BỎ: weatherIcon và temperature đã được loại bỏ >>>
   final List<String> itemImagePaths;
   final VoidCallback onAdd;
 
@@ -33,8 +32,7 @@ class DayPlannerCard extends StatelessWidget {
               color: isToday ? theme.colorScheme.primary : theme.colorScheme.onSurface,
             ),
           ),
-          // <<< XÓA BỎ: Toàn bộ phần hiển thị Icon và Text thời tiết >>>
-          const SizedBox(height: 8), // Giữ lại một khoảng trống nhỏ cho cân đối
+          const SizedBox(height: 8),
 
           // --- Phần Thẻ chứa trang phục ---
           Expanded(
@@ -70,17 +68,34 @@ class DayPlannerCard extends StatelessWidget {
   }
 
   Widget _buildOutfitPreview() {
-    final displayImages = itemImagePaths.take(2).toList();
+    final displayImages = itemImagePaths.take(4).toList();
+
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(4.0),
       child: Wrap(
         spacing: 4,
         runSpacing: 4,
         alignment: WrapAlignment.center,
         children: displayImages.map((path) {
-          // <<< THAY ĐỔI: Dùng Image.file thay vì Image.asset >>>
-          return Image.file(File(path), width: 40, height: 40, fit: BoxFit.cover,
-            errorBuilder: (ctx, err, stack) => const Icon(Icons.error_outline),
+          // Bọc AspectRatio trong SizedBox để giới hạn kích thước
+          return SizedBox(
+            // Chiều rộng được tính toán lại chính xác là 45px
+            width: 45, 
+            child: AspectRatio(
+              aspectRatio: 3 / 4,
+              child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(color: Colors.grey.shade200, width: 0.5)),
+                clipBehavior: Clip.antiAlias,
+                child: Image.file(
+                  File(path),
+                  fit: BoxFit.contain, // Dùng contain để không bị cắt ảnh
+                  errorBuilder: (ctx, err, stack) =>
+                      const Icon(Icons.error_outline),
+                ),
+              ),
+            ),
           );
         }).toList(),
       ),

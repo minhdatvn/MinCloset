@@ -1,22 +1,25 @@
 // lib/screens/pages/home_page.dart
 import 'dart:io';
-
+import 'package:image_picker/image_picker.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/models/notification_type.dart';
+import 'package:mincloset/notifiers/closets_page_notifier.dart';
 import 'package:mincloset/notifiers/home_page_notifier.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/home_page_state.dart';
-import 'package:mincloset/widgets/gradient_action_card.dart';
+import 'package:mincloset/widgets/action_card.dart';
+import 'package:mincloset/widgets/closet_form_dialog.dart';
 import 'package:mincloset/widgets/section_header.dart';
-import 'package:mincloset/widgets/stats_overview_card.dart';
 import 'package:mincloset/widgets/weekly_planner.dart';
 
 final recentItemsProvider =
@@ -47,7 +50,6 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  // <<< THAY ĐỔI 2: Thêm TextEditingController >>>
   final TextEditingController _purposeController = TextEditingController();
   int _currentPurposeLength = 0;
 
@@ -74,11 +76,46 @@ class _HomePageState extends ConsumerState<HomePage> {
     super.dispose();
   }
 
+  void _showAddItemSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Wrap(
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text('Take photo'),
+              onTap: () async {
+                Navigator.of(ctx).pop(); // Đóng menu
+                final imagePicker = ImagePicker();
+                final singleFile = await imagePicker.pickImage(
+                  source: ImageSource.camera,
+                  maxWidth: 1024,
+                  imageQuality: 85,
+                );
+                if (singleFile != null && context.mounted) {
+                  Navigator.pushNamed(context, AppRoutes.analysisLoading, arguments: [singleFile]);
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('From album'),
+              onTap: () {
+                Navigator.of(ctx).pop(); // Đóng menu
+                // Điều hướng đến màn hình loading và cho phép chọn nhiều ảnh từ album
+                Navigator.pushNamed(context, AppRoutes.analysisLoading);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // ref được truy cập thông qua `this.ref` trong State
     final homeState = ref.watch(homeProvider);
-    final profileState = ref.watch(profileProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -86,28 +123,26 @@ class _HomePageState extends ConsumerState<HomePage> {
         toolbarHeight: 80,
       ),
       body: RefreshIndicator(
-        onRefresh: () async => await ref.read(homeProvider.notifier).refreshWeatherOnly(), //Khi làm mới chỉ lấy thông tin thời tiết
+        onRefresh: () async => await ref.read(homeProvider.notifier).refreshWeatherOnly(),
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              StatsOverviewCard(
-                totalItems: profileState.totalItems,
-                totalClosets: profileState.totalClosets,
-                totalOutfits: profileState.totalOutfits,
-              ),
+              // XÓA WIDGET StatsOverviewCard
+              // StatsOverviewCard(...),
+              
+              // THAY THẾ _buildAiStylistSection BẰNG _buildActionHub
+              _buildActionHub(context, ref),
+
               const SizedBox(height: 32),
-              _buildAiStylistSection(context, ref),
-              const SizedBox(height: 32),
-              const WeeklyPlanner(), // Thay thế _buildRecentlyAddedSection
+              const WeeklyPlanner(),
               const SizedBox(height: 32),
               const SectionHeader(
                 title: 'Outfit suggestion',
               ),
               const SizedBox(height: 16),
-              // Truyền ref vào hàm build card
               _buildTodaysSuggestionCard(context, ref, homeState),
               const SizedBox(height: 32),
             ],
@@ -162,35 +197,64 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _buildAiStylistSection(BuildContext context, WidgetRef ref) {
+  Widget _buildActionHub(BuildContext context, WidgetRef ref) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionHeader(title: 'Outfit Studio'),
-        const SizedBox(height: 16),
+        // Không còn SectionHeader "Action Hub" ở đây
+        const SizedBox(height: 16), // Thêm khoảng cách trên cùng
         Row(
           children: [
-            // SỬ DỤNG WIDGET MỚI
-            GradientActionCard(
-              label: 'Create outfits',
-              icon: Icons.design_services_outlined,
-              // THAY THẾ BẰNG ĐƯỜNG DẪN ẢNH CỦA BẠN
-              imagePath: 'assets/images/cards/create_outfits_bg.webp', 
-              onTap: () => Navigator.pushNamed(context, AppRoutes.outfitBuilder),
+            ActionCard(
+              label: 'Add Item',
+              icon: Icons.add_a_photo_outlined,
+              onTap: () => _showAddItemSheet(context), // Gọi menu chọn ảnh
             ),
-            const SizedBox(width: 16),
-            // SỬ DỤNG WIDGET MỚI
-            GradientActionCard(
-              label: 'Saved outfits',
+            const SizedBox(width: 12),
+            ActionCard(
+              label: 'Create Closet',
+              icon: Icons.create_new_folder_outlined,
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => ClosetFormDialog(
+                    onSubmit: (name) async {
+                      final notifier = ref.read(closetsPageProvider.notifier);
+                      final error = await notifier.addCloset(name);
+                      if (error == null && context.mounted) {
+                        ref.read(notificationServiceProvider).showBanner(
+                              message: 'Successfully created "$name" closet.',
+                              type: NotificationType.success,
+                            );
+                      }
+                      return error;
+                    },
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 12),
+            ActionCard(
+              label: 'Create Outfits',
+              icon: Icons.design_services_outlined,
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.outfitBuilder);
+              },
+            ),
+            const SizedBox(width: 12),
+            ActionCard(
+              label: 'Saved Outfits',
               icon: Icons.collections_bookmark_outlined,
-              // THAY THẾ BẰNG ĐƯỜNG DẪN ẢNH CỦA BẠN
-              imagePath: 'assets/images/cards/saved_outfits_bg.webp',
-              onTap: () => ref.read(mainScreenIndexProvider.notifier).state = 2,
+              onTap: () {
+                ref.read(mainScreenIndexProvider.notifier).state = 2;
+              },
             ),
           ],
         ),
       ],
     );
   }
+
   
   Widget _buildTodaysSuggestionCard(BuildContext context, WidgetRef ref, HomePageState state) {
     final theme = Theme.of(context);

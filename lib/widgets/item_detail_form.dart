@@ -19,6 +19,8 @@ class ItemDetailForm extends ConsumerStatefulWidget {
   final Function(Set<String>) onOccasionsChanged;
   final Function(Set<String>) onMaterialsChanged;
   final Function(Set<String>) onPatternsChanged;
+  final Function(String) onPriceChanged;
+  final Function(String) onNotesChanged;
   final ScrollController? scrollController;
 
   const ItemDetailForm({
@@ -32,6 +34,8 @@ class ItemDetailForm extends ConsumerStatefulWidget {
     required this.onOccasionsChanged,
     required this.onMaterialsChanged,
     required this.onPatternsChanged,
+    required this.onPriceChanged,
+    required this.onNotesChanged,
     this.scrollController,
   });
 
@@ -42,28 +46,22 @@ class ItemDetailForm extends ConsumerStatefulWidget {
 class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
   // <<< QUẢN LÝ `TextEditingController` TRONG STATE >>>
   late final TextEditingController _nameController;
+  late final TextEditingController _priceController;
+  late final TextEditingController _notesController;
 
   @override
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.itemState.name);
-  }
-
-  @override
-  void didUpdateWidget(covariant ItemDetailForm oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Cập nhật text trong controller nếu state từ notifier thay đổi
-    if (widget.itemState.name != oldWidget.itemState.name) {
-      _nameController.text = widget.itemState.name;
-      // Di chuyển con trỏ về cuối
-      _nameController.selection = TextSelection.fromPosition(
-          TextPosition(offset: _nameController.text.length));
-    }
+    _priceController = TextEditingController(text: widget.itemState.price?.toString() ?? '');
+    _notesController = TextEditingController(text: widget.itemState.notes ?? '');
   }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _priceController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -176,6 +174,31 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
             allOptions: AppOptions.patterns,
             initialSelections: widget.itemState.selectedPatterns,
             onSelectionChanged: widget.onPatternsChanged,
+          ),
+
+          const SizedBox(height: 24),
+          TextFormField(
+            controller: _priceController,
+            decoration: const InputDecoration(
+              labelText: 'Price',
+              border: OutlineInputBorder(),
+            ),
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            onChanged: widget.onPriceChanged,
+          ),
+          
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _notesController,
+            decoration: const InputDecoration(
+              labelText: 'Notes',
+              border: OutlineInputBorder(),
+              alignLabelWithHint: true,
+            ),
+            minLines: 3,
+            maxLines: 10,
+            textCapitalization: TextCapitalization.sentences,
+            onChanged: widget.onNotesChanged,
           ),
         ],
       ),

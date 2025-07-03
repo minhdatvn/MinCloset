@@ -13,7 +13,9 @@ class ClothingItem extends Equatable {
   final String? occasion;
   final String? material;
   final String? pattern;
-  final bool isFavorite; // <<< THÊM DÒNG NÀY
+  final bool isFavorite;
+  final double? price;
+  final String? notes;
 
   const ClothingItem({
     required this.id,
@@ -27,7 +29,9 @@ class ClothingItem extends Equatable {
     this.occasion,
     this.material,
     this.pattern,
-    this.isFavorite = false, // <<< THÊM GIÁ TRỊ MẶC ĐỊNH
+    this.isFavorite = false,
+    this.price,
+    this.notes,
   });
 
   ClothingItem copyWith({
@@ -42,7 +46,9 @@ class ClothingItem extends Equatable {
     String? occasion,
     String? material,
     String? pattern,
-    bool? isFavorite, // <<< THÊM DÒNG NÀY
+    bool? isFavorite,
+    double? price,
+    String? notes,
   }) {
     return ClothingItem(
       id: id ?? this.id,
@@ -56,7 +62,9 @@ class ClothingItem extends Equatable {
       occasion: occasion ?? this.occasion,
       material: material ?? this.material,
       pattern: pattern ?? this.pattern,
-      isFavorite: isFavorite ?? this.isFavorite, // <<< THÊM DÒNG NÀY
+      isFavorite: isFavorite ?? this.isFavorite,
+      price: price ?? this.price,
+      notes: notes ?? this.notes,
     );
   }
 
@@ -73,7 +81,9 @@ class ClothingItem extends Equatable {
       'occasion': occasion,
       'material': material,
       'pattern': pattern,
-      'isFavorite': isFavorite ? 1 : 0, // <<< THÊM DÒNG NÀY (lưu dưới dạng 1 hoặc 0)
+      'isFavorite': isFavorite ? 1 : 0,
+      'price': price,
+      'notes': notes,
     };
   }
 
@@ -90,13 +100,16 @@ class ClothingItem extends Equatable {
       occasion: map['occasion'],
       material: map['material'],
       pattern: map['pattern'],
-      isFavorite: (map['isFavorite'] as int? ?? 0) == 1, // <<< THÊM DÒNG NÀY (đọc từ 1 hoặc 0)
+      isFavorite: (map['isFavorite'] as int? ?? 0) == 1,
+      price: map['price'] as double?,
+      notes: map['notes'] as String?,
     );
   }
 
   @override
   List<Object?> get props => [
         id, name, category, color, imagePath, thumbnailPath, closetId,
-        season, occasion, material, pattern, isFavorite // <<< THÊM isFavorite VÀO ĐÂY
-      ];
+        season, occasion, material, pattern, isFavorite,
+        price, notes
+  ];
 }

@@ -132,6 +132,8 @@ class ItemFormPage extends ConsumerWidget {
       onOccasionsChanged: itemNotifier.onOccasionsChanged,
       onMaterialsChanged: itemNotifier.onMaterialsChanged,
       onPatternsChanged: itemNotifier.onPatternsChanged,
+      onPriceChanged: itemNotifier.onPriceChanged,
+       onNotesChanged: itemNotifier.onNotesChanged,
     );
   }
 }

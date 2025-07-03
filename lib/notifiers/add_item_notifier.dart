@@ -111,6 +111,8 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   void onOccasionsChanged(Set<String> occasions) => state = state.copyWith(selectedOccasions: occasions);
   void onMaterialsChanged(Set<String> materials) => state = state.copyWith(selectedMaterials: materials);
   void onPatternsChanged(Set<String> patterns) => state = state.copyWith(selectedPatterns: patterns);
+  void onPriceChanged(String value) {state = state.copyWith(price: double.tryParse(value));}
+  void onNotesChanged(String value) {state = state.copyWith(notes: value);}
   
   Future<void> pickImage(ImageSource source) async {
     final imagePicker = ImagePicker();
@@ -174,7 +176,9 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
       occasion: state.selectedOccasions.join(', '),
       material: state.selectedMaterials.join(', '),
       pattern: state.selectedPatterns.join(', '),
-      isFavorite: newFavoriteState, // Sử dụng trạng thái mới ở đây
+      isFavorite: newFavoriteState,
+      price: state.price,
+      notes: state.notes,
     );
 
     // 3. Gọi repository để cập nhật item trong cơ sở dữ liệu.
@@ -230,6 +234,8 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
           material: state.selectedMaterials.join(', '),
           pattern: state.selectedPatterns.join(', '),
           isFavorite: state.isFavorite,
+          price: state.price,
+          notes: state.notes,
         );
 
         final result = state.isEditing

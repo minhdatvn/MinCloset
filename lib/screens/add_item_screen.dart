@@ -186,6 +186,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         onOccasionsChanged: notifier.onOccasionsChanged,
         onMaterialsChanged: notifier.onMaterialsChanged,
         onPatternsChanged: notifier.onPatternsChanged,
+        onPriceChanged: notifier.onPriceChanged,
+        onNotesChanged: notifier.onNotesChanged,
       ),
       // <<< LUỒNG LƯU >>>
       bottomNavigationBar: Padding(

@@ -19,7 +19,9 @@ class AddItemState extends Equatable {
   final Set<String> selectedOccasions;
   final Set<String> selectedMaterials;
   final Set<String> selectedPatterns;
-  final bool isFavorite; // <<< THÊM DÒNG NÀY
+  final bool isFavorite;
+  final double? price;
+  final String? notes;
 
   // Trạng thái của UI
   final bool isLoading;
@@ -41,7 +43,9 @@ class AddItemState extends Equatable {
     this.selectedOccasions = const {},
     this.selectedMaterials = const {},
     this.selectedPatterns = const {},
-    this.isFavorite = false, // <<< THÊM GIÁ TRỊ MẶC ĐỊNH
+    this.isFavorite = false,
+    this.price,
+    this.notes,
     this.isLoading = false,
     this.isEditing = false,
     this.isAnalyzing = false,
@@ -64,7 +68,9 @@ class AddItemState extends Equatable {
       selectedOccasions: stringToSet(item.occasion),
       selectedMaterials: stringToSet(item.material),
       selectedPatterns: stringToSet(item.pattern),
-      isFavorite: item.isFavorite, // <<< THÊM DÒNG NÀY
+      isFavorite: item.isFavorite,
+      price: item.price,
+      notes: item.notes,
       isEditing: true,
     );
   }
@@ -82,7 +88,9 @@ class AddItemState extends Equatable {
     Set<String>? selectedOccasions,
     Set<String>? selectedMaterials,
     Set<String>? selectedPatterns,
-    bool? isFavorite, // <<< THÊM DÒNG NÀY
+    bool? isFavorite,
+    double? price,
+    String? notes,
     bool? isLoading,
     bool? isEditing,
     bool? isAnalyzing,
@@ -102,7 +110,9 @@ class AddItemState extends Equatable {
       selectedOccasions: selectedOccasions ?? this.selectedOccasions,
       selectedMaterials: selectedMaterials ?? this.selectedMaterials,
       selectedPatterns: selectedPatterns ?? this.selectedPatterns,
-      isFavorite: isFavorite ?? this.isFavorite, // <<< THÊM DÒNG NÀY
+      isFavorite: isFavorite ?? this.isFavorite,
+      price: price ?? this.price,
+      notes: notes ?? this.notes,
       isLoading: isLoading ?? this.isLoading,
       isEditing: isEditing ?? this.isEditing,
       isAnalyzing: isAnalyzing ?? this.isAnalyzing,
@@ -116,7 +126,9 @@ class AddItemState extends Equatable {
         id, name, image, imagePath, thumbnailPath, selectedClosetId,
         selectedCategoryValue, selectedColors, selectedSeasons,
         selectedOccasions, selectedMaterials, selectedPatterns,
-        isFavorite, // <<< THÊM isFavorite VÀO ĐÂY
+        isFavorite,
+        price,
+        notes,
         isLoading, isEditing, isAnalyzing, errorMessage, isSuccess,
       ];
 }

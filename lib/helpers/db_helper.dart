@@ -32,7 +32,9 @@ class DatabaseHelper {
         imagePath TEXT,
         thumbnailPath TEXT, 
         closetId TEXT, season TEXT, occasion TEXT,
-        material TEXT, pattern TEXT, isFavorite INTEGER DEFAULT 0
+        material TEXT, pattern TEXT, isFavorite INTEGER DEFAULT 0,
+        price REAL,
+        notes TEXT
       )""");
     
     // <<< THAY ĐỔI 2: Thêm cột thumbnailPath >>>

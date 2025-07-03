@@ -431,14 +431,27 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                         ref.read(notificationServiceProvider).showBanner(message: error);
                         return false;
                       }
+                      // <<< Banner khi xóa thành công >>>
+                      ref.read(notificationServiceProvider).showBanner( 
+                        message: 'Deleted closet "${closet.name}"',
+                        type: NotificationType.success,
+                      );
                       return true;
                     } else {
                       showDialog(
                         context: context,
                         builder: (ctx) => ClosetFormDialog(
                           initialName: closet.name,
-                          onSubmit: (newName) {
-                            return ref.read(closetsPageProvider.notifier).updateCloset(closet, newName);
+                          onSubmit: (newName) async { // Thêm async ở đây
+                            final error = await ref.read(closetsPageProvider.notifier).updateCloset(closet, newName);
+                            // <<< Banner khi sửa thành công >>>
+                            if (error == null && mounted) {
+                              ref.read(notificationServiceProvider).showBanner(
+                                    message: 'Closet name updated to "$newName"',
+                                    type: NotificationType.success,
+                                  );
+                            }
+                            return error;
                           },
                         ),
                       );

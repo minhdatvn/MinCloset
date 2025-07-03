@@ -5,15 +5,25 @@ import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
+import 'package:mincloset/services/notification_service.dart';
 import 'package:mincloset/utils/logger.dart';
 import 'package:mincloset/helpers/image_helper.dart';
+import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/models/notification_type.dart';
 
 class OutfitDetailNotifier extends StateNotifier<Outfit> {
   final OutfitRepository _outfitRepo;
   final ClothingItemRepository _clothingItemRepo;
   final ImageHelper _imageHelper;
+  final NotificationService _notificationService;
 
-  OutfitDetailNotifier(this._outfitRepo, this._clothingItemRepo, this._imageHelper, Outfit initialOutfit) : super(initialOutfit);
+  OutfitDetailNotifier(
+    this._outfitRepo, 
+    this._clothingItemRepo, 
+    this._imageHelper, 
+    this._notificationService, 
+    Outfit initialOutfit
+    ) : super(initialOutfit);
 
   Future<void> updateName(String newName) async {
     if (newName.trim().isEmpty || newName.trim() == state.name) {
@@ -23,8 +33,13 @@ class OutfitDetailNotifier extends StateNotifier<Outfit> {
     final result = await _outfitRepo.updateOutfit(updatedOutfit);
     
     result.fold(
-      (failure) => logger.e("Lỗi khi cập nhật tên bộ đồ: ${failure.message}"),
-      (_) => state = updatedOutfit,
+      (failure) { 
+        _notificationService.showBanner(message: 'Failed to update outfit name: ${failure.message}'); // Banner thất bại
+      },
+      (_) {
+        _notificationService.showBanner(message: 'Outfit name updated.', type: NotificationType.success); // Banner thành công
+        state = updatedOutfit;
+      },
     );
   }
 
@@ -105,5 +120,6 @@ final outfitDetailProvider = StateNotifierProvider.autoDispose
   final outfitRepo = ref.watch(outfitRepositoryProvider);
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
   final imageHelper = ref.watch(imageHelperProvider);
-  return OutfitDetailNotifier(outfitRepo, clothingItemRepo, imageHelper, initialOutfit);
+  final notificationService = ref.watch(notificationServiceProvider);
+  return OutfitDetailNotifier(outfitRepo, clothingItemRepo, imageHelper, notificationService, initialOutfit);
 });

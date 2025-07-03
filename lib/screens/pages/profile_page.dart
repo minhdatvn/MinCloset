@@ -29,74 +29,89 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   Widget _buildProfileHeader(ProfilePageState state) {
-    return InkWell(
-      onTap: () {
-        Navigator.pushNamed(context, AppRoutes.editProfile);
-      },
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Row(
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
+  return Row(
+    children: [
+      // --- CỤM AVATAR ---
+      Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // 1. Bọc CircleAvatar trong GestureDetector để xử lý việc nhấn vào avatar lớn
+          GestureDetector(
+            onTap: () => ref.read(profileProvider.notifier).updateAvatar(),
+            child: CircleAvatar(
+              radius: 40,
+              backgroundColor: Colors.grey.shade200,
+              backgroundImage: state.avatarPath != null ? FileImage(File(state.avatarPath!)) : null,
+              child: state.avatarPath == null
+                  ? const Icon(Icons.person, size: 40, color: Colors.grey)
+                  : null,
+            ),
+          ),
+          // Giữ nguyên icon edit nhỏ
+          Positioned(
+            bottom: -2,
+            right: -2,
+            child: GestureDetector(
+              onTap: () => ref.read(profileProvider.notifier).updateAvatar(),
+              child: Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2)),
+                child: const Icon(Icons.edit, size: 16, color: Colors.white),
+              ),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(width: 16),
+
+      // --- CỤM TEXT ĐỂ ĐIỀU HƯỚNG ---
+      // 2. Bọc phần text và mũi tên trong InkWell riêng để điều hướng
+      Expanded(
+        child: InkWell(
+          onTap: () {
+            Navigator.pushNamed(context, AppRoutes.editProfile);
+          },
+          borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+            child: Row(
               children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.grey.shade200,
-                  backgroundImage: state.avatarPath != null ? FileImage(File(state.avatarPath!)) : null,
-                  child: state.avatarPath == null
-                      ? const Icon(Icons.person, size: 40, color: Colors.grey)
-                      : null,
-                ),
-                Positioned(
-                  bottom: -2,
-                  right: -2,
-                  child: GestureDetector(
-                    onTap: () => ref.read(profileProvider.notifier).updateAvatar(),
-                    child: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 2)),
-                      child: const Icon(Icons.edit, size: 16, color: Colors.white),
+                Expanded(
+                  child: SizedBox(
+                    height: 80,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          state.userName ?? 'Unnamed',
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          'Edit profile',
+                          style: TextStyle(color: Colors.grey.shade600),
+                        ),
+                      ],
                     ),
                   ),
                 ),
+                const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
               ],
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: SizedBox(
-                height: 80,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      state.userName ?? 'Unnamed',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      'Edit profile',
-                      style: TextStyle(color: Colors.grey.shade600),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-          ],
+          ),
         ),
       ),
-    );
-  }
+    ],
+  );
+}
 
   @override
   Widget build(BuildContext context) {

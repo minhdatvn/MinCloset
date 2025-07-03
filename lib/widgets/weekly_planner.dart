@@ -81,6 +81,7 @@ class _WeeklyPlannerState extends ConsumerState<WeeklyPlanner> {
 
               return DayPlannerCard(
                 dayLabel: dayLabel,
+                date: day,
                 isToday: isToday,
                 itemImagePaths: imagePaths, // Truyền danh sách đường dẫn ảnh đúng
                 onAdd: () {

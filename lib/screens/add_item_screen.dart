@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
@@ -95,13 +96,28 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
     if (confirmed == true) {
       // Lấy navigator ra trước khi gọi await
-      // ignore: use_build_context_synchronously
-      final navigator = Navigator.of(context);
-      final success = await ref.read(addItemProvider(_providerArgs).notifier).deleteItem();
+      final notifier = ref.read(addItemProvider(_providerArgs).notifier);
+      final itemName = widget.itemToEdit!.name; // Lưu lại tên trước khi xóa
+      final navigator = Navigator.of(context); // ignore: use_build_context_synchronously
+      final notificationService = ref.read(notificationServiceProvider); // Lưu service
+
+      final success = await notifier.deleteItem();
       
-      // Nếu xóa thành công và widget vẫn còn tồn tại, hãy pop màn hình
-      if (success && mounted) {
+      if (!mounted) return;
+
+      if (success) {
+        // <<< Banner khi xóa thành công >>>
+        notificationService.showBanner(
+          message: 'Successfully deleted item "$itemName".',
+          type: NotificationType.success,
+        );
         navigator.pop(true);
+      } else {
+        // <<< Banner khi xóa thất bại >>>
+        final errorMessage = ref.read(addItemProvider(_providerArgs)).errorMessage;
+        if (errorMessage != null) {
+          notificationService.showBanner(message: errorMessage);
+        }
       }
     }
   }
@@ -178,19 +194,22 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
            onPressed: state.isLoading
               ? null
               : () async {
-                  // Gọi hàm saveItem và chờ kết quả
-                  final success = await notifier.saveItem();
+                  final notifier = ref.read(provider.notifier); // Lấy notifier
+                  final success = await notifier.saveItem(); // Gọi hàm saveItem và chờ kết quả
                   
-                  // `mounted` check để đảm bảo widget vẫn còn tồn tại
-                  if (!mounted) return;
+                  if (!mounted) return; // `mounted` check để đảm bảo widget vẫn còn tồn tại
 
-                  if (success) {
-                    // Nếu thành công, quay về màn hình trước
-                    // ignore: use_build_context_synchronously
-                    Navigator.of(context).pop(true);
+                  if (success) { // Nếu thành công, quay về màn hình trước
+                    final successMessage = state.isEditing // <<< Banner khi lưu/cập nhật thành công >>>
+                      ? 'Item successfully updated.'
+                      : 'Item successfully saved.';
+                    ref.read(notificationServiceProvider).showBanner(
+                          message: successMessage,
+                          type: NotificationType.success,
+                        );
+                    Navigator.of(context).pop(true); // ignore: use_build_context_synchronously
                   } else {
-                    // Nếu thất bại, đọc lỗi từ state và hiển thị banner
-                    final errorMessage = ref.read(provider).errorMessage;
+                    final errorMessage = ref.read(provider).errorMessage; // Nếu thất bại, đọc lỗi từ state và hiển thị banner
                     if (errorMessage != null) {
                       ref.read(notificationServiceProvider).showBanner(message: errorMessage);
                     }

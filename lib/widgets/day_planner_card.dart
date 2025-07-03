@@ -1,9 +1,11 @@
 // lib/widgets/day_planner_card.dart
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class DayPlannerCard extends StatelessWidget {
   final String dayLabel;
+  final DateTime date;
   final bool isToday;
   final List<String> itemImagePaths;
   final VoidCallback onAdd;
@@ -11,6 +13,7 @@ class DayPlannerCard extends StatelessWidget {
   const DayPlannerCard({
     super.key,
     required this.dayLabel,
+    required this.date,
     this.isToday = false,
     required this.itemImagePaths,
     required this.onAdd,
@@ -30,6 +33,16 @@ class DayPlannerCard extends StatelessWidget {
             style: TextStyle(
               fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
               color: isToday ? theme.colorScheme.primary : theme.colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 2), // Thêm một khoảng cách nhỏ
+          Text(
+            DateFormat('d/M').format(date), // Định dạng ngày/tháng
+            style: TextStyle(
+              fontSize: 12,
+              color: isToday
+                  ? theme.colorScheme.primary.withAlpha(200)
+                  : theme.colorScheme.onSurface.withAlpha(150),
             ),
           ),
           const SizedBox(height: 8),

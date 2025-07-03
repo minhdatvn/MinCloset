@@ -71,93 +71,82 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
       });
     }
   }
-
-  // >>> THAY ĐỔI 1: HÀM TÍNH TOÁN LAYOUT MỚI <<<
-  // Hàm này sẽ tính toán Rect (vị trí + kích thước) dựa trên kích thước thực tế của editor
-  Rect _getLayoutRectForSlot(String slot, Size editorSize) {
-    switch (slot) {
-      case 'topwear':
-        return Rect.fromLTWH(
-            editorSize.width * 0.15, // 15% từ trái
-            editorSize.height * 0.1, // 10% từ trên
-            editorSize.width * 0.7,  // Rộng 70%
-            editorSize.height * 0.4);// Cao 40%
-      case 'bottomwear':
-        return Rect.fromLTWH(
-            editorSize.width * 0.2, 
-            editorSize.height * 0.45,
-            editorSize.width * 0.6, 
-            editorSize.height * 0.4);
-      case 'footwear':
-        return Rect.fromLTWH(
-            editorSize.width * 0.3, 
-            editorSize.height * 0.82,
-            editorSize.width * 0.4, 
-            editorSize.height * 0.15);
-      case 'accessories':
-        return Rect.fromLTWH(
-            editorSize.width * 0.7, 
-            editorSize.height * 0.05,
-            editorSize.width * 0.25, 
-            editorSize.height * 0.2);
-      case 'outerwear':
-        return Rect.fromLTWH(
-            editorSize.width * 0.05, 
-            editorSize.height * 0.05,
-            editorSize.width * 0.9, 
-            editorSize.height * 0.9);
-      default:
-        return Rect.fromCenter(
-            center: editorSize.center(Offset.zero), width: 200, height: 200);
-    }
-  }
-  
   // >>> THAY ĐỔI 2: VIẾT LẠI HOÀN TOÀN HÀM initState <<<
   @override
-  void initState() {
-    super.initState();
-    // Tạo ảnh nền trắng trước
-    _generateBlankImage(const Size(1000, 1000)).then((_) {
-      // Đợi frame đầu tiên được vẽ xong để đảm bảo _editorKey có context
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
+  @override
+void initState() {
+  super.initState();
+  // Tạo một ảnh nền trắng trống để làm canvas
+  _generateBlankImage(const Size(1000, 1000)).then((_) {
+    // Đợi frame đầu tiên được vẽ xong để đảm bảo editor đã sẵn sàng
+    WidgetsBinding.instance.addPostFrameCallback((_) async { // Chuyển thành hàm async
+      if (!mounted) return;
 
-        // Lấy kích thước thực tế của vùng editor
-        final editorSize = _editorKey.currentContext?.size;
-        if (editorSize == null) return; // Thoát nếu không lấy được kích thước
+      final editorState = _editorKey.currentState;
+      if (editorState == null) return;
 
-        // Nếu có dữ liệu từ AI, tiến hành đặt layer
-        if (widget.suggestionResult != null) {
-          final composition = widget.suggestionResult!.composition;
-          final slots = ['outerwear', 'topwear', 'bottomwear', 'footwear', 'accessories'];
+      // Chỉ thực hiện khi có dữ liệu suggestion được truyền vào
+      if (widget.suggestionResult != null) {
+        // --- BẮT ĐẦU LOGIC SẮP XẾP MỚI ---
 
-          for (final slot in slots) {
-            final item = composition[slot];
-            if (item != null) {
-              final stickerId = const Uuid().v4();
-              _itemsOnCanvas[stickerId] = item;
-              
-              // Tính toán vị trí và kích thước DỰA TRÊN KÍCH THƯỚC THỰC TẾ
-              final rect = _getLayoutRectForSlot(slot, editorSize);
+        // 1. Định nghĩa trước các vị trí cho 5 loại item
+        // Các tọa độ Offset này được tính từ TÂM của canvas
+        final List<Offset> positions = [
+          const Offset(0, -150),   // Vị trí cho áo khoác (trên cùng)
+          const Offset(0, 0),      // Vị trí cho áo (ở giữa)
+          const Offset(0, 150),    // Vị trí cho quần (phía dưới)
+          const Offset(-100, 50),  // Vị trí cho giày (trái-dưới)
+          const Offset(100, 50),   // Vị trí cho phụ kiện (phải-dưới)
+        ];
 
-              _editorKey.currentState?.addLayer(
-                WidgetLayer(
-                  id: stickerId,
-                  offset: rect.topLeft,
-                  widget: SizedBox(
-                    width: rect.width,
-                    height: rect.height,
-                    child: Image.file(File(item.imagePath), fit: BoxFit.contain),
-                  ),
-                ),
-              );
+        final composition = widget.suggestionResult!.composition;
+        // 2. Xác định thứ tự ưu tiên để đặt item
+        final slots = ['outerwear', 'topwear', 'bottomwear', 'footwear', 'accessories'];
+        int positionIndex = 0;
+
+        // 3. Lặp qua từng loại item và xử lý
+        for (final slot in slots) {
+          final item = composition[slot];
+
+          // Nếu có item ở vị trí slot này
+          if (item != null) {
+            // Tạo một WidgetLayer đơn giản, không cần SizedBox hay offset ban đầu
+            final layer = WidgetLayer(
+              id: const Uuid().v4(),
+              widget: Image.file(File(item.imagePath), fit: BoxFit.contain),
+            );
+
+            // Thêm layer vào editor (nó sẽ xuất hiện ở giữa)
+            editorState.addLayer(layer, blockSelectLayer: true);
+
+            // Đợi một khoảng rất ngắn để thư viện cập nhật trạng thái
+            await Future.delayed(const Duration(milliseconds: 50));
+            if (!mounted) return;
+
+            // Lấy ra layer chúng ta vừa thêm (nó là layer cuối cùng trong danh sách)
+            final addedLayer = editorState.activeLayers.last;
+
+            // Di chuyển layer đó đến vị trí đã định sẵn
+            if (positionIndex < positions.length) {
+              addedLayer.offset = positions[positionIndex];
+              positionIndex++;
             }
+
+            // Lưu lại item này để dùng khi lưu bộ đồ
+            _itemsOnCanvas[addedLayer.id] = item;
           }
-          _recalculateItemCounts();
         }
-      });
+
+        // 4. Sau khi đã thêm và di chuyển tất cả, ra lệnh cho editor vẽ lại
+        if (mounted) {
+          editorState.setState(() {}); // Yêu cầu editor build lại với vị trí mới
+          _recalculateItemCounts(); // Cập nhật lại số lượng item trên canvas
+        }
+        // --- KẾT THÚC LOGIC SẮP XẾP MỚI ---
+      }
     });
-  }
+  });
+}
 
   Future<void> _generateBlankImage(Size size) async {
     final image = img.Image(width: 750, height: 1000);

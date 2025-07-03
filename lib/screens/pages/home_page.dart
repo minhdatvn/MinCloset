@@ -321,7 +321,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         top: 0,
                         right: 0,
                         child: IconButton(
-                          padding: const EdgeInsets.all(4.0),
+                          iconSize: 20,
                           icon: state.isRefreshingBackground
                               ? const SizedBox(
                                     width: 14,
@@ -392,7 +392,15 @@ class _HomePageState extends ConsumerState<HomePage> {
                 maxLines: null, 
                 decoration: InputDecoration(
                   hintText: 'Purpose? (e.g. coffee, date night...)',
-                  border: const OutlineInputBorder(),
+                  border: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.transparent),
+                  ),
+                  enabledBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colors.transparent),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: theme.colorScheme.primary, width: 2.0),
+                  ),
                   contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                   counterText: "", // Quan trọng: Ẩn bộ đếm mặc định
                   suffixIcon: IconButton(

@@ -7,9 +7,11 @@ import 'package:mincloset/repositories/city_repository.dart';
 import 'package:mincloset/repositories/closet_repository.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
+import 'package:mincloset/repositories/settings_repository.dart';
 import 'package:mincloset/repositories/suggestion_repository.dart';
 import 'package:mincloset/repositories/wear_log_repository.dart';
 import 'package:mincloset/repositories/weather_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final closetRepositoryProvider = Provider<ClosetRepository>((ref) {
   final dbHelper = ref.watch(dbHelperProvider);
@@ -47,4 +49,20 @@ final cityRepositoryProvider = Provider<CityRepository>((ref) {
 final wearLogRepositoryProvider = Provider<WearLogRepository>((ref) {
   final dbHelper = ref.watch(dbHelperProvider);
   return WearLogRepository(dbHelper);
+});
+
+// Provider này sẽ cung cấp instance của SharedPreferences một cách bất đồng bộ.
+// Các provider khác có thể "watch" provider này để đảm bảo SharedPreferences đã sẵn sàng trước khi sử dụng.
+final sharedPreferencesProvider = FutureProvider<SharedPreferences>((ref) {
+  return SharedPreferences.getInstance();
+});
+
+// Provider để cung cấp SettingsRepository cho toàn bộ ứng dụng.
+// Nó phụ thuộc vào sharedPreferencesProvider.
+final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
+  // .watch() sẽ tự động lắng nghe và build lại khi FutureProvider hoàn thành.
+  // .value! được sử dụng ở đây với giả định rằng SharedPreferences sẽ luôn có sẵn
+  // khi repository này được truy cập, điều này được đảm bảo bởi cơ chế của Riverpod.
+  final prefs = ref.watch(sharedPreferencesProvider).value!;
+  return SettingsRepository(prefs);
 });

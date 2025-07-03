@@ -33,7 +33,8 @@ final getOutfitSuggestionUseCaseProvider = Provider<GetOutfitSuggestionUseCase>(
   final weatherRepo = ref.watch(weatherRepositoryProvider);
   final suggestionRepo = ref.watch(suggestionRepositoryProvider);
   final outfitRepo = ref.watch(outfitRepositoryProvider);
-  return GetOutfitSuggestionUseCase(clothingRepo, weatherRepo, suggestionRepo, outfitRepo);
+  final settingsRepo = ref.watch(settingsRepositoryProvider);
+  return GetOutfitSuggestionUseCase(clothingRepo, weatherRepo, suggestionRepo, outfitRepo, settingsRepo);
 });
 
 final saveOutfitUseCaseProvider = Provider<SaveOutfitUseCase>((ref) {

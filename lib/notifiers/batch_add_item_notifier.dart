@@ -71,23 +71,31 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
   }
 
   Future<void> analyzeAllImages(List<XFile> images) async {
-    // 1. Cập nhật state để báo hiệu bắt đầu giai đoạn phân tích
     state = state.copyWith(
-      isLoading: true, 
+      isLoading: true,
       clearAnalysisError: true,
-      stage: AnalysisStage.analyzing, // Chuyển sang giai đoạn analyzing
-      totalItemsToProcess: images.length, // Đặt tổng số ảnh
-      itemsProcessed: 0, // Reset số ảnh đã xử lý
+      stage: AnalysisStage.analyzing, // <-- Giữ nguyên để UI biết đang trong giai đoạn phân tích
+      totalItemsToProcess: images.length,
+      itemsProcessed: 0,
     );
-    
-    final List<ItemNotifierArgs> itemArgsList = [];
 
-    // 2. Bắt đầu vòng lặp
-    for (int i = 0; i < images.length; i++) {
-      if (!mounted) return;
-      
+    // 1. Tạo một danh sách các Future, mỗi Future là một yêu cầu phân tích ảnh
+    final analysisFutures = images.map((image) {
+      return _analyzeItemUseCase.execute(image);
+    }).toList();
+
+    // 2. Sử dụng Future.wait để thực hiện tất cả các yêu cầu song song.
+    // Lệnh await này sẽ chỉ hoàn thành khi TẤT CẢ các yêu cầu trong list đã xong.
+    final results = await Future.wait(analysisFutures);
+
+    if (!mounted) return;
+
+    final List<ItemNotifierArgs> itemArgsList = [];
+    
+    // 3. Lặp qua danh sách kết quả (đã có đủ) để xử lý
+    for (int i = 0; i < results.length; i++) {
+      final resultEither = results[i];
       final image = images[i];
-      final resultEither = await _analyzeItemUseCase.execute(image);
 
       resultEither.fold(
         (failure) {
@@ -97,7 +105,6 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
           final tempId = const Uuid().v4();
           final preAnalyzedState = AddItemState(id: tempId, image: File(image.path));
           itemArgsList.add(ItemNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState));
-          _ref.read(addItemProvider(itemArgsList.last));
         },
         (result) {
           final tempId = const Uuid().v4();
@@ -109,19 +116,23 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
             selectedPatterns: _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList()),
           );
           itemArgsList.add(ItemNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState));
-          _ref.read(addItemProvider(itemArgsList.last));
         },
       );
-
-      // 3. Sau mỗi vòng lặp, cập nhật số lượng đã xử lý
-      if (mounted) {
-        state = state.copyWith(itemsProcessed: i + 1);
-      }
+    }
+    
+    // Khởi tạo các provider cho từng item
+    for (final args in itemArgsList) {
+        _ref.read(addItemProvider(args));
     }
 
-    // 4. Khi vòng lặp kết thúc, cập nhật state cuối cùng để điều hướng
     if (mounted) {
-      state = state.copyWith(isLoading: false, itemArgsList: itemArgsList, analysisSuccess: true);
+      // Cập nhật state cuối cùng để điều hướng
+      state = state.copyWith(
+          isLoading: false, 
+          itemArgsList: itemArgsList, 
+          analysisSuccess: true, 
+          itemsProcessed: images.length // <-- Đặt tiến độ là hoàn thành
+      );
     }
   }
   

@@ -15,21 +15,22 @@ import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/utils/logger.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mincloset/repositories/settings_repository.dart';
 
 class GetOutfitSuggestionUseCase {
   final ClothingItemRepository _clothingItemRepo;
   final WeatherRepository _weatherRepo;
   final SuggestionRepository _suggestionRepo;
   final OutfitRepository _outfitRepo;
+  final SettingsRepository _settingsRepo;
 
   GetOutfitSuggestionUseCase(
     this._clothingItemRepo,
     this._weatherRepo,
     this._suggestionRepo,
     this._outfitRepo,
+    this._settingsRepo
   );
-
-  
 
   // Sửa lỗi `asyncMap` bằng cách await và fold một cách thủ công.
   // Đây là cách tiếp cận đơn giản và rõ ràng nhất.
@@ -152,10 +153,12 @@ class GetOutfitSuggestionUseCase {
     // Nếu đã qua bước xác thực, tiếp tục với logic gọi AI trong một khối try-catch an toàn.
     return TaskEither.tryCatch(
       () async {
-        final prefs = await SharedPreferences.getInstance();
-        final gender = prefs.getString('user_gender') ?? 'Not specified';
-        final userStyle = prefs.getStringList('user_styles')?.join(', ') ?? 'Any style';
-        final favoriteColors = prefs.getStringList('user_favorite_colors')?.join(', ') ?? 'Any color';
+        final suggestionInfo = _settingsRepo.getSuggestionInfo();
+        final gender = suggestionInfo['gender'] ?? 'Not specified';
+        final userStyle = suggestionInfo['style'] ?? 'Any style';
+        final favoriteColors = 'Any color'; // Giữ nguyên hoặc lấy từ repo nếu có
+
+        // ... logic còn lại không đổi ...
         final setOutfits = allOutfits.where((o) => o.isFixed).toList();
         final fixedItemIds = setOutfits.expand((o) => o.itemIds.split(',')).toSet();
         final individualItems = allItems.where((item) => !fixedItemIds.contains(item.id)).toList();

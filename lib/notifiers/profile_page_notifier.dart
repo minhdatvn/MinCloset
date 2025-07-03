@@ -8,21 +8,23 @@ import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/closet_repository.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
+import 'package:mincloset/repositories/settings_repository.dart'; // <-- ĐÃ THÊM
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/utils/logger.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   final Ref _ref;
   final ClosetRepository _closetRepo;
   final ClothingItemRepository _itemRepo;
   final OutfitRepository _outfitRepo;
+  final SettingsRepository _settingsRepo; // <-- ĐÃ THÊM
 
   ProfilePageNotifier(
     this._ref,
     this._closetRepo,
     this._itemRepo,
     this._outfitRepo,
+    this._settingsRepo, // <-- ĐÃ THÊM
   ) : super(const ProfilePageState()) {
     loadInitialData();
 
@@ -37,25 +39,24 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       logger.i('Loading profile data...');
-      final prefs = await SharedPreferences.getInstance();
-      logger.i('1, 2. Repositories and SharedPreferences initialized.');
-
-      final userName = prefs.getString('user_name') ?? 'MinCloset user';
-      final avatarPath = prefs.getString('user_avatar_path');
-      final gender = prefs.getString('user_gender');
-      final dobString = prefs.getString('user_dob');
+      
+      // --- THAY ĐỔI: LẤY DỮ LIỆU TỪ REPOSITORY ---
+      final profileData = _settingsRepo.getUserProfile();
+      final userName = profileData['name'] as String? ?? 'MinCloset user';
+      final avatarPath = profileData['avatarPath'] as String?;
+      final gender = profileData['gender'] as String?;
+      final dobString = profileData['dob'] as String?;
       final dob = dobString != null ? DateTime.tryParse(dobString) : null;
-      final height = prefs.getInt('user_height');
-      final weight = prefs.getInt('user_weight');
-      final personalStyles = prefs.getStringList('user_styles')?.toSet() ?? {};
-      final favoriteColors =
-          prefs.getStringList('user_favorite_colors')?.toSet() ?? {};
-      final cityModeString = prefs.getString('city_mode') ?? 'auto';
+      final height = profileData['height'] as int?;
+      final weight = profileData['weight'] as int?;
+      final personalStyles = (profileData['personalStyles'] as List<String>?)?.toSet() ?? {};
+      final favoriteColors = (profileData['favoriteColors'] as List<String>?)?.toSet() ?? {};
+      final cityModeString = profileData['cityMode'] as String? ?? 'auto';
       final cityMode = CityMode.values.byName(cityModeString);
-      final manualCity = prefs.getString('manual_city_name') ?? 'Ha Noi, VN';
-      // <<< THÊM MỚI: Đọc giá trị cài đặt ảnh nền thời tiết >>>
-      final showWeatherImage = prefs.getBool('show_weather_image') ?? true;
-      logger.i('3. Successfully read SharedPreferences.');
+      final manualCity = profileData['manualCity'] as String? ?? 'Ha Noi, VN';
+      final showWeatherImage = profileData['showWeatherImage'] as bool? ?? true;
+      
+      logger.i('3. Successfully read settings from repository.');
 
       final allItemsResult = await _itemRepo.getAllItems();
       allItemsResult.fold(
@@ -90,7 +91,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
                   final categoryDist = <String, int>{};
                   final seasonDist = <String, int>{};
                   final occasionDist = <String, int>{};
-                  final materialDist = <String, int>{};
+                  final materialDist = <String, int>{}; 
                   final patternDist = <String, int>{}; 
 
                   for (final item in allItems) {
@@ -183,117 +184,76 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     }
   }
 
-  // <<< BẮT ĐẦU: THÊM HÀM MỚI Ở ĐÂY >>>
   Future<void> updateShowWeatherImage(bool newValue) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('show_weather_image', newValue);
+    // THAY ĐỔI: Sử dụng repository để lưu
+    await _settingsRepo.saveUserProfile({'showWeatherImage': newValue});
     state = state.copyWith(showWeatherImage: newValue);
   }
-  // <<< KẾT THÚC: THÊM HÀM MỚI Ở ĐÂY >>>
 
   Future<void> updateAvatar() async {
-    // ... (logic không đổi)
     final imagePicker = ImagePicker();
     final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       final path = pickedFile.path;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_avatar_path', path);
+      // THAY ĐỔI: Sử dụng repository để lưu
+      await _settingsRepo.saveUserProfile({'avatarPath': path});
       state = state.copyWith(avatarPath: path);
     }
   }
 
   Future<void> updateProfileInfo(Map<String, dynamic> data) async {
-    // ... (logic không đổi)
-    final prefs = await SharedPreferences.getInstance();
+    // THAY ĐỔI: Toàn bộ logic lưu được chuyển vào repository
+    await _settingsRepo.saveUserProfile({
+      'name': data['name'],
+      'gender': data['gender'],
+      'dob': (data['dob'] as DateTime?)?.toIso8601String(),
+      'height': data['height'],
+      'weight': data['weight'],
+      'personalStyles': (data['personalStyles'] as Set<String>?)?.toList(),
+      'favoriteColors': (data['favoriteColors'] as Set<String>?)?.toList(),
+    });
 
-    final name = data['name'] as String?;
-    final gender = data['gender'] as String?;
-    final dob = data['dob'] as DateTime?;
-    final height = data['height'] as int?;
-    final weight = data['weight'] as int?;
-    final personalStyles = data['personalStyles'] as Set<String>?;
-    final favoriteColors = data['favoriteColors'] as Set<String>?;
-
-    await _saveString(prefs, 'user_name', name);
-    await _saveString(prefs, 'user_gender', gender);
-    if (dob != null) {
-      await prefs.setString('user_dob', dob.toIso8601String());
-    } else {
-      await prefs.remove('user_dob');
-    }
-    await _saveInt(prefs, 'user_height', height);
-    await _saveInt(prefs, 'user_weight', weight);
-    if (personalStyles != null) {
-      await prefs.setStringList('user_styles', personalStyles.toList());
-    } else {
-      await prefs.remove('user_styles');
-    }
-    if (favoriteColors != null) {
-      await prefs.setStringList(
-          'user_favorite_colors', favoriteColors.toList());
-    } else {
-      await prefs.remove('user_favorite_colors');
-    }
-
+    // Cập nhật state như cũ
     state = state.copyWith(
-      userName: name,
-      gender: gender,
-      dob: dob,
-      height: height,
-      weight: weight,
-      personalStyles: personalStyles,
-      favoriteColors: favoriteColors,
+      userName: data['name'],
+      gender: data['gender'],
+      dob: data['dob'],
+      height: data['height'],
+      weight: data['weight'],
+      personalStyles: data['personalStyles'],
+      favoriteColors: data['favoriteColors'],
     );
   }
 
   Future<void> updateCityPreference(
       CityMode mode, CitySuggestion? suggestion) async {
-    // ... (logic không đổi)
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('city_mode', mode.name);
-
-    if (mode == CityMode.manual && suggestion != null) {
-      await prefs.setString('manual_city_name', suggestion.displayName);
-      await prefs.setDouble('manual_city_lat', suggestion.lat);
-      await prefs.setDouble('manual_city_lon', suggestion.lon);
-      state =
-          state.copyWith(cityMode: mode, manualCity: suggestion.displayName);
-    } else {
-      await prefs.remove('manual_city_name');
-      await prefs.remove('manual_city_lat');
-      await prefs.remove('manual_city_lon');
-      state = state.copyWith(cityMode: mode);
-    }
+    // THAY ĐỔI: Sử dụng repository để lưu
+    await _settingsRepo.saveUserProfile({
+      'cityMode': mode.name,
+      'manualCity': suggestion?.displayName,
+      'manualCityLat': suggestion?.lat,
+      'manualCityLon': suggestion?.lon,
+    });
+    
+    state = state.copyWith(
+        cityMode: mode,
+        manualCity: suggestion != null ? suggestion.displayName : state.manualCity,
+    );
 
     _ref.read(homeProvider.notifier).getNewSuggestion();
   }
 
-  Future<void> _saveString(
-      SharedPreferences prefs, String key, String? value) async {
-    // ... (logic không đổi)
-    if (value != null && value.isNotEmpty) {
-      await prefs.setString(key, value);
-    } else {
-      await prefs.remove(key);
-    }
-  }
-
-  Future<void> _saveInt(SharedPreferences prefs, String key, int? value) async {
-    // ... (logic không đổi)
-    if (value != null) {
-      await prefs.setInt(key, value);
-    } else {
-      await prefs.remove(key);
-    }
-  }
+  // Các hàm helper _saveString và _saveInt không còn cần thiết và có thể được xóa
 }
 
+// THAY ĐỔI: Cập nhật provider
 final profileProvider =
     StateNotifierProvider<ProfilePageNotifier, ProfilePageState>((ref) {
   final closetRepo = ref.watch(closetRepositoryProvider);
   final itemRepo = ref.watch(clothingItemRepositoryProvider);
   final outfitRepo = ref.watch(outfitRepositoryProvider);
-  return ProfilePageNotifier(ref, closetRepo, itemRepo, outfitRepo);
+  final settingsRepo = ref.watch(settingsRepositoryProvider); // Lấy repo mới
+  
+  return ProfilePageNotifier(ref, closetRepo, itemRepo, outfitRepo, settingsRepo); // Truyền vào
 });

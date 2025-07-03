@@ -9,7 +9,6 @@ import 'package:mincloset/states/batch_add_item_state.dart';
 import 'package:mincloset/utils/logger.dart';
 
 class AnalysisLoadingScreen extends ConsumerStatefulWidget {
-  // Tham số này là optional, chỉ dùng cho trường hợp chụp ảnh từ camera
   final List<XFile>? images; 
   const AnalysisLoadingScreen({super.key, this.images});
 
@@ -25,18 +24,15 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        // Nếu có ảnh được truyền vào (từ camera), thì phân tích ngay
         if (widget.images != null && widget.images!.isNotEmpty) {
           _startAnalysis(widget.images!);
         } else {
-          // Nếu không, bắt đầu quy trình chọn ảnh từ album
           _startImagePickingAndAnalysis();
         }
       }
     });
   }
 
-  // Hàm dành cho việc chọn ảnh từ album
   Future<void> _startImagePickingAndAnalysis() async {
     final imagePicker = ImagePicker();
     final pickedFiles = await imagePicker.pickMultiImage(
@@ -55,7 +51,6 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
     _startAnalysis(pickedFiles);
   }
 
-  // Hàm chung để bắt đầu phân tích
   void _startAnalysis(List<XFile> files) {
     setState(() {
       _loadingMessage = "Pre-filling information...\nThis may take a moment to complete.";
@@ -74,10 +69,7 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // <<< THAY ĐỔI: Giờ chúng ta sẽ watch toàn bộ state >>>
-    final batchState = ref.watch(batchAddItemProvider);
-    
-    // Lắng nghe để điều hướng
+    // Lắng nghe để điều hướng khi phân tích xong
     ref.listen<BatchAddItemState>(batchAddItemProvider, (previous, next) {
       if (!mounted) return;
       if (next.analysisSuccess && previous?.analysisSuccess == false) {
@@ -108,17 +100,11 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // <<< THAY ĐỔI: Hiển thị thanh tiến độ hoặc vòng xoay tùy giai đoạn >>>
-              if (batchState.stage == AnalysisStage.analyzing && batchState.totalItemsToProcess > 0)
-                // Giai đoạn 2: Hiển thị thanh tiến độ
-                _CustomProgressBar(
-                  value: batchState.itemsProcessed / batchState.totalItemsToProcess,
-                )
-              else
-                // Giai đoạn 1 (mặc định): Hiển thị vòng xoay vô định
-                const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
+              // --- THAY ĐỔI CHÍNH NẰM Ở ĐÂY ---
+              // Luôn hiển thị vòng xoay vô định thay vì thanh tiến trình
+              const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
               const SizedBox(height: 24),
               Text(
                 _loadingMessage,
@@ -128,26 +114,6 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-// <<< Widget thanh tiến độ tùy chỉnh >>>
-class _CustomProgressBar extends StatelessWidget {
-  final double value; // Giá trị từ 0.0 đến 1.0
-
-  const _CustomProgressBar({required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: LinearProgressIndicator(
-        value: value,
-        minHeight: 12, // Tăng chiều cao thanh
-        backgroundColor: Colors.white.withValues(alpha:0.2),
-        valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.primary),
       ),
     );
   }

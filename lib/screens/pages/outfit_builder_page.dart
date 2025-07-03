@@ -432,6 +432,20 @@ void initState() {
                           _imageData!,
                           key: _editorKey,
                           callbacks: ProImageEditorCallbacks(
+                            mainEditorCallbacks: MainEditorCallbacks(
+                              onRemoveLayer: (layer) {
+                                // Khi một layer bị xóa khỏi editor,
+                                // callback này sẽ được gọi.
+
+                                // 1. Xóa item tương ứng khỏi map theo dõi của chúng ta
+                                if (_itemsOnCanvas.containsKey(layer.id)) {
+                                  _itemsOnCanvas.remove(layer.id);
+                                }
+
+                                // 2. Gọi hàm tính toán lại bộ đếm để cập nhật giao diện
+                                _recalculateItemCounts();
+                              },
+                            ),
                             onImageEditingComplete: (_) async {},
                             onCloseEditor: (EditorMode mode) {
                               if (Navigator.of(context).canPop()) {
@@ -491,7 +505,7 @@ void initState() {
 
           // Lớp trên cùng nhất: Thanh trượt vật phẩm (không thay đổi)
           Positioned(
-            bottom: 60.0,
+            bottom: 57.0,
             left: 0,
             right: 0,
             top: 0,

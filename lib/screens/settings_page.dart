@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/locale_provider.dart';
 import 'package:mincloset/routing/app_routes.dart';
-
+import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 
 class SettingsPage extends ConsumerWidget {
@@ -99,6 +99,53 @@ class SettingsPage extends ConsumerWidget {
             subtitle: Text(locale.languageCode == 'vi' ? 'Tiếng Việt' : 'English'),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () => _showLanguageDialog(context, ref),
+          ),
+          const Divider(),
+          
+          // --- LỰA CHỌN ĐƠN VỊ TIỀN TỆ ---
+          ListTile(
+            leading: const Icon(Icons.paid_outlined),
+            title: const Text('Currency'),
+            trailing: DropdownButton<String>(
+              value: state.currency,
+              underline: const SizedBox(), // Ẩn đường gạch chân
+              items: ['VND', 'USD', 'EUR'].map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  notifier.updateFormattingSettings(currency: newValue);
+                }
+              },
+            ),
+          ),
+
+          // --- LỰA CHỌN ĐỊNH DẠNG SỐ ---
+          ListTile(
+            leading: const Icon(Icons.pin_outlined),
+            title: const Text('Number Format'),
+            trailing: DropdownButton<NumberFormatType>(
+              value: state.numberFormat,
+              underline: const SizedBox(),
+              items: const [
+                DropdownMenuItem(
+                  value: NumberFormatType.dotDecimal,
+                  child: Text('1.000.000'),
+                ),
+                DropdownMenuItem(
+                  value: NumberFormatType.commaDecimal,
+                  child: Text('1,000,000'),
+                ),
+              ],
+              onChanged: (NumberFormatType? newValue) {
+                if (newValue != null) {
+                  notifier.updateFormattingSettings(format: newValue);
+                }
+              },
+            ),
           ),
           const Divider(),
         ],

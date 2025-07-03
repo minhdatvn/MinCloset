@@ -153,7 +153,7 @@ class GetOutfitSuggestionUseCase {
     // Nếu đã qua bước xác thực, tiếp tục với logic gọi AI trong một khối try-catch an toàn.
     return TaskEither.tryCatch(
       () async {
-        final suggestionInfo = _settingsRepo.getSuggestionInfo();
+        final suggestionInfo = await _settingsRepo.getSuggestionInfo();
         final gender = suggestionInfo['gender'] ?? 'Not specified';
         final userStyle = suggestionInfo['style'] ?? 'Any style';
         final favoriteColors = 'Any color'; // Giữ nguyên hoặc lấy từ repo nếu có

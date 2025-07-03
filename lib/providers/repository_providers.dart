@@ -60,9 +60,5 @@ final sharedPreferencesProvider = FutureProvider<SharedPreferences>((ref) {
 // Provider để cung cấp SettingsRepository cho toàn bộ ứng dụng.
 // Nó phụ thuộc vào sharedPreferencesProvider.
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
-  // .watch() sẽ tự động lắng nghe và build lại khi FutureProvider hoàn thành.
-  // .value! được sử dụng ở đây với giả định rằng SharedPreferences sẽ luôn có sẵn
-  // khi repository này được truy cập, điều này được đảm bảo bởi cơ chế của Riverpod.
-  final prefs = ref.watch(sharedPreferencesProvider).value!;
-  return SettingsRepository(prefs);
+  return SettingsRepository(ref); // Chỉ cần truyền ref vào
 });

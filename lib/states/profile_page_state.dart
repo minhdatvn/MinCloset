@@ -1,6 +1,7 @@
 // lib/states/profile_page_state.dart
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mincloset/services/number_formatting_service.dart';
 
 enum CityMode { auto, manual }
 
@@ -28,6 +29,8 @@ class ProfilePageState extends Equatable {
   final Map<String, int> materialDistribution; // <<< THÊM DÒNG NÀY
   final Map<String, int> patternDistribution;  // <<< THÊM DÒNG NÀY
   final String? errorMessage;
+  final String currency;
+  final NumberFormatType numberFormat;
 
   const ProfilePageState({
     this.isLoading = true,
@@ -52,6 +55,8 @@ class ProfilePageState extends Equatable {
     this.materialDistribution = const {}, // <<< THÊM DÒNG NÀY
     this.patternDistribution = const {},  // <<< THÊM DÒNG NÀY
     this.errorMessage,
+    this.currency = 'USD', // Giá trị mặc định
+    this.numberFormat = NumberFormatType.dotDecimal,
   });
 
   int? get age {
@@ -85,9 +90,11 @@ class ProfilePageState extends Equatable {
     Map<String, int>? categoryDistribution,
     Map<String, int>? seasonDistribution,
     Map<String, int>? occasionDistribution,
-    Map<String, int>? materialDistribution, // <<< THÊM DÒNG NÀY
-    Map<String, int>? patternDistribution,  // <<< THÊM DÒNG NÀY
+    Map<String, int>? materialDistribution,
+    Map<String, int>? patternDistribution, 
     String? errorMessage,
+    String? currency,
+    NumberFormatType? numberFormat,
   }) {
     return ProfilePageState(
       isLoading: isLoading ?? this.isLoading,
@@ -112,6 +119,8 @@ class ProfilePageState extends Equatable {
       materialDistribution: materialDistribution ?? this.materialDistribution, // <<< THÊM DÒNG NÀY
       patternDistribution: patternDistribution ?? this.patternDistribution,   // <<< THÊM DÒNG NÀY
       errorMessage: errorMessage ?? this.errorMessage,
+      currency: currency ?? this.currency,
+      numberFormat: numberFormat ?? this.numberFormat,
     );
   }
 
@@ -136,8 +145,10 @@ class ProfilePageState extends Equatable {
         categoryDistribution,
         seasonDistribution,
         occasionDistribution,
-        materialDistribution, // <<< THÊM DÒNG NÀY
-        patternDistribution,  // <<< THÊM DÒNG NÀY
-        errorMessage
+        materialDistribution, 
+        patternDistribution, 
+        errorMessage,
+        currency,
+        numberFormat
       ];
 }

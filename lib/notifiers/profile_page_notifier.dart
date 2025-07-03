@@ -11,6 +11,7 @@ import 'package:mincloset/repositories/outfit_repository.dart';
 import 'package:mincloset/repositories/settings_repository.dart'; // <-- ĐÃ THÊM
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/utils/logger.dart';
+import 'package:mincloset/services/number_formatting_service.dart';
 
 class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   final Ref _ref;
@@ -41,7 +42,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       logger.i('Loading profile data...');
       
       // --- THAY ĐỔI: LẤY DỮ LIỆU TỪ REPOSITORY ---
-      final profileData = _settingsRepo.getUserProfile();
+      final profileData = await _settingsRepo.getUserProfile();
       final userName = profileData['name'] as String? ?? 'MinCloset user';
       final avatarPath = profileData['avatarPath'] as String?;
       final gender = profileData['gender'] as String?;
@@ -55,6 +56,12 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       final cityMode = CityMode.values.byName(cityModeString);
       final manualCity = profileData['manualCity'] as String? ?? 'Ha Noi, VN';
       final showWeatherImage = profileData['showWeatherImage'] as bool? ?? true;
+      final currency = profileData['currency'] as String? ?? 'USD';
+      final numberFormatString = profileData['numberFormat'] as String? ?? 'dotDecimal';
+      final numberFormat = NumberFormatType.values.firstWhere(
+        (e) => e.name == numberFormatString,
+        orElse: () => NumberFormatType.dotDecimal,
+      );
       
       logger.i('3. Successfully read settings from repository.');
 
@@ -165,6 +172,8 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
                     occasionDistribution: occasionDist,
                     materialDistribution: materialDist, 
                     patternDistribution: patternDist,
+                    currency: currency,
+                    numberFormat: numberFormat,
                   );
                   logger.i(
                       '8. State updated successfully! Profile page loading complete.');
@@ -244,7 +253,23 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     _ref.read(homeProvider.notifier).getNewSuggestion();
   }
 
-  // Các hàm helper _saveString và _saveInt không còn cần thiết và có thể được xóa
+  Future<void> updateFormattingSettings({String? currency, NumberFormatType? format}) async {
+    final Map<String, dynamic> dataToSave = {};
+    if (currency != null) {
+      dataToSave['currency'] = currency;
+    }
+    if (format != null) {
+      dataToSave['numberFormat'] = format.name;
+    }
+
+    await _settingsRepo.saveUserProfile(dataToSave);
+    
+    // Cập nhật state của notifier
+    state = state.copyWith(
+      currency: currency ?? state.currency,
+      numberFormat: format ?? state.numberFormat,
+    );
+  }
 }
 
 // THAY ĐỔI: Cập nhật provider

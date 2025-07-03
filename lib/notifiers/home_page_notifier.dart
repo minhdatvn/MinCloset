@@ -5,16 +5,16 @@ import 'package:mincloset/domain/providers.dart';
 import 'package:mincloset/domain/use_cases/get_outfit_suggestion_use_case.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/services/notification_service.dart';
-import 'package:mincloset/services/weather_image_service.dart';
 import 'package:mincloset/states/home_page_state.dart';
 import 'package:mincloset/utils/logger.dart';
 
 class HomePageNotifier extends StateNotifier<HomePageState> {
   final GetOutfitSuggestionUseCase _getSuggestionUseCase;
   final NotificationService _notificationService;
-  final WeatherImageService _weatherImageService;
+  final Ref _ref;
 
-  HomePageNotifier(this._getSuggestionUseCase, this._notificationService, this._weatherImageService)
+  HomePageNotifier(
+      this._getSuggestionUseCase, this._notificationService, this._ref)
       : super(const HomePageState()) {
     init();
   }
@@ -25,6 +25,8 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
 
   Future<void> refreshWeatherOnly() async {
     logger.i("Weather refresh triggered.");
+    // Lấy service khi cần dùng
+    final weatherImageService = await _ref.read(weatherImageServiceProvider.future);
     final weatherEither = await _getSuggestionUseCase.getWeatherForSuggestion();
 
     if (mounted) {
@@ -33,24 +35,22 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
           logger.e("Failed to refresh weather: ${failure.message}");
         },
         (weatherData) {
-          // Lấy đường dẫn ảnh ngay khi có dữ liệu thời tiết
-          final newPath = _weatherImageService.getBackgroundImageForWeather(
+          final newPath = weatherImageService.getBackgroundImageForWeather(
               weatherData['weather'][0]['icon'] as String?);
-
-          // Cập nhật cả thời tiết và đường dẫn ảnh cùng lúc
           state = state.copyWith(weather: weatherData, backgroundImagePath: newPath);
         },
       );
     }
   }
 
-  void refreshBackgroundImage() {
+  Future<void> refreshBackgroundImage() async {
     if (state.isRefreshingBackground) return;
 
-    // Lấy đường dẫn ảnh mới, truyền vào ảnh hiện tại để loại trừ
-    final newPath = _weatherImageService.getBackgroundImageForWeather(
-        state.weather?['weather'][0]['icon'] as String?,
-        currentPath: state.backgroundImagePath, // Truyền ảnh hiện tại
+    // Lấy service khi cần dùng
+    final weatherImageService = await _ref.read(weatherImageServiceProvider.future);
+    final newPath = weatherImageService.getBackgroundImageForWeather(
+      state.weather?['weather'][0]['icon'] as String?,
+      currentPath: state.backgroundImagePath,
     );
         
     // Cập nhật state với đường dẫn mới và bật cờ loading
@@ -69,8 +69,8 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
 
   Future<void> getNewSuggestion({String? purpose}) async {
     state = state.copyWith(isLoading: true, clearError: true);
+    final weatherImageService = await _ref.read(weatherImageServiceProvider.future);
     final resultEither = await _getSuggestionUseCase.execute(purpose: purpose);
-
     if (!mounted) return;
 
     resultEither.fold(
@@ -81,8 +81,9 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
       },
       (result) {
         final weatherData = result['weather'] as Map<String, dynamic>?;
-        // Lấy đường dẫn ảnh mới dựa trên dữ liệu thời tiết mới
-        final newPath = _weatherImageService.getBackgroundImageForWeather(
+        
+        // Bây giờ 'weatherImageService' đã được định nghĩa và có thể sử dụng ở đây
+        final newPath = weatherImageService.getBackgroundImageForWeather(
             weatherData?['weather'][0]['icon'] as String?);
 
         state = state.copyWith(
@@ -102,7 +103,6 @@ final homeProvider =
     StateNotifierProvider<HomePageNotifier, HomePageState>((ref) {
   final getSuggestionUseCase = ref.watch(getOutfitSuggestionUseCaseProvider);
   final notificationService = ref.watch(notificationServiceProvider);
-  final weatherImageService = ref.watch(weatherImageServiceProvider).value!;
-
-  return HomePageNotifier(getSuggestionUseCase, notificationService, weatherImageService);
+  // Không cần watch weatherImageServiceProvider ở đây nữa
+  return HomePageNotifier(getSuggestionUseCase, notificationService, ref); // Truyền ref vào
 });

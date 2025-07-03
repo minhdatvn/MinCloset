@@ -1,9 +1,15 @@
 // lib/widgets/item_detail_form.dart
 import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:mincloset/constants/app_options.dart';
+import 'package:mincloset/helpers/currency_input_formatter.dart';
+import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
+import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/category_selector.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
@@ -52,8 +58,21 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
   @override
   void initState() {
     super.initState();
+    // 1. Đọc các cài đặt hiện tại từ provider
+    final settings = ref.read(profileProvider);
+    String initialPriceText = '';
+
+    // 2. Kiểm tra xem có giá trị price ban đầu không
+    if (widget.itemState.price != null && widget.itemState.price! > 0) {
+      // 3. Sử dụng NumberFormat để định dạng giá trị ban đầu
+      final locale = settings.numberFormat == NumberFormatType.commaDecimal ? 'en_US' : 'vi_VN';
+      final formatter = NumberFormat.decimalPattern(locale);
+      initialPriceText = formatter.format(widget.itemState.price);
+    }
+    
+    // 4. Khởi tạo các controller với giá trị đúng
     _nameController = TextEditingController(text: widget.itemState.name);
-    _priceController = TextEditingController(text: widget.itemState.price?.toString() ?? '');
+    _priceController = TextEditingController(text: initialPriceText);
     _notesController = TextEditingController(text: widget.itemState.notes ?? '');
   }
 
@@ -68,6 +87,20 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
   @override
   Widget build(BuildContext context) {
     final closetsAsync = ref.watch(closetsProvider);
+    final settings = ref.watch(profileProvider);
+
+    String getCurrencySymbol(String currencyCode) { // hàm helper nhỏ để lấy ký hiệu tiền tệ
+      switch (currencyCode) {
+        case 'VND':
+          return '₫';
+        case 'USD':
+          return '\$';
+        case 'EUR':
+          return '€';
+        default:
+          return currencyCode;
+      }
+    }
 
     return SingleChildScrollView(
       controller: widget.scrollController,
@@ -179,11 +212,29 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
           const SizedBox(height: 24),
           TextFormField(
             controller: _priceController,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Price',
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
+              // Sử dụng 'suffix' thay vì 'suffixIcon'
+              suffix: Padding(
+                // Chỉ cần padding bên trái để tạo khoảng cách với số
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Text(
+                  getCurrencySymbol(settings.currency),
+                  style: TextStyle(
+                    // Có thể giảm cỡ chữ một chút để trông cân đối hơn
+                    fontSize: 16, 
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
+              ),
             ),
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            keyboardType: TextInputType.number,
+            // Thêm inputFormatters để áp dụng logic định dạng
+            inputFormatters: <TextInputFormatter>[
+              FilteringTextInputFormatter.digitsOnly, // Chỉ cho phép nhập số
+              CurrencyInputFormatter(formatType: settings.numberFormat), // Áp dụng formatter của chúng ta
+            ],
             onChanged: widget.onPriceChanged,
           ),
           

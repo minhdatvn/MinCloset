@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/services/notification_service.dart';
+import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/services/suggestion_service.dart';
-import 'package:mincloset/services/weather_service.dart';
 import 'package:mincloset/services/weather_image_service.dart';
+import 'package:mincloset/services/weather_service.dart';
 
 final weatherServiceProvider = Provider<WeatherService>((ref) {
   // <<< THAY ĐỔI: Đọc key ở đây và truyền vào service >>>
@@ -33,4 +34,8 @@ final weatherImageServiceProvider = FutureProvider<WeatherImageService>((ref) as
   final service = WeatherImageService();
   await service.init(); // Chờ cho service khởi tạo xong
   return service;
+});
+
+final numberFormattingServiceProvider = Provider<NumberFormattingService>((ref) {
+  return NumberFormattingService();
 });

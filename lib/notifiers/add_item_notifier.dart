@@ -4,8 +4,11 @@ import 'dart:io';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/constants/app_options.dart';
+import 'package:mincloset/domain/failures/failures.dart';
+import 'package:mincloset/domain/models/validation_result.dart';
 import 'package:mincloset/domain/providers.dart';
 import 'package:mincloset/domain/use_cases/analyze_item_use_case.dart';
 import 'package:mincloset/domain/use_cases/validate_item_name_use_case.dart';
@@ -111,7 +114,10 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   void onOccasionsChanged(Set<String> occasions) => state = state.copyWith(selectedOccasions: occasions);
   void onMaterialsChanged(Set<String> materials) => state = state.copyWith(selectedMaterials: materials);
   void onPatternsChanged(Set<String> patterns) => state = state.copyWith(selectedPatterns: patterns);
-  void onPriceChanged(String value) {state = state.copyWith(price: double.tryParse(value));}
+  void onPriceChanged(String value) {
+    final cleanValue = value.replaceAll(RegExp(r'[^0-9]'), ''); // Loại bỏ tất cả các ký tự không phải là số
+    state = state.copyWith(price: double.tryParse(cleanValue));
+  }
   void onNotesChanged(String value) {state = state.copyWith(notes: value);}
   
   Future<void> pickImage(ImageSource source) async {
@@ -195,66 +201,77 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     }
     state = state.copyWith(isLoading: true, errorMessage: null);
 
-    final requiredResult = _validateRequiredUseCase.executeForSingle(state);
-    if (!requiredResult.success) {
-      state = state.copyWith(isLoading: false, errorMessage: requiredResult.errorMessage);
-      return false;
+    // --- BƯỚC 1: ĐỊNH NGHĨA CÁC BƯỚC XỬ LÝ ---
+
+    Either<Failure, void> validateRequiredFields() {
+      final result = _validateRequiredUseCase.executeForSingle(state);
+      return result.success ? const Right(null) : Left(GenericFailure(result.errorMessage!));
     }
 
-    final nameValidationEither = await _validateNameUseCase.forSingleItem(
-      name: state.name,
-      existingId: state.isEditing ? state.id : null,
-    );
+    TaskEither<Failure, ValidationResult> performNameValidation() {
+      return TaskEither(() => _validateNameUseCase.forSingleItem(
+            name: state.name,
+            existingId: state.isEditing ? state.id : null,
+      ));
+    }
+
+    TaskEither<Failure, String?> createThumbnail() {
+      return TaskEither.tryCatch(
+        // SỬA LỖI Ở ĐÂY: Bọc giá trị không phải Future bằng Future.value()
+        () => state.image != null
+            ? _imageHelper.createThumbnail(sourceImagePath)
+            : Future.value(state.thumbnailPath),
+        (error, stackTrace) => GenericFailure('Error creating thumbnail: $error'),
+      );
+    }
     
-    return await nameValidationEither.fold(
+    TaskEither<Failure, void> saveToDatabase(String? thumbnailPath) {
+      final item = ClothingItem(
+        id: state.isEditing ? state.id : const Uuid().v4(),
+        name: state.name.trim(),
+        category: state.selectedCategoryValue,
+        closetId: state.selectedClosetId!,
+        imagePath: sourceImagePath,
+        thumbnailPath: thumbnailPath,
+        color: state.selectedColors.join(', '),
+        season: state.selectedSeasons.join(', '),
+        occasion: state.selectedOccasions.join(', '),
+        material: state.selectedMaterials.join(', '),
+        pattern: state.selectedPatterns.join(', '),
+        isFavorite: state.isFavorite,
+        price: state.price,
+        notes: state.notes,
+      );
+      final saveFuture = state.isEditing ? _clothingItemRepo.updateItem(item) : _clothingItemRepo.insertItem(item);
+      return TaskEither(() => saveFuture);
+    }
+
+    // --- BƯỚC 2: XÂU CHUỖI CÁC BƯỚC LẠI ---
+    final task = TaskEither.fromEither(validateRequiredFields())
+        .flatMap((_) => performNameValidation())
+        .flatMap((validationResult) {
+          if (validationResult.success) {
+            return TaskEither.right(null);
+          }
+          return TaskEither.left(GenericFailure(validationResult.errorMessage!));
+        })
+        .flatMap((_) => createThumbnail())
+        .flatMap((thumbnailPath) => saveToDatabase(thumbnailPath));
+
+    // --- BƯỚC 3: THỰC THI VÀ XỬ LÝ KẾT QUẢ ---
+    final result = await task.run();
+
+    if (!mounted) return false;
+
+    return result.fold(
       (failure) {
         state = state.copyWith(isLoading: false, errorMessage: failure.message);
         return false;
       },
-      (nameValidationResult) async {
-        if (!nameValidationResult.success) {
-          state = state.copyWith(isLoading: false, errorMessage: nameValidationResult.errorMessage);
-          return false;
-        }
-
-        final String? thumbnailPath = state.image != null
-            ? await _imageHelper.createThumbnail(sourceImagePath)
-            : null;
-        
-        final clothingItem = ClothingItem(
-          id: state.isEditing ? state.id : const Uuid().v4(),
-          name: state.name.trim(),
-          category: state.selectedCategoryValue,
-          closetId: state.selectedClosetId!,
-          imagePath: sourceImagePath,
-          thumbnailPath: thumbnailPath ?? state.thumbnailPath,
-          color: state.selectedColors.join(', '),
-          season: state.selectedSeasons.join(', '),
-          occasion: state.selectedOccasions.join(', '),
-          material: state.selectedMaterials.join(', '),
-          pattern: state.selectedPatterns.join(', '),
-          isFavorite: state.isFavorite,
-          price: state.price,
-          notes: state.notes,
-        );
-
-        final result = state.isEditing
-            ? await _clothingItemRepo.updateItem(clothingItem)
-            : await _clothingItemRepo.insertItem(clothingItem);
-
-        if (!mounted) return false;
-
-        return result.fold(
-          (failure) {
-            state = state.copyWith(isLoading: false, errorMessage: failure.message);
-            return false;
-          },
-          (_) {
-            _ref.read(itemChangedTriggerProvider.notifier).state++;
-            state = state.copyWith(isLoading: false, isSuccess: true);
-            return true;
-          },
-        );
+      (_) {
+        _ref.read(itemChangedTriggerProvider.notifier).state++;
+        state = state.copyWith(isLoading: false, isSuccess: true);
+        return true;
       },
     );
   }

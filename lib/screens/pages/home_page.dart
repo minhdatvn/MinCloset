@@ -130,10 +130,6 @@ class _HomePageState extends ConsumerState<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // XÓA WIDGET StatsOverviewCard
-              // StatsOverviewCard(...),
-              
-              // THAY THẾ _buildAiStylistSection BẰNG _buildActionHub
               _buildActionHub(context, ref),
 
               const SizedBox(height: 32),
@@ -214,7 +210,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               icon: Icons.add_a_photo_outlined,
               onTap: () => _showAddItemSheet(context), // Gọi menu chọn ảnh
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 6),
             ActionCard(
               label: 'Create Closet',
               icon: Icons.create_new_folder_outlined,
@@ -237,7 +233,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 );
               },
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 6),
             ActionCard(
               label: 'Create Outfits',
               icon: Icons.design_services_outlined,
@@ -245,7 +241,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 Navigator.pushNamed(context, AppRoutes.outfitBuilder);
               },
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 6),
             ActionCard(
               label: 'Saved Outfits',
               icon: Icons.collections_bookmark_outlined,
@@ -261,40 +257,45 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   
   Widget _buildTodaysSuggestionCard(BuildContext context, WidgetRef ref, HomePageState state) {
-    final theme = Theme.of(context);
-    final profileState = ref.watch(profileProvider);
-    final String backgroundImagePath = state.backgroundImagePath ?? 'assets/images/weather_backgrounds/default_1.webp';
-    
-    return Card(
-      elevation: 0,
-      color: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(
-          color: theme.colorScheme.outline,
-          width: 1,
-        ),
-        borderRadius: BorderRadius.circular(16),
+  final theme = Theme.of(context);
+  final profileState = ref.watch(profileProvider);
+  final String backgroundImagePath = state.backgroundImagePath ?? 'assets/images/weather_backgrounds/default_1.webp';
+  
+  return Card(
+    elevation: 0,
+    color: Colors.transparent,
+    shape: RoundedRectangleBorder(
+      side: BorderSide(
+        color: theme.colorScheme.outline,
+        width: 1,
       ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ===== HEADER SECTION =====
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(15.0)),
+      borderRadius: BorderRadius.circular(16),
+    ),
+    clipBehavior: Clip.antiAlias,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ===== HEADER SECTION =====
+        ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(15.0)),
+          child: SizedBox(
+            height: 120,
             child: Stack(
+              fit: StackFit.expand,
               children: [
-                Positioned.fill(
-                  child: profileState.showWeatherImage
-                      ? Image.asset(
-                          backgroundImagePath,
-                          key: ValueKey(backgroundImagePath),
-                          fit: BoxFit.cover,
-                        )
-                      : Container(
-                          color: theme.colorScheme.surfaceContainerHighest,
-                        ),
-                ),
+                // Lớp 1: Ảnh nền (Không đổi)
+                if (profileState.showWeatherImage)
+                  Image.asset(
+                    backgroundImagePath,
+                    key: ValueKey(backgroundImagePath),
+                    fit: BoxFit.cover,
+                  )
+                else
+                  Container(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                  ),
+
+                // Lớp 2: Gradient nền trắng để hòa vào nội dung (KHÔI PHỤC LẠI)
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
@@ -302,81 +303,84 @@ class _HomePageState extends ConsumerState<HomePage> {
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
                         colors: [
-                          profileState.showWeatherImage ? Colors.white : theme.colorScheme.surfaceContainerHighest,
-                          profileState.showWeatherImage
-                              ? Colors.white.withValues(alpha:0.0)
-                              : theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.0),
+                          theme.scaffoldBackgroundColor,
+                          theme.scaffoldBackgroundColor.withValues(alpha:0),
                         ],
                         stops: const [0.0, 0.8],
                       ),
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                
+                // Lớp 3: Nội dung (Nút Refresh và Thông tin thời tiết)
+                // Chúng ta sẽ đặt cả hai vào trong cùng một Stack con để quản lý
+                Stack(
+                  children: [
+                    if (profileState.showWeatherImage)
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: IconButton(
+                          padding: const EdgeInsets.all(4.0),
+                          icon: state.isRefreshingBackground
+                              ? const SizedBox(
+                                    width: 14,
+                                    height: 14,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  )
+                              : const Icon(Icons.refresh, color: Colors.black54),
+                          style: IconButton.styleFrom(
+                            backgroundColor: Colors.white.withValues(alpha:0.5),
+                          ),
+                          onPressed: state.isRefreshingBackground ? null : ref.read(homeProvider.notifier).refreshBackgroundImage,
+                        ),
+                      ),
+                    
+                    // Thông tin thời tiết được đặt trong Positioned như cũ
+                    if (state.weather != null)
+                      Positioned(
+                        bottom: 4,
+                        left: 16,
+                        right: 16,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            if (state.weather?['name'] != null)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 4.0),
-                                child: Text(
-                                  state.weather!['name'] as String,
-                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            Icon(
+                              _getWeatherIcon(state.weather!['weather'][0]['icon'] as String),
+                              color: Colors.orange.shade700, // << Đổi lại màu chữ và icon
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                state.weather!['name'] as String,
+                                style: const TextStyle(
+                                  color: Colors.black87, // << Đổi lại màu chữ
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
                                 ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
-                            (state.weather != null
-                              ? Row(
-                                  children: [
-                                    Icon(_getWeatherIcon(state.weather!['weather'][0]['icon'] as String), color: Colors.orange.shade700, size: 32),
-                                    const SizedBox(width: 8),
-                                    Text('${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
-                                  ],
-                                )
-                              : const SizedBox(height: 40, child: Center(child: Text("Weather data unavailable.")))
-                            )
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C',
+                              style: const TextStyle(
+                                color: Colors.black87, // << Đổi lại màu chữ
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
+                  ],
                 ),
-                if (profileState.showWeatherImage)
-                  Positioned(
-                    top: 2,
-                    right: 2,
-                    child: IconButton(
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(maxWidth: 28, maxHeight: 28),
-                      icon: state.isRefreshingBackground
-                          ? const SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black54),
-                            )
-                          : const Icon(Icons.refresh, color: Colors.black54),
-
-                      style: IconButton.styleFrom(
-                        backgroundColor: Colors.white.withValues(alpha:0.5),
-                        iconSize: 20,
-                      ),
-                      tooltip: 'Change background',
-
-                      // <<< Vô hiệu hóa nút bấm khi đang refresh >>>
-                      onPressed: state.isRefreshingBackground
-                          ? null
-                          : () {
-                              ref.read(homeProvider.notifier).refreshBackgroundImage();
-                            },
-                    ),
-                  ),
               ],
             ),
           ),
+        ),
           
           // <<< Thêm ô nhập liệu và nút bấm mới >>>
           Column(

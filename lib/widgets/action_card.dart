@@ -18,35 +18,38 @@ class ActionCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Expanded(
-      child: AspectRatio( // 1. Bọc trong AspectRatio để đảm bảo thẻ luôn là hình vuông
+      child: AspectRatio( // 1. Thêm lại AspectRatio để đảm bảo thẻ hình vuông
         aspectRatio: 1 / 1,
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
           child: Ink(
-            padding: const EdgeInsets.all(8), // Giảm padding một chút
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
-              // 2. Căn giữa nội dung
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Icon(
                   icon,
                   color: theme.colorScheme.primary,
-                  size: 28, // Tăng kích thước icon
+                  size: 28,
                 ),
-                const SizedBox(height: 8), // Thêm khoảng cách giữa icon và chữ
-                Text(
-                  label,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600, // Chữ đậm hơn một chút
+                const SizedBox(height: 4), // 2. Giảm khoảng cách giữa icon và chữ
+                Flexible( // 3. Bọc Text trong Flexible để tự động co giãn
+                  child: Text(
+                    label,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.normal,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  textAlign: TextAlign.center, // Căn giữa chữ
-                )
+                ),
               ],
             ),
           ),

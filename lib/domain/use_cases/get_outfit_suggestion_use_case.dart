@@ -1,5 +1,5 @@
 // lib/domain/use_cases/get_outfit_suggestion_use_case.dart
-
+import 'dart:io';
 import 'package:fpdart/fpdart.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -85,7 +85,29 @@ class GetOutfitSuggestionUseCase {
           return const Left(GenericFailure('Location permissions are denied. Please enable it for MinCloset in your device settings.'));
         }
 
-        final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+        // 1. Định nghĩa các cài đặt vị trí cho từng nền tảng
+        late LocationSettings locationSettings;
+
+        if (Platform.isAndroid) {
+          locationSettings = AndroidSettings(
+            accuracy: LocationAccuracy.high,
+            forceLocationManager: true,
+          );
+        } else if (Platform.isIOS || Platform.isMacOS) {
+          locationSettings = AppleSettings(
+            accuracy: LocationAccuracy.high,
+            activityType: ActivityType.other,
+            pauseLocationUpdatesAutomatically: true,
+          );
+        } else {
+            locationSettings = const LocationSettings(
+            accuracy: LocationAccuracy.high,
+          );
+        }
+        
+        // 2. Sử dụng tham số `settings` mới thay cho `desiredAccuracy`
+        final position = await Geolocator.getCurrentPosition(locationSettings: locationSettings);
+
         final weatherEither = await _weatherRepo.getWeatherByCoords(position.latitude, position.longitude);
 
         return weatherEither.fold(

@@ -10,52 +10,6 @@ import 'package:mincloset/states/profile_page_state.dart';
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
-  void _showLanguageDialog(BuildContext context, WidgetRef ref) {
-    // ... logic của hàm này được giữ nguyên ...
-    final currentLocale = ref.read(localeProvider);
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Select language'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              RadioListTile<Locale>(
-                title: const Text('Tiếng Việt'),
-                value: const Locale('vi'),
-                groupValue: currentLocale,
-                onChanged: (locale) {
-                  if (locale != null) {
-                    ref.read(localeProvider.notifier).setLocale(locale.languageCode);
-                    Navigator.of(context).pop();
-                  }
-                },
-              ),
-              RadioListTile<Locale>(
-                title: const Text('English'),
-                value: const Locale('en'),
-                groupValue: currentLocale,
-                onChanged: (locale) {
-                  if (locale != null) {
-                    ref.read(localeProvider.notifier).setLocale(locale.languageCode);
-                    Navigator.of(context).pop();
-                  }
-                },
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            )
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(profileProvider);
@@ -85,8 +39,8 @@ class SettingsPage extends ConsumerWidget {
                 _SettingsTile(
                   icon: Icons.language_outlined,
                   title: 'Language',
-                  subtitle: Text(locale.languageCode == 'vi' ? 'Tiếng Việt' : 'English'),
-                  onTap: () => _showLanguageDialog(context, ref),
+                  subtitle: Text(locale.languageCode == 'en' ? 'English' : 'Tiếng Việt'),
+                  onTap: () => Navigator.pushNamed(context, AppRoutes.languageSelection),
                 ),
                 _SettingsTile(
                   icon: Icons.paid_outlined,

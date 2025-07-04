@@ -23,6 +23,7 @@ import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/screens/splash_screen.dart';
 import 'package:mincloset/screens/webview_page.dart';
+import 'package:mincloset/screens/language_selection_screen.dart';
 
 class RouteGenerator {
   static const Widget _mainScreen = MainScreen();
@@ -119,6 +120,9 @@ class RouteGenerator {
           );
         }
         return _errorRoute();
+      
+      case AppRoutes.languageSelection:
+        return MaterialPageRoute(builder: (_) => const LanguageSelectionScreen());
 
       default:
         return _errorRoute();

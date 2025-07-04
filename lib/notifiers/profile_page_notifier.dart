@@ -249,8 +249,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
         cityMode: mode,
         manualCity: suggestion != null ? suggestion.displayName : state.manualCity,
     );
-
-    _ref.read(homeProvider.notifier).getNewSuggestion();
   }
 
   Future<void> updateFormattingSettings({String? currency, NumberFormatType? format}) async {

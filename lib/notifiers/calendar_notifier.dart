@@ -4,20 +4,22 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mincloset/models/clothing_item.dart';
-import 'package:mincloset/models/outfit.dart'; // <<< THÊM IMPORT
+import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/models/wear_log.dart';
 import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
-import 'package:mincloset/repositories/outfit_repository.dart'; // <<< THÊM IMPORT
+import 'package:mincloset/repositories/outfit_repository.dart';
 import 'package:mincloset/repositories/wear_log_repository.dart';
-import 'package:mincloset/states/log_wear_state.dart'; // <<< THÊM IMPORT
-import 'package:mincloset/utils/logger.dart'; // <<< THÊM IMPORT LOGGER
+import 'package:mincloset/services/notification_service.dart';
+import 'package:mincloset/states/log_wear_state.dart';
+import 'package:mincloset/utils/logger.dart';
 
 // State cho Calendar
 class WornGroup extends Equatable {
   final Outfit? outfit;
   final List<ClothingItem> items;
-  final List<int> logIds; // Danh sách các ID của bản ghi wear_log
+  final List<int> logIds;
 
   const WornGroup({this.outfit, required this.items, required this.logIds});
   
@@ -25,13 +27,11 @@ class WornGroup extends Equatable {
   List<Object?> get props => [outfit, items, logIds];
 }
 
-
-// <<< THAY ĐỔI: State giờ sẽ chứa một Map<DateTime, List<WornGroup>> >>>
 class CalendarState extends Equatable {
   final Map<DateTime, List<WornGroup>> events;
   final bool isLoading;
   final bool isMultiSelectMode;
-  final Set<int> selectedLogIds; // Dùng Set<int> để lưu các log_id
+  final Set<int> selectedLogIds;
 
   const CalendarState({
     this.events = const {},
@@ -62,12 +62,17 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
   final WearLogRepository _wearLogRepo;
   final ClothingItemRepository _itemRepo;
   final OutfitRepository _outfitRepo;
+  final NotificationService _notificationService;
 
-  CalendarNotifier(this._wearLogRepo, this._itemRepo, this._outfitRepo) : super(const CalendarState()) {
+  CalendarNotifier(
+    this._wearLogRepo, 
+    this._itemRepo, 
+    this._outfitRepo,
+    this._notificationService,
+  ) : super(const CalendarState()) {
     loadEvents();
   }
 
-  // <<< THAY ĐỔI HOÀN TOÀN LOGIC CỦA HÀM NÀY >>>
   Future<void> loadEvents() async {
     state = const CalendarState(isLoading: true);
 
@@ -81,7 +86,6 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
     final itemsEither = results[1] as Either<dynamic, List<ClothingItem>>;
     final outfitsEither = results[2] as Either<dynamic, List<Outfit>>;
 
-    // Xử lý khi có lỗi xảy ra ở bất kỳ đâu
     if (logsEither.isLeft() || itemsEither.isLeft() || outfitsEither.isLeft()) {
       state = const CalendarState(isLoading: false);
       return;
@@ -91,21 +95,17 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
     final allItems = itemsEither.getOrElse((_) => []);
     final allOutfits = outfitsEither.getOrElse((_) => []);
 
-    // Tạo các map để tra cứu nhanh
     final itemMap = {for (var item in allItems) item.id: item};
     final outfitMap = {for (var o in allOutfits) o.id: o};
 
-    // Nhóm tất cả các log theo ngày
     final groupedByDate = groupBy(allLogs, (WearLog log) => DateTime(log.wearDate.year, log.wearDate.month, log.wearDate.day));
 
     final Map<DateTime, List<WornGroup>> finalEvents = {};
 
-    // Duyệt qua mỗi ngày
     groupedByDate.forEach((date, logsForDay) {
       final List<WornGroup> groupsForDay = [];
       final logsByOutfit = groupBy(logsForDay, (log) => log.outfitId);
 
-      // Xử lý các nhóm outfit
       logsByOutfit.forEach((outfitId, outfitLogs) {
         if (outfitId != null) {
           final outfitDetails = outfitMap[outfitId];
@@ -118,12 +118,10 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
         }
       });
 
-      // <<< THAY ĐỔI: Coi mỗi item lẻ là một WornGroup riêng >>>
       final individualItemsLogs = logsByOutfit[null] ?? [];
       for (final log in individualItemsLogs) {
         final item = itemMap[log.itemId];
         if (item != null) {
-          // Mỗi item lẻ giờ là một nhóm riêng với 1 item và 1 logId
           groupsForDay.add(WornGroup(items: [item], logIds: [log.id]));
         }
       }
@@ -142,14 +140,12 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
     if (!state.isMultiSelectMode) return;
 
     final newSet = Set<int>.from(state.selectedLogIds);
-    // Nếu tất cả các logId của group đã có trong set, thì xóa chúng đi
     if (newSet.containsAll(logIds)) {
       newSet.removeAll(logIds);
-    } else { // Nếu không, thêm chúng vào
+    } else {
       newSet.addAll(logIds);
     }
     
-    // Nếu không còn mục nào được chọn, thoát khỏi chế độ chọn nhiều
     if (newSet.isEmpty) {
       clearMultiSelectMode();
     } else {
@@ -163,9 +159,7 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
   
   Future<void> deleteSelected() async {
     if (state.selectedLogIds.isEmpty) return;
-    // Hàm deleteWornGroup đã có sẵn logic để xóa và tải lại events
     await deleteWornGroup(WornGroup(logIds: state.selectedLogIds.toList(), items: []));
-    // Sau khi xóa, tự động thoát khỏi chế độ chọn nhiều
     clearMultiSelectMode();
   }
 
@@ -211,20 +205,23 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
     if (logsToInsert.isNotEmpty) {
       final result = await _wearLogRepo.addBatchWearLogs(logsToInsert);
       result.fold(
-        // <<< THAY ĐỔI: Dùng logger.e để ghi nhận lỗi >>>
-        (l) => logger.e("Error logging wear", error: l.message),
+        (l) {
+          logger.e("Error logging wear", error: l.message);
+          _notificationService.showBanner(message: "Failed to log wear: ${l.message}");
+        },
         (_) => loadEvents(),
       );
     }
   }
 
+  // --- HÀM NÀY ĐÃ ĐƯỢC DI CHUYỂN RA NGOÀI ---
   Future<void> deleteWornGroup(WornGroup group) async {
     if (group.logIds.isEmpty) return;
 
     final result = await _wearLogRepo.deleteWearLogs(group.logIds);
     result.fold(
       (l) => logger.e("Error deleting wear logs", error: l.message),
-      (_) => loadEvents(), // Tải lại sự kiện sau khi xóa thành công
+      (_) => loadEvents(),
     );
   }
 }
@@ -233,5 +230,6 @@ final calendarProvider = StateNotifierProvider<CalendarNotifier, CalendarState>(
   final wearLogRepo = ref.watch(wearLogRepositoryProvider);
   final itemRepo = ref.watch(clothingItemRepositoryProvider);
   final outfitRepo = ref.watch(outfitRepositoryProvider);
-  return CalendarNotifier(wearLogRepo, itemRepo, outfitRepo);
+  final notificationService = ref.watch(notificationServiceProvider);
+  return CalendarNotifier(wearLogRepo, itemRepo, outfitRepo, notificationService);
 });

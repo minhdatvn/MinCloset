@@ -83,35 +83,34 @@ class DayPlannerCard extends StatelessWidget {
   Widget _buildOutfitPreview() {
     final displayImages = itemImagePaths.take(4).toList();
 
-    return Padding(
+    return GridView.builder(
+      // Vô hiệu hóa việc cuộn của GridView, để ListView bên ngoài xử lý
+      physics: const NeverScrollableScrollPhysics(),
       padding: const EdgeInsets.all(4.0),
-      child: Wrap(
-        spacing: 4,
-        runSpacing: 4,
-        alignment: WrapAlignment.center,
-        children: displayImages.map((path) {
-          // Bọc AspectRatio trong SizedBox để giới hạn kích thước
-          return SizedBox(
-            // Chiều rộng được tính toán lại chính xác là 45px
-            width: 45, 
-            child: AspectRatio(
-              aspectRatio: 3 / 4,
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(color: Colors.grey.shade200, width: 0.5)),
-                clipBehavior: Clip.antiAlias,
-                child: Image.file(
-                  File(path),
-                  fit: BoxFit.contain, // Dùng contain để không bị cắt ảnh
-                  errorBuilder: (ctx, err, stack) =>
-                      const Icon(Icons.error_outline),
-                ),
-              ),
-            ),
-          );
-        }).toList(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        // Luôn hiển thị 2 cột
+        crossAxisCount: 2,
+        crossAxisSpacing: 4,
+        mainAxisSpacing: 4,
+        // Giữ tỷ lệ ảnh là 3/4
+        childAspectRatio: 3 / 4,
       ),
+      itemCount: displayImages.length,
+      itemBuilder: (context, index) {
+        final path = displayImages[index];
+        return Container(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: Colors.grey.shade200, width: 0.5)),
+          clipBehavior: Clip.antiAlias,
+          child: Image.file(
+            File(path),
+            fit: BoxFit.contain, // Dùng contain để không bị cắt ảnh
+            errorBuilder: (ctx, err, stack) =>
+                const Icon(Icons.error_outline),
+          ),
+        );
+      },
     );
   }
 }

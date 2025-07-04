@@ -163,8 +163,8 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
     clearMultiSelectMode();
   }
 
-  Future<void> logWearForDate(DateTime date, Set<String> ids, SelectionType type) async {
-    if (ids.isEmpty) return;
+  Future<bool> logWearForDate(DateTime date, Set<String> ids, SelectionType type) async {
+    if (ids.isEmpty) return false;
 
     final dateString = date.toIso8601String().split('T').first;
     List<Map<String, dynamic>> logsToInsert = [];
@@ -180,7 +180,7 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
     } else {
       final outfitsEither = await _outfitRepo.getOutfits();
       outfitsEither.fold(
-        (l) => null,
+        (l) => null, // Không làm gì nếu không lấy được danh sách outfits
         (allOutfits) {
           final Map<String, Outfit> outfitMap = {for (var o in allOutfits) o.id: o};
           for (final outfitId in ids) {
@@ -202,16 +202,21 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
       );
     }
 
-    if (logsToInsert.isNotEmpty) {
-      final result = await _wearLogRepo.addBatchWearLogs(logsToInsert);
-      result.fold(
-        (l) {
-          logger.e("Error logging wear", error: l.message);
-          _notificationService.showBanner(message: "Failed to log wear: ${l.message}");
-        },
-        (_) => loadEvents(),
-      );
-    }
+    if (logsToInsert.isEmpty) return false;
+
+    final result = await _wearLogRepo.addBatchWearLogs(logsToInsert);
+    // Sử dụng fold để xử lý kết quả và trả về true/false
+    return result.fold(
+      (l) {
+        logger.e("Error logging wear", error: l.message);
+        _notificationService.showBanner(message: "Failed to log wear: ${l.message}");
+        return false; // Trả về false khi thất bại
+      },
+      (_) {
+        loadEvents(); // Tải lại sự kiện
+        return true; // Trả về true khi thành công
+      },
+    );
   }
 
   // --- HÀM NÀY ĐÃ ĐƯỢC DI CHUYỂN RA NGOÀI ---

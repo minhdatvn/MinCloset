@@ -5,10 +5,12 @@ class ItemInsight {
   final ClothingItem item;
   final int wearCount;
   final double costPerWear;
+  final DateTime? lastWornDate;
 
   const ItemInsight({
     required this.item,
     required this.wearCount,
     required this.costPerWear,
+    this.lastWornDate, 
   });
 }

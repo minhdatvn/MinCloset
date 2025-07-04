@@ -10,6 +10,8 @@ import 'package:mincloset/notifiers/calendar_notifier.dart';
 import 'package:mincloset/notifiers/closet_insights_notifier.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/providers/ui_providers.dart';
+import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/log_wear_state.dart';
 
 // --- MÀN HÌNH CHÍNH ---
@@ -26,12 +28,12 @@ class ClosetInsightsScreen extends ConsumerWidget {
       // Bỏ AppBar ở đây vì chúng ta sẽ dùng SliverAppBar
       body: RefreshIndicator(
         onRefresh: notifier.fetchInsights,
-        child: _buildBody(context, state, userName),
+        child: _buildBody(context, ref, state, userName),
       ),
     );
   }
 
-  Widget _buildBody(BuildContext context, ClosetInsightsState state, String userName) {
+  Widget _buildBody(BuildContext context, WidgetRef ref, ClosetInsightsState state, String userName) {
     if (state.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -55,11 +57,11 @@ class ClosetInsightsScreen extends ConsumerWidget {
 
         // 2. "Editor's Picks" - Những ngôi sao của tủ đồ
         _buildSectionHeader(context, "The Most-Loved Pieces"),
-        _buildMostWornList(state.insights!.mostWornItems),
+        _buildMostWornList(context, state.insights!.mostWornItems),
         
         // 3. "Feature Article" - Phân tích đầu tư thông minh
         _buildSectionHeader(context, "Smartest Investments"),
-        _buildBestValueGrid(state.insights!.bestValueItems),
+        _buildBestValueGrid(context, ref, state.insights!.bestValueItems),
 
         // 4. "Hidden Gems" - Khám phá lại kho báu bị lãng quên
         _buildSectionHeader(context, "Rediscover Your Closet"),
@@ -143,7 +145,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
                   Text(
                     "MINCLOSET EXCLUSIVE",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.black87,
+                        color: theme.colorScheme.primary,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 2),
                   ),
@@ -204,19 +206,58 @@ class ClosetInsightsScreen extends ConsumerWidget {
 }
 
   // 2. Widget cho danh sách cuộn ngang "Most-Loved Pieces"
-  Widget _buildMostWornList(List<ItemInsight> insights) {
-    if (insights.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
+  Widget _buildMostWornList(BuildContext context, List<ItemInsight> insights) {
+    // Lọc danh sách
+    final mostWornItems = insights.where((insight) => insight.wearCount > 0).toList();
 
+    // Nếu danh sách sau khi lọc rỗng, hiển thị gợi ý
+    if (mostWornItems.isEmpty) {
+      return SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Card(
+            elevation: 0,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  const Text(
+                    "You haven't logged any worn items yet. Start your style journal today!",
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton.icon(
+                    onPressed: () {
+                      // Bây giờ context đã được định nghĩa và có thể sử dụng
+                      Navigator.pushNamed(context, AppRoutes.calendar);
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.primary,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    icon: const Icon(Icons.calendar_month_outlined),
+                    label: const Text('Go to Journal'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Nếu có dữ liệu, hiển thị danh sách như cũ
     return SliverToBoxAdapter(
       child: SizedBox(
         height: 180,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: insights.length,
+          itemCount: mostWornItems.length,
           separatorBuilder: (context, index) => const SizedBox(width: 12),
           itemBuilder: (context, index) {
-            final insight = insights[index];
+            final insight = mostWornItems[index];
             return SizedBox(
               width: 130,
               child: Column(
@@ -253,9 +294,45 @@ class ClosetInsightsScreen extends ConsumerWidget {
   }
   
   // 3. Widget cho lưới "Smartest Investments"
-  Widget _buildBestValueGrid(List<ItemInsight> insights) {
-    if (insights.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
-
+  Widget _buildBestValueGrid(BuildContext context, WidgetRef ref, List<ItemInsight> insights) {
+    // --- BẮT ĐẦU THAY ĐỔI ---
+    if (insights.isEmpty) {
+      return SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Card(
+            elevation: 0,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  const Text(
+                    "Wear items you've added a price to and your smartest investments will appear here!",
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  TextButton.icon(
+                    onPressed: () {
+                      // Chuyển về tab Tủ đồ và thoát màn hình hiện tại
+                      ref.read(mainScreenIndexProvider.notifier).state = 1; // 1 là index của tab Closets
+                      Navigator.of(context).pop();
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.primary,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    icon: const Icon(Icons.edit_note_outlined),
+                    label: const Text('Add Prices to Items'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       sliver: SliverGrid.builder(
@@ -294,20 +371,27 @@ class ClosetInsightsScreen extends ConsumerWidget {
             title: Text(insight.item.name),
             subtitle: const Text('Not worn yet. Give it a try!'),
             trailing: TextButton(
-              onPressed: () {
-                ref.read(calendarProvider.notifier).logWearForDate(
+              onPressed: () async {
+                final success = await ref.read(calendarProvider.notifier).logWearForDate(
                   DateTime.now(), 
                   {insight.item.id},
                   SelectionType.items
                 );
                 
-                ref.read(notificationServiceProvider).showBanner(
-                  message: 'Added "${insight.item.name}" to today\'s journal!',
-                  type: NotificationType.success,
-                );
+                // Chỉ xử lý tiếp nếu widget vẫn còn tồn tại
+                if (!context.mounted) return;
+
+                if (success) {
+                  // Hiển thị banner thành công
+                  ref.read(notificationServiceProvider).showBanner(
+                    message: 'Added "${insight.item.name}" to today\'s journal!',
+                    type: NotificationType.success,
+                  );
+                  // Kích hoạt làm mới màn hình Insights
+                  ref.read(closetInsightsProvider.notifier).fetchInsights();
+                }
+                // Nếu thất bại, banner lỗi đã được hiển thị bên trong notifier
               },
-              // --- BẮT ĐẦU SỬA LỖI Ở ĐÂY ---
-              // Di chuyển style và child ra khỏi onPressed
               style: TextButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha:0.1),
                 foregroundColor: Theme.of(context).colorScheme.primary,
@@ -316,7 +400,6 @@ class ClosetInsightsScreen extends ConsumerWidget {
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
               child: const Text('Wear Today', style: TextStyle(fontWeight: FontWeight.bold)),
-              // --- KẾT THÚC SỬA LỖI ---
             ),
           );
         },

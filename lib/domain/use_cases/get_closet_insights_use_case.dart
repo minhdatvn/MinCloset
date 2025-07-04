@@ -41,6 +41,17 @@ class GetClosetInsightsUseCase {
       // 2. Tính toán số lần mặc cho mỗi vật phẩm
       final wearCounts = allLogs.groupListsBy((log) => log.itemId)
                                  .map((key, value) => MapEntry(key, value.length));
+      final lastWornDates = <String, DateTime>{};
+
+      // Vì logs đã được sắp xếp giảm dần theo ngày, log đầu tiên của mỗi item
+      // chính là lần mặc cuối cùng.
+      final groupedLogs = allLogs.groupListsBy((log) => log.itemId);
+      groupedLogs.forEach((itemId, logs) {
+        wearCounts[itemId] = logs.length;
+        if (logs.isNotEmpty) {
+          lastWornDates[itemId] = logs.first.wearDate;
+        }
+      });
 
       // 3. Tạo danh sách các ItemInsight với đầy đủ thông tin
       final List<ItemInsight> allItemInsights = [];
@@ -48,30 +59,45 @@ class GetClosetInsightsUseCase {
         final wearCount = wearCounts[item.id] ?? 0;
         final price = item.price ?? 0.0;
         double costPerWear = double.infinity;
+
         if (wearCount > 0 && price > 0) {
           costPerWear = price / wearCount;
-        } else if (price > 0 && wearCount == 0) {
-          costPerWear = price; // Coi như CPW bằng giá gốc nếu chưa mặc
         }
 
         allItemInsights.add(ItemInsight(
           item: item,
           wearCount: wearCount,
           costPerWear: costPerWear,
+          lastWornDate: lastWornDates[item.id], // Thêm ngày mặc cuối cùng
         ));
       }
 
       // 4. Phân loại và sắp xếp dữ liệu
-      final itemsWithPrice = allItemInsights.where((insight) => (insight.item.price ?? 0) > 0).toList();
-      
-      itemsWithPrice.sort((a, b) => a.costPerWear.compareTo(b.costPerWear));
-      final bestValueItems = itemsWithPrice.take(5).toList();
+      // Smartest Investments: có giá, đã mặc > 0 lần
+      final bestValueItems = allItemInsights
+          .where((i) => i.wearCount > 0 && (i.item.price ?? 0) > 0)
+          .sorted((a, b) => a.costPerWear.compareTo(b.costPerWear))
+          .take(5)
+          .toList();
 
-      final forgottenItems = allItemInsights.where((insight) => insight.wearCount <= 1 && (insight.item.price ?? 0) > 0).toList();
-      forgottenItems.sort((a, b) => (b.item.price ?? 0).compareTo(a.item.price ?? 0));
+      // Forgotten Items: Theo đúng định nghĩa của bạn
+      final threeMonthsAgo = DateTime.now().subtract(const Duration(days: 90));
+      final forgottenItems = allItemInsights.where((insight) {
+        // Điều kiện 1: Chưa mặc lần nào
+        if (insight.wearCount == 0) return true;
+        // Điều kiện 2: Đã mặc, nhưng lần cuối là hơn 3 tháng trước
+        if (insight.lastWornDate != null && insight.lastWornDate!.isBefore(threeMonthsAgo)) {
+          return true;
+        }
+        return false;
+      }).toList();
 
-      allItemInsights.sort((a, b) => b.wearCount.compareTo(a.wearCount));
-      final mostWornItems = allItemInsights.take(5).toList();
+      // Most Worn Items (giữ nguyên logic)
+      final mostWornItems = allItemInsights
+          .where((i) => i.wearCount > 0)
+          .sorted((a, b) => b.wearCount.compareTo(a.wearCount))
+          .take(5)
+          .toList();
 
       // 5. Tính toán các chỉ số tổng quan
       final totalValue = allItems.fold<double>(0.0, (sum, item) => sum + (item.price ?? 0));

@@ -117,10 +117,10 @@ packages:
     dependency: "direct main"
     description:
       name: dotted_border
-      sha256: "878eb25e76cac65b822ca920ff91f2c414c0993bc596fa055fec0d005f527b2d"
+      sha256: "99b091ec6891ba0c5331fdc2b502993c7c108f898995739a73c6845d71dad70c"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.1"
+    version: "3.1.0"
   equatable:
     dependency: "direct main"
     description:
@@ -561,10 +561,10 @@ packages:
     dependency: "direct main"
     description:
       name: logger
-      sha256: be4b23575aac7ebf01f225a241eb7f6b5641eeaf43c6a8613510fc2f8cf187d1
+      sha256: "2621da01aabaf223f8f961e751f2c943dbb374dc3559b982f200ccedadaa6999"
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.0"
+    version: "2.6.0"
   matcher:
     dependency: transitive
     description:
@@ -645,22 +645,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
-  path_drawing:
-    dependency: transitive
-    description:
-      name: path_drawing
-      sha256: bbb1934c0cbb03091af082a6389ca2080345291ef07a5fa6d6e078ba8682f977
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
-  path_parsing:
-    dependency: transitive
-    description:
-      name: path_parsing
-      sha256: "883402936929eac138ee0a45da5b0f2c80f89913e6dc3bf77eb65b84b409c6ca"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
   path_provider:
     dependency: "direct main"
     description:
@@ -737,18 +721,18 @@ packages:
     dependency: transitive
     description:
       name: posix
-      sha256: f0d7856b6ca1887cfa6d1d394056a296ae33489db914e365e2044fdada449e62
+      sha256: "6323a5b0fa688b6a010df4905a56b00181479e6d10534cecfecede2aa55add61"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.2"
+    version: "6.0.3"
   pro_image_editor:
     dependency: "direct main"
     description:
       name: pro_image_editor
-      sha256: d8a36020024e053b1b41a46aeb675e23b1f3ea3cd67586f826536f3b6cc0c144
+      sha256: ccb87cee58659181336e96194599a88b9542de59a37ded2fdd65d5339f3d1423
       url: "https://pub.dev"
     source: hosted
-    version: "10.1.1"
+    version: "10.2.2"
   process:
     dependency: transitive
     description:
@@ -793,26 +777,26 @@ packages:
     dependency: transitive
     description:
       name: sentry
-      sha256: "4aee18ffcdb6d92db3a770764fd0034b93f27ae736cf9f39855575a36c04fe91"
+      sha256: df2a59d19bf494a15e2ddf630edd78dd831f521b4d074eea9a1a22f01091884d
       url: "https://pub.dev"
     source: hosted
-    version: "9.1.0"
+    version: "9.3.0"
   sentry_dart_plugin:
     dependency: "direct dev"
     description:
       name: sentry_dart_plugin
-      sha256: e49a1bb5cd44eb731f82a998d3dd4614ff1ccb2d147a23f3803f880befad6367
+      sha256: d7c8166ce9f86ae9a780b495be83a2df6f1224dc2ad8e935438661219957ed59
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0"
+    version: "3.1.0"
   sentry_flutter:
     dependency: "direct main"
     description:
       name: sentry_flutter
-      sha256: e5c36f0715d181788be46bf56908322a1f8a8ca62830dc78ef3c523af3af5075
+      sha256: "759cbead3531c39e1b1f4298c4a09281937e8dd6115b241739fd525b4fb3715c"
       url: "https://pub.dev"
     source: hosted
-    version: "9.1.0"
+    version: "9.3.0"
   share_plus:
     dependency: "direct main"
     description:
@@ -1006,10 +990,10 @@ packages:
     dependency: transitive
     description:
       name: synchronized
-      sha256: "0669c70faae6270521ee4f05bffd2919892d42d1276e6c495be80174b6bc0ef6"
+      sha256: c254ade258ec8282947a0acbbc90b9575b4f19673533ee46f2f6e9b3aeefd7c0
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.1"
+    version: "3.4.0"
   system_info2:
     dependency: transitive
     description:
@@ -1212,4 +1196,4 @@ packages:
     version: "3.1.3"
 sdks:
   dart: ">=3.8.0 <4.0.0"
-  flutter: ">=3.29.0"
+  flutter: ">=3.32.0"

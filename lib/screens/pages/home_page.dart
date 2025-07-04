@@ -306,7 +306,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                           theme.scaffoldBackgroundColor,
                           theme.scaffoldBackgroundColor.withValues(alpha:0),
                         ],
-                        stops: const [0.0, 0.8],
+                        stops: const [0.0, 0.6],
                       ),
                     ),
                   ),

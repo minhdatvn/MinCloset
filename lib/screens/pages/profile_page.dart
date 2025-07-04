@@ -179,14 +179,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           children: [
             _buildProfileHeader(state),
             const Divider(height: 32),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.info_outline), // Đổi icon
-              title: const Text('About & Legal'), // Đổi tiêu đề
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () => Navigator.pushNamed(context, AppRoutes.aboutLegal), // Điều hướng đến trang mới
-            ),
-            const Divider(height: 32),
 
             Text('Closets overview', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),

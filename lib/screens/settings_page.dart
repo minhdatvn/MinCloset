@@ -11,6 +11,7 @@ class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   void _showLanguageDialog(BuildContext context, WidgetRef ref) {
+    // ... logic của hàm này được giữ nguyên ...
     final currentLocale = ref.read(localeProvider);
     showDialog(
       context: context,
@@ -53,7 +54,6 @@ class SettingsPage extends ConsumerWidget {
         );
       },
     );
-    
   }
 
   @override
@@ -69,86 +69,170 @@ class SettingsPage extends ConsumerWidget {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          ListTile(
-            leading: const Icon(Icons.location_city_outlined),
-            title: const Text('Location'),
-            subtitle: Text(state.cityMode == CityMode.auto
-                ? 'Auto-detect'
-                : state.manualCity),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () {
-              Navigator.pushNamed(context, AppRoutes.citySelection);
-            },
-          ),
-          const Divider(),
-
-          SwitchListTile(
-            title: const Text('Show weather background'),
-            subtitle: const Text('Display image based on weather'),
-            value: state.showWeatherImage,
-            onChanged: (bool value) {
-              notifier.updateShowWeatherImage(value);
-            },
-            secondary: const Icon(Icons.image_outlined),
-          ),
-          const Divider(),
-          
-          ListTile(
-            leading: const Icon(Icons.language_outlined),
-            title: const Text('Language'),
-            subtitle: Text(locale.languageCode == 'vi' ? 'Tiếng Việt' : 'English'),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () => _showLanguageDialog(context, ref),
-          ),
-          const Divider(),
-          
-          // --- LỰA CHỌN ĐƠN VỊ TIỀN TỆ ---
-          ListTile(
-            leading: const Icon(Icons.paid_outlined),
-            title: const Text('Currency'),
-            trailing: DropdownButton<String>(
-              value: state.currency,
-              underline: const SizedBox(), // Ẩn đường gạch chân
-              items: ['VND', 'USD', 'EUR'].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  notifier.updateFormattingSettings(currency: newValue);
-                }
-              },
-            ),
-          ),
-
-          // --- LỰA CHỌN ĐỊNH DẠNG SỐ ---
-          ListTile(
-            leading: const Icon(Icons.pin_outlined),
-            title: const Text('Number Format'),
-            trailing: DropdownButton<NumberFormatType>(
-              value: state.numberFormat,
-              underline: const SizedBox(),
-              items: const [
-                DropdownMenuItem(
-                  value: NumberFormatType.dotDecimal,
-                  child: Text('1.000.000'),
+          // --- NHÓM 1: CÀI ĐẶT CHUNG ---
+          const _SectionTitle('General Settings'),
+          _SettingsTile(
+            icon: Icons.public_outlined,
+            title: 'Localization',
+            child: Column(
+              children: [
+                _SettingsTile(
+                  icon: Icons.location_city_outlined,
+                  title: 'Location',
+                  subtitle: Text(state.cityMode == CityMode.auto ? 'Auto-detect' : state.manualCity),
+                  onTap: () => Navigator.pushNamed(context, AppRoutes.citySelection),
                 ),
-                DropdownMenuItem(
-                  value: NumberFormatType.commaDecimal,
-                  child: Text('1,000,000'),
+                _SettingsTile(
+                  icon: Icons.language_outlined,
+                  title: 'Language',
+                  subtitle: Text(locale.languageCode == 'vi' ? 'Tiếng Việt' : 'English'),
+                  onTap: () => _showLanguageDialog(context, ref),
+                ),
+                _SettingsTile(
+                  icon: Icons.paid_outlined,
+                  title: 'Currency',
+                  trailing: DropdownButton<String>(
+                    value: state.currency,
+                    underline: const SizedBox(),
+                    items: ['VND', 'USD', 'EUR']
+                        .map((String value) => DropdownMenuItem<String>(value: value, child: Text(value)))
+                        .toList(),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        notifier.updateFormattingSettings(currency: newValue);
+                      }
+                    },
+                  ),
+                ),
+                _SettingsTile(
+                  icon: Icons.pin_outlined,
+                  title: 'Decimal format',
+                  trailing: DropdownButton<NumberFormatType>(
+                    value: state.numberFormat,
+                    underline: const SizedBox(),
+                    items: const [
+                      DropdownMenuItem(
+                        value: NumberFormatType.dotDecimal,
+                        child: Text('.', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      ),
+                      DropdownMenuItem(
+                        value: NumberFormatType.commaDecimal,
+                        child: Text(',', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                    onChanged: (NumberFormatType? newValue) {
+                      if (newValue != null) {
+                        notifier.updateFormattingSettings(format: newValue);
+                      }
+                    },
+                  ),
                 ),
               ],
-              onChanged: (NumberFormatType? newValue) {
-                if (newValue != null) {
-                  notifier.updateFormattingSettings(format: newValue);
-                }
-              },
             ),
           ),
-          const Divider(),
+          _SettingsTile(
+            icon: Icons.visibility_outlined,
+            title: 'Display',
+            child: SwitchListTile(
+              title: const Text('Show weather background'),
+              subtitle: const Text('Display image based on weather'),
+              value: state.showWeatherImage,
+              onChanged: (bool value) {
+                notifier.updateShowWeatherImage(value);
+              },
+              secondary: const Icon(Icons.image_outlined),
+            ),
+          ),
+          const Divider(height: 32),
+
+          // --- NHÓM 2: GIỚI THIỆU & HỖ TRỢ ---
+          const _SectionTitle('About & Support'),
+          _SettingsTile(
+            icon: Icons.info_outline,
+            title: 'About & Legal',
+            onTap: () => Navigator.pushNamed(context, AppRoutes.aboutLegal),
+          ),
+          _SettingsTile(
+            icon: Icons.feedback_outlined,
+            title: 'Send Feedback',
+            subtitle: const Text('Help us improve MinCloset'),
+            onTap: () {
+              // TODO: Implement logic to open email or a feedback form
+            },
+          ),
+          _SettingsTile(
+            icon: Icons.star_outline,
+            title: 'Rate on App Store',
+            onTap: () {
+              // TODO: Implement logic to open app store page
+            },
+          ),
         ],
+      ),
+    );
+  }
+}
+
+// Widget helper để tạo tiêu đề cho mỗi nhóm
+class _SectionTitle extends StatelessWidget {
+  final String title;
+  const _SectionTitle(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+      child: Text(
+        title.toUpperCase(),
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
+            ),
+      ),
+    );
+  }
+}
+
+// Widget helper để tạo các ListTile cài đặt cho gọn
+class _SettingsTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final Widget? subtitle;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+  final Widget? child;
+
+  const _SettingsTile({
+    required this.icon,
+    required this.title,
+    this.subtitle,
+    this.trailing,
+    this.onTap,
+    this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (child != null) {
+      return Card(
+        clipBehavior: Clip.antiAlias,
+        child: ExpansionTile(
+          leading: Icon(icon),
+          title: Text(title),
+          childrenPadding: const EdgeInsets.only(left: 16),
+          children: [child!],
+        ),
+      );
+    }
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: ListTile(
+        leading: Icon(icon),
+        title: Text(title),
+        subtitle: subtitle,
+        trailing: trailing ?? (onTap != null ? const Icon(Icons.arrow_forward_ios, size: 16) : null),
+        onTap: onTap,
       ),
     );
   }

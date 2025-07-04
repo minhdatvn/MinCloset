@@ -64,16 +64,16 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
       );
     }
     
-    ref.read(batchAddItemProvider.notifier).analyzeAllImages(filesToProcess);
+    ref.read(batchAddScreenProvider.notifier).analyzeAllImages(filesToProcess);
   }
 
   @override
   Widget build(BuildContext context) {
     // Lắng nghe để điều hướng khi phân tích xong
-    ref.listen<BatchAddItemState>(batchAddItemProvider, (previous, next) {
+    ref.listen<BatchAddItemState>(batchAddScreenProvider, (previous, next) {
       if (!mounted) return;
       if (next.analysisSuccess && previous?.analysisSuccess == false) {
-        final analyzedItemArgs = ref.read(batchAddItemProvider).itemArgsList;
+        final analyzedItemArgs = ref.read(batchAddScreenProvider).itemArgsList;
         final navigator = Navigator.of(context);
 
         if (analyzedItemArgs.length == 1) {

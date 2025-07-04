@@ -303,8 +303,31 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   }
 }
 
-final addItemProvider = StateNotifierProvider
+/// Provider cho màn hình Thêm/Sửa MỘT vật phẩm.
+/// Sẽ tự động hủy state khi rời khỏi màn hình.
+final singleItemProvider = StateNotifierProvider
     .autoDispose
+    .family<AddItemNotifier, AddItemState, ItemNotifierArgs>((ref, args) {
+  final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
+  final imageHelper = ref.watch(imageHelperProvider);
+  final analyzeItemUseCase = ref.watch(analyzeItemUseCaseProvider);
+  final validateRequiredUseCase = ref.watch(validateRequiredFieldsUseCaseProvider);
+  final validateNameUseCase = ref.watch(validateItemNameUseCaseProvider);
+  
+  return AddItemNotifier(
+    clothingItemRepo,
+    imageHelper,
+    analyzeItemUseCase,
+    validateRequiredUseCase,
+    validateNameUseCase,
+    ref,
+    args,
+  );
+});
+
+/// Provider cho màn hình Thêm HÀNG LOẠT.
+/// Sẽ GIỮ LẠI state khi người dùng vuốt qua lại giữa các item.
+final batchItemFormProvider = StateNotifierProvider
     .family<AddItemNotifier, AddItemState, ItemNotifierArgs>((ref, args) {
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
   final imageHelper = ref.watch(imageHelperProvider);

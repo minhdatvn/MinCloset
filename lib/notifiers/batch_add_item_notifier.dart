@@ -122,7 +122,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
     
     // Khởi tạo các provider cho từng item
     for (final args in itemArgsList) {
-        _ref.read(addItemProvider(args));
+        _ref.read(batchItemFormProvider(args));
     }
 
     if (mounted) {
@@ -142,7 +142,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
 
   void nextPage() {
     final currentItemArgs = state.itemArgsList[state.currentIndex];
-    final currentItemState = _ref.read(addItemProvider(currentItemArgs)); // Vẫn cần _ref
+    final currentItemState = _ref.read(batchItemFormProvider(currentItemArgs)); // Vẫn cần _ref
     
     // <<< THAY ĐỔI 4: Sử dụng trực tiếp UseCase đã được inject >>>
     final validationResult = _validateRequiredUseCase.executeForSingle(currentItemState);
@@ -170,7 +170,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
 
   Future<void> saveAll() async {
     state = state.copyWith(isSaving: true, clearSaveError: true);
-    final itemStates = state.itemArgsList.map((args) => _ref.read(addItemProvider(args))).toList(); // Vẫn cần _ref
+    final itemStates = state.itemArgsList.map((args) => _ref.read(batchItemFormProvider(args))).toList(); // Vẫn cần _ref
     
     // <<< THAY ĐỔI 5: Sử dụng trực tiếp UseCase đã được inject >>>
     final requiredResult = _validateRequiredUseCase.executeForBatch(itemStates);
@@ -224,7 +224,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
   }
 }
 
-final batchAddItemProvider = StateNotifierProvider.autoDispose<BatchAddItemNotifier, BatchAddItemState>((ref) {
+final batchAddScreenProvider = StateNotifierProvider.autoDispose<BatchAddItemNotifier, BatchAddItemState>((ref) {
   // <<< THAY ĐỔI 7: Lấy tất cả dependency và truyền vào Notifier >>>
   final repo = ref.watch(clothingItemRepositoryProvider);
   final analyzeItemUseCase = ref.watch(analyzeItemUseCaseProvider);

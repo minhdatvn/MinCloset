@@ -19,7 +19,7 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(initialPage: ref.read(batchAddItemProvider).currentIndex);
+    _pageController = PageController(initialPage: ref.read(batchAddScreenProvider).currentIndex);
   }
 
   @override
@@ -30,12 +30,12 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(batchAddItemProvider);
-    final notifier = ref.read(batchAddItemProvider.notifier);
+    final state = ref.watch(batchAddScreenProvider);
+    final notifier = ref.read(batchAddScreenProvider.notifier);
     final itemArgsList = state.itemArgsList;
 
     // <<< THAY ĐỔI LOGIC LISTENER ĐỂ MẠNH MẼ HƠN >>>
-    ref.listen<BatchAddItemState>(batchAddItemProvider, (previous, next) {
+    ref.listen<BatchAddItemState>(batchAddScreenProvider, (previous, next) {
       // 1. Xử lý thành công
       if (next.saveSuccess && !previous!.saveSuccess) {
         Navigator.of(context).pop(true);
@@ -119,8 +119,8 @@ class ItemFormPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final itemState = ref.watch(addItemProvider(providerArgs));
-    final itemNotifier = ref.read(addItemProvider(providerArgs).notifier);
+    final itemState = ref.watch(batchItemFormProvider(providerArgs));
+    final itemNotifier = ref.read(batchItemFormProvider(providerArgs).notifier);
 
     return ItemDetailForm(
       itemState: itemState,

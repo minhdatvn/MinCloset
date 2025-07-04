@@ -46,7 +46,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   }
 
   void _showImageSourceActionSheet(BuildContext context) {
-    final notifier = ref.read(addItemProvider(_providerArgs).notifier);
+    final notifier = ref.read(singleItemProvider(_providerArgs).notifier);
     
     showModalBottomSheet(
       context: context,
@@ -96,7 +96,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
     if (confirmed == true) {
       // Lấy navigator ra trước khi gọi await
-      final notifier = ref.read(addItemProvider(_providerArgs).notifier);
+      final notifier = ref.read(singleItemProvider(_providerArgs).notifier);
       final itemName = widget.itemToEdit!.name; // Lưu lại tên trước khi xóa
       final navigator = Navigator.of(context); // ignore: use_build_context_synchronously
       final notificationService = ref.read(notificationServiceProvider); // Lưu service
@@ -114,7 +114,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         navigator.pop(true);
       } else {
         // <<< Banner khi xóa thất bại >>>
-        final errorMessage = ref.read(addItemProvider(_providerArgs)).errorMessage;
+        final errorMessage = ref.read(singleItemProvider(_providerArgs)).errorMessage;
         if (errorMessage != null) {
           notificationService.showBanner(message: errorMessage);
         }
@@ -124,7 +124,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = addItemProvider(_providerArgs);
+    final provider = singleItemProvider(_providerArgs);
     final state = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
 

@@ -1,6 +1,5 @@
 // lib/screens/closet_insights_screen.dart
 import 'dart:io';
-import 'dart:ui'; // Cần cho hiệu ứng làm mờ
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -84,6 +83,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
 
   // 1. Widget cho "Ảnh bìa" (SliverAppBar)
   Widget _buildMagazineCover(BuildContext context, String userName, ClosetInsights insights) {
+    final theme = Theme.of(context);
     
     return SliverAppBar(
       expandedHeight: 250.0,
@@ -92,15 +92,15 @@ class ClosetInsightsScreen extends ConsumerWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       title: Builder(
         builder: (context) {
-          // Lấy ra trạng thái của SliverAppBar (thu nhỏ hay không)
           final settings = context.dependOnInheritedWidgetOfExactType<FlexibleSpaceBarSettings>();
-          final isScrolled = settings?.isScrolledUnder ?? false;
-          return Text(
-            'Closet Insights',
-            style: TextStyle(
-              // Khi cuộn lên (thu nhỏ), dùng màu đen. Khi mở rộng, dùng màu trắng.
-              color: isScrolled ? Theme.of(context).colorScheme.onSurface : Colors.white,
-            ),
+          // Chỉ hiển thị title khi AppBar đã thu nhỏ gần như hoàn toàn
+          final showTitle = (settings?.currentExtent ?? 0) <= (settings?.minExtent ?? 0) + 1;
+
+          return AnimatedOpacity(
+            duration: const Duration(milliseconds: 200),
+            // Điều khiển độ mờ dựa trên biến showTitle
+            opacity: showTitle ? 1.0 : 0.0,
+            child: const Text('Closet Insights'),
           );
         },
       ),
@@ -115,16 +115,20 @@ class ClosetInsightsScreen extends ConsumerWidget {
               'assets/images/insights/ins_bg.webp', // <-- SỬ DỤNG ẢNH NỀN CỦA BẠN
               fit: BoxFit.cover,
             ),
-            // Lớp phủ làm mờ và tối đi để chữ nổi bật
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.black.withValues(alpha:0.6), Colors.black.withValues(alpha:0.2)],
-                  ),
+            // Lớp 2: Lớp phủ Gradient (THAY THẾ HIỆU ỨNG MỜ)
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.center, // Dừng ở giữa để phần trên của ảnh rõ nét
+                  colors: [
+                    // Bắt đầu bằng màu nền của ứng dụng
+                    theme.scaffoldBackgroundColor, 
+                    // Chuyển dần sang trong suốt
+                    theme.scaffoldBackgroundColor.withValues(alpha:0.0), 
+                  ],
+                  // Điều chỉnh điểm dừng để gradient mượt hơn
+                  stops: const [0.0, 0.8], 
                 ),
               ),
             ),
@@ -139,7 +143,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
                   Text(
                     "MINCLOSET EXCLUSIVE",
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.white70,
+                        color: Colors.black87,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 2),
                   ),
@@ -149,7 +153,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
                     style: Theme.of(context)
                         .textTheme
                         .headlineSmall
-                        ?.copyWith(color: Colors.white),
+                        ?.copyWith(color: Colors.black87),
                   ),
                 ],
               ),
@@ -360,18 +364,42 @@ class _BestValueItemCard extends ConsumerWidget {
 
     return Card(
       clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      // Stack cho phép các widget xếp chồng lên nhau
+      child: Stack(
+        fit: StackFit.expand, // Làm cho các con trong Stack lấp đầy Card
         children: [
-          Expanded(
-            child: Image.file(
-              File(insight.item.thumbnailPath ?? insight.item.imagePath),
-              width: double.infinity,
-              fit: BoxFit.cover,
+          // LỚP 1: HÌNH ẢNH NỀN
+          Image.file(
+            File(insight.item.thumbnailPath ?? insight.item.imagePath),
+            fit: BoxFit.cover, // Luôn lấp đầy khung mà không bị méo
+            errorBuilder: (ctx, err, stack) => const Icon(Icons.error),
+          ),
+
+          // LỚP 2: LỚP PHỦ GRADIENT ĐỂ CHỮ DỄ ĐỌC
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 80, // Chiều cao của dải gradient
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [
+                    Colors.black.withValues(alpha:0.7),
+                    Colors.black.withValues(alpha:0.0),
+                  ],
+                ),
+              ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
+
+          // LỚP 3: NỘI DUNG VĂN BẢN
+          Positioned(
+            bottom: 8,
+            left: 8,
+            right: 8,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -379,26 +407,23 @@ class _BestValueItemCard extends ConsumerWidget {
                   insight.item.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white, // Chữ màu trắng
+                    shadows: [Shadow(blurRadius: 2, color: Colors.black54)], // Đổ bóng cho dễ đọc
+                  ),
                 ),
                 const SizedBox(height: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    '${formatter.formatPrice(
-                      price: insight.costPerWear,
-                      currency: settings.currency,
-                      formatType: settings.numberFormat,
-                    )}/wear',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12
-                    ),
+                Text(
+                  '${formatter.formatPrice(
+                    price: insight.costPerWear,
+                    currency: settings.currency,
+                    formatType: settings.numberFormat,
+                  )}/wear',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary, // Dùng màu xanh chủ đạo
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13
                   ),
                 ),
               ],

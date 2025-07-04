@@ -304,6 +304,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
 }
 
 final addItemProvider = StateNotifierProvider
+    .autoDispose
     .family<AddItemNotifier, AddItemState, ItemNotifierArgs>((ref, args) {
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
   final imageHelper = ref.watch(imageHelperProvider);

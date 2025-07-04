@@ -2,16 +2,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/city_suggestion.dart';
-import 'package:mincloset/notifiers/home_page_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/closet_repository.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
 import 'package:mincloset/repositories/settings_repository.dart'; // <-- ĐÃ THÊM
+import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/utils/logger.dart';
-import 'package:mincloset/services/number_formatting_service.dart';
 
 class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   final Ref _ref;

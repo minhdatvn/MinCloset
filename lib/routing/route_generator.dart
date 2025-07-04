@@ -24,6 +24,7 @@ import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/screens/splash_screen.dart';
 import 'package:mincloset/screens/webview_page.dart';
 import 'package:mincloset/screens/language_selection_screen.dart';
+import 'package:mincloset/screens/closet_insights_screen.dart';
 
 class RouteGenerator {
   static const Widget _mainScreen = MainScreen();
@@ -123,6 +124,9 @@ class RouteGenerator {
       
       case AppRoutes.languageSelection:
         return MaterialPageRoute(builder: (_) => const LanguageSelectionScreen());
+      
+      case AppRoutes.closetInsights:
+        return MaterialPageRoute(builder: (_) => const ClosetInsightsScreen());
 
       default:
         return _errorRoute();

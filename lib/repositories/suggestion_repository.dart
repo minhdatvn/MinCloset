@@ -14,7 +14,7 @@ class SuggestionRepository {
     required String userStyle,
     required String favoriteColors,
     required String setOutfitsString,
-    required String wardrobeString,
+    required String closetItemsString,
     String? purpose, // <<< THÊM VÀO
   }) {
     return _suggestionService.getOutfitSuggestion(
@@ -24,7 +24,7 @@ class SuggestionRepository {
       userStyle: userStyle,
       favoriteColors: favoriteColors,
       setOutfitsString: setOutfitsString,
-      wardrobeString: wardrobeString,
+      closetItemsString: closetItemsString,
       purpose: purpose, // <<< THÊM VÀO
     );
   }

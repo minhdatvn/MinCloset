@@ -11,6 +11,7 @@ import 'package:mincloset/services/classification_service.dart';
 import 'package:mincloset/services/generative_ai_wrapper.dart';
 import 'package:mincloset/domain/use_cases/delete_multiple_items_use_case.dart';
 import 'package:mincloset/domain/use_cases/move_multiple_items_use_case.dart';
+import 'package:mincloset/domain/use_cases/get_closet_insights_use_case.dart';
 
 final generativeAIWrapperProvider = Provider<IGenerativeAIWrapper>((ref) {
   return GenerativeAIWrapper();
@@ -62,4 +63,10 @@ final deleteMultipleItemsUseCaseProvider = Provider<DeleteMultipleItemsUseCase>(
 final moveMultipleItemsUseCaseProvider = Provider<MoveMultipleItemsUseCase>((ref) {
   final repo = ref.watch(clothingItemRepositoryProvider);
   return MoveMultipleItemsUseCase(repo);
+});
+
+final getClosetInsightsUseCaseProvider = Provider<GetClosetInsightsUseCase>((ref) {
+  final itemRepo = ref.watch(clothingItemRepositoryProvider);
+  final wearLogRepo = ref.watch(wearLogRepositoryProvider);
+  return GetClosetInsightsUseCase(itemRepo, wearLogRepo);
 });

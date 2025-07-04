@@ -168,7 +168,7 @@ class GetOutfitSuggestionUseCase {
     
     // Nếu không đủ điều kiện, trả về một `Left` chứa `Failure` một cách tường minh.
     if (topwearCount < 3 || bottomwearCount < 3) {
-      return TaskEither.left(const GenericFailure('Please add at least 3 tops and 3 bottoms/skirts to your wardrobe to receive suggestions.'));
+      return TaskEither.left(const GenericFailure('Please add at least 3 tops and 3 bottoms/skirts to your closet to receive suggestions.'));
     }
 
     // --- BƯỚC GỌI API ---
@@ -186,7 +186,7 @@ class GetOutfitSuggestionUseCase {
         final individualItems = allItems.where((item) => !fixedItemIds.contains(item.id)).toList();
         
         final setOutfitsString = setOutfits.map((outfit) => '- Set "${outfit.name}": Gồm [${outfit.itemIds.split(',').map((id) => allItems.firstWhere((item) => item.id == id, orElse: () => ClothingItem(id: '', name: 'Unknown Item', category: '', color: '', imagePath: '', closetId: '')).name).join(', ')}]').join('\n');
-        final wardrobeString = individualItems.map((item) => '- ${item.name} (${item.category}, màu ${item.color})').join('\n');
+        final closetItemsString = individualItems.map((item) => '- ${item.name} (${item.category}, màu ${item.color})').join('\n');
 
         final suggestionJsonEither = await _suggestionRepo.getOutfitSuggestion(
           weather: weatherData,
@@ -195,7 +195,7 @@ class GetOutfitSuggestionUseCase {
           userStyle: userStyle,
           favoriteColors: favoriteColors,
           setOutfitsString: setOutfitsString.isNotEmpty ? setOutfitsString : "Không có",
-          wardrobeString: wardrobeString.isNotEmpty ? wardrobeString : "Không có",
+          closetItemsString: closetItemsString.isNotEmpty ? closetItemsString : "Không có",
           purpose: purpose,
         );
 

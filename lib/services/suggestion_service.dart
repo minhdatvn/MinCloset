@@ -22,7 +22,7 @@ class SuggestionService {
     required String userStyle,
     required String favoriteColors,
     required String setOutfitsString,
-    required String wardrobeString,
+    required String closetItemsString,
     String? purpose,
   }) async {
     final model = GenerativeModel(
@@ -52,11 +52,11 @@ class SuggestionService {
 
     ${purpose != null && purpose.isNotEmpty ? '**Purpose:**\n- $purpose\n' : ''}
 
-    ${strings['wardrobe_title']}
+    ${strings['closet_title']}
     ${strings['set_outfits_title']}
     $setOutfitsString
     ${strings['individual_items_title']}
-    $wardrobeString
+    $closetItemsString
 
     ${strings['request_title']}
     ${strings['request_1']}

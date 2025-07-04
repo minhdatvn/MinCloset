@@ -17,4 +17,5 @@ class AppRoutes {
   static const String calendar = '/calendar';
   static const String logWearSelection = '/log-wear-selection';
   static const String languageSelection = '/language-selection';
+  static const String closetInsights = '/closet-insights';
 }

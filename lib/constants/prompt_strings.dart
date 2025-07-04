@@ -12,7 +12,7 @@ class PromptStrings {
       'context_title': '**Context:**',
       'location_label': '- Location:',
       'weather_label': '- Weather:',
-      'wardrobe_title': '**User\'s Wardrobe consists of 2 parts:**',
+      'closet_title': '**User\'s closet consists of 2 parts:**',
       'set_outfits_title': '1. "Set Outfits" (Items in a set MUST be worn together):',
       'individual_items_title': '2. Individual Items (Can be mixed freely):',
       'request_title': '**REQUEST:**',
@@ -27,7 +27,7 @@ class PromptStrings {
       'outfit_name_desc': '"outfit_name": "[A creative and trendy name for the outfit]"',
       'reason_desc': '"reason": "[A detailed, friendly, and inspiring explanation (about 2-3 sentences) on why this outfit is a great choice. Talk about comfort, style, and weather appropriateness.]"',
       'important_notes_title': '**Important Notes:**',
-      'note_1': '- For each slot in "outfit_composition", fill in the item name EXACTLY as it appears in the wardrobe list.',
+      'note_1': '- For each slot in "outfit_composition", fill in the item name EXACTLY as it appears in the closet list.',
       'note_2': '- If no item is suitable for a slot (e.g., no outerwear needed), fill in `null` for that value.',
 
       // --- BẮT ĐẦU THÊM MỚI: Classification Prompts ---
@@ -49,7 +49,7 @@ class PromptStrings {
       'context_title': '**Ngữ cảnh:**',
       'location_label': '- Địa điểm:',
       'weather_label': '- Thời tiết:',
-      'wardrobe_title': '**Tủ đồ của người dùng bao gồm 2 phần:**',
+      'closet_title': '**Tủ đồ của người dùng bao gồm 2 phần:**',
       'set_outfits_title': '1. Các "Set Outfit" (Các món đồ trong một set BẮT BUỘC phải mặc cùng nhau):',
       'individual_items_title': '2. Các vật phẩm lẻ (Có thể phối tự do):',
       'request_title': '**YÊU CẦU:**',

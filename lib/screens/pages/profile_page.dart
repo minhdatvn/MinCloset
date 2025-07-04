@@ -180,14 +180,49 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             _buildProfileHeader(state),
             const Divider(height: 32),
 
-            Text('Closets overview', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
+            // --- BẮT ĐẦU THAY ĐỔI Ở ĐÂY ---
+
+            // 1. Tạo một Row để chứa tiêu đề và nút "Insights"
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  'Closets overview',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                TextButton(
+                  onPressed: () {
+                    // 2. Gọi lệnh điều hướng đến màn hình insights
+                    Navigator.pushNamed(context, AppRoutes.closetInsights);
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Insights',
+                        style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                      ),
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.arrow_forward_ios,
+                        size: 14,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8), // Giảm khoảng cách một chút
             StatsOverviewCard(
               totalItems: state.totalItems,
               totalClosets: state.totalClosets,
               totalOutfits: state.totalOutfits,
             ),
+            
             const SizedBox(height: 24),
+
             Text('Statistics', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 16),
             if (statPages.isEmpty)

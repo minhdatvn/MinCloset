@@ -12,6 +12,7 @@ import 'package:mincloset/notifiers/outfits_hub_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class OutfitsHubPage extends ConsumerStatefulWidget {
   const OutfitsHubPage({super.key});
@@ -305,19 +306,16 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
                   clipBehavior: Clip.antiAlias,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    // >>> THÊM THUỘC TÍNH `side` VÀO ĐÂY <<<
                     side: BorderSide(
-                      color: Colors.grey.shade300, // Màu của đường viền
-                      width: 1.0,                   // Độ dày của đường viền
+                      color: Colors.grey.shade300,
+                      width: 1.0,
                     ),
                   ),
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      // Lớp 1: Ảnh nền và sự kiện onTap
                       GestureDetector(
                         onTap: () {
-                          // GỌI HÀM HIỂN THỊ BOTTOM SHEET SẼ ĐƯỢC TẠO Ở BƯỚC 2
                           _showOutfitDetailSheet(context, ref, outfit, notifier);
                         },
                         child: Image.file(
@@ -329,8 +327,6 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
                           },
                         ),
                       ),
-                      
-                      // Lớp 2: Icon ổ khóa (nếu là bộ đồ cố định) - vẫn giữ lại
                       if (outfit.isFixed)
                         Positioned(
                           top: 8,
@@ -346,6 +342,15 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
                         )
                     ],
                   ),
+                )
+                // <<< HIỆU ỨNG >>>
+                .animate()
+                .fadeIn(duration: 400.ms, curve: Curves.easeOut)
+                .slide(
+                  begin: const Offset(0, 0.2),
+                  duration: 400.ms,
+                  curve: Curves.easeOut,
+                  delay: (50 * ((index - 1) % 15)).ms, // Chú ý: delay bắt đầu từ index-1 vì item đầu tiên (index=0) là nút thêm
                 );
               },
             );

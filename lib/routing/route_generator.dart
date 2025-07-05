@@ -51,25 +51,22 @@ class RouteGenerator {
 
       case AppRoutes.addItem:
         final itemArgs = args as ItemNotifierArgs?;
-        // <<< SỬA LỖI Ở ĐÂY: Dùng MaterialPageRoute<bool> >>>
-        return MaterialPageRoute<bool>(
-          builder: (_) => AddItemScreen(
+        return FadeRoute<bool>(
+          page: AddItemScreen(
             itemToEdit: itemArgs?.itemToEdit,
-            newImage: itemArgs?.newImage,
             preAnalyzedState: itemArgs?.preAnalyzedState,
           ),
           settings: settings,
         );
 
       case AppRoutes.batchAddItem:
-         return MaterialPageRoute<bool>(builder: (_) => const BatchAddItemScreen(), settings: settings);
+        return FadeRoute<bool>(page: const BatchAddItemScreen(), settings: settings);
 
       case AppRoutes.outfitBuilder:
         // Chấp nhận cả việc không có args (tạo mới) và có args (sửa từ gợi ý)
         final suggestionResult = args as SuggestionResult?;
         return FadeRoute(
           page: OutfitBuilderPage(
-            // Truyền suggestionResult vào constructor
             suggestionResult: suggestionResult,
           ),
           settings: settings,
@@ -78,7 +75,7 @@ class RouteGenerator {
       case AppRoutes.outfitDetail:
         if (args is Outfit) {
           // Màn hình này cũng có thể trả về giá trị bool
-          return MaterialPageRoute<bool>(builder: (_) => OutfitDetailPage(outfit: args), settings: settings);
+          return FadeRoute<bool>(page: OutfitDetailPage(outfit: args), settings: settings);
         }
         return _errorRoute();
 
@@ -102,31 +99,31 @@ class RouteGenerator {
       
       case AppRoutes.webview:
         if (args is WebViewPageArgs) {
-          return MaterialPageRoute(builder: (_) => WebViewPage(args: args));
+          return FadeRoute(page: WebViewPage(args: args));
         }
         return _errorRoute();
       
       case AppRoutes.calendar:
         // Lấy ngày được truyền qua arguments (có thể là null)
         final initialDate = args as DateTime?;
-        return MaterialPageRoute(
-          builder: (_) => CalendarPage(initialDate: initialDate),
+        return FadeRoute(
+          page: CalendarPage(initialDate: initialDate),
         );
 
       case AppRoutes.logWearSelection:
         if (args is LogWearNotifierArgs) {
           // Màn hình này sẽ trả về một Set<String>
-          return MaterialPageRoute<Set<String>>(
-            builder: (_) => LogWearScreen(args: args),
+          return FadeRoute<Set<String>>(
+            page: LogWearScreen(args: args),
           );
         }
         return _errorRoute();
       
       case AppRoutes.languageSelection:
-        return MaterialPageRoute(builder: (_) => const LanguageSelectionScreen());
+        return FadeRoute(page: const LanguageSelectionScreen());
       
       case AppRoutes.closetInsights:
-        return MaterialPageRoute(builder: (_) => const ClosetInsightsScreen());
+        return FadeRoute(page: const ClosetInsightsScreen());
 
       default:
         return _errorRoute();

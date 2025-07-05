@@ -1,7 +1,6 @@
 // lib/screens/add_item_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
@@ -12,16 +11,12 @@ import 'package:mincloset/widgets/item_detail_form.dart';
 import 'package:uuid/uuid.dart';
 
 class AddItemScreen extends ConsumerStatefulWidget {
-  final String? preselectedClosetId;
   final ClothingItem? itemToEdit;
-  final XFile? newImage;
   final AddItemState? preAnalyzedState;
 
   const AddItemScreen({
     super.key,
-    this.preselectedClosetId,
     this.itemToEdit,
-    this.newImage,
     this.preAnalyzedState,
   });
 
@@ -40,38 +35,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     _providerArgs = ItemNotifierArgs(
       tempId: _tempId,
       itemToEdit: widget.itemToEdit,
-      newImage: widget.newImage,
       preAnalyzedState: widget.preAnalyzedState,
-    );
-  }
-
-  void _showImageSourceActionSheet(BuildContext context) {
-    final notifier = ref.read(singleItemProvider(_providerArgs).notifier);
-    
-    showModalBottomSheet(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Wrap(
-          children: <Widget>[
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('From album'),
-              onTap: () {
-                Navigator.of(ctx).pop();
-                notifier.pickImage(ImageSource.gallery);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_camera),
-              title: const Text('Take photo'),
-              onTap: () {
-                Navigator.of(ctx).pop();
-                notifier.pickImage(ImageSource.camera);
-              },
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -128,28 +92,10 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     final state = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
 
-    if (widget.itemToEdit == null && widget.preselectedClosetId != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (ref.read(provider).selectedClosetId == null) {
-          notifier.onClosetChanged(widget.preselectedClosetId);
-        }
-      });
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text(state.isEditing ? 'Edit item' : 'Add item'),
-        // <<< BẮT ĐẦU THAY THẾ TỪ ĐÂY >>>
         actions: [
-          // 1. Chỉ hiện nút "Thêm ảnh" khi TẠO MỚI và CHƯA CÓ ẢNH
-          if (!state.isEditing && state.image == null)
-            IconButton(
-              icon: const Icon(Icons.add_a_photo_outlined),
-              onPressed: () => _showImageSourceActionSheet(context),
-              tooltip: 'Add a photo',
-            ),
-
-          // 2. Chỉ hiện nút "Favorite" khi SỬA
           if (state.isEditing)
             IconButton(
               icon: Icon(

@@ -25,13 +25,11 @@ import 'package:uuid/uuid.dart';
 class ItemNotifierArgs extends Equatable {
   final String tempId;
   final ClothingItem? itemToEdit;
-  final XFile? newImage;
   final AddItemState? preAnalyzedState;
 
   const ItemNotifierArgs({
     required this.tempId,
     this.itemToEdit,
-    this.newImage,
     this.preAnalyzedState,
   });
 
@@ -59,15 +57,8 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
           args.preAnalyzedState ??
           (args.itemToEdit != null
               ? AddItemState.fromClothingItem(args.itemToEdit!)
-              : AddItemState(
-                  id: args.tempId,
-                  image: args.newImage != null ? File(args.newImage!.path) : null
-                ))
-        ) {
-    if (args.preAnalyzedState == null && args.newImage != null) {
-      analyzeImage(args.newImage!);
-    }
-  }
+              : AddItemState(id: args.tempId))
+        );
 
   // Toàn bộ logic bên trong các hàm không thay đổi vì đã dùng dependency trực tiếp
   Set<String> _normalizeColors(List<dynamic>? rawColors) {

@@ -15,6 +15,7 @@ import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 import 'package:mincloset/widgets/closet_form_dialog.dart';
 import 'package:mincloset/widgets/item_search_filter_bar.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class ClosetsPage extends ConsumerStatefulWidget {
   const ClosetsPage({super.key});
@@ -255,6 +256,15 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
               }
             },
             child: RecentItemCard(item: item, isSelected: isSelected),
+          )
+          // <<< BẮT ĐẦU THÊM HIỆU ỨNG >>>
+          .animate()
+          .fadeIn(duration: 400.ms, curve: Curves.easeOut)
+          .slide(
+            begin: const Offset(0, 0.2), // Sửa .slideUp() thành .slide()
+            duration: 400.ms,
+            curve: Curves.easeOut,
+            delay: (50 * (index % 15)).ms, // Thêm delay tăng dần cho hiệu ứng stagger
           );
         },
       ),

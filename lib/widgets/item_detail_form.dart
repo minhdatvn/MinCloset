@@ -9,11 +9,13 @@ import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/helpers/currency_input_formatter.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/category_selector.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
+import 'package:image/image.dart' as img;
 
 class ItemDetailForm extends ConsumerStatefulWidget {
   final AddItemState itemState;
@@ -162,6 +164,7 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                   right: 12,
                   child: FilledButton.icon(
                     onPressed: () async {
+                      // Lấy dữ liệu ảnh hiện tại
                       Uint8List? currentImageBytes;
                       if (widget.itemState.image != null) {
                         currentImageBytes = await widget.itemState.image!.readAsBytes();
@@ -171,15 +174,57 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
 
                       if (currentImageBytes == null || !context.mounted) return;
 
-                      final removedBgBytes = await Navigator.pushNamed<Uint8List?>(
-                        context,
-                        AppRoutes.backgroundRemover,
-                        arguments: currentImageBytes,
-                      );
+                      // PHẦN LOGIC MỚI BẮT ĐẦU TỪ ĐÂY
+                      bool shouldProceed = true; // Mặc định là cho phép xử lý
 
-                      if (removedBgBytes != null) {
-                        // THAY ĐỔI CỐT LÕI: Gọi hàm callback được truyền từ bên ngoài
-                        widget.onImageUpdated?.call(removedBgBytes);
+                      // Kiểm tra kênh trong suốt
+                      try {
+                        final image = img.decodeImage(currentImageBytes);
+                        if (image?.hasAlpha == true) {
+                          // Nếu có kênh alpha, hiển thị hộp thoại xác nhận
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('Image May Have Been Processed'),
+                              content: const Text(
+                                  'This image might already have a transparent background. Proceeding again may cause errors. Do you want to continue?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(false),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(true),
+                                  style: TextButton.styleFrom(
+                                      foregroundColor: Theme.of(context).colorScheme.error),
+                                  child: const Text('Continue'),
+
+                                ),
+                              ],
+                            ),
+                          );
+                          // Cập nhật lại cờ dựa trên lựa chọn của người dùng
+                          shouldProceed = confirm ?? false;
+                        }
+                      } catch (e) {
+                        // Nếu có lỗi khi đọc ảnh, không làm gì cả
+                        shouldProceed = false;
+                        ref.read(notificationServiceProvider).showBanner(
+                              message: 'Error reading image format.',
+                            );
+                      }
+
+                      // Nếu người dùng đồng ý hoặc ảnh không có kênh alpha
+                      if (shouldProceed && context.mounted) {
+                        final removedBgBytes = await Navigator.pushNamed<Uint8List?>(
+                          context,
+                          AppRoutes.backgroundRemover,
+                          arguments: currentImageBytes,
+                        );
+
+                        if (removedBgBytes != null) {
+                          widget.onImageUpdated?.call(removedBgBytes);
+                        }
                       }
                     },
                     icon: const Icon(Icons.auto_fix_high_outlined, size: 18),

@@ -213,9 +213,13 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
         }
       },
       child: Scaffold(
-        body: IndexedStack(
-          index: selectedPageIndex,
-          children: _pages,
+        body: SafeArea(
+          top: false,   // Cho phép nội dung tràn lên cạnh trên (sau thanh trạng thái)
+          bottom: true, // Ngăn không cho nội dung tràn xuống cạnh dưới (thanh điều hướng)
+          child: IndexedStack(
+            index: selectedPageIndex,
+            children: _pages,
+          ),
         ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: destinationIndex,

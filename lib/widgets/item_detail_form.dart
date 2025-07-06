@@ -1,6 +1,6 @@
 // lib/widgets/item_detail_form.dart
 import 'dart:io';
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -164,7 +164,7 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                   right: 12,
                   child: FilledButton.icon(
                     onPressed: () async {
-                      // Lấy dữ liệu ảnh hiện tại
+                      // Phần logic lấy ảnh và hiển thị dialog xác nhận giữ nguyên
                       Uint8List? currentImageBytes;
                       if (widget.itemState.image != null) {
                         currentImageBytes = await widget.itemState.image!.readAsBytes();
@@ -174,20 +174,15 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
 
                       if (currentImageBytes == null || !context.mounted) return;
 
-                      // PHẦN LOGIC MỚI BẮT ĐẦU TỪ ĐÂY
-                      bool shouldProceed = true; // Mặc định là cho phép xử lý
-
-                      // Kiểm tra kênh trong suốt
+                      bool shouldProceed = true;
                       try {
                         final image = img.decodeImage(currentImageBytes);
                         if (image?.hasAlpha == true) {
-                          // Nếu có kênh alpha, hiển thị hộp thoại xác nhận
                           final confirm = await showDialog<bool>(
                             context: context,
                             builder: (ctx) => AlertDialog(
                               title: const Text('Image May Have Been Processed'),
-                              content: const Text(
-                                  'This image might already have a transparent background. Proceeding again may cause errors. Do you want to continue?'),
+                              content: const Text('This image might already have a transparent background. Proceeding again may cause errors. Do you want to continue?'),
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.of(ctx).pop(false),
@@ -195,35 +190,63 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                                 ),
                                 TextButton(
                                   onPressed: () => Navigator.of(ctx).pop(true),
-                                  style: TextButton.styleFrom(
-                                      foregroundColor: Theme.of(context).colorScheme.error),
+                                  style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
                                   child: const Text('Continue'),
 
                                 ),
                               ],
                             ),
                           );
-                          // Cập nhật lại cờ dựa trên lựa chọn của người dùng
                           shouldProceed = confirm ?? false;
                         }
                       } catch (e) {
-                        // Nếu có lỗi khi đọc ảnh, không làm gì cả
                         shouldProceed = false;
-                        ref.read(notificationServiceProvider).showBanner(
-                              message: 'Error reading image format.',
-                            );
+                        ref.read(notificationServiceProvider).showBanner(message: 'Error reading image format.');
                       }
 
-                      // Nếu người dùng đồng ý hoặc ảnh không có kênh alpha
+                      // PHẦN LOGIC TIMEOUT BẮT ĐẦU TẠI ĐÂY
                       if (shouldProceed && context.mounted) {
-                        final removedBgBytes = await Navigator.pushNamed<Uint8List?>(
-                          context,
-                          AppRoutes.backgroundRemover,
-                          arguments: currentImageBytes,
+                        // Hiển thị một dialog loading để người dùng biết app đang xử lý
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (ctx) => const PopScope(
+                            canPop: false, // Ngăn người dùng back trong lúc xử lý
+                            child: Center(child: CircularProgressIndicator()),
+                          ),
                         );
 
-                        if (removedBgBytes != null) {
-                          widget.onImageUpdated?.call(removedBgBytes);
+                        try {
+                          // Điều hướng đến trang xóa nền và áp dụng timeout
+                          final removedBgBytes = await Navigator.pushNamed<Uint8List?>(
+                            context,
+                            AppRoutes.backgroundRemover,
+                            arguments: currentImageBytes,
+                          ).timeout(const Duration(seconds: 45)); // Đặt thời gian chờ là 45 giây
+
+                          // Tắt dialog loading khi xử lý xong
+                          if (context.mounted) Navigator.of(context).pop();
+
+                          // Cập nhật ảnh nếu thành công
+                          if (removedBgBytes != null) {
+                            widget.onImageUpdated?.call(removedBgBytes);
+                          }
+                        } on TimeoutException {
+                          // Xử lý khi hết thời gian chờ
+                          if (context.mounted) Navigator.of(context).pop(); // Tắt dialog loading
+                          if (context.mounted) {
+                            ref.read(notificationServiceProvider).showBanner(
+                                  message: 'Operation timed out after 45 seconds.',
+                                );
+                          }
+                        } catch (e) {
+                          // Xử lý các lỗi khác có thể xảy ra
+                          if (context.mounted) Navigator.of(context).pop(); // Tắt dialog loading
+                          if (context.mounted) {
+                            ref.read(notificationServiceProvider).showBanner(
+                                  message: 'An unexpected error occurred: $e',
+                                );
+                          }
                         }
                       }
                     },

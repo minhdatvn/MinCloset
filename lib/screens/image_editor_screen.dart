@@ -38,6 +38,9 @@ class ImageEditorScreen extends StatelessWidget {
               return ReactiveAppbar(
                 stream: rebuildStream,
                 builder: (_) => AppBar(
+                  title: const Text('Edit image'),
+                  backgroundColor: Colors.black, 
+                  foregroundColor: Colors.white,
                   automaticallyImplyLeading: false,
                   leading: IconButton(
                     tooltip: 'Cancel',

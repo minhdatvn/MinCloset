@@ -1,20 +1,9 @@
-// lib/screens/background_remover_page.dart
+import 'dart:typed_data';
 import 'dart:ui' as ui;
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_background_remover/image_background_remover.dart';
 import 'package:mincloset/providers/service_providers.dart';
-
-Future<Uint8List?> _removeBackgroundInIsolate(Uint8List imageBytes) async {
-  await BackgroundRemover.instance.initializeOrt();
-  final image = await BackgroundRemover.instance.removeBg(imageBytes);
-  final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-  BackgroundRemover.instance.dispose();
-  
-  return byteData?.buffer.asUint8List();
-}
 
 class BackgroundRemoverPage extends ConsumerStatefulWidget {
   final Uint8List imageBytes;
@@ -31,23 +20,39 @@ class _BackgroundRemoverPageState extends ConsumerState<BackgroundRemoverPage> {
   @override
   void initState() {
     super.initState();
-    _processInBackground();
+    // Bắt đầu toàn bộ quá trình khi widget được tạo
+    _processOnMainThread();
   }
+
+  // Bỏ hàm dispose() vì chúng ta sẽ không khởi tạo/hủy trong vòng đời widget nữa
   
-  Future<void> _processInBackground() async {
+  Future<void> _processOnMainThread() async {
+    // Hiển thị vòng xoay loading
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      final resultBytes = await compute(_removeBackgroundInIsolate, widget.imageBytes);
+      // BƯỚC 1: Khởi tạo engine
+      await BackgroundRemover.instance.initializeOrt();
+
+      // BƯỚC 2: Chạy tác vụ xóa nền (sẽ làm treo UI)
+      final image = await BackgroundRemover.instance.removeBg(widget.imageBytes);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      
+      // BƯỚC 3: Hủy engine để giải phóng bộ nhớ
+      BackgroundRemover.instance.dispose();
 
       if (mounted) {
         setState(() {
-          _removedBgImageBytes = resultBytes;
+          _removedBgImageBytes = byteData?.buffer.asUint8List();
           _isLoading = false;
         });
       }
     } catch (e) {
       if (mounted) {
         ref.read(notificationServiceProvider).showBanner(
-              message: 'Error removing background: $e',
+              message: 'Error processing image: $e',
             );
         Navigator.of(context).pop();
       }
@@ -56,6 +61,7 @@ class _BackgroundRemoverPageState extends ConsumerState<BackgroundRemoverPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Giao diện không thay đổi
     return Scaffold(
       appBar: AppBar(
         title: const Text('Remove Background'),
@@ -77,7 +83,6 @@ class _BackgroundRemoverPageState extends ConsumerState<BackgroundRemoverPage> {
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 16),
-                  // DỊCH LẠI TRẠNG THÁI LOADING
                   Text('Processing, please wait...'),
                 ],
               )

@@ -133,7 +133,10 @@ class ItemFormPage extends ConsumerWidget {
       onMaterialsChanged: itemNotifier.onMaterialsChanged,
       onPatternsChanged: itemNotifier.onPatternsChanged,
       onPriceChanged: itemNotifier.onPriceChanged,
-       onNotesChanged: itemNotifier.onNotesChanged,
+      onNotesChanged: itemNotifier.onNotesChanged,
+      onImageUpdated: (newBytes) {
+        itemNotifier.updateImageWithBytes(newBytes);
+      },
     );
   }
 }

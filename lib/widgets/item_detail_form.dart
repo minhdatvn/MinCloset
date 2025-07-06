@@ -7,7 +7,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/helpers/currency_input_formatter.dart';
-import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
@@ -16,7 +15,6 @@ import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/category_selector.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
 
-// <<< CHUYỂN THÀNH `ConsumerStatefulWidget` >>>
 class ItemDetailForm extends ConsumerStatefulWidget {
   final AddItemState itemState;
   final Function(String) onNameChanged;
@@ -29,6 +27,7 @@ class ItemDetailForm extends ConsumerStatefulWidget {
   final Function(Set<String>) onPatternsChanged;
   final Function(String) onPriceChanged;
   final Function(String) onNotesChanged;
+  final Function(Uint8List)? onImageUpdated;
   final ScrollController? scrollController;
 
   const ItemDetailForm({
@@ -44,6 +43,7 @@ class ItemDetailForm extends ConsumerStatefulWidget {
     required this.onPatternsChanged,
     required this.onPriceChanged,
     required this.onNotesChanged,
+    this.onImageUpdated,
     this.scrollController,
   });
 
@@ -162,7 +162,6 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                   right: 12,
                   child: FilledButton.icon(
                     onPressed: () async {
-                      // Lấy dữ liệu ảnh hiện tại
                       Uint8List? currentImageBytes;
                       if (widget.itemState.image != null) {
                         currentImageBytes = await widget.itemState.image!.readAsBytes();
@@ -172,19 +171,15 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
 
                       if (currentImageBytes == null || !context.mounted) return;
 
-                      // Gọi màn hình xóa nền và chờ kết quả
                       final removedBgBytes = await Navigator.pushNamed<Uint8List?>(
                         context,
                         AppRoutes.backgroundRemover,
                         arguments: currentImageBytes,
                       );
 
-                      // Nếu có kết quả trả về, cập nhật lại ảnh trong notifier
                       if (removedBgBytes != null) {
-                        // Lấy provider tương ứng. Logic này cần được đặt trong widget Consumer.
-                        // Do ItemDetailForm là một ConsumerStatefulWidget, chúng ta có thể truy cập `ref`.
-                        final notifier = ref.read(singleItemProvider(ItemNotifierArgs(tempId: widget.itemState.id)).notifier);
-                        notifier.updateImageWithBytes(removedBgBytes);
+                        // THAY ĐỔI CỐT LÕI: Gọi hàm callback được truyền từ bên ngoài
+                        widget.onImageUpdated?.call(removedBgBytes);
                       }
                     },
                     icon: const Icon(Icons.auto_fix_high_outlined, size: 18),

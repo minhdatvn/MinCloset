@@ -47,6 +47,9 @@ dependencies:
   webview_flutter: ^4.13.0
   table_calendar: ^3.2.0
   collection: ^1.19.1
+  onnxruntime: ^1.4.1
+  ffi: ^2.1.4
+  image_background_remover: ^1.0.0
 
 
 dev_dependencies:

@@ -1,6 +1,7 @@
 // lib/notifiers/add_item_notifier.dart
 
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +21,7 @@ import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/states/add_item_state.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 class ItemNotifierArgs extends Equatable {
@@ -291,6 +293,22 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
         return true;
       },
     );
+  }
+
+  Future<void> updateImageWithBytes(Uint8List imageBytes) async {
+    try {
+      // Tạo một file tạm thời từ dữ liệu bytes
+      final tempDir = await getTemporaryDirectory();
+      final tempFile = File('${tempDir.path}/${const Uuid().v4()}.png');
+      await tempFile.writeAsBytes(imageBytes);
+
+      // Cập nhật state với file ảnh mới
+      state = state.copyWith(image: tempFile);
+    } catch (e) {
+      _ref.read(notificationServiceProvider).showBanner(
+        message: 'Không thể cập nhật ảnh: $e',
+      );
+    }
   }
 }
 

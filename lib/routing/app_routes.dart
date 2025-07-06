@@ -18,4 +18,5 @@ class AppRoutes {
   static const String logWearSelection = '/log-wear-selection';
   static const String languageSelection = '/language-selection';
   static const String closetInsights = '/closet-insights';
+  static const String backgroundRemover = '/background-remover';
 }

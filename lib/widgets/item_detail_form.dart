@@ -7,8 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/helpers/currency_input_formatter.dart';
+import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
+import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/category_selector.dart';
@@ -111,26 +113,90 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
           Stack(
             alignment: Alignment.center,
             children: [
+              // Lớp 1: Khung ảnh
               AspectRatio(
                 aspectRatio: 3 / 4,
                 child: Container(
                   decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(8)),
-                  child: ClipRRect(
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: widget.itemState.image != null
-                          ? Image.file(widget.itemState.image!, fit: BoxFit.contain)
-                          : (widget.itemState.imagePath != null
-                              ? Image.file(File(widget.itemState.imagePath!), fit: BoxFit.contain)
-                              : const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 60)),
+                    // Thêm một lớp viền xám nhạt
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  // Lớp 2: Hiệu ứng chìm (inner shadow)
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withValues(alpha:0.1),
+                          Colors.transparent,
+                          Colors.transparent,
+                          Colors.black.withValues(alpha:0.2),
+                        ],
+                        stops: const [0.0, 0.2, 0.8, 1.0],
+                      ),
+                    ),
+                    // Lớp 3: Ảnh của item
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: widget.itemState.image != null
+                            ? Image.file(widget.itemState.image!, fit: BoxFit.contain)
+                            : (widget.itemState.imagePath != null
+                                ? Image.file(File(widget.itemState.imagePath!), fit: BoxFit.contain)
+                                : const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 60)),
+                      ),
                     ),
                   ),
                 ),
               ),
+
+              // Lớp 4: Nút Xóa nền
+              if (widget.itemState.image != null || widget.itemState.imagePath != null)
+                Positioned(
+                  bottom: 12,
+                  right: 12,
+                  child: FilledButton.icon(
+                    onPressed: () async {
+                      // Lấy dữ liệu ảnh hiện tại
+                      Uint8List? currentImageBytes;
+                      if (widget.itemState.image != null) {
+                        currentImageBytes = await widget.itemState.image!.readAsBytes();
+                      } else if (widget.itemState.imagePath != null) {
+                        currentImageBytes = await File(widget.itemState.imagePath!).readAsBytes();
+                      }
+
+                      if (currentImageBytes == null || !context.mounted) return;
+
+                      // Gọi màn hình xóa nền và chờ kết quả
+                      final removedBgBytes = await Navigator.pushNamed<Uint8List?>(
+                        context,
+                        AppRoutes.backgroundRemover,
+                        arguments: currentImageBytes,
+                      );
+
+                      // Nếu có kết quả trả về, cập nhật lại ảnh trong notifier
+                      if (removedBgBytes != null) {
+                        // Lấy provider tương ứng. Logic này cần được đặt trong widget Consumer.
+                        // Do ItemDetailForm là một ConsumerStatefulWidget, chúng ta có thể truy cập `ref`.
+                        final notifier = ref.read(singleItemProvider(ItemNotifierArgs(tempId: widget.itemState.id)).notifier);
+                        notifier.updateImageWithBytes(removedBgBytes);
+                      }
+                    },
+                    icon: const Icon(Icons.auto_fix_high_outlined, size: 18),
+                    label: const Text('Remove BG'),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      backgroundColor: Colors.black.withValues(alpha:0.6),
+                    ),
+                  ),
+                ),
+              
+              // Lớp 5: Vòng xoay loading khi phân tích AI (giữ nguyên)
               if (widget.itemState.isAnalyzing)
                 Positioned.fill(
                   child: Container(

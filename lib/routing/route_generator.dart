@@ -1,5 +1,7 @@
 // lib/routing/route_generator.dart
 
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
@@ -25,6 +27,7 @@ import 'package:mincloset/screens/splash_screen.dart';
 import 'package:mincloset/screens/webview_page.dart';
 import 'package:mincloset/screens/language_selection_screen.dart';
 import 'package:mincloset/screens/closet_insights_screen.dart';
+import 'package:mincloset/screens/background_remover_page.dart';
 
 class RouteGenerator {
   static const Widget _mainScreen = MainScreen();
@@ -124,6 +127,15 @@ class RouteGenerator {
       
       case AppRoutes.closetInsights:
         return FadeRoute(page: const ClosetInsightsScreen());
+
+      case AppRoutes.backgroundRemover:
+        if (args is Uint8List) {
+          return FadeRoute<Uint8List?>(
+            page: BackgroundRemoverPage(imageBytes: args),
+            settings: settings,
+          );
+        }
+        return _errorRoute();
 
       default:
         return _errorRoute();

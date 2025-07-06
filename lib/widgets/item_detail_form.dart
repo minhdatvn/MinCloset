@@ -120,44 +120,25 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                 aspectRatio: 3 / 4,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.white, // Giữ lại nền trắng
                     borderRadius: BorderRadius.circular(8),
-                    // Thêm một lớp viền xám nhạt
                     border: Border.all(color: Colors.grey.shade300),
                   ),
-                  // Lớp 2: Hiệu ứng chìm (inner shadow)
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withValues(alpha:0.1),
-                          Colors.transparent,
-                          Colors.transparent,
-                          Colors.black.withValues(alpha:0.2),
-                        ],
-                        stops: const [0.0, 0.2, 0.8, 1.0],
-                      ),
-                    ),
-                    // Lớp 3: Ảnh của item
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Padding(
-                        padding: const EdgeInsets.all(4.0),
-                        child: widget.itemState.image != null
-                            ? Image.file(widget.itemState.image!, fit: BoxFit.contain)
-                            : (widget.itemState.imagePath != null
-                                ? Image.file(File(widget.itemState.imagePath!), fit: BoxFit.contain)
-                                : const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 60)),
-                      ),
+                  // BỎ ĐI DECORATEDBOX, CHỈ GIỮ LẠI CLIPRRECT VÀ PADDING
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: widget.itemState.image != null
+                          ? Image.file(widget.itemState.image!, fit: BoxFit.contain)
+                          : (widget.itemState.imagePath != null
+                              ? Image.file(File(widget.itemState.imagePath!), fit: BoxFit.contain)
+                              : const Icon(Icons.broken_image_outlined, color: Colors.grey, size: 60)),
                     ),
                   ),
                 ),
               ),
-
-              // Lớp 4: Nút Xóa nền
+              // Lớp 3: Nút Xóa nền
               if (widget.itemState.image != null || widget.itemState.imagePath != null)
                 Positioned(
                   bottom: 12,

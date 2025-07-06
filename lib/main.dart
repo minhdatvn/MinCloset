@@ -51,6 +51,13 @@ class MinClosetApp extends ConsumerWidget {
       theme: appTheme,
       initialRoute: AppRoutes.splash,
       onGenerateRoute: RouteGenerator.onGenerateRoute,
+      builder: (context, child) { // `child` ở đây chính là các màn hình của bạn (AddItemScreen, v.v.)
+        return SafeArea(
+          top: false,   // Luôn cho phép tràn viền trên
+          bottom: true,  // Luôn ngăn tràn viền dưới
+          child: child!, // Dấu ! để khẳng định child không bao giờ null
+        );
+      },
       locale: locale,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

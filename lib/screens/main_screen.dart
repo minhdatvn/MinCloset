@@ -165,44 +165,49 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
   
   Future<void> _pickAndAnalyzeImages(ImageSource source) async {
     final navigator = Navigator.of(context);
+    final imagePicker = ImagePicker();
 
-    // Luồng chọn từ album không đổi
+    // Luồng chọn từ album
     if (source == ImageSource.gallery) {
-      navigator.pushNamed(AppRoutes.analysisLoading);
+      final pickedFiles = await imagePicker.pickMultiImage(
+        maxWidth: 1024,
+        imageQuality: 85,
+      );
+      if (pickedFiles.isNotEmpty && mounted) {
+        navigator.pushNamed(AppRoutes.analysisLoading, arguments: pickedFiles);
+      }
       return;
     }
-
-    // --- LOGIC MỚI CHO LUỒNG CHỤP ẢNH TỪ CAMERA ---
-    final imagePicker = ImagePicker();
-    final pickedFile = await imagePicker.pickImage(source: source, maxWidth: 1024, imageQuality: 85);
+    
+    // Luồng camera
+    final pickedFile = await imagePicker.pickImage(
+      source: ImageSource.camera,
+      maxWidth: 1024,
+      imageQuality: 85,
+    );
 
     if (pickedFile == null) return;
-
-    // Đọc dữ liệu ảnh đã nén
     final imageBytes = await pickedFile.readAsBytes();
-
     if (!mounted) return;
 
-    // BƯỚC 1: Điều hướng đến màn hình EDIT và chờ kết quả
+    // Mở editor và chờ kết quả
     final editedBytes = await navigator.pushNamed<Uint8List?>(
       AppRoutes.imageEditor,
       arguments: imageBytes,
     );
-
-    // BƯỚC 2: Nếu người dùng có lưu ảnh đã edit, gửi nó đi phân tích
-    if (editedBytes != null) {
-      // Tạo lại một XFile từ dữ liệu bytes đã edit để tương thích với luồng cũ
+    
+    // Xử lý kết quả một cách an toàn
+    if (editedBytes != null && mounted) {
+      // Logic xử lý file và điều hướng không cần Future.delayed nữa
       final tempDir = await getTemporaryDirectory();
       final tempPath = '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
       final tempFile = await File(tempPath).writeAsBytes(editedBytes);
       final editedXFile = XFile(tempFile.path);
 
       if (mounted) {
-        // Gửi ảnh đã edit đến màn hình loading để phân tích AI
         navigator.pushNamed(AppRoutes.analysisLoading, arguments: [editedXFile]);
       }
     }
-    // Nếu người dùng không lưu (editedBytes là null), thì không làm gì cả.
   }
 
   @override

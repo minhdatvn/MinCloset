@@ -30,6 +30,7 @@ class ItemDetailForm extends ConsumerStatefulWidget {
   final Function(String) onPriceChanged;
   final Function(String) onNotesChanged;
   final Function(Uint8List)? onImageUpdated;
+  final Function()? onEditImagePressed;
   final ScrollController? scrollController;
 
   const ItemDetailForm({
@@ -46,6 +47,7 @@ class ItemDetailForm extends ConsumerStatefulWidget {
     required this.onPriceChanged,
     required this.onNotesChanged,
     this.onImageUpdated,
+    this.onEditImagePressed,
     this.scrollController,
   });
 
@@ -239,7 +241,23 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                     ),
                   ),
                 ),
-              
+              // Lớp 4: Nút EDIT
+              if (widget.itemState.image != null || widget.itemState.imagePath != null)
+                Positioned(
+                  bottom: 12,
+                  // Đặt nút Edit bên trái nút RemoveBG
+                  // Bạn có thể điều chỉnh giá trị 'right' để có vị trí ưng ý
+                  right: 140, 
+                  child: FilledButton.icon(
+                    onPressed: widget.onEditImagePressed, // Sử dụng callback mới
+                    icon: const Icon(Icons.edit_outlined, size: 18),
+                    label: const Text('Edit'),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      backgroundColor: Colors.black.withValues(alpha:0.6),
+                    ),
+                  ),
+                ),
               // Lớp 5: Vòng xoay loading khi phân tích AI (giữ nguyên)
               if (widget.itemState.isAnalyzing)
                 Positioned.fill(

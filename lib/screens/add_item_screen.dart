@@ -1,4 +1,7 @@
 // lib/screens/add_item_screen.dart
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/clothing_item.dart';
@@ -6,6 +9,7 @@ import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
 import 'package:uuid/uuid.dart';
@@ -137,6 +141,32 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         onImageUpdated: (newBytes) {
           notifier.updateImageWithBytes(newBytes);
         },
+        // --- BẮT ĐẦU THÊM LOGIC VÀO ĐÂY ---
+        onEditImagePressed: () async {
+          // Lấy ra notifier và navigator TRƯỚC khi có await
+          final notifier = ref.read(provider.notifier);
+          final navigator = Navigator.of(context);
+
+          Uint8List? currentImageBytes;
+          if (state.image != null) {
+            currentImageBytes = await state.image!.readAsBytes();
+          } else if (state.imagePath != null) {
+            currentImageBytes = await File(state.imagePath!).readAsBytes();
+          }
+
+          if (currentImageBytes == null || !mounted) return;
+
+          // Sử dụng navigator đã được lấy ra từ trước, giờ đây nó an toàn
+          final editedBytes = await navigator.pushNamed<Uint8List?>(
+            AppRoutes.imageEditor,
+            arguments: currentImageBytes,
+          );
+
+          if (editedBytes != null && mounted) {
+            notifier.updateImageWithBytes(editedBytes);
+          }
+        },
+        // --- KẾT THÚC THÊM LOGIC ---
       ),
       // <<< LUỒNG LƯU >>>
       bottomNavigationBar: Padding(

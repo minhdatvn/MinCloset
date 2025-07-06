@@ -1,14 +1,17 @@
 // lib/screens/main_screen.dart
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/pages/closets_page.dart';
 import 'package:mincloset/screens/pages/home_page.dart';
 import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/screens/pages/profile_page.dart';
+import 'package:path_provider/path_provider.dart';
 
 class MainScreen extends ConsumerStatefulWidget {
   const MainScreen({super.key});
@@ -163,31 +166,43 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
   Future<void> _pickAndAnalyzeImages(ImageSource source) async {
     final navigator = Navigator.of(context);
 
-    // Xử lý riêng cho trường hợp chọn từ Album
+    // Luồng chọn từ album không đổi
     if (source == ImageSource.gallery) {
-      // Điều hướng thẳng đến màn hình loading mà không cần await image picker
       navigator.pushNamed(AppRoutes.analysisLoading);
-      return; // Kết thúc hàm tại đây
+      return;
     }
 
-    // --- Logic cho trường hợp dùng Camera (giữ nguyên như cũ) ---
+    // --- LOGIC MỚI CHO LUỒNG CHỤP ẢNH TỪ CAMERA ---
     final imagePicker = ImagePicker();
-    List<XFile> pickedFiles = [];
+    final pickedFile = await imagePicker.pickImage(source: source, maxWidth: 1024, imageQuality: 85);
 
-    // Chỉ còn lại logic cho ImageSource.camera
-    final singleFile = await imagePicker.pickImage(source: source, maxWidth: 1024, imageQuality: 85);
-    if (singleFile != null) {
-      pickedFiles.add(singleFile);
+    if (pickedFile == null) return;
+
+    // Đọc dữ liệu ảnh đã nén
+    final imageBytes = await pickedFile.readAsBytes();
+
+    if (!mounted) return;
+
+    // BƯỚC 1: Điều hướng đến màn hình EDIT và chờ kết quả
+    final editedBytes = await navigator.pushNamed<Uint8List?>(
+      AppRoutes.imageEditor,
+      arguments: imageBytes,
+    );
+
+    // BƯỚC 2: Nếu người dùng có lưu ảnh đã edit, gửi nó đi phân tích
+    if (editedBytes != null) {
+      // Tạo lại một XFile từ dữ liệu bytes đã edit để tương thích với luồng cũ
+      final tempDir = await getTemporaryDirectory();
+      final tempPath = '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final tempFile = await File(tempPath).writeAsBytes(editedBytes);
+      final editedXFile = XFile(tempFile.path);
+
+      if (mounted) {
+        // Gửi ảnh đã edit đến màn hình loading để phân tích AI
+        navigator.pushNamed(AppRoutes.analysisLoading, arguments: [editedXFile]);
+      }
     }
-    
-    if (!mounted || pickedFiles.isEmpty) return;
-
-    // Logic này chỉ còn áp dụng cho Camera
-    final itemsWereAdded = await navigator.pushNamed(AppRoutes.analysisLoading, arguments: pickedFiles);
-
-    if (itemsWereAdded == true) {
-      ref.read(itemChangedTriggerProvider.notifier).state++;
-    }
+    // Nếu người dùng không lưu (editedBytes là null), thì không làm gì cả.
   }
 
   @override

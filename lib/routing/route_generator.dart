@@ -13,10 +13,14 @@ import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/about_legal_page.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/analysis_loading_screen.dart';
+import 'package:mincloset/screens/background_remover_page.dart';
 import 'package:mincloset/screens/batch_add_item_screen.dart';
 import 'package:mincloset/screens/calendar_page.dart';
 import 'package:mincloset/screens/city_selection_screen.dart';
+import 'package:mincloset/screens/closet_insights_screen.dart';
 import 'package:mincloset/screens/edit_profile_screen.dart';
+import 'package:mincloset/screens/image_editor_screen.dart';
+import 'package:mincloset/screens/language_selection_screen.dart';
 import 'package:mincloset/screens/log_wear_screen.dart';
 import 'package:mincloset/screens/main_screen.dart';
 import 'package:mincloset/screens/outfit_detail_page.dart';
@@ -25,9 +29,6 @@ import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/screens/splash_screen.dart';
 import 'package:mincloset/screens/webview_page.dart';
-import 'package:mincloset/screens/language_selection_screen.dart';
-import 'package:mincloset/screens/closet_insights_screen.dart';
-import 'package:mincloset/screens/background_remover_page.dart';
 
 class RouteGenerator {
   static const Widget _mainScreen = MainScreen();
@@ -132,6 +133,16 @@ class RouteGenerator {
         if (args is Uint8List) {
           return FadeRoute<Uint8List?>(
             page: BackgroundRemoverPage(imageBytes: args),
+            settings: settings,
+          );
+        }
+        return _errorRoute();
+      
+      case AppRoutes.imageEditor:
+        if (args is Uint8List) {
+          // Route này sẽ nhận dữ liệu ảnh và trả về ảnh đã chỉnh sửa
+          return FadeRoute<Uint8List?>(
+            page: ImageEditorScreen(imageBytes: args),
             settings: settings,
           );
         }

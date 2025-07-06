@@ -19,4 +19,5 @@ class AppRoutes {
   static const String languageSelection = '/language-selection';
   static const String closetInsights = '/closet-insights';
   static const String backgroundRemover = '/background-remover';
+  static const String imageEditor = '/image-editor';
 }

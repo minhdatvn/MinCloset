@@ -37,7 +37,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         children: [
           // 1. Bọc CircleAvatar trong GestureDetector để xử lý việc nhấn vào avatar lớn
           GestureDetector(
-            onTap: () => ref.read(profileProvider.notifier).updateAvatar(),
+            onTap: () {
+              // Chỉ cần gọi updateAvatar, không cần await hay làm gì thêm
+              ref.read(profileProvider.notifier).updateAvatar(context);
+            },
             child: CircleAvatar(
               radius: 40,
               backgroundColor: Colors.grey.shade200,
@@ -52,7 +55,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             bottom: -2,
             right: -2,
             child: GestureDetector(
-              onTap: () => ref.read(profileProvider.notifier).updateAvatar(),
+              onTap: () => ref.read(profileProvider.notifier).updateAvatar(context),
               child: Container(
                 padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(

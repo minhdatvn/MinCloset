@@ -29,6 +29,7 @@ import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/screens/splash_screen.dart';
 import 'package:mincloset/screens/webview_page.dart';
+import 'package:mincloset/screens/avatar_cropper_screen.dart';
 
 class RouteGenerator {
   static const Widget _mainScreen = MainScreen();
@@ -147,6 +148,18 @@ class RouteGenerator {
           );
         }
         return _errorRoute();
+
+      case AppRoutes.avatarCropper:
+        if (settings.arguments is Uint8List) {
+          // Sử dụng FadeRoute và chỉ định rõ kiểu trả về là Uint8List?
+          return FadeRoute<Uint8List?>(
+            page: AvatarCropperScreen(
+              imageBytes: settings.arguments as Uint8List,
+            ),
+            settings: settings,
+          );
+        }
+        return _errorRoute(); // Trả về trang lỗi nếu tham số không đúng
 
       default:
         return _errorRoute();

@@ -159,8 +159,8 @@ class _HomePageState extends ConsumerState<HomePage> {
       // 1. Bọc CircleAvatar trong InkWell để xử lý onTap riêng
       InkWell(
         onTap: () {
-          // Kích hoạt logic cập nhật avatar từ ProfilePageNotifier
-          ref.read(profileProvider.notifier).updateAvatar();
+          // Chỉ cần gọi updateAvatar, không cần await hay làm gì thêm
+          ref.read(profileProvider.notifier).updateAvatar(context);
         },
         customBorder: const CircleBorder(), // Giúp hiệu ứng ripple tròn
         child: CircleAvatar(

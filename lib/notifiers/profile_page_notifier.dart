@@ -7,10 +7,17 @@ import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/closet_repository.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
-import 'package:mincloset/repositories/settings_repository.dart'; // <-- ĐÃ THÊM
+import 'package:mincloset/repositories/settings_repository.dart';
 import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/utils/logger.dart';
+import 'package:flutter/material.dart';
+import 'dart:typed_data';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:mincloset/routing/app_routes.dart';
+
+final profileChangedTriggerProvider = StateProvider<int>((ref) => 0);
 
 class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   final Ref _ref;
@@ -29,6 +36,12 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     loadInitialData();
 
     _ref.listen<int>(itemChangedTriggerProvider, (previous, next) {
+      if (previous != next) {
+        loadInitialData();
+      }
+    });
+
+    _ref.listen(profileChangedTriggerProvider, (previous, next) {
       if (previous != next) {
         loadInitialData();
       }
@@ -198,18 +211,70 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     state = state.copyWith(showWeatherImage: newValue);
   }
 
-  Future<void> updateAvatar() async {
-    final imagePicker = ImagePicker();
-    final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      final path = pickedFile.path;
-      // THAY ĐỔI: Sử dụng repository để lưu
-      await _settingsRepo.saveUserProfile({'avatarPath': path});
-      state = state.copyWith(avatarPath: path);
+  Future<bool> updateAvatar(BuildContext context) async {
+    // Hàm helper để hiển thị menu lựa chọn
+    Future<ImageSource?> showImageSourceMenu() async {
+      return await showModalBottomSheet<ImageSource>(
+        context: context,
+        builder: (ctx) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.photo_camera_outlined),
+                title: const Text('Take Photo'),
+                onTap: () => Navigator.of(ctx).pop(ImageSource.camera),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_outlined),
+                title: const Text('From Album'),
+                onTap: () => Navigator.of(ctx).pop(ImageSource.gallery),
+              ),
+            ],
+          ),
+        ),
+      );
     }
-  }
 
+    // --- Bắt đầu luồng chính ---
+    final imageSource = await showImageSourceMenu();
+    if (imageSource == null) return false;
+
+    final imagePicker = ImagePicker();
+    final pickedFile = await imagePicker.pickImage(source: imageSource);
+    if (pickedFile == null) return false;
+
+    final imageBytes = await pickedFile.readAsBytes();
+
+    if (!context.mounted) return false;
+    final croppedBytes = await Navigator.of(context).pushNamed<Uint8List?>(
+      AppRoutes.avatarCropper,
+      arguments: imageBytes,
+    );
+
+    // Nếu người dùng có cắt và lưu ảnh
+    if (croppedBytes != null) {
+      try {
+        final directory = await getApplicationDocumentsDirectory();
+        final path = '${directory.path}/avatar.png';
+        final imageFile = File(path);
+        await imageFile.writeAsBytes(croppedBytes);
+
+        // Chỉ lưu đường dẫn vào SharedPreferences
+        await _settingsRepo.saveUserProfile({SettingsRepository.avatarPathKey: path});
+        _ref.read(profileChangedTriggerProvider.notifier).state++;
+        
+        // Thay vào đó, trả về true để báo hiệu thành công
+        return true; 
+      } catch (e) {
+        // Nếu có lỗi, trả về false
+        return false;
+      }
+    }
+    // Nếu người dùng không lưu, trả về false
+    return false;
+  }
+  
   Future<void> updateProfileInfo(Map<String, dynamic> data) async {
     // THAY ĐỔI: Toàn bộ logic lưu được chuyển vào repository
     await _settingsRepo.saveUserProfile({

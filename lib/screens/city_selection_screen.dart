@@ -47,19 +47,6 @@ class _CitySelectionScreenState extends ConsumerState<CitySelectionScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select Location'),
-        actions: [
-          if (!state.isLoading)
-            TextButton(
-              onPressed: () async {
-                final navigator = Navigator.of(context);
-                final success = await notifier.saveSelection();
-                if (success && mounted) {
-                  navigator.pop();
-                }
-              },
-              child: const Text('Save'),
-            )
-        ],
       ),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -70,7 +57,7 @@ class _CitySelectionScreenState extends ConsumerState<CitySelectionScreen> {
                   title: 'Auto-detect',
                   subtitle: 'Use your current location',
                   isSelected: state.selectedMode == CityMode.auto,
-                  onTap: () => notifier.setMode(CityMode.auto),
+                  onTap: notifier.selectAutoDetect,
                 ),
                 const SizedBox(height: 8),
 
@@ -80,9 +67,9 @@ class _CitySelectionScreenState extends ConsumerState<CitySelectionScreen> {
                   subtitle: state.selectedSuggestion?.displayName ?? state.currentManualCityName,
                   isSelected: state.selectedMode == CityMode.manual,
                   onExpansionChanged: (isExpanded) {
-                    if (isExpanded) {
-                      notifier.setMode(CityMode.manual);
-                    }
+                      if (isExpanded) {
+                          notifier.setManualMode();
+                      }
                   },
                   children: [
                     const Divider(height: 1),
@@ -114,9 +101,11 @@ class _CitySelectionScreenState extends ConsumerState<CitySelectionScreen> {
                             return ListTile(
                               title: Text(suggestion.displayName),
                               onTap: () {
-                                notifier.selectSuggestion(suggestion);
+                                // Gọi hàm mới để chọn và lưu
+                                notifier.selectManualCity(suggestion);
+
+                                // Các hành động dọn dẹp giao diện giữ nguyên
                                 _textController.clear();
-                                // SỬA LỖI: Dùng phương thức .collapse()
                                 _expansibleController.collapse();
                                 FocusScope.of(context).unfocus();
                               },
@@ -195,6 +184,7 @@ class _LocationTile extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: subtitle != null ? Text(subtitle!) : null,
         trailing: isSelected
             ? Icon(Icons.check_circle, color: theme.colorScheme.primary)
             : null,

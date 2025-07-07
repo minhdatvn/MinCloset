@@ -240,14 +240,35 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     await _settingsRepo.saveUserProfile({
       'cityMode': mode.name,
       'manualCity': suggestion?.displayName,
-      'manualCityLat': suggestion?.lat,
-      'manualCityLon': suggestion?.lon,
+      // Sử dụng các khóa được import từ SettingsRepository
+      SettingsRepository.manualCityLatKey: suggestion?.lat,
+      SettingsRepository.manualCityLonKey: suggestion?.lon,
     });
     
     state = state.copyWith(
         cityMode: mode,
         manualCity: suggestion != null ? suggestion.displayName : state.manualCity,
     );
+  }
+
+  Future<Map<String, dynamic>?> getManualCityDetails() async {
+    final prefs = await _ref.read(sharedPreferencesProvider.future);
+    final lat = prefs.getDouble(SettingsRepository.manualCityLatKey);
+    final lon = prefs.getDouble(SettingsRepository.manualCityLonKey);
+    final name = prefs.getString('manualCity');
+    
+    if (name != null && lat != null && lon != null) {
+        // Tách chuỗi tên để lấy các thành phần
+        final parts = name.split(', ');
+        return {
+            'name': parts.first,
+            'country': parts.last,
+            'state': parts.length > 2 ? parts[1] : null,
+            'lat': lat,
+            'lon': lon,
+        };
+    }
+    return null;
   }
 
   Future<void> updateFormattingSettings({String? currency, NumberFormatType? format}) async {

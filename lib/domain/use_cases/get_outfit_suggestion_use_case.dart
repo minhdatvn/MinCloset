@@ -1,5 +1,6 @@
 // lib/domain/use_cases/get_outfit_suggestion_use_case.dart
 import 'dart:io';
+
 import 'package:fpdart/fpdart.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -8,14 +9,13 @@ import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
+import 'package:mincloset/repositories/outfit_repository.dart';
+import 'package:mincloset/repositories/settings_repository.dart';
 import 'package:mincloset/repositories/suggestion_repository.dart';
 import 'package:mincloset/repositories/weather_repository.dart';
-import 'package:mincloset/repositories/outfit_repository.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/utils/logger.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mincloset/repositories/settings_repository.dart';
 
 class GetOutfitSuggestionUseCase {
   final ClothingItemRepository _clothingItemRepo;
@@ -54,22 +54,29 @@ class GetOutfitSuggestionUseCase {
     // return Right(mockWeatherData); 
     // <<< KẾT THÚC VÙNG GIẢ LẬP DỮ LIỆU >>>
 
-    final prefs = await SharedPreferences.getInstance();
-    final cityModeString = prefs.getString('city_mode') ?? 'auto';
+    final settings = await _settingsRepo.getUserProfile();
+    final cityModeString = settings['cityMode'] as String? ?? 'auto';
     final cityMode = CityMode.values.byName(cityModeString);
     const defaultCity = 'Da Nang';
 
     if (cityMode == CityMode.manual) {
-      final lat = prefs.getDouble('manual_city_lat');
-      final lon = prefs.getDouble('manual_city_lon');
+      // Đọc các giá trị lat/lon từ map `settings`
+      final lat = settings[SettingsRepository.manualCityLatKey] as double?;
+      final lon = settings['manual_city_lon'] as double?;
+
       if (lat != null && lon != null) {
         logger.i('Get weather by saved coordinates: ($lat, $lon)');
-        return _weatherRepo.getWeatherByCoords(lat, lon);
+        final weatherData = await _weatherRepo.getWeatherByCoords(lat, lon);
+        // Cập nhật lại tên thành phố để hiển thị đúng trên UI
+        return weatherData.map((data) {
+            data['name'] = settings['manualCity'] ?? defaultCity;
+            return data;
+        });
       } else {
         logger.w('Manual location data missing, reverting to default.');
         return _weatherRepo.getWeather(defaultCity);
       }
-    } else {
+    } else { // Chế độ Auto-detect không thay đổi
       try {
         logger.i('Getting weather by auto-detecting location…');
         final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -85,7 +92,6 @@ class GetOutfitSuggestionUseCase {
           return const Left(GenericFailure('Location permissions are denied. Please enable it for MinCloset in your device settings.'));
         }
 
-        // 1. Định nghĩa các cài đặt vị trí cho từng nền tảng
         late LocationSettings locationSettings;
 
         if (Platform.isAndroid) {
@@ -105,7 +111,6 @@ class GetOutfitSuggestionUseCase {
           );
         }
         
-        // 2. Sử dụng tham số `settings` mới thay cho `desiredAccuracy`
         final position = await Geolocator.getCurrentPosition(locationSettings: locationSettings);
 
         final weatherEither = await _weatherRepo.getWeatherByCoords(position.latitude, position.longitude);
@@ -175,9 +180,12 @@ class GetOutfitSuggestionUseCase {
     // Nếu đã qua bước xác thực, tiếp tục với logic gọi AI trong một khối try-catch an toàn.
     return TaskEither.tryCatch(
       () async {
-        final suggestionInfo = await _settingsRepo.getSuggestionInfo();
-        final gender = suggestionInfo['gender'] ?? 'Not specified';
-        final userStyle = suggestionInfo['style'] ?? 'Any style';
+        // Gọi hàm `getUserProfile()` để lấy tất cả thông tin
+        final profileData = await _settingsRepo.getUserProfile();
+        // Lấy các giá trị cần thiết từ map trả về
+        final gender = profileData['gender'] as String? ?? 'Not specified';
+        final userStyle = profileData['style'] as String? ?? 'Any style';
+        // --- KẾT THÚC SỬA LỖI ---
         final favoriteColors = 'Any color'; // Giữ nguyên hoặc lấy từ repo nếu có
 
         // ... logic còn lại không đổi ...

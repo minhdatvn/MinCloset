@@ -188,7 +188,6 @@ class GetOutfitSuggestionUseCase {
         // --- KẾT THÚC SỬA LỖI ---
         final favoriteColors = 'Any color'; // Giữ nguyên hoặc lấy từ repo nếu có
 
-        // ... logic còn lại không đổi ...
         final setOutfits = allOutfits.where((o) => o.isFixed).toList();
         final fixedItemIds = setOutfits.expand((o) => o.itemIds.split(',')).toSet();
         final individualItems = allItems.where((item) => !fixedItemIds.contains(item.id)).toList();

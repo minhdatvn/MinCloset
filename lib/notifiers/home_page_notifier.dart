@@ -3,10 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/domain/providers.dart';
 import 'package:mincloset/domain/use_cases/get_outfit_suggestion_use_case.dart';
+import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/services/notification_service.dart';
 import 'package:mincloset/states/home_page_state.dart';
 import 'package:mincloset/utils/logger.dart';
+import 'package:mincloset/states/profile_page_state.dart';
 
 class HomePageNotifier extends StateNotifier<HomePageState> {
   final GetOutfitSuggestionUseCase _getSuggestionUseCase;
@@ -17,6 +19,13 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
       this._getSuggestionUseCase, this._notificationService, this._ref)
       : super(const HomePageState()) {
     init();
+    _ref.listen<ProfilePageState>(profileProvider, (previous, next) {
+      // Nếu chế độ thành phố hoặc tên thành phố thủ công thay đổi
+      if (previous != null && (previous.cityMode != next.cityMode || previous.manualCity != next.manualCity)) {
+        // Gọi trực tiếp hàm làm mới của chính notifier này
+        refreshWeatherOnly();
+      }
+    });
   }
 
   Future<void> init() async {
@@ -101,8 +110,8 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
 
 final homeProvider =
     StateNotifierProvider<HomePageNotifier, HomePageState>((ref) {
+  // Xóa bỏ hoàn toàn khối ref.listen ở đây
   final getSuggestionUseCase = ref.watch(getOutfitSuggestionUseCaseProvider);
   final notificationService = ref.watch(notificationServiceProvider);
-  // Không cần watch weatherImageServiceProvider ở đây nữa
-  return HomePageNotifier(getSuggestionUseCase, notificationService, ref); // Truyền ref vào
+  return HomePageNotifier(getSuggestionUseCase, notificationService, ref);
 });

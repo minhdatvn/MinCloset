@@ -41,23 +41,20 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const SplashScreen());
 
       case AppRoutes.main:
-        return FadeRoute(page: _mainScreen, settings: settings);
+        return MaterialPageRoute(builder: (_) => _mainScreen, settings: settings);
 
       case AppRoutes.analysisLoading:
-          // Logic mới: màn hình loading giờ đây có thể nhận một danh sách ảnh
-          // (cho trường hợp camera) hoặc không nhận gì cả (cho trường hợp album)
-          final images = args as List<XFile>?; // args có thể là null
+          final images = args as List<XFile>?;
           return PageRouteBuilder(
             opaque: false,
-            // Truyền `images` vào, có thể là null
             pageBuilder: (_, __, ___) => AnalysisLoadingScreen(images: images),
             settings: settings,
           );
 
       case AppRoutes.addItem:
         final itemArgs = args as ItemNotifierArgs?;
-        return FadeRoute<bool>(
-          page: AddItemScreen(
+        return MaterialPageRoute<bool>(
+          builder: (_) => AddItemScreen(
             itemToEdit: itemArgs?.itemToEdit,
             preAnalyzedState: itemArgs?.preAnalyzedState,
           ),
@@ -65,13 +62,12 @@ class RouteGenerator {
         );
 
       case AppRoutes.batchAddItem:
-        return FadeRoute<bool>(page: const BatchAddItemScreen(), settings: settings);
+        return MaterialPageRoute<bool>(builder: (_) => const BatchAddItemScreen(), settings: settings);
 
       case AppRoutes.outfitBuilder:
-        // Chấp nhận cả việc không có args (tạo mới) và có args (sửa từ gợi ý)
         final suggestionResult = args as SuggestionResult?;
-        return FadeRoute(
-          page: OutfitBuilderPage(
+        return MaterialPageRoute(
+          builder: (_) => OutfitBuilderPage(
             suggestionResult: suggestionResult,
           ),
           settings: settings,
@@ -79,61 +75,58 @@ class RouteGenerator {
 
       case AppRoutes.outfitDetail:
         if (args is Outfit) {
-          // Màn hình này cũng có thể trả về giá trị bool
-          return FadeRoute<bool>(page: OutfitDetailPage(outfit: args), settings: settings);
+          return MaterialPageRoute<bool>(builder: (_) => OutfitDetailPage(outfit: args), settings: settings);
         }
         return _errorRoute();
 
       case AppRoutes.closetDetail:
         if (args is Closet) {
-          return FadeRoute(page: ClosetDetailPage(closet: args), settings: settings);
+          return MaterialPageRoute(builder: (_) => ClosetDetailPage(closet: args), settings: settings);
         }
         return _errorRoute();
       
       case AppRoutes.editProfile:
-        return FadeRoute(page: const EditProfileScreen(), settings: settings);
+        return MaterialPageRoute(builder: (_) => const EditProfileScreen(), settings: settings);
 
       case AppRoutes.settings:
-        return FadeRoute(page: const SettingsPage(), settings: settings);
+        return MaterialPageRoute(builder: (_) => const SettingsPage(), settings: settings);
 
       case AppRoutes.citySelection:
-        return FadeRoute(page: const CitySelectionScreen(), settings: settings);
+        return MaterialPageRoute(builder: (_) => const CitySelectionScreen(), settings: settings);
 
       case AppRoutes.aboutLegal:
-        return FadeRoute(page: const AboutLegalPage(), settings: settings);
+        return MaterialPageRoute(builder: (_) => const AboutLegalPage(), settings: settings);
       
       case AppRoutes.webview:
         if (args is WebViewPageArgs) {
-          return FadeRoute(page: WebViewPage(args: args));
+          return MaterialPageRoute(builder: (_) => WebViewPage(args: args));
         }
         return _errorRoute();
       
       case AppRoutes.calendar:
-        // Lấy ngày được truyền qua arguments (có thể là null)
         final initialDate = args as DateTime?;
-        return FadeRoute(
-          page: CalendarPage(initialDate: initialDate),
+        return MaterialPageRoute(
+          builder: (_) => CalendarPage(initialDate: initialDate),
         );
 
       case AppRoutes.logWearSelection:
         if (args is LogWearNotifierArgs) {
-          // Màn hình này sẽ trả về một Set<String>
-          return FadeRoute<Set<String>>(
-            page: LogWearScreen(args: args),
+          return MaterialPageRoute<Set<String>>(
+            builder: (_) => LogWearScreen(args: args),
           );
         }
         return _errorRoute();
       
       case AppRoutes.languageSelection:
-        return FadeRoute(page: const LanguageSelectionScreen());
+        return MaterialPageRoute(builder: (_) => const LanguageSelectionScreen());
       
       case AppRoutes.closetInsights:
-        return FadeRoute(page: const ClosetInsightsScreen());
+        return MaterialPageRoute(builder: (_) => const ClosetInsightsScreen());
 
       case AppRoutes.backgroundRemover:
         if (args is Uint8List) {
-          return FadeRoute<Uint8List?>(
-            page: BackgroundRemoverPage(imageBytes: args),
+          return MaterialPageRoute<Uint8List?>(
+            builder: (_) => BackgroundRemoverPage(imageBytes: args),
             settings: settings,
           );
         }
@@ -141,9 +134,8 @@ class RouteGenerator {
       
       case AppRoutes.imageEditor:
         if (args is Uint8List) {
-          // Route này sẽ nhận dữ liệu ảnh và trả về ảnh đã chỉnh sửa
-          return FadeRoute<Uint8List?>(
-            page: ImageEditorScreen(imageBytes: args),
+          return MaterialPageRoute<Uint8List?>(
+            builder: (_) => ImageEditorScreen(imageBytes: args),
             settings: settings,
           );
         }
@@ -151,15 +143,14 @@ class RouteGenerator {
 
       case AppRoutes.avatarCropper:
         if (settings.arguments is Uint8List) {
-          // Sử dụng FadeRoute và chỉ định rõ kiểu trả về là Uint8List?
-          return FadeRoute<Uint8List?>(
-            page: AvatarCropperScreen(
+          return MaterialPageRoute<Uint8List?>(
+            builder: (_) => AvatarCropperScreen(
               imageBytes: settings.arguments as Uint8List,
             ),
             settings: settings,
           );
         }
-        return _errorRoute(); // Trả về trang lỗi nếu tham số không đúng
+        return _errorRoute();
 
       default:
         return _errorRoute();
@@ -175,27 +166,4 @@ class RouteGenerator {
       ),
     );
   }
-}
-
-class FadeRoute<T> extends PageRouteBuilder<T> {
-  final Widget page;
-
-  FadeRoute({required this.page, super.settings})
-      : super(
-          pageBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-          ) => page,
-          transitionsBuilder: (
-            BuildContext context,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-            Widget child,
-          ) => FadeTransition(
-              opacity: animation,
-              child: child,
-            ),
-          transitionDuration: const Duration(milliseconds: 300), 
-        );
 }

@@ -81,15 +81,15 @@ class RouteGenerator {
 
       case AppRoutes.closetDetail:
         if (args is Closet) {
-          return MaterialPageRoute(builder: (_) => ClosetDetailPage(closet: args), settings: settings);
+          return AnimatePageRoute(page: ClosetDetailPage(closet: args), settings: settings);
         }
         return _errorRoute();
       
       case AppRoutes.editProfile:
-        return MaterialPageRoute(builder: (_) => const EditProfileScreen(), settings: settings);
+        return AnimatePageRoute(page: const EditProfileScreen(), settings: settings);
 
       case AppRoutes.settings:
-        return MaterialPageRoute(builder: (_) => const SettingsPage(), settings: settings);
+        return AnimatePageRoute(page: const SettingsPage(), settings: settings);
 
       case AppRoutes.citySelection:
         return MaterialPageRoute(builder: (_) => const CitySelectionScreen(), settings: settings);
@@ -105,8 +105,8 @@ class RouteGenerator {
       
       case AppRoutes.calendar:
         final initialDate = args as DateTime?;
-        return MaterialPageRoute(
-          builder: (_) => CalendarPage(initialDate: initialDate),
+        return AnimatePageRoute(
+          page: CalendarPage(initialDate: initialDate),
         );
 
       case AppRoutes.logWearSelection:

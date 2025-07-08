@@ -301,15 +301,15 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
 
   Future<void> updateCityPreference(
       CityMode mode, CitySuggestion? suggestion) async {
-    // THAY ĐỔI: Sử dụng repository để lưu
+    // THAY ĐỔI: Sử dụng các hằng số từ SettingsRepository cho tất cả các key
     await _settingsRepo.saveUserProfile({
-      'cityMode': mode.name,
-      'manualCity': suggestion?.displayName,
-      // Sử dụng các khóa được import từ SettingsRepository
+      SettingsRepository.cityModeKey: mode.name,
+      SettingsRepository.manualCityKey: suggestion?.displayName,
       SettingsRepository.manualCityLatKey: suggestion?.lat,
       SettingsRepository.manualCityLonKey: suggestion?.lon,
     });
     
+    // Cập nhật state của notifier như cũ
     state = state.copyWith(
         cityMode: mode,
         manualCity: suggestion != null ? suggestion.displayName : state.manualCity,

@@ -22,10 +22,10 @@ class ClosetInsightsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(closetInsightsProvider);
     final notifier = ref.read(closetInsightsProvider.notifier);
-    final userName = ref.watch(profileProvider.select((s) => s.userName)) ?? 'You';
+    final userName =
+        ref.watch(profileProvider.select((s) => s.userName)) ?? 'You';
 
     return Scaffold(
-      // Bỏ AppBar ở đây vì chúng ta sẽ dùng SliverAppBar
       body: RefreshIndicator(
         onRefresh: notifier.fetchInsights,
         child: _buildBody(context, ref, state, userName),
@@ -33,7 +33,8 @@ class ClosetInsightsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, WidgetRef ref, ClosetInsightsState state, String userName) {
+  Widget _buildBody(BuildContext context, WidgetRef ref,
+      ClosetInsightsState state, String userName) {
     if (state.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -49,33 +50,21 @@ class ClosetInsightsScreen extends ConsumerWidget {
       return const Center(child: Text('No insights available.'));
     }
 
-    // Sử dụng CustomScrollView để kết hợp các loại list khác nhau
     return CustomScrollView(
       slivers: [
-        // 1. "Ảnh bìa" - Khu vực mở đầu
         _buildMagazineCover(context, userName, state.insights!),
-
-        // 2. "Editor's Picks" - Những ngôi sao của tủ đồ
         _buildSectionHeader(context, "The Most-Loved Pieces"),
         _buildMostWornList(context, state.insights!.mostWornItems),
-        
-        // 3. "Feature Article" - Phân tích đầu tư thông minh
         _buildSectionHeader(context, "Smartest Investments"),
-        _buildBestValueGrid(context, ref, state.insights!.bestValueItems),
-
-        // 4. "Hidden Gems" - Khám phá lại kho báu bị lãng quên
+        _buildBestValueList(context, ref, state.insights!.bestValueItems),
         _buildSectionHeader(context, "Rediscover Your Closet"),
         _buildForgottenItemsStack(context, state.insights!.forgottenItems),
-        
-        // 5. "The Numbers" - Infographic cuối trang
         _buildSectionHeader(
-            context, 
-            "Investment Focus",
-            totalValue: state.insights!.totalValue, // <-- TRUYỀN TỔNG GIÁ TRỊ VÀO
+          context,
+          "Investment Focus",
+          totalValue: state.insights!.totalValue,
         ),
         _buildCategoryAnalysis(context, state.insights!),
-        
-        // Thêm một khoảng trống ở cuối để cuộn đẹp hơn
         const SliverToBoxAdapter(child: SizedBox(height: 48)),
       ],
     );
@@ -83,10 +72,10 @@ class ClosetInsightsScreen extends ConsumerWidget {
 
   // --- CÁC WIDGET HELPER CHO TỪNG PHẦN ---
 
-  // 1. Widget cho "Ảnh bìa" (SliverAppBar)
-  Widget _buildMagazineCover(BuildContext context, String userName, ClosetInsights insights) {
+  Widget _buildMagazineCover(
+      BuildContext context, String userName, ClosetInsights insights) {
     final theme = Theme.of(context);
-    
+
     return SliverAppBar(
       expandedHeight: 250.0,
       pinned: true,
@@ -94,47 +83,41 @@ class ClosetInsightsScreen extends ConsumerWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       title: Builder(
         builder: (context) {
-          final settings = context.dependOnInheritedWidgetOfExactType<FlexibleSpaceBarSettings>();
-          // Chỉ hiển thị title khi AppBar đã thu nhỏ gần như hoàn toàn
-          final showTitle = (settings?.currentExtent ?? 0) <= (settings?.minExtent ?? 0) + 1;
+          final settings = context
+              .dependOnInheritedWidgetOfExactType<FlexibleSpaceBarSettings>();
+          final showTitle =
+              (settings?.currentExtent ?? 0) <= (settings?.minExtent ?? 0) + 1;
 
           return AnimatedOpacity(
             duration: const Duration(milliseconds: 200),
-            // Điều khiển độ mờ dựa trên biến showTitle
             opacity: showTitle ? 1.0 : 0.0,
             child: const Text('Closet Insights'),
           );
         },
       ),
       titleSpacing: 0,
-
       flexibleSpace: FlexibleSpaceBar(
         centerTitle: false,
         background: Stack(
           fit: StackFit.expand,
           children: [
             Image.asset(
-              'assets/images/insights/ins_bg.webp', // <-- SỬ DỤNG ẢNH NỀN CỦA BẠN
+              'assets/images/insights/ins_bg.webp',
               fit: BoxFit.cover,
             ),
-            // Lớp 2: Lớp phủ Gradient (THAY THẾ HIỆU ỨNG MỜ)
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
-                  end: Alignment.center, // Dừng ở giữa để phần trên của ảnh rõ nét
+                  end: Alignment.center,
                   colors: [
-                    // Bắt đầu bằng màu nền của ứng dụng
-                    theme.scaffoldBackgroundColor, 
-                    // Chuyển dần sang trong suốt
-                    theme.scaffoldBackgroundColor.withValues(alpha:0.0), 
+                    theme.scaffoldBackgroundColor,
+                    theme.scaffoldBackgroundColor.withValues(alpha:0.0),
                   ],
-                  // Điều chỉnh điểm dừng để gradient mượt hơn
-                  stops: const [0.0, 0.8], 
+                  stops: const [0.0, 0.8],
                 ),
               ),
             ),
-            // Tiêu đề lớn (vẫn giữ nguyên ở đây để hiển thị khi mở rộng)
             Positioned(
               bottom: 20,
               left: 16,
@@ -163,54 +146,53 @@ class ClosetInsightsScreen extends ConsumerWidget {
           ],
         ),
       ),
-      // --- KẾT THÚC SỬA LỖI ---
     );
   }
 
-  // Widget chung cho các tiêu đề mục
-  Widget _buildSectionHeader(BuildContext context, String title, {double? totalValue}) {
-  return SliverToBoxAdapter(
-    child: Padding(
-      padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
-      // Sử dụng Row để đặt tiêu đề và giá trị cạnh nhau
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
-        children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          if (totalValue != null)
-            Consumer( // Dùng Consumer để lấy formatter và settings
-              builder: (context, ref, child) {
+  Widget _buildSectionHeader(BuildContext context, String title,
+      {double? totalValue}) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(
+              title,
+              style: Theme.of(context)
+                  .textTheme
+                  .titleLarge
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            if (totalValue != null)
+              Consumer(builder: (context, ref, child) {
                 final settings = ref.watch(profileProvider);
                 final formatter = ref.read(numberFormattingServiceProvider);
                 return Text(
                   formatter.formatPrice(
-                    price: totalValue, 
-                    currency: settings.currency, 
-                    formatType: settings.numberFormat
-                  ),
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                      price: totalValue,
+                      currency: settings.currency,
+                      formatType: settings.numberFormat),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold),
                 );
-              }
-            ),
-        ],
+              }),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
-  // 2. Widget cho danh sách cuộn ngang "Most-Loved Pieces"
-  Widget _buildMostWornList(BuildContext context, List<ItemInsight> insights) {
-    // Lọc danh sách
-    final mostWornItems = insights.where((insight) => insight.wearCount > 0).toList();
+  // THAY ĐỔI 1: Hàm cho "Most-Loved Pieces" giờ là ListView cuộn ngang
+  Widget _buildMostWornList(
+      BuildContext context, List<ItemInsight> insights) {
+    final mostWornItems =
+        insights.where((insight) => insight.wearCount > 0).toList();
 
-    // Nếu danh sách sau khi lọc rỗng, hiển thị gợi ý
     if (mostWornItems.isEmpty) {
       return SliverToBoxAdapter(
         child: Padding(
@@ -229,7 +211,6 @@ class ClosetInsightsScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   TextButton.icon(
                     onPressed: () {
-                      // Bây giờ context đã được định nghĩa và có thể sử dụng
                       Navigator.pushNamed(context, AppRoutes.calendar);
                     },
                     style: TextButton.styleFrom(
@@ -247,10 +228,9 @@ class ClosetInsightsScreen extends ConsumerWidget {
       );
     }
 
-    // Nếu có dữ liệu, hiển thị danh sách như cũ
     return SliverToBoxAdapter(
       child: SizedBox(
-        height: 180,
+        height: 230, // Chiều cao của khu vực cuộn ngang
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -259,32 +239,16 @@ class ClosetInsightsScreen extends ConsumerWidget {
           itemBuilder: (context, index) {
             final insight = mostWornItems[index];
             return SizedBox(
-              width: 130,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Card(
-                      clipBehavior: Clip.antiAlias,
-                      child: Image.file(
-                        File(insight.item.thumbnailPath ?? insight.item.imagePath),
-                        fit: BoxFit.cover,
-                        errorBuilder: (ctx, err, stack) => const Icon(Icons.error),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    insight.item.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  Text(
-                    '${insight.wearCount} wears',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
+              width: 160, // Chiều rộng của mỗi thẻ
+              child: _InsightItemCard(
+                insight: insight,
+                subtitle: Text(
+                  '${insight.wearCount} wears',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13),
+                ),
               ),
             );
           },
@@ -292,10 +256,10 @@ class ClosetInsightsScreen extends ConsumerWidget {
       ),
     );
   }
-  
-  // 3. Widget cho lưới "Smartest Investments"
-  Widget _buildBestValueGrid(BuildContext context, WidgetRef ref, List<ItemInsight> insights) {
-    // --- BẮT ĐẦU THAY ĐỔI ---
+
+  // THAY ĐỔI 2: Hàm cho "Smartest Investments" cũng là ListView cuộn ngang
+  Widget _buildBestValueList(
+      BuildContext context, WidgetRef ref, List<ItemInsight> insights) {
     if (insights.isEmpty) {
       return SliverToBoxAdapter(
         child: Padding(
@@ -314,8 +278,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
                   const SizedBox(height: 16),
                   TextButton.icon(
                     onPressed: () {
-                      // Chuyển về tab Tủ đồ và thoát màn hình hiện tại
-                      ref.read(mainScreenIndexProvider.notifier).state = 1; // 1 là index của tab Closets
+                      ref.read(mainScreenIndexProvider.notifier).state = 1;
                       Navigator.of(context).pop();
                     },
                     style: TextButton.styleFrom(
@@ -332,88 +295,115 @@ class ClosetInsightsScreen extends ConsumerWidget {
         ),
       );
     }
-    
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      sliver: SliverGrid.builder(
-        itemCount: insights.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.7,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
+
+    return SliverToBoxAdapter(
+      child: SizedBox(
+        height: 230, // Chiều cao của khu vực cuộn ngang
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: insights.length,
+          separatorBuilder: (context, index) => const SizedBox(width: 12),
+          itemBuilder: (context, index) {
+            final insight = insights[index];
+            return SizedBox(
+              width: 160, // Chiều rộng của mỗi thẻ
+              child: Consumer(builder: (context, ref, child) {
+                final settings = ref.watch(profileProvider);
+                final formatter = ref.read(numberFormattingServiceProvider);
+                return _InsightItemCard(
+                  insight: insight,
+                  subtitle: Text(
+                    '${formatter.formatPrice(
+                      price: insight.costPerWear,
+                      currency: settings.currency,
+                      formatType: settings.numberFormat,
+                    )}/wear',
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13),
+                  ),
+                );
+              }),
+            );
+          },
         ),
-        itemBuilder: (context, index) {
-          final insight = insights[index];
-          return _BestValueItemCard(insight: insight);
-        },
       ),
     );
   }
 
-  // 4. Widget cho chồng thẻ "Forgotten Items" (sẽ được nâng cấp sau)
-  Widget _buildForgottenItemsStack(BuildContext context, List<ItemInsight> insights) {
-  if (insights.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
+  Widget _buildForgottenItemsStack(
+      BuildContext context, List<ItemInsight> insights) {
+    if (insights.isEmpty) {
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
+    }
 
-  return SliverList.separated(
-    itemCount: insights.length,
-    separatorBuilder: (context, index) => const Divider(indent: 16, endIndent: 16, height: 1),
-    itemBuilder: (context, index) {
-      final insight = insights[index];
-      return Consumer(
-        builder: (context, ref, child) {
-          return ListTile(
-            leading: SizedBox(
-              width: 50,
-              height: 50,
-              child: Image.file(File(insight.item.thumbnailPath ?? insight.item.imagePath), fit: BoxFit.contain),
-            ),
-            title: Text(insight.item.name),
-            subtitle: const Text('Not worn yet. Give it a try!'),
-            trailing: TextButton(
-              onPressed: () async {
-                final success = await ref.read(calendarProvider.notifier).logWearForDate(
-                  DateTime.now(), 
-                  {insight.item.id},
-                  SelectionType.items
-                );
-                
-                // Chỉ xử lý tiếp nếu widget vẫn còn tồn tại
-                if (!context.mounted) return;
-
-                if (success) {
-                  // Hiển thị banner thành công
-                  ref.read(notificationServiceProvider).showBanner(
-                    message: 'Added "${insight.item.name}" to today\'s journal!',
-                    type: NotificationType.success,
-                  );
-                  // Kích hoạt làm mới màn hình Insights
-                  ref.read(closetInsightsProvider.notifier).fetchInsights();
-                }
-                // Nếu thất bại, banner lỗi đã được hiển thị bên trong notifier
-              },
-              style: TextButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha:0.1),
-                foregroundColor: Theme.of(context).colorScheme.primary,
-                shape: const StadiumBorder(),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    return SliverList.separated(
+      itemCount: insights.length,
+      separatorBuilder: (context, index) =>
+          const Divider(indent: 16, endIndent: 16, height: 1),
+      itemBuilder: (context, index) {
+        final insight = insights[index];
+        return Consumer(
+          builder: (context, ref, child) {
+            return ListTile(
+              leading: SizedBox(
+                width: 50,
+                height: 50,
+                child: Image.file(
+                    File(insight.item.thumbnailPath ?? insight.item.imagePath),
+                    fit: BoxFit.contain),
               ),
-              child: const Text('Wear Today', style: TextStyle(fontWeight: FontWeight.bold)),
-            ),
-          );
-        },
-      );
-    },
-  );
-}
+              title: Text(insight.item.name),
+              subtitle: const Text('Not worn yet. Give it a try!'),
+              trailing: TextButton(
+                onPressed: () async {
+                  final success =
+                      await ref.read(calendarProvider.notifier).logWearForDate(
+                            DateTime.now(),
+                            {insight.item.id},
+                            SelectionType.items,
+                          );
 
-  // 5. Widget cho phân tích danh mục
-  Widget _buildCategoryAnalysis(BuildContext context, ClosetInsights insights) {
+                  if (!context.mounted) return;
+
+                  if (success) {
+                    ref.read(notificationServiceProvider).showBanner(
+                          message:
+                              'Added "${insight.item.name}" to today\'s journal!',
+                          type: NotificationType.success,
+                        );
+                    ref.read(closetInsightsProvider.notifier).fetchInsights();
+                  }
+                },
+                style: TextButton.styleFrom(
+                  backgroundColor:
+                      Theme.of(context).colorScheme.primary.withValues(alpha:0.1),
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                  shape: const StadiumBorder(),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const Text('Wear Today',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildCategoryAnalysis(
+      BuildContext context, ClosetInsights insights) {
     final sortedEntries = insights.valueByCategory.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-      
-    if (sortedEntries.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
+
+    if (sortedEntries.isEmpty) {
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
+    }
 
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -433,86 +423,74 @@ class ClosetInsightsScreen extends ConsumerWidget {
   }
 }
 
-
 // --- CÁC WIDGET THÀNH PHẦN NHỎ HƠN ---
 
-class _BestValueItemCard extends ConsumerWidget {
+class _InsightItemCard extends StatelessWidget {
   final ItemInsight insight;
-  const _BestValueItemCard({required this.insight});
+  final Widget subtitle;
+
+  const _InsightItemCard({
+    required this.insight,
+    required this.subtitle,
+  });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(profileProvider);
-    final formatter = ref.read(numberFormattingServiceProvider);
-
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      // Stack cho phép các widget xếp chồng lên nhau
-      child: Stack(
-        fit: StackFit.expand, // Làm cho các con trong Stack lấp đầy Card
-        children: [
-          // LỚP 1: HÌNH ẢNH NỀN
-          Image.file(
-            File(insight.item.thumbnailPath ?? insight.item.imagePath),
-            fit: BoxFit.cover, // Luôn lấp đầy khung mà không bị méo
-            errorBuilder: (ctx, err, stack) => const Icon(Icons.error),
-          ),
-
-          // LỚP 2: LỚP PHỦ GRADIENT ĐỂ CHỮ DỄ ĐỌC
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 80, // Chiều cao của dải gradient
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [
-                    Colors.black.withValues(alpha:0.7),
-                    Colors.black.withValues(alpha:0.0),
-                  ],
+  Widget build(BuildContext context) {
+    // THAY ĐỔI 3: Bọc Card trong AspectRatio để giữ tỷ lệ 3:4
+    return AspectRatio(
+      aspectRatio: 3 / 4,
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Image.file(
+              File(insight.item.thumbnailPath ?? insight.item.imagePath),
+              fit: BoxFit.cover,
+              errorBuilder: (ctx, err, stack) => const Icon(Icons.error),
+            ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 80,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      Colors.black.withValues(alpha:0.7),
+                      Colors.black.withValues(alpha:0.0),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-
-          // LỚP 3: NỘI DUNG VĂN BẢN
-          Positioned(
-            bottom: 8,
-            left: 8,
-            right: 8,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  insight.item.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white, // Chữ màu trắng
-                    shadows: [Shadow(blurRadius: 2, color: Colors.black54)], // Đổ bóng cho dễ đọc
+            Positioned(
+              bottom: 8,
+              left: 8,
+              right: 8,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    insight.item.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      shadows: [Shadow(blurRadius: 2, color: Colors.black54)],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  '${formatter.formatPrice(
-                    price: insight.costPerWear,
-                    currency: settings.currency,
-                    formatType: settings.numberFormat,
-                  )}/wear',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary, // Dùng màu xanh chủ đạo
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13
-                  ),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  subtitle,
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -541,7 +519,8 @@ class _CategoryProgressRow extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(category, style: const TextStyle(fontWeight: FontWeight.w500)),
+              Text(category,
+                  style: const TextStyle(fontWeight: FontWeight.w500)),
               Text(
                 formatter.formatPrice(
                   price: value,

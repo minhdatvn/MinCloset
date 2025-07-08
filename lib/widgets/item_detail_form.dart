@@ -145,117 +145,131 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                 Positioned(
                   bottom: 12,
                   right: 12,
-                  child: FilledButton.icon(
-                    onPressed: () async {
-                      // Phần logic lấy ảnh và hiển thị dialog xác nhận giữ nguyên
-                      Uint8List? currentImageBytes;
-                      if (widget.itemState.image != null) {
-                        currentImageBytes = await widget.itemState.image!.readAsBytes();
-                      } else if (widget.itemState.imagePath != null) {
-                        currentImageBytes = await File(widget.itemState.imagePath!).readAsBytes();
-                      }
+                  child: Row(
+                    // Nhóm 2 nút vào một Row
+                    children: [
+                      // Nút Edit
+                      FilledButton.icon(
+                        onPressed: widget.onEditImagePressed,
+                        icon: const Icon(Icons.edit_outlined, size: 18),
+                        label: const Text('Edit'),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          backgroundColor: Colors.black.withValues(alpha:0.6),
+                        ),
+                      ),
 
-                      if (currentImageBytes == null || !context.mounted) return;
+                      // Khoảng cách cố định giữa 2 nút
+                      const SizedBox(width: 8),
 
-                      bool shouldProceed = true;
-                      try {
-                        final image = img.decodeImage(currentImageBytes);
-                        if (image?.hasAlpha == true) {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                              title: const Text('Image May Have Been Processed'),
-                              content: const Text('This image might already have a transparent background. Proceeding again may cause errors. Do you want to continue?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(ctx).pop(false),
-                                  child: const Text('Cancel'),
+                      // Nút Remove BG
+                      FilledButton.icon(
+                        onPressed: () async {
+                          Uint8List? currentImageBytes;
+                          if (widget.itemState.image != null) {
+                            currentImageBytes =
+                                await widget.itemState.image!.readAsBytes();
+                          } else if (widget.itemState.imagePath != null) {
+                            currentImageBytes = await File(
+                                    widget.itemState.imagePath!)
+                                .readAsBytes();
+                          }
+
+                          if (currentImageBytes == null || !context.mounted) {
+                            return;
+                          }
+
+                          bool shouldProceed = true;
+                          try {
+                            final image = img.decodeImage(currentImageBytes);
+                            if (image?.hasAlpha == true) {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text(
+                                      'Image May Have Been Processed'),
+                                  content: const Text(
+                                      'This image might already have a transparent background. Proceeding again may cause errors. Do you want to continue?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(ctx).pop(false),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.of(ctx).pop(true),
+                                      style: TextButton.styleFrom(
+                                          foregroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .error),
+                                      child: const Text('Continue'),
+                                    ),
+                                  ],
                                 ),
-                                TextButton(
-                                  onPressed: () => Navigator.of(ctx).pop(true),
-                                  style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
-                                  child: const Text('Continue'),
-
-                                ),
-                              ],
-                            ),
-                          );
-                          shouldProceed = confirm ?? false;
-                        }
-                      } catch (e) {
-                        shouldProceed = false;
-                        ref.read(notificationServiceProvider).showBanner(message: 'Error reading image format.');
-                      }
-
-                      // PHẦN LOGIC TIMEOUT BẮT ĐẦU TẠI ĐÂY
-                      if (shouldProceed && context.mounted) {
-                        // Hiển thị một dialog loading để người dùng biết app đang xử lý
-                        showDialog(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (ctx) => const PopScope(
-                            canPop: false, // Ngăn người dùng back trong lúc xử lý
-                            child: Center(child: CircularProgressIndicator()),
-                          ),
-                        );
-
-                        try {
-                          // Điều hướng đến trang xóa nền và áp dụng timeout
-                          final removedBgBytes = await Navigator.pushNamed<Uint8List?>(
-                            context,
-                            AppRoutes.backgroundRemover,
-                            arguments: currentImageBytes,
-                          ).timeout(const Duration(seconds: 45)); // Đặt thời gian chờ là 45 giây
-
-                          // Tắt dialog loading khi xử lý xong
-                          if (context.mounted) Navigator.of(context).pop();
-
-                          // Cập nhật ảnh nếu thành công
-                          if (removedBgBytes != null) {
-                            widget.onImageUpdated?.call(removedBgBytes);
+                              );
+                              shouldProceed = confirm ?? false;
+                            }
+                          } catch (e) {
+                            shouldProceed = false;
+                            ref
+                                .read(notificationServiceProvider)
+                                .showBanner(
+                                    message: 'Error reading image format.');
                           }
-                        } on TimeoutException {
-                          // Xử lý khi hết thời gian chờ
-                          if (context.mounted) Navigator.of(context).pop(); // Tắt dialog loading
-                          if (context.mounted) {
-                            ref.read(notificationServiceProvider).showBanner(
-                                  message: 'Operation timed out after 45 seconds.',
-                                );
+
+                          if (shouldProceed && context.mounted) {
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (ctx) => const PopScope(
+                                canPop: false,
+                                child:
+                                    Center(child: CircularProgressIndicator()),
+                              ),
+                            );
+
+                            try {
+                              final removedBgBytes = await Navigator.pushNamed<
+                                      Uint8List?>(
+                                context,
+                                AppRoutes.backgroundRemover,
+                                arguments: currentImageBytes,
+                              ).timeout(const Duration(seconds: 45));
+
+                              if (context.mounted) Navigator.of(context).pop();
+
+                              if (removedBgBytes != null) {
+                                widget.onImageUpdated?.call(removedBgBytes);
+                              }
+                            } on TimeoutException {
+                              if (context.mounted) Navigator.of(context).pop();
+                              if (context.mounted) {
+                                ref.read(notificationServiceProvider).showBanner(
+                                      message:
+                                          'Operation timed out after 45 seconds.',
+                                    );
+                              }
+                            } catch (e) {
+                              if (context.mounted) Navigator.of(context).pop();
+                              if (context.mounted) {
+                                ref.read(notificationServiceProvider).showBanner(
+                                      message:
+                                          'An unexpected error occurred: $e',
+                                    );
+                              }
+                            }
                           }
-                        } catch (e) {
-                          // Xử lý các lỗi khác có thể xảy ra
-                          if (context.mounted) Navigator.of(context).pop(); // Tắt dialog loading
-                          if (context.mounted) {
-                            ref.read(notificationServiceProvider).showBanner(
-                                  message: 'An unexpected error occurred: $e',
-                                );
-                          }
-                        }
-                      }
-                    },
-                    icon: const Icon(Icons.auto_fix_high_outlined, size: 18),
-                    label: const Text('Remove BG'),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      backgroundColor: Colors.black.withValues(alpha:0.6),
-                    ),
-                  ),
-                ),
-              // Lớp 4: Nút EDIT
-              if (widget.itemState.image != null || widget.itemState.imagePath != null)
-                Positioned(
-                  bottom: 12,
-                  // Đặt nút Edit bên trái nút RemoveBG
-                  // Bạn có thể điều chỉnh giá trị 'right' để có vị trí ưng ý
-                  right: 140, 
-                  child: FilledButton.icon(
-                    onPressed: widget.onEditImagePressed, // Sử dụng callback mới
-                    icon: const Icon(Icons.edit_outlined, size: 18),
-                    label: const Text('Edit'),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      backgroundColor: Colors.black.withValues(alpha:0.6),
-                    ),
+                        },
+                        icon: const Icon(Icons.auto_fix_high_outlined,
+                            size: 18),
+                        label: const Text('Remove BG'),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          backgroundColor: Colors.black.withValues(alpha:0.6),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               // Lớp 5: Vòng xoay loading khi phân tích AI (giữ nguyên)

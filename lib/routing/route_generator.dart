@@ -1,7 +1,7 @@
 // lib/routing/route_generator.dart
 
 import 'dart:typed_data';
-
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
@@ -53,8 +53,8 @@ class RouteGenerator {
 
       case AppRoutes.addItem:
         final itemArgs = args as ItemNotifierArgs?;
-        return MaterialPageRoute<bool>(
-          builder: (_) => AddItemScreen(
+        return AnimatePageRoute<bool>( // Sử dụng lớp mới
+          page: AddItemScreen(
             itemToEdit: itemArgs?.itemToEdit,
             preAnalyzedState: itemArgs?.preAnalyzedState,
           ),
@@ -166,4 +166,46 @@ class RouteGenerator {
       ),
     );
   }
+}
+
+class AnimatePageRoute<T> extends PageRouteBuilder<T> {
+  final Widget page;
+
+  AnimatePageRoute({required this.page, super.settings})
+      : super(
+          pageBuilder: (context, animation, secondaryAnimation) => page,
+          transitionDuration: const Duration(milliseconds: 400),
+          reverseTransitionDuration: const Duration(milliseconds: 400),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            // Sử dụng Animate như một widget và điều khiển nó bằng animation của route
+            return Animate(
+              effects: [
+                // Hiệu ứng trượt ngang
+                SlideEffect(
+                  begin: const Offset(-1.0, 0.0), // Bắt đầu từ bên trái
+                  end: Offset.zero,
+                  curve: Curves.easeOutCubic,
+                ),
+                // Hiệu ứng mờ dần
+                FadeEffect(
+                  begin: 0.0,
+                  end: 1.0,
+                  curve: Curves.easeOutCubic,
+                )
+              ],
+              // Điều khiển hiệu ứng bằng giá trị của animation do PageRouteBuilder cung cấp
+              value: animation.value, 
+              // Không để Animate tự động chạy
+              autoPlay: false, 
+              // Hiệu ứng khi đóng (pop) trang
+              onComplete: (controller) {
+                // Khi trang đóng, controller sẽ chạy ngược lại
+                if (animation.status == AnimationStatus.reverse) {
+                  controller.reverse();
+                }
+              },
+              child: child,
+            );
+          },
+        );
 }

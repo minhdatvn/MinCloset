@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
@@ -46,8 +47,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
   Future<void> _showDeleteConfirmationDialog(BuildContext context) async {
     if (widget.itemToEdit == null) return;
 
-    final confirmed = await showDialog<bool>(
-      context: context,
+    final confirmed = await showAnimatedDialog<bool>(
+      context,
       builder: (ctx) => AlertDialog(
         title: const Text('Confirm deletion'),
         content: Text('Are you sure to permanently delete item "${widget.itemToEdit!.name}" ?'),

@@ -16,6 +16,7 @@ import 'package:mincloset/widgets/closet_form_dialog.dart';
 import 'package:mincloset/widgets/item_search_filter_bar.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:mincloset/helpers/dialog_helpers.dart';
 
 class ClosetsPage extends ConsumerStatefulWidget {
   const ClosetsPage({super.key});
@@ -190,8 +191,8 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
                       label: 'Delete',
                       color: Colors.red,
                       onPressed: () async {
-                        final confirmed = await showDialog<bool>(
-                          context: context,
+                        final confirmed = await showAnimatedDialog<bool>(
+                          context,
                           builder: (ctx) => AlertDialog(
                             title: const Text('Confirm Deletion'),
                             content: Text('Are you sure you want to permanently delete ${state.selectedItemIds.length} selected item(s)?'),
@@ -391,8 +392,8 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                   leading: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),
                   title: Text('Add new closet', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
                   onTap: () {
-                    showDialog(
-                      context: context,
+                    showAnimatedDialog(
+                      context,
                       builder: (ctx) => ClosetFormDialog(
                         onSubmit: (name) async {
                           final error = await ref.read(closetsPageProvider.notifier).addCloset(name);
@@ -432,8 +433,8 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                   ),
                   confirmDismiss: (direction) async {
                     if (direction == DismissDirection.endToStart) {
-                      final confirmed = await showDialog<bool>(
-                        context: context,
+                      final confirmed = await showAnimatedDialog<bool>(
+                        context,
                         builder: (dialogCtx) => AlertDialog(
                           title: const Text('Confirm Deletion'),
                           content: Text('Are you sure you want to delete the "${closet.name}" closet?'),

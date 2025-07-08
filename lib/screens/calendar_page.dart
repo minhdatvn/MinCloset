@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
@@ -105,8 +106,8 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                   // <<< THAY ĐỔI 1: Đổi màu icon thùng rác >>>
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
                   onPressed: () async {
-                    final confirmed = await showDialog<bool>(
-                      context: context,
+                    final confirmed = await showAnimatedDialog<bool>(
+                      context,
                       builder: (ctx) => AlertDialog(
                         title: const Text('Confirm Deletion'),
                         // Dùng số nhóm đã chọn trong thông báo
@@ -291,8 +292,8 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                 child: const Icon(Icons.delete_outline, color: Colors.white),
               ),
               confirmDismiss: (direction) async {
-                  return await showDialog<bool>(
-                    context: context,
+                  return await showAnimatedDialog<bool>(
+                    context,
                     builder: (ctx) => AlertDialog(
                       title: const Text('Confirm Deletion'),
                       content: Text(isOutfit

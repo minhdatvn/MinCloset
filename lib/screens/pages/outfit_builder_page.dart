@@ -17,7 +17,7 @@ import 'package:mincloset/states/outfit_builder_state.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:mincloset/widgets/item_search_filter_bar.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
-
+import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:uuid/uuid.dart';
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
@@ -185,8 +185,8 @@ void initState() {
     final isSavingNotifier = ValueNotifier<bool>(false);
     final formKey = GlobalKey<FormState>();
 
-    final result = await showDialog<Map<String, dynamic>>(
-      context: context,
+    final result = await showAnimatedDialog<Map<String, dynamic>>(
+      context,
       barrierDismissible: false,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setState) => Form(

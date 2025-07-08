@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/helpers/currency_input_formatter.dart';
+import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
@@ -183,8 +184,8 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                           try {
                             final image = img.decodeImage(currentImageBytes);
                             if (image?.hasAlpha == true) {
-                              final confirm = await showDialog<bool>(
-                                context: context,
+                              final confirm = await showAnimatedDialog<bool>(
+                                context,
                                 builder: (ctx) => AlertDialog(
                                   title: const Text(
                                       'Image May Have Been Processed'),

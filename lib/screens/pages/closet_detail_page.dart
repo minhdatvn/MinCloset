@@ -10,6 +10,7 @@ import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
+import 'package:mincloset/helpers/dialog_helpers.dart';
 
 class ClosetDetailPage extends ConsumerStatefulWidget {
   final Closet closet;
@@ -59,8 +60,8 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
         return;
       }
 
-      final String? targetClosetId = await showDialog(
-        context: context,
+      final String? targetClosetId = await showAnimatedDialog(
+        context,
         builder: (ctx) => _MoveItemsDialog(
           availableClosets: availableClosets,
           itemCount: itemsToMove.length,
@@ -196,8 +197,8 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
                         label: 'Delete',
                         color: Colors.red,
                         onPressed: () async {
-                          final confirmed = await showDialog<bool>(
-                            context: context,
+                          final confirmed = await showAnimatedDialog<bool>(
+                            context,
                             builder: (ctx) => AlertDialog(
                               title: const Text('Confirm Deletion'),
                               content: Text('Are you sure you want to permanently delete ${state.selectedItemIds.length} selected item(s)?'),

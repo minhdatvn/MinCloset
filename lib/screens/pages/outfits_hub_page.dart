@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/outfit_detail_notifier.dart';
@@ -193,8 +194,8 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
     Outfit outfit,
     OutfitsHubNotifier notifier,
   ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
+    final confirmed = await showAnimatedDialog<bool>(
+      context,
       builder: (ctx) => AlertDialog(
         title: const Text('Confirm deletion'),
         content: Text('Permanently delete outfit "${outfit.name}"?'),

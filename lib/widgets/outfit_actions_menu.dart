@@ -1,6 +1,7 @@
 // lib/widgets/outfit_actions_menu.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/outfit_detail_notifier.dart';
@@ -60,8 +61,8 @@ class OutfitActionsMenu extends ConsumerWidget {
 
   void _showEditOutfitNameDialog(BuildContext context, WidgetRef ref, Outfit currentOutfit, VoidCallback? onUpdateCallback) {
     final nameController = TextEditingController(text: currentOutfit.name);
-    showDialog(
-      context: context,
+    showAnimatedDialog(
+      context,
       builder: (ctx) => AlertDialog(
         title: const Text('Rename outfit'),
         content: TextField(controller: nameController, autofocus: true, decoration: const InputDecoration(labelText: 'New name')),
@@ -105,8 +106,8 @@ class OutfitActionsMenu extends ConsumerWidget {
     // <<< SỬA LỖI: Lấy navigator và scaffoldMessenger ra trước khi có `await` >>>
     final navigator = Navigator.of(context);
 
-    final confirmed = await showDialog<bool>(
-      context: context,
+    final confirmed = await showAnimatedDialog<bool>(
+      context,
       builder: (ctx) => AlertDialog(
         title: const Text('Confirm deletion'),
         content: Text('Permanently delete outfit "${outfit.name}"?'),

@@ -14,6 +14,10 @@ class SettingsRepository {
   static const avatarPathKey = 'user_avatar_path';
   static const genderKey = 'user_gender';
   static const dobKey = 'user_dob';
+  static const heightKey = 'user_height';                 // <<< THÊM MỚI
+  static const weightKey = 'user_weight';                 // <<< THÊM MỚI
+  static const personalStylesKey = 'user_personal_styles'; // <<< THÊM MỚI
+  static const favoriteColorsKey = 'user_favorite_colors'; // <<< THÊM MỚI
   static const styleKey = 'user_style';
   static const currencyKey = 'user_currency';
   static const numberFormatKey = 'user_number_format';
@@ -27,18 +31,22 @@ class SettingsRepository {
   Future<Map<String, dynamic>> getUserProfile() async {
     final prefs = await _ref.read(sharedPreferencesProvider.future);
     final profileData = {
-      'name': prefs.getString(userNameKey),
-      'avatarPath': prefs.getString(avatarPathKey),
-      'gender': prefs.getString(genderKey),
-      'dob': prefs.getString(dobKey),
-      'style': prefs.getString(styleKey),
-      'currency': prefs.getString(currencyKey),
-      'numberFormat': prefs.getString(numberFormatKey),
-      'cityMode': prefs.getString(cityModeKey),
-      'manualCity': prefs.getString(manualCityKey),
-      'manual_city_lat': prefs.getDouble(manualCityLatKey),
-      'manual_city_lon': prefs.getDouble(manualCityLonKey),
-      'showWeatherImage': prefs.getBool(showWeatherImageKey),
+      userNameKey: prefs.getString(userNameKey),
+      avatarPathKey: prefs.getString(avatarPathKey),
+      genderKey: prefs.getString(genderKey),
+      dobKey: prefs.getString(dobKey),
+      heightKey: prefs.getInt(heightKey),
+      weightKey: prefs.getInt(weightKey),
+      personalStylesKey: prefs.getStringList(personalStylesKey),
+      favoriteColorsKey: prefs.getStringList(favoriteColorsKey),
+      styleKey: prefs.getString(styleKey),
+      currencyKey: prefs.getString(currencyKey),
+      numberFormatKey: prefs.getString(numberFormatKey),
+      cityModeKey: prefs.getString(cityModeKey),
+      manualCityKey: prefs.getString(manualCityKey),
+      manualCityLatKey: prefs.getDouble(manualCityLatKey),
+      manualCityLonKey: prefs.getDouble(manualCityLonKey),
+      showWeatherImageKey: prefs.getBool(showWeatherImageKey),
     };
 
     // DEBUG: In ra dữ liệu đọc được

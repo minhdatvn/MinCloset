@@ -55,21 +55,21 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       
       // --- THAY ĐỔI: LẤY DỮ LIỆU TỪ REPOSITORY ---
       final profileData = await _settingsRepo.getUserProfile();
-      final userName = profileData['name'] as String? ?? 'MinCloset user';
-      final avatarPath = profileData['avatarPath'] as String?;
-      final gender = profileData['gender'] as String?;
-      final dobString = profileData['dob'] as String?;
+      final userName = profileData[SettingsRepository.userNameKey] as String? ?? 'MinCloset user';
+      final avatarPath = profileData[SettingsRepository.avatarPathKey] as String?;
+      final gender = profileData[SettingsRepository.genderKey] as String?;
+      final dobString = profileData[SettingsRepository.dobKey] as String?;
       final dob = dobString != null ? DateTime.tryParse(dobString) : null;
-      final height = profileData['height'] as int?;
-      final weight = profileData['weight'] as int?;
-      final personalStyles = (profileData['personalStyles'] as List<String>?)?.toSet() ?? {};
-      final favoriteColors = (profileData['favoriteColors'] as List<String>?)?.toSet() ?? {};
-      final cityModeString = profileData['cityMode'] as String? ?? 'auto';
+      final height = profileData[SettingsRepository.heightKey] as int?;
+      final weight = profileData[SettingsRepository.weightKey] as int?;
+      final personalStyles = (profileData[SettingsRepository.personalStylesKey] as List<String>?)?.toSet() ?? {};
+      final favoriteColors = (profileData[SettingsRepository.favoriteColorsKey] as List<String>?)?.toSet() ?? {};
+      final cityModeString = profileData[SettingsRepository.cityModeKey] as String? ?? 'auto';
       final cityMode = CityMode.values.byName(cityModeString);
-      final manualCity = profileData['manualCity'] as String? ?? 'Ha Noi, VN';
-      final showWeatherImage = profileData['showWeatherImage'] as bool? ?? true;
-      final currency = profileData['currency'] as String? ?? 'USD';
-      final numberFormatString = profileData['numberFormat'] as String? ?? 'dotDecimal';
+      final manualCity = profileData[SettingsRepository.manualCityKey] as String? ?? 'Ha Noi, VN';
+      final showWeatherImage = profileData[SettingsRepository.showWeatherImageKey] as bool? ?? true;
+      final currency = profileData[SettingsRepository.currencyKey] as String? ?? 'USD';
+      final numberFormatString = profileData[SettingsRepository.numberFormatKey] as String? ?? 'dotDecimal';
       final numberFormat = NumberFormatType.values.firstWhere(
         (e) => e.name == numberFormatString,
         orElse: () => NumberFormatType.dotDecimal,
@@ -275,16 +275,16 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     return false;
   }
   
-  Future<void> updateProfileInfo(Map<String, dynamic> data) async {
-    // THAY ĐỔI: Toàn bộ logic lưu được chuyển vào repository
+    Future<void> updateProfileInfo(Map<String, dynamic> data) async {
+    // Sửa lỗi: Luôn sử dụng các key đã được định nghĩa trong SettingsRepository
     await _settingsRepo.saveUserProfile({
-      'name': data['name'],
-      'gender': data['gender'],
-      'dob': (data['dob'] as DateTime?)?.toIso8601String(),
-      'height': data['height'],
-      'weight': data['weight'],
-      'personalStyles': (data['personalStyles'] as Set<String>?)?.toList(),
-      'favoriteColors': (data['favoriteColors'] as Set<String>?)?.toList(),
+      SettingsRepository.userNameKey: data['name'],
+      SettingsRepository.genderKey: data['gender'],
+      SettingsRepository.dobKey: (data['dob'] as DateTime?)?.toIso8601String(),
+      SettingsRepository.heightKey: data['height'],
+      SettingsRepository.weightKey: data['weight'],
+      SettingsRepository.personalStylesKey: (data['personalStyles'] as Set<String>?)?.toList(),
+      SettingsRepository.favoriteColorsKey: (data['favoriteColors'] as Set<String>?)?.toList(),
     });
 
     // Cập nhật state như cũ

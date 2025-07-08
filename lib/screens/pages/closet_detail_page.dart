@@ -169,67 +169,79 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
           ),
         ),
         // Thanh menu dưới cùng chỉ hiển thị ở chế độ chọn nhiều
-        bottomNavigationBar: state.isMultiSelectMode
-          ? BottomAppBar(
-              // Đặt chiều cao nhỏ hơn
-              height: 60,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  // Nút Xóa
-                  _buildBottomBarButton(
-                    context: context,
-                    icon: Icons.delete_outline,
-                    label: 'Delete',
-                    color: Colors.red,
-                    onPressed: () async {
-                      final confirmed = await showDialog<bool>(
+        bottomNavigationBar: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            // Hiệu ứng trượt từ dưới lên
+            final offsetAnimation = Tween<Offset>(
+              begin: const Offset(0.0, 1.0),
+              end: Offset.zero,
+            ).animate(animation);
+            return SlideTransition(
+              position: offsetAnimation,
+              child: child,
+            );
+          },
+          child: state.isMultiSelectMode
+              ? BottomAppBar(
+                  key: const ValueKey('closet_detail_bottom_bar'),
+                  height: 60,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      // Các nút bấm giữ nguyên như cũ
+                      _buildBottomBarButton(
                         context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text('Confirm Deletion'),
-                          content: Text('Are you sure you want to permanently delete ${state.selectedItemIds.length} selected item(s)?'),
-                          actions: [
-                            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-                            TextButton(
-                              onPressed: () => Navigator.of(ctx).pop(true),
-                              style: TextButton.styleFrom(foregroundColor: Colors.red),
-                              child: const Text('Delete'),
+                        icon: Icons.delete_outline,
+                        label: 'Delete',
+                        color: Colors.red,
+                        onPressed: () async {
+                          final confirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('Confirm Deletion'),
+                              content: Text('Are you sure you want to permanently delete ${state.selectedItemIds.length} selected item(s)?'),
+                              actions: [
+                                TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+                                TextButton(
+                                  onPressed: () => Navigator.of(ctx).pop(true),
+                                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                                  child: const Text('Delete'),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      );
-
-                      if (confirmed == true) {
-                        await notifier.deleteSelectedItems();
-                      }
-                    },
+                          );
+                          if (confirmed == true) {
+                            await notifier.deleteSelectedItems();
+                          }
+                        },
+                      ),
+                      _buildBottomBarButton(
+                        context: context,
+                        icon: Icons.move_up_outlined,
+                        label: 'Move',
+                        onPressed: () {
+                          final itemsToMove = state.items.where((item) => state.selectedItemIds.contains(item.id)).toSet();
+                          _showMoveDialog(notifier, itemsToMove);
+                        },
+                      ),
+                      _buildBottomBarButton(
+                        context: context,
+                        icon: Icons.add_to_photos_outlined,
+                        label: 'Create Outfit',
+                        onPressed: () {
+                          final selectedItems = state.items.where((item) => state.selectedItemIds.contains(item.id)).toList();
+                          notifier.clearSelectionAndExitMode();
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => OutfitBuilderPage(preselectedItems: selectedItems)));
+                        },
+                      ),
+                    ],
                   ),
-                  // Nút Di chuyển
-                  _buildBottomBarButton(
-                    context: context,
-                    icon: Icons.move_up_outlined,
-                    label: 'Move',
-                    onPressed: () {
-                      final itemsToMove = state.items.where((item) => state.selectedItemIds.contains(item.id)).toSet();
-                      _showMoveDialog(notifier, itemsToMove);
-                    },
-                  ),
-                  // Nút Tạo trang phục
-                  _buildBottomBarButton(
-                    context: context,
-                    icon: Icons.add_to_photos_outlined,
-                    label: 'Create Outfit',
-                    onPressed: () {
-                      final selectedItems = state.items.where((item) => state.selectedItemIds.contains(item.id)).toList();
-                      notifier.clearSelectionAndExitMode();
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => OutfitBuilderPage(preselectedItems: selectedItems)));
-                    },
-                  ),
-                ],
-              ),
-            )
-          : null,
-      ),
+                )
+              // Khi không ở chế độ chọn nhiều, widget sẽ là một hộp rỗng
+              : const SizedBox.shrink(key: ValueKey('empty_closet_detail_bar')),
+          ),
+      )
     );
   }
 

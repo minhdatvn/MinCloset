@@ -164,13 +164,26 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
             ],
           ),
         ),
-        bottomNavigationBar: state.isMultiSelectMode
+        bottomNavigationBar: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          final offsetAnimation = Tween<Offset>(
+            begin: const Offset(0.0, 1.0),
+            end: Offset.zero,
+          ).animate(animation);
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+        child: state.isMultiSelectMode
             ? BottomAppBar(
-                height: 60, // Đặt chiều cao
+                key: const ValueKey('closets_page_bottom_bar'),
+                height: 60,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    // Nút Xóa
+                    // Các nút bấm giữ nguyên như cũ
                     _buildBottomBarButton(
                       context: context,
                       icon: Icons.delete_outline,
@@ -192,13 +205,11 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
                             ],
                           ),
                         );
-
                         if (confirmed == true) {
                           await notifier.deleteSelectedItems();
                         }
                       },
                     ),
-                    // Nút Tạo trang phục
                     _buildBottomBarButton(
                       context: context,
                       icon: Icons.add_to_photos_outlined,
@@ -212,7 +223,9 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
                   ],
                 ),
               )
-            : null,
+            // Khi không ở chế độ chọn nhiều, widget sẽ là một hộp rỗng
+            : const SizedBox.shrink(key: ValueKey('empty_closets_page_bar')),
+        ),
       ),
     );
   }

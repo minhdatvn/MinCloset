@@ -75,7 +75,7 @@ class RouteGenerator {
 
       case AppRoutes.outfitDetail:
         if (args is Outfit) {
-          return MaterialPageRoute<bool>(builder: (_) => OutfitDetailPage(outfit: args), settings: settings);
+          return AnimatePageRoute<bool>(page: OutfitDetailPage(outfit: args), settings: settings);
         }
         return _errorRoute();
 

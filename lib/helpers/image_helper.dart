@@ -26,11 +26,17 @@ class ImageHelper {
         return null;
       }
       final thumbnail = img.copyResize(image, width: 300);
-      final jpgBytes = img.encodeJpg(thumbnail, quality: 85);
+      // 1. Mã hóa thành PNG thay vì JPG
+      final pngBytes = img.encodePng(thumbnail);
+
       final directory = await getApplicationDocumentsDirectory();
-      final fileName = 'thumb_${const Uuid().v4()}.jpg';
+      // 2. Lưu file với đuôi .png
+      final fileName = 'thumb_${const Uuid().v4()}.png';
       final thumbnailPath = p.join(directory.path, fileName);
-      await File(thumbnailPath).writeAsBytes(jpgBytes);
+      
+      // 3. Ghi dữ liệu PNG vào file
+      await File(thumbnailPath).writeAsBytes(pngBytes);
+      
       logger.i('Thumbnail created at: $thumbnailPath');
       return thumbnailPath;
     } catch (e, s) {

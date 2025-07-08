@@ -100,8 +100,7 @@ class DayPlannerCard extends StatelessWidget {
         final path = displayImages[index];
         return Container(
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(color: Colors.grey.shade200, width: 0.5)),
+              borderRadius: BorderRadius.circular(4)),
           clipBehavior: Clip.antiAlias,
           child: Image.file(
             File(path),

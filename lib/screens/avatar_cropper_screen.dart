@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:mincloset/theme/app_theme.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 
-class AvatarCropperScreen extends StatelessWidget {
+// 1. Chuyển thành StatefulWidget
+class AvatarCropperScreen extends StatefulWidget {
   final Uint8List imageBytes;
 
   const AvatarCropperScreen({
@@ -13,31 +14,32 @@ class AvatarCropperScreen extends StatelessWidget {
   });
 
   @override
+  State<AvatarCropperScreen> createState() => _AvatarCropperScreenState();
+}
+
+class _AvatarCropperScreenState extends State<AvatarCropperScreen> {
+  // Biến để lưu tạm kết quả
+  Uint8List? _croppedBytes;
+
+  @override
   Widget build(BuildContext context) {
     return CropRotateEditor.memory(
-      imageBytes,
+      widget.imageBytes, // Sử dụng widget.imageBytes
       initConfigs: CropRotateEditorInitConfigs(
         theme: appTheme,
         convertToUint8List: true,
-        
         callbacks: ProImageEditorCallbacks(
-          // --- SỬA LỖI CHÍNH XÁC TẠI ĐÂY ---
-          // 1. Thêm lại từ khóa `async` để có đúng kiểu trả về Future<void>
+          // 2. Chỉ lưu kết quả, không pop màn hình
           onImageEditingComplete: (Uint8List bytes) async {
-            if (context.mounted) {
-              Navigator.of(context).pop(bytes);
-            }
+            _croppedBytes = bytes;
           },
-          
-          // 2. Giữ nguyên chữ ký hàm đúng cho onCloseEditor
+          // 3. Chỉ pop màn hình ở đây, và trả về kết quả đã lưu
           onCloseEditor: (EditorMode mode) {
             if (context.mounted) {
-              Navigator.of(context).pop();
+              Navigator.of(context).pop(_croppedBytes);
             }
           },
-          // --- KẾT THÚC SỬA LỖI ---
         ),
-        
         configs: const ProImageEditorConfigs(
           cropRotateEditor: CropRotateEditorConfigs(
             initialCropMode: CropMode.oval,

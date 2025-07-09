@@ -54,8 +54,8 @@ class QuestMascot extends ConsumerWidget {
 
     // Bọc chú chim trong Draggable để cho phép kéo thả
     return Positioned(
-      left: mascotState.position.dx,
-      top: mascotState.position.dy,
+      left: mascotState.position?.dx,
+      top: mascotState.position?.dy,
       child: Draggable(
         feedback: child, // Widget hiển thị khi đang kéo
         childWhenDragging: const SizedBox.shrink(), // Ẩn widget gốc khi đang kéo

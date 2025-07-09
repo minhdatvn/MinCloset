@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mincloset/notifiers/quest_fab_notifier.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/pages/closets_page.dart';
@@ -15,22 +16,17 @@ import 'package:path_provider/path_provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:mincloset/widgets/quest_mascot.dart';
 
-// <<< SỬA LỖI: Lớp MainScreen giờ là StatelessWidget và chỉ chứa ShowCaseWidget >>>
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // ShowCaseWidget sẽ bọc MainScreenView, cung cấp context đúng cho tutorial
     return ShowCaseWidget(
-      // Tham số builder nhận một hàm, không phải một widget Builder
       builder: (context) => const MainScreenView(),
     );
   }
 }
 
-
-// Toàn bộ logic và giao diện của màn hình được chuyển vào đây
 class MainScreenView extends ConsumerStatefulWidget {
   const MainScreenView({super.key});
 
@@ -60,7 +56,6 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
       duration: const Duration(milliseconds: 300),
     );
 
-    // Context ở đây đã đúng và có thể tìm thấy ShowCaseWidget
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ShowCaseWidget.of(context).startShowCase([_addKey]);
     });
@@ -72,8 +67,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
     _removeOverlay();
     super.dispose();
   }
-
-  // Các hàm logic khác không có gì thay đổi...
+  
   void _toggleMenu() {
     setState(() {
       _isMenuOpen = !_isMenuOpen;
@@ -233,12 +227,31 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final mascotState = ref.watch(questMascotProvider);
     final selectedPageIndex = ref.watch(mainScreenIndexProvider);
     
+    // <<< ĐƯA LOGIC TÍNH TOÁN VÀO TRONG HÀM BUILD >>>
+    if (mascotState.position == null) {
+      // Sử dụng addPostFrameCallback để tránh lỗi "setState() or markNeedsBuild() called during build".
+      // Nó sẽ lên lịch cho việc cập nhật state ngay sau khi frame hiện tại được vẽ xong.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final size = MediaQuery.of(context).size;
+        const mascotWidth = 80.0;
+        const rightPadding = 16.0;
+
+        final dx = size.width - mascotWidth - rightPadding;
+        const dy = 450.0; 
+
+        // Cập nhật vị trí ban đầu
+        ref.read(questMascotProvider.notifier).updatePosition(Offset(dx, dy));
+      });
+    }
+
     int destinationIndex = selectedPageIndex >= 2 ? selectedPageIndex + 1 : selectedPageIndex;
     if (_isMenuOpen) destinationIndex = 2;
 
+    final theme = Theme.of(context);
     final navBarTheme = theme.navigationBarTheme;
     final Set<WidgetState> states = _isMenuOpen ? {WidgetState.selected} : {};
     final labelStyle = navBarTheme.labelTextStyle?.resolve(states);
@@ -252,7 +265,6 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
         }
       },
       child: Scaffold(
-        // <<< BỌC BODY BẰNG STACK >>>
         body: Stack(
           children: [
             SafeArea(
@@ -263,7 +275,10 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
                 children: _pages,
               ),
             ),
-            const QuestMascot(),
+            
+            // Điều kiện hiển thị vẫn giữ nguyên
+            if (mascotState.isVisible && mascotState.position != null)
+              const QuestMascot(),
           ],
         ),
         bottomNavigationBar: NavigationBar(

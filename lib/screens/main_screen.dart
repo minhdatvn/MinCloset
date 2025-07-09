@@ -1,4 +1,5 @@
 // lib/screens/main_screen.dart
+
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -12,28 +13,21 @@ import 'package:mincloset/screens/pages/closets_page.dart';
 import 'package:mincloset/screens/pages/home_page.dart';
 import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/screens/pages/profile_page.dart';
+import 'package:mincloset/states/tutorial_state.dart';
 import 'package:mincloset/widgets/quest_mascot.dart';
 import 'package:mincloset/widgets/speech_bubble.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
-// Enum để quản lý các bước của tutorial
-enum TutorialStep { none, welcome, introduce, showAddItem, finished }
-
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
-
+  
   @override
   Widget build(BuildContext context) {
-    // --- ĐÂY LÀ CHỖ SỬA LỖI ---
-    // builder chỉ đơn giản là một hàm trả về widget con của nó.
-    return ShowCaseWidget(
-      builder: (context) => const MainScreenView(),
-    );
+    return const MainScreenView();
   }
 }
 
-// ---- Toàn bộ nội dung còn lại của _MainScreenViewState giữ nguyên như cũ ----
 class MainScreenView extends ConsumerStatefulWidget {
   const MainScreenView({super.key});
 
@@ -55,7 +49,6 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
   ];
 
   final GlobalKey _addKey = GlobalKey();
-  TutorialStep _tutorialStep = TutorialStep.none;
 
   @override
   void initState() {
@@ -66,90 +59,15 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _startTutorial();
-    });
-  }
-
-  void _startTutorial() {
-    setState(() {
-      _tutorialStep = TutorialStep.welcome;
-      _overlayEntry = _buildTutorialOverlay();
-      Overlay.of(context).insert(_overlayEntry!);
-    });
-  }
-
-  void _advanceTutorial() {
-    if (!mounted) return;
-    setState(() {
-      switch (_tutorialStep) {
-        case TutorialStep.welcome:
-          _tutorialStep = TutorialStep.introduce;
-          _overlayEntry?.markNeedsBuild();
-          break;
-        case TutorialStep.introduce:
-          _tutorialStep = TutorialStep.showAddItem;
-          _overlayEntry?.remove();
-          _overlayEntry = null;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-             if (mounted) {
-                ShowCaseWidget.of(context).startShowCase([_addKey]);
-             }
-          });
-          break;
-        case TutorialStep.showAddItem:
-          _tutorialStep = TutorialStep.finished;
-          break;
-        default:
-          _closeTutorial();
-          break;
+      if (mounted) {
+        ref.read(tutorialProvider.notifier).startTutorial();
       }
     });
   }
-  
-  void _closeTutorial() {
-      if (!mounted) return;
-      setState(() {
-          _tutorialStep = TutorialStep.finished;
-          _overlayEntry?.remove();
-          _overlayEntry = null;
-      });
-  }
 
-  OverlayEntry _buildTutorialOverlay() {
-    return OverlayEntry(
-      builder: (context) {
-        String bubbleText = '';
-        switch (_tutorialStep) {
-          case TutorialStep.welcome:
-            bubbleText = "Welcome to MinCloset! I'm your personal fashion assistant.";
-            break;
-          case TutorialStep.introduce:
-            bubbleText = "Let me introduce you to the first and most important feature!";
-            break;
-          default:
-            return const SizedBox.shrink();
-        }
-
-        return GestureDetector(
-          onTap: _advanceTutorial,
-          child: Material(
-            color: Colors.black.withOpacity(0.8),
-            child: Center(
-              child: SpeechBubble(
-                text: bubbleText,
-                child: Image.asset(
-                  'assets/images/mascot.webp',
-                  width: 150,
-                  height: 150,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.flutter_dash, size: 120, color: Colors.blue),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
   }
 
   @override
@@ -159,9 +77,9 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     super.dispose();
   }
 
+  // Các hàm tiện ích (_toggleMenu, _closeMenu, v.v.) giữ nguyên
   void _toggleMenu() {
-    if (_tutorialStep != TutorialStep.finished && _tutorialStep != TutorialStep.none) return;
-
+    if (ref.read(tutorialProvider).isActive) return;
     setState(() {
       _isMenuOpen = !_isMenuOpen;
       if (_isMenuOpen) {
@@ -179,11 +97,6 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     if (_isMenuOpen) {
       _toggleMenu();
     }
-  }
-
-  void _removeOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
   }
 
   OverlayEntry _buildMenuOverlay() {
@@ -271,7 +184,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
   }
 
   void _onItemTapped(int index) {
-    if (_tutorialStep != TutorialStep.finished && _tutorialStep != TutorialStep.none) return;
+    if (ref.read(tutorialProvider).isActive) return;
 
     if (index == 2) {
       _toggleMenu();
@@ -331,8 +244,37 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     }
   }
 
+  final GlobalKey _scaffoldKey = GlobalKey();
   @override
   Widget build(BuildContext context) {
+    // Lắng nghe thay đổi state của tutorial
+    ref.listen<TutorialState>(tutorialProvider, (previous, next) {
+      if (!mounted) return;
+
+      // Gỡ bỏ overlay tùy chỉnh nếu có
+      if (_overlayEntry != null) {
+        _overlayEntry?.remove();
+        _overlayEntry = null;
+      }
+
+      // Hiển thị overlay tùy chỉnh cho các bước welcome và introduce
+      if (next.isActive && (next.currentStep == TutorialStep.welcome || next.currentStep == TutorialStep.introduce)) {
+        _overlayEntry = _buildCustomTutorialOverlay(next.currentStep);
+        Overlay.of(context).insert(_overlayEntry!);
+      }
+      // Khi đến bước showAddItem, bắt đầu showcase
+      else if (next.isActive && next.currentStep == TutorialStep.showAddItem) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // Lấy context hợp lệ từ GlobalKey của Scaffold
+          final showcaseContext = _scaffoldKey.currentContext;
+          if (mounted && showcaseContext != null) {
+            ShowCaseWidget.of(showcaseContext).startShowCase([_addKey]);
+          }
+        });
+      }
+    });
+
+    // Các logic khác giữ nguyên
     final mascotState = ref.watch(questMascotProvider);
     final selectedPageIndex = ref.watch(mainScreenIndexProvider);
 
@@ -342,10 +284,8 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
         final size = MediaQuery.of(context).size;
         const mascotWidth = 80.0;
         const rightPadding = 16.0;
-
         final dx = size.width - mascotWidth - rightPadding;
         const dy = 450.0;
-
         ref.read(questMascotProvider.notifier).updatePosition(Offset(dx, dy));
       });
     }
@@ -360,105 +300,158 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     final labelStyle = navBarTheme.labelTextStyle?.resolve(states);
     final iconColor = navBarTheme.iconTheme?.resolve(states)?.color;
 
-    return PopScope(
-      canPop: !_isMenuOpen,
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop && _isMenuOpen) {
-          _closeMenu();
-        }
+    return ShowCaseWidget(
+      onComplete: (index, key) {
+        ref.read(tutorialProvider.notifier).dismissTutorial();
       },
-      child: Scaffold(
-        body: Stack(
-          children: [
-            SafeArea(
-              top: false,
-              bottom: true,
-              child: IndexedStack(
-                index: selectedPageIndex,
-                children: _pages,
-              ),
-            ),
-            if (mascotState.isVisible && mascotState.position != null)
-              const QuestMascot(),
-          ],
-        ),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: destinationIndex,
-          onDestinationSelected: _onItemTapped,
-          destinations: [
-            const NavigationDestination(
-                icon: Icon(Icons.home_outlined),
-                selectedIcon: Icon(Icons.home),
-                label: 'Home'),
-            const NavigationDestination(
-                icon: Icon(Icons.door_sliding_outlined),
-                selectedIcon: Icon(Icons.door_sliding),
-                label: 'Closets'),
-            
-            Showcase.withWidget(
-              key: _addKey,
-              height: 200,
-              width: MediaQuery.of(context).size.width * 0.8,
-              container: GestureDetector(
-                onTap: _advanceTutorial,
-                child: SpeechBubble(
-                  text: "Let's start by adding your first item to the closet!",
-                  child: Image.asset(
-                    'assets/images/mascot.webp',
-                    width: 150,
-                    height: 150,
-                     errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.flutter_dash, size: 120, color: Colors.blue),
-                  ),
+      builder: (context) => PopScope(
+        canPop: !_isMenuOpen,
+        onPopInvokedWithResult: (didPop, result) {
+          if (!didPop && _isMenuOpen) {
+            _closeMenu();
+          }
+        },
+        // Gán key cho Scaffold tại đây
+        child: Scaffold(
+          key: _scaffoldKey,
+          body: Stack(
+            children: [
+              SafeArea(
+                top: false,
+                bottom: true,
+                child: IndexedStack(
+                  index: selectedPageIndex,
+                  children: _pages,
                 ),
               ),
-              disableDefaultTargetGestures: true,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 9.5),
-                child: GestureDetector(
-                  onTap: _toggleMenu,
-                  behavior: HitTestBehavior.opaque,
-                  child: Tooltip(
-                    message: "Add item",
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          transitionBuilder: (child, animation) =>
-                              ScaleTransition(scale: animation, child: child),
-                          child: _isMenuOpen
-                              ? Icon(
-                                  Icons.cancel,
-                                  key: const ValueKey('cancel_icon'),
-                                  size: 45,
-                                  color: iconColor,
-                                )
-                              : Icon(
-                                  Icons.add_circle_outline,
-                                  key: const ValueKey('add_icon'),
-                                  size: 45,
-                                  color: iconColor,
-                                ),
-                        ),
-                        Text('Add items', style: labelStyle),
-                      ],
+              if (mascotState.isVisible && mascotState.position != null)
+                const QuestMascot(),
+            ],
+          ),
+          bottomNavigationBar: NavigationBar(
+            selectedIndex: destinationIndex,
+            onDestinationSelected: _onItemTapped,
+            destinations: [
+              const NavigationDestination(
+                  icon: Icon(Icons.home_outlined),
+                  selectedIcon: Icon(Icons.home),
+                  label: 'Home'),
+              const NavigationDestination(
+                  icon: Icon(Icons.door_sliding_outlined),
+                  selectedIcon: Icon(Icons.door_sliding),
+                  label: 'Closets'),
+              
+              Showcase.withWidget(
+                key: _addKey,
+                height: 200,
+                width: MediaQuery.of(context).size.width * 0.8,
+                container: GestureDetector(
+                  onTap: () {
+                    // Lấy context hợp lệ từ builder của chính GestureDetector
+                    final showcaseContext = context; 
+                    
+                    // 1. Gọi dismiss() để ẩn giao diện của showcase
+                    ShowCaseWidget.of(showcaseContext).dismiss();
+                    
+                    // 2. Trực tiếp gọi notifier để kết thúc trạng thái tutorial
+                    ref.read(tutorialProvider.notifier).dismissTutorial();
+                  },
+                  child: SpeechBubble(
+                    text: "Let's start by adding your first item to the closet!",
+                    child: Image.asset(
+                      'assets/images/mascot.webp',
+                      width: 150,
+                      height: 150,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.flutter_dash, size: 120, color: Colors.blue),
+                    ),
+                  ),
+                ),
+                disableDefaultTargetGestures: true,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 9.5),
+                  child: GestureDetector(
+                    onTap: _toggleMenu,
+                    behavior: HitTestBehavior.opaque,
+                    child: Tooltip(
+                      message: "Add item",
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            transitionBuilder: (child, animation) =>
+                                ScaleTransition(scale: animation, child: child),
+                            child: _isMenuOpen
+                                ? Icon(
+                                    Icons.cancel,
+                                    key: const ValueKey('cancel_icon'),
+                                    size: 45,
+                                    color: iconColor,
+                                  )
+                                : Icon(
+                                    Icons.add_circle_outline,
+                                    key: const ValueKey('add_icon'),
+                                    size: 45,
+                                    color: iconColor,
+                                  ),
+                          ),
+                          Text('Add items', style: labelStyle),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-            const NavigationDestination(
-                icon: Icon(Icons.collections_bookmark_outlined),
-                selectedIcon: Icon(Icons.collections_bookmark),
-                label: 'Outfits'),
-            const NavigationDestination(
-                icon: Icon(Icons.person_outline),
-                selectedIcon: Icon(Icons.person),
-                label: 'Profile'),
-          ],
+              const NavigationDestination(
+                  icon: Icon(Icons.collections_bookmark_outlined),
+                  selectedIcon: Icon(Icons.collections_bookmark),
+                  label: 'Outfits'),
+              const NavigationDestination(
+                  icon: Icon(Icons.person_outline),
+                  selectedIcon: Icon(Icons.person),
+                  label: 'Profile'),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  OverlayEntry _buildCustomTutorialOverlay(TutorialStep currentStep) {
+    return OverlayEntry(
+      builder: (context) {
+        String bubbleText = '';
+        switch (currentStep) {
+          case TutorialStep.welcome:
+            bubbleText = "Welcome to MinCloset! I'm your personal fashion assistant.";
+            break;
+          case TutorialStep.introduce:
+            bubbleText = "Let me introduce you to the first and most important feature!";
+            break;
+          default:
+            return const SizedBox.shrink();
+        }
+
+        return GestureDetector(
+          onTap: () => ref.read(tutorialProvider.notifier).nextStep(context),
+          child: Material(
+            color: Colors.black.withOpacity(0.8),
+            child: Center(
+              child: SpeechBubble(
+                text: bubbleText,
+                child: Image.asset(
+                  'assets/images/mascot.webp',
+                  width: 150,
+                  height: 150,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.flutter_dash, size: 120, color: Colors.blue),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

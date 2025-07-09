@@ -12,21 +12,28 @@ import 'package:mincloset/screens/pages/closets_page.dart';
 import 'package:mincloset/screens/pages/home_page.dart';
 import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/screens/pages/profile_page.dart';
+import 'package:mincloset/widgets/quest_mascot.dart';
+import 'package:mincloset/widgets/speech_bubble.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'package:mincloset/widgets/quest_mascot.dart';
+
+// Enum để quản lý các bước của tutorial
+enum TutorialStep { none, welcome, introduce, showAddItem, finished }
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // --- ĐÂY LÀ CHỖ SỬA LỖI ---
+    // builder chỉ đơn giản là một hàm trả về widget con của nó.
     return ShowCaseWidget(
       builder: (context) => const MainScreenView(),
     );
   }
 }
 
+// ---- Toàn bộ nội dung còn lại của _MainScreenViewState giữ nguyên như cũ ----
 class MainScreenView extends ConsumerStatefulWidget {
   const MainScreenView({super.key});
 
@@ -34,7 +41,8 @@ class MainScreenView extends ConsumerStatefulWidget {
   ConsumerState<MainScreenView> createState() => _MainScreenViewState();
 }
 
-class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTickerProviderStateMixin {
+class _MainScreenViewState extends ConsumerState<MainScreenView>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
   OverlayEntry? _overlayEntry;
   bool _isMenuOpen = false;
@@ -47,7 +55,8 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
   ];
 
   final GlobalKey _addKey = GlobalKey();
-  
+  TutorialStep _tutorialStep = TutorialStep.none;
+
   @override
   void initState() {
     super.initState();
@@ -57,8 +66,90 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ShowCaseWidget.of(context).startShowCase([_addKey]);
+      _startTutorial();
     });
+  }
+
+  void _startTutorial() {
+    setState(() {
+      _tutorialStep = TutorialStep.welcome;
+      _overlayEntry = _buildTutorialOverlay();
+      Overlay.of(context).insert(_overlayEntry!);
+    });
+  }
+
+  void _advanceTutorial() {
+    if (!mounted) return;
+    setState(() {
+      switch (_tutorialStep) {
+        case TutorialStep.welcome:
+          _tutorialStep = TutorialStep.introduce;
+          _overlayEntry?.markNeedsBuild();
+          break;
+        case TutorialStep.introduce:
+          _tutorialStep = TutorialStep.showAddItem;
+          _overlayEntry?.remove();
+          _overlayEntry = null;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+             if (mounted) {
+                ShowCaseWidget.of(context).startShowCase([_addKey]);
+             }
+          });
+          break;
+        case TutorialStep.showAddItem:
+          _tutorialStep = TutorialStep.finished;
+          break;
+        default:
+          _closeTutorial();
+          break;
+      }
+    });
+  }
+  
+  void _closeTutorial() {
+      if (!mounted) return;
+      setState(() {
+          _tutorialStep = TutorialStep.finished;
+          _overlayEntry?.remove();
+          _overlayEntry = null;
+      });
+  }
+
+  OverlayEntry _buildTutorialOverlay() {
+    return OverlayEntry(
+      builder: (context) {
+        String bubbleText = '';
+        switch (_tutorialStep) {
+          case TutorialStep.welcome:
+            bubbleText = "Welcome to MinCloset! I'm your personal fashion assistant.";
+            break;
+          case TutorialStep.introduce:
+            bubbleText = "Let me introduce you to the first and most important feature!";
+            break;
+          default:
+            return const SizedBox.shrink();
+        }
+
+        return GestureDetector(
+          onTap: _advanceTutorial,
+          child: Material(
+            color: Colors.black.withOpacity(0.8),
+            child: Center(
+              child: SpeechBubble(
+                text: bubbleText,
+                child: Image.asset(
+                  'assets/images/mascot.webp',
+                  width: 150,
+                  height: 150,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.flutter_dash, size: 120, color: Colors.blue),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -67,8 +158,10 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
     _removeOverlay();
     super.dispose();
   }
-  
+
   void _toggleMenu() {
+    if (_tutorialStep != TutorialStep.finished && _tutorialStep != TutorialStep.none) return;
+
     setState(() {
       _isMenuOpen = !_isMenuOpen;
       if (_isMenuOpen) {
@@ -81,7 +174,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
       }
     });
   }
-  
+
   void _closeMenu() {
     if (_isMenuOpen) {
       _toggleMenu();
@@ -109,7 +202,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
         return GestureDetector(
           onTap: _closeMenu,
           child: Material(
-            color: Colors.black.withValues(alpha:0.5),
+            color: Colors.black.withOpacity(0.5),
             child: SafeArea(
               child: Stack(
                 children: [
@@ -122,14 +215,18 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
                       child: FadeTransition(
                         opacity: _animationController,
                         child: SlideTransition(
-                          position: Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero)
-                            .animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut)),
+                          position: Tween<Offset>(
+                                  begin: const Offset(0, 0.1), end: Offset.zero)
+                              .animate(CurvedAnimation(
+                                  parent: _animationController,
+                                  curve: Curves.easeOut)),
                           child: Stack(
                             alignment: Alignment.bottomCenter,
                             children: [
                               CustomPaint(
                                 size: const Size(20, 10),
-                                painter: TrianglePainter(color: theme.cardTheme.color ?? Colors.white),
+                                painter: TrianglePainter(
+                                    color: theme.cardTheme.color ?? Colors.white),
                               ),
                               Container(
                                 margin: const EdgeInsets.only(bottom: 10),
@@ -141,15 +238,19 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     ListTile(
-                                      leading: const Icon(Icons.photo_camera_outlined),
+                                      leading: const Icon(
+                                          Icons.photo_camera_outlined),
                                       title: const Text('Take photo'),
-                                      onTap: () => performAction(ImageSource.camera),
+                                      onTap: () =>
+                                          performAction(ImageSource.camera),
                                     ),
                                     const Divider(height: 1),
                                     ListTile(
-                                      leading: const Icon(Icons.photo_library_outlined),
+                                      leading: const Icon(
+                                          Icons.photo_library_outlined),
                                       title: const Text('From album (up to 10)'),
-                                      onTap: () => performAction(ImageSource.gallery),
+                                      onTap: () =>
+                                          performAction(ImageSource.gallery),
                                     ),
                                   ],
                                 ),
@@ -170,6 +271,8 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
   }
 
   void _onItemTapped(int index) {
+    if (_tutorialStep != TutorialStep.finished && _tutorialStep != TutorialStep.none) return;
+
     if (index == 2) {
       _toggleMenu();
       return;
@@ -182,7 +285,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
     int pageIndex = index > 2 ? index - 1 : index;
     ref.read(mainScreenIndexProvider.notifier).state = pageIndex;
   }
-  
+
   Future<void> _pickAndAnalyzeImages(ImageSource source) async {
     final navigator = Navigator.of(context);
     final imagePicker = ImagePicker();
@@ -193,11 +296,12 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
         imageQuality: 85,
       );
       if (pickedFiles.isNotEmpty && mounted) {
-        navigator.pushNamed(AppRoutes.analysisLoading, arguments: pickedFiles);
+        navigator.pushNamed(AppRoutes.analysisLoading,
+            arguments: pickedFiles);
       }
       return;
     }
-    
+
     final pickedFile = await imagePicker.pickImage(
       source: ImageSource.camera,
       maxWidth: 1024,
@@ -212,15 +316,17 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
       AppRoutes.imageEditor,
       arguments: imageBytes,
     );
-    
+
     if (editedBytes != null && mounted) {
       final tempDir = await getTemporaryDirectory();
-      final tempPath = '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final tempPath =
+          '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
       final tempFile = await File(tempPath).writeAsBytes(editedBytes);
       final editedXFile = XFile(tempFile.path);
 
       if (mounted) {
-        navigator.pushNamed(AppRoutes.analysisLoading, arguments: [editedXFile]);
+        navigator.pushNamed(AppRoutes.analysisLoading,
+            arguments: [editedXFile]);
       }
     }
   }
@@ -229,11 +335,8 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
   Widget build(BuildContext context) {
     final mascotState = ref.watch(questMascotProvider);
     final selectedPageIndex = ref.watch(mainScreenIndexProvider);
-    
-    // <<< ĐƯA LOGIC TÍNH TOÁN VÀO TRONG HÀM BUILD >>>
+
     if (mascotState.position == null) {
-      // Sử dụng addPostFrameCallback để tránh lỗi "setState() or markNeedsBuild() called during build".
-      // Nó sẽ lên lịch cho việc cập nhật state ngay sau khi frame hiện tại được vẽ xong.
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         final size = MediaQuery.of(context).size;
@@ -241,14 +344,14 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
         const rightPadding = 16.0;
 
         final dx = size.width - mascotWidth - rightPadding;
-        const dy = 450.0; 
+        const dy = 450.0;
 
-        // Cập nhật vị trí ban đầu
         ref.read(questMascotProvider.notifier).updatePosition(Offset(dx, dy));
       });
     }
 
-    int destinationIndex = selectedPageIndex >= 2 ? selectedPageIndex + 1 : selectedPageIndex;
+    int destinationIndex =
+        selectedPageIndex >= 2 ? selectedPageIndex + 1 : selectedPageIndex;
     if (_isMenuOpen) destinationIndex = 2;
 
     final theme = Theme.of(context);
@@ -275,8 +378,6 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
                 children: _pages,
               ),
             ),
-            
-            // Điều kiện hiển thị vẫn giữ nguyên
             if (mascotState.isVisible && mascotState.position != null)
               const QuestMascot(),
           ],
@@ -285,13 +386,33 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
           selectedIndex: destinationIndex,
           onDestinationSelected: _onItemTapped,
           destinations: [
-            const NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
-            const NavigationDestination(icon: Icon(Icons.door_sliding_outlined), selectedIcon: Icon(Icons.door_sliding), label: 'Closets'),
+            const NavigationDestination(
+                icon: Icon(Icons.home_outlined),
+                selectedIcon: Icon(Icons.home),
+                label: 'Home'),
+            const NavigationDestination(
+                icon: Icon(Icons.door_sliding_outlined),
+                selectedIcon: Icon(Icons.door_sliding),
+                label: 'Closets'),
             
-            Showcase(
+            Showcase.withWidget(
               key: _addKey,
-              title: 'Add Item',
-              description: 'Let\'s start by adding your first item to the closet!',
+              height: 200,
+              width: MediaQuery.of(context).size.width * 0.8,
+              container: GestureDetector(
+                onTap: _advanceTutorial,
+                child: SpeechBubble(
+                  text: "Let's start by adding your first item to the closet!",
+                  child: Image.asset(
+                    'assets/images/mascot.webp',
+                    width: 150,
+                    height: 150,
+                     errorBuilder: (context, error, stackTrace) =>
+                        const Icon(Icons.flutter_dash, size: 120, color: Colors.blue),
+                  ),
+                ),
+              ),
+              disableDefaultTargetGestures: true,
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 9.5),
                 child: GestureDetector(
@@ -302,23 +423,24 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
-                            child: _isMenuOpen 
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          transitionBuilder: (child, animation) =>
+                              ScaleTransition(scale: animation, child: child),
+                          child: _isMenuOpen
                               ? Icon(
                                   Icons.cancel,
                                   key: const ValueKey('cancel_icon'),
                                   size: 45,
-                                  color: iconColor, 
+                                  color: iconColor,
                                 )
                               : Icon(
                                   Icons.add_circle_outline,
                                   key: const ValueKey('add_icon'),
                                   size: 45,
-                                  color: iconColor, 
+                                  color: iconColor,
                                 ),
-                          ),
+                        ),
                         Text('Add items', style: labelStyle),
                       ],
                     ),
@@ -326,8 +448,14 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
                 ),
               ),
             ),
-            const NavigationDestination(icon: Icon(Icons.collections_bookmark_outlined), selectedIcon: Icon(Icons.collections_bookmark), label: 'Outfits'),
-            const NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile'),
+            const NavigationDestination(
+                icon: Icon(Icons.collections_bookmark_outlined),
+                selectedIcon: Icon(Icons.collections_bookmark),
+                label: 'Outfits'),
+            const NavigationDestination(
+                icon: Icon(Icons.person_outline),
+                selectedIcon: Icon(Icons.person),
+                label: 'Profile'),
           ],
         ),
       ),

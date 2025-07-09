@@ -12,15 +12,32 @@ import 'package:mincloset/screens/pages/home_page.dart';
 import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/screens/pages/profile_page.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:showcaseview/showcaseview.dart';
 
-class MainScreen extends ConsumerStatefulWidget {
+// <<< SỬA LỖI: Lớp MainScreen giờ là StatelessWidget và chỉ chứa ShowCaseWidget >>>
+class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
   @override
-  ConsumerState<MainScreen> createState() => _MainScreenState();
+  Widget build(BuildContext context) {
+    // ShowCaseWidget sẽ bọc MainScreenView, cung cấp context đúng cho tutorial
+    return ShowCaseWidget(
+      // Tham số builder nhận một hàm, không phải một widget Builder
+      builder: (context) => const MainScreenView(),
+    );
+  }
 }
 
-class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProviderStateMixin {
+
+// Toàn bộ logic và giao diện của màn hình được chuyển vào đây
+class MainScreenView extends ConsumerStatefulWidget {
+  const MainScreenView({super.key});
+
+  @override
+  ConsumerState<MainScreenView> createState() => _MainScreenViewState();
+}
+
+class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
   OverlayEntry? _overlayEntry;
   bool _isMenuOpen = false;
@@ -31,6 +48,8 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
     OutfitsHubPage(),
     ProfilePage(),
   ];
+
+  final GlobalKey _addKey = GlobalKey();
   
   @override
   void initState() {
@@ -39,6 +58,11 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+
+    // Context ở đây đã đúng và có thể tìm thấy ShowCaseWidget
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ShowCaseWidget.of(context).startShowCase([_addKey]);
+    });
   }
 
   @override
@@ -48,6 +72,7 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
     super.dispose();
   }
 
+  // Các hàm logic khác không có gì thay đổi...
   void _toggleMenu() {
     setState(() {
       _isMenuOpen = !_isMenuOpen;
@@ -167,7 +192,6 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
     final navigator = Navigator.of(context);
     final imagePicker = ImagePicker();
 
-    // Luồng chọn từ album
     if (source == ImageSource.gallery) {
       final pickedFiles = await imagePicker.pickMultiImage(
         maxWidth: 1024,
@@ -179,7 +203,6 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
       return;
     }
     
-    // Luồng camera
     final pickedFile = await imagePicker.pickImage(
       source: ImageSource.camera,
       maxWidth: 1024,
@@ -190,15 +213,12 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
     final imageBytes = await pickedFile.readAsBytes();
     if (!mounted) return;
 
-    // Mở editor và chờ kết quả
     final editedBytes = await navigator.pushNamed<Uint8List?>(
       AppRoutes.imageEditor,
       arguments: imageBytes,
     );
     
-    // Xử lý kết quả một cách an toàn
     if (editedBytes != null && mounted) {
-      // Logic xử lý file và điều hướng không cần Future.delayed nữa
       final tempDir = await getTemporaryDirectory();
       final tempPath = '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
       final tempFile = await File(tempPath).writeAsBytes(editedBytes);
@@ -218,8 +238,6 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
     int destinationIndex = selectedPageIndex >= 2 ? selectedPageIndex + 1 : selectedPageIndex;
     if (_isMenuOpen) destinationIndex = 2;
 
-
-    // Lấy style cho label từ theme
     final navBarTheme = theme.navigationBarTheme;
     final Set<WidgetState> states = _isMenuOpen ? {WidgetState.selected} : {};
     final labelStyle = navBarTheme.labelTextStyle?.resolve(states);
@@ -234,8 +252,8 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
       },
       child: Scaffold(
         body: SafeArea(
-          top: false,   // Cho phép nội dung tràn lên cạnh trên (sau thanh trạng thái)
-          bottom: true, // Ngăn không cho nội dung tràn xuống cạnh dưới (thanh điều hướng)
+          top: false,
+          bottom: true,
           child: IndexedStack(
             index: selectedPageIndex,
             children: _pages,
@@ -248,36 +266,40 @@ class _MainScreenState extends ConsumerState<MainScreen> with SingleTickerProvid
             const NavigationDestination(icon: Icon(Icons.home_outlined), selectedIcon: Icon(Icons.home), label: 'Home'),
             const NavigationDestination(icon: Icon(Icons.door_sliding_outlined), selectedIcon: Icon(Icons.door_sliding), label: 'Closets'),
             
-            // Bọc icon và text trong một Column
-            Padding(
-              padding: const EdgeInsets.only(bottom: 9.5),
-              child: GestureDetector(
-                onTap: _toggleMenu,
-                behavior: HitTestBehavior.opaque,
-                child: Tooltip(
-                  message: "Add item",
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
-                          child: _isMenuOpen 
-                            ? Icon(
-                                Icons.cancel,
-                                key: const ValueKey('cancel_icon'),
-                                size: 45,
-                                color: iconColor, 
-                              )
-                            : Icon(
-                                Icons.add_circle_outline,
-                                key: const ValueKey('add_icon'),
-                                size: 45,
-                                color: iconColor, 
-                              ),
-                        ),
-                      Text('Add items', style: labelStyle),
-                    ],
+            Showcase(
+              key: _addKey,
+              title: 'Add Item',
+              description: 'Let\'s start by adding your first item to the closet!',
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 9.5),
+                child: GestureDetector(
+                  onTap: _toggleMenu,
+                  behavior: HitTestBehavior.opaque,
+                  child: Tooltip(
+                    message: "Add item",
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                            child: _isMenuOpen 
+                              ? Icon(
+                                  Icons.cancel,
+                                  key: const ValueKey('cancel_icon'),
+                                  size: 45,
+                                  color: iconColor, 
+                                )
+                              : Icon(
+                                  Icons.add_circle_outline,
+                                  key: const ValueKey('add_icon'),
+                                  size: 45,
+                                  color: iconColor, 
+                                ),
+                          ),
+                        Text('Add items', style: labelStyle),
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -50,6 +50,7 @@ dependencies:
   onnxruntime: ^1.4.1
   ffi: ^2.1.4
   image_background_remover: ^1.0.0
+  showcaseview: ^4.0.1
 
 
 dev_dependencies:

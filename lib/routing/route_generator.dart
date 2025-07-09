@@ -30,6 +30,7 @@ import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/screens/splash_screen.dart';
 import 'package:mincloset/screens/webview_page.dart';
 import 'package:mincloset/screens/avatar_cropper_screen.dart';
+import 'package:mincloset/screens/quests_page.dart';
 
 class RouteGenerator {
   static const Widget _mainScreen = MainScreen();
@@ -151,6 +152,9 @@ class RouteGenerator {
           );
         }
         return _errorRoute();
+      
+      case AppRoutes.quests:
+        return MaterialPageRoute(builder: (_) => const QuestsPage());
 
       default:
         return _errorRoute();

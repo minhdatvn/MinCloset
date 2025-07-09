@@ -16,10 +16,11 @@ import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
 import 'package:uuid/uuid.dart';
+import 'package:mincloset/repositories/quest_repository.dart';
 
 class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
   final ClothingItemRepository _clothingItemRepo;
-  // <<< THAY ĐỔI 1: Khai báo các UseCase dependencies >>>
+  final QuestRepository _questRepo;
   final AnalyzeItemUseCase _analyzeItemUseCase;
   final ValidateRequiredFieldsUseCase _validateRequiredUseCase;
   final ValidateItemNameUseCase _validateNameUseCase;
@@ -28,6 +29,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
   // <<< THAY ĐỔI 2: Truyền dependencies vào constructor >>>
   BatchAddItemNotifier(
     this._clothingItemRepo,
+    this._questRepo,
     this._analyzeItemUseCase,
     this._validateRequiredUseCase,
     this._validateNameUseCase,
@@ -216,7 +218,11 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
       (failure) {
         state = state.copyWith(isSaving: false, saveErrorMessage: failure.message);
       },
-      (_) {
+      (_) async { // <<< CHUYỂN THÀNH HÀM ASYNC >>>
+        // <<< GỌI CẬP NHẬT TIẾN TRÌNH CHO TỪNG ITEM >>>
+        for (final item in itemsToSave) {
+          await _questRepo.updateQuestProgress(item);
+        }
         _ref.read(itemChangedTriggerProvider.notifier).state++;
         state = state.copyWith(isSaving: false, saveSuccess: true);
       },
@@ -227,12 +233,14 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
 final batchAddScreenProvider = StateNotifierProvider.autoDispose<BatchAddItemNotifier, BatchAddItemState>((ref) {
   // <<< THAY ĐỔI 7: Lấy tất cả dependency và truyền vào Notifier >>>
   final repo = ref.watch(clothingItemRepositoryProvider);
+  final questRepo = ref.watch(questRepositoryProvider);
   final analyzeItemUseCase = ref.watch(analyzeItemUseCaseProvider);
   final validateRequiredUseCase = ref.watch(validateRequiredFieldsUseCaseProvider);
   final validateNameUseCase = ref.watch(validateItemNameUseCaseProvider);
   
   return BatchAddItemNotifier(
     repo,
+    questRepo,
     analyzeItemUseCase,
     validateRequiredUseCase,
     validateNameUseCase,

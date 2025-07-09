@@ -21,6 +21,7 @@ import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/states/add_item_state.dart';
+import 'package:mincloset/repositories/quest_repository.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
@@ -41,6 +42,7 @@ class ItemNotifierArgs extends Equatable {
 
 class AddItemNotifier extends StateNotifier<AddItemState> {
   final ClothingItemRepository _clothingItemRepo;
+  final QuestRepository _questRepo;
   final ImageHelper _imageHelper;
   final AnalyzeItemUseCase _analyzeItemUseCase;
   final ValidateRequiredFieldsUseCase _validateRequiredUseCase;
@@ -49,6 +51,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
 
   AddItemNotifier(
     this._clothingItemRepo,
+    this._questRepo,
     this._imageHelper,
     this._analyzeItemUseCase,
     this._validateRequiredUseCase,
@@ -261,7 +264,30 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
         state = state.copyWith(isLoading: false, errorMessage: failure.message);
         return false;
       },
-      (_) {
+      (_) async { // <<< CHUYỂN THÀNH HÀM ASYNC >>>
+        // Tạo lại đối tượng ClothingItem hoàn chỉnh đã được lưu
+        final savedItem = ClothingItem(
+            id: state.isEditing ? state.id : const Uuid().v4(),
+            name: state.name.trim(),
+            category: state.selectedCategoryValue,
+            closetId: state.selectedClosetId!,
+            imagePath: state.image?.path ?? state.imagePath!,
+            thumbnailPath: state.thumbnailPath,
+            color: state.selectedColors.join(', '),
+            season: state.selectedSeasons.join(', '),
+            occasion: state.selectedOccasions.join(', '),
+            material: state.selectedMaterials.join(', '),
+            pattern: state.selectedPatterns.join(', '),
+            isFavorite: state.isFavorite,
+            price: state.price,
+            notes: state.notes,
+        );
+
+        // <<< GỌI HÀM CẬP NHẬT TIẾN TRÌNH NHIỆM VỤ >>>
+        if (!state.isEditing) { // Chỉ cập nhật tiến trình khi thêm món đồ mới
+            await _questRepo.updateQuestProgress(savedItem);
+        }
+
         _ref.read(itemChangedTriggerProvider.notifier).state++;
         state = state.copyWith(isLoading: false, isSuccess: true);
         return true;
@@ -318,6 +344,7 @@ final singleItemProvider = StateNotifierProvider
     .autoDispose
     .family<AddItemNotifier, AddItemState, ItemNotifierArgs>((ref, args) {
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
+  final questRepo = ref.watch(questRepositoryProvider);
   final imageHelper = ref.watch(imageHelperProvider);
   final analyzeItemUseCase = ref.watch(analyzeItemUseCaseProvider);
   final validateRequiredUseCase = ref.watch(validateRequiredFieldsUseCaseProvider);
@@ -325,6 +352,7 @@ final singleItemProvider = StateNotifierProvider
   
   return AddItemNotifier(
     clothingItemRepo,
+    questRepo,
     imageHelper,
     analyzeItemUseCase,
     validateRequiredUseCase,
@@ -339,6 +367,7 @@ final singleItemProvider = StateNotifierProvider
 final batchItemFormProvider = StateNotifierProvider
     .family<AddItemNotifier, AddItemState, ItemNotifierArgs>((ref, args) {
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
+  final questRepo = ref.watch(questRepositoryProvider);
   final imageHelper = ref.watch(imageHelperProvider);
   final analyzeItemUseCase = ref.watch(analyzeItemUseCaseProvider);
   final validateRequiredUseCase = ref.watch(validateRequiredFieldsUseCaseProvider);
@@ -346,6 +375,7 @@ final batchItemFormProvider = StateNotifierProvider
   
   return AddItemNotifier(
     clothingItemRepo,
+    questRepo,
     imageHelper,
     analyzeItemUseCase,
     validateRequiredUseCase,

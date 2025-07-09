@@ -12,6 +12,7 @@ import 'package:mincloset/repositories/suggestion_repository.dart';
 import 'package:mincloset/repositories/wear_log_repository.dart';
 import 'package:mincloset/repositories/weather_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mincloset/repositories/quest_repository.dart';
 
 final closetRepositoryProvider = Provider<ClosetRepository>((ref) {
   final dbHelper = ref.watch(dbHelperProvider);
@@ -61,4 +62,10 @@ final sharedPreferencesProvider = FutureProvider<SharedPreferences>((ref) {
 // Nó phụ thuộc vào sharedPreferencesProvider.
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
   return SettingsRepository(ref); // Chỉ cần truyền ref vào
+});
+
+// <<< PROVIDER CHO QUEST REPOSITORY >>>
+final questRepositoryProvider = Provider<QuestRepository>((ref) {
+  final questService = ref.watch(questServiceProvider);
+  return QuestRepository(questService);
 });

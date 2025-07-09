@@ -2,8 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/services/notification_service.dart';
 import 'package:mincloset/services/number_formatting_service.dart';
+import 'package:mincloset/services/quest_service.dart';
 import 'package:mincloset/services/suggestion_service.dart';
 import 'package:mincloset/services/weather_image_service.dart';
 import 'package:mincloset/services/weather_service.dart';
@@ -38,4 +40,16 @@ final weatherImageServiceProvider = FutureProvider<WeatherImageService>((ref) as
 
 final numberFormattingServiceProvider = Provider<NumberFormattingService>((ref) {
   return NumberFormattingService();
+});
+
+// <<< PROVIDER CHO QUEST SERVICE >>>
+final questServiceProvider = Provider<QuestService>((ref) {
+  // QuestService cần SharedPreferences, chúng ta sẽ lấy nó từ một provider khác
+  final prefs = ref.watch(sharedPreferencesProvider).value;
+  if (prefs == null) {
+    // Trường hợp SharedPreferences chưa sẵn sàng, có thể throw lỗi hoặc trả về một giá trị mặc định
+    // Ở đây, chúng ta sẽ throw lỗi để đảm bảo không có lỗi logic không mong muốn
+    throw Exception("SharedPreferences not initialized for QuestService");
+  }
+  return QuestService(prefs);
 });

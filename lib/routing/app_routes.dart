@@ -20,5 +20,6 @@ class AppRoutes {
   static const String closetInsights = '/closet-insights';
   static const String backgroundRemover = '/background-remover';
   static const String imageEditor = '/image-editor';
-  static const avatarCropper = '/avatar-cropper'; 
+  static const avatarCropper = '/avatar-cropper';
+  static const String quests = '/quests'; 
 }

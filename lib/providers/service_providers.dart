@@ -2,13 +2,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/services/notification_service.dart';
 import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/services/quest_service.dart';
 import 'package:mincloset/services/suggestion_service.dart';
 import 'package:mincloset/services/weather_image_service.dart';
 import 'package:mincloset/services/weather_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final weatherServiceProvider = Provider<WeatherService>((ref) {
   // <<< THAY ĐỔI: Đọc key ở đây và truyền vào service >>>
@@ -52,4 +52,8 @@ final questServiceProvider = Provider<QuestService>((ref) {
     throw Exception("SharedPreferences not initialized for QuestService");
   }
   return QuestService(prefs);
+});
+
+final sharedPreferencesProvider = FutureProvider<SharedPreferences>((ref) {
+  return SharedPreferences.getInstance();
 });

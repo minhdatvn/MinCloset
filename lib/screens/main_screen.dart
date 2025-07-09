@@ -13,7 +13,7 @@ import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/screens/pages/profile_page.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'package:mincloset/widgets/quest_fab.dart';
+import 'package:mincloset/widgets/quest_mascot.dart';
 
 // <<< SỬA LỖI: Lớp MainScreen giờ là StatelessWidget và chỉ chứa ShowCaseWidget >>>
 class MainScreen extends StatelessWidget {
@@ -263,12 +263,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView> with SingleTick
                 children: _pages,
               ),
             ),
-            // <<< ĐẶT NÚT FAB Ở ĐÂY >>>
-            const Positioned(
-              bottom: 85, // Vị trí phía trên BottomNavBar
-              right: 16,
-              child: QuestFab(),
-            ),
+            const QuestMascot(),
           ],
         ),
         bottomNavigationBar: NavigationBar(

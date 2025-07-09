@@ -183,9 +183,25 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             _buildProfileHeader(state),
             const Divider(height: 32),
 
-            // --- BẮT ĐẦU THAY ĐỔI Ở ĐÂY ---
+            // Thêm một Card mới cho Quests
+            Card(
+              elevation: 0,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              clipBehavior: Clip.antiAlias,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              child: ListTile(
+                leading: Icon(Icons.flag_outlined, color: Theme.of(context).colorScheme.primary),
+                title: const Text("Quests & Achievements", style: TextStyle(fontWeight: FontWeight.bold)),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.quests);
+                },
+              ),
+            ),
 
-            // 1. Tạo một Row để chứa tiêu đề và nút "Insights"
+            const SizedBox(height: 24), // Thêm khoảng cách
+
+            // Row để chứa tiêu đề và nút "Insights"
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,

@@ -19,27 +19,23 @@ import 'package:mincloset/widgets/speech_bubble.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:showcaseview/showcaseview.dart';
 
-class MainScreen extends StatelessWidget {
+// THAY ĐỔI 1: Chuyển StatelessWidget thành ConsumerWidget
+class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // --- SỬA LỖI TẠI ĐÂY ---
-    // Xóa widget `Builder` và truyền trực tiếp hàm vào
+  // Thêm WidgetRef ref vào hàm build
+  Widget build(BuildContext context, WidgetRef ref) {
     return ShowCaseWidget(
+      // THAY ĐỔI 2: Triển khai toàn bộ logic kết thúc hướng dẫn tại đây.
+      // Đây sẽ là nơi duy nhất xử lý việc này, đảm bảo nó luôn được gọi.
       onFinish: () {
-        // Sử dụng context.read là không an toàn, chúng ta sẽ xử lý việc này sau
+        ref.read(tutorialProvider.notifier).dismissTutorial();
+        ref.read(questMascotProvider.notifier).showMascotWithQuestNotification();
       },
       builder: (context) => const MainScreenView(),
     );
   }
-}
-
-class MainScreenView extends ConsumerStatefulWidget {
-  const MainScreenView({super.key});
-
-  @override
-  ConsumerState<MainScreenView> createState() => _MainScreenViewState();
 }
 
 class _MainScreenViewState extends ConsumerState<MainScreenView>
@@ -68,8 +64,17 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     );
     _menuOverlay = null;
 
-    // Logic khởi tạo showcase được chuyển vào hàm `build`
-    // để đảm bảo context hợp lệ.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final tutorialState = ref.read(tutorialProvider);
+      if (mounted && !tutorialState.isActive && tutorialState.currentStep == TutorialStep.none) {
+        // Kiểm tra xem đã hoàn thành hướng dẫn lần nào chưa
+        // Nếu chưa thì mới bắt đầu
+        // (Logic kiểm tra này bạn có thể lưu vào SharedPreferences)
+        // Hiện tại, chúng ta giả định luôn bắt đầu khi mở app lần đầu.
+        ShowCaseWidget.of(context).startShowCase([_welcomeKey, _introduceKey, _addKey]);
+        ref.read(tutorialProvider.notifier).startTutorial();
+      }
+    });
   }
 
   @override
@@ -121,7 +126,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
         return GestureDetector(
           onTap: _closeMenu,
           child: Material(
-            color: Colors.black.withValues(alpha:0.5),
+            color: Colors.black.withOpacity(0.5),
             child: SafeArea(
               child: Stack(
                 children: [
@@ -247,18 +252,11 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     }
 
     return GestureDetector(
+      // THAY ĐỔI 3: Đơn giản hóa logic onTap.
+      // Giờ đây nó chỉ có nhiệm vụ chuyển sang bước tiếp theo.
+      // Việc kết thúc luồng đã được onFinish xử lý.
       onTap: () {
-        // --- LOGIC MỚI NẰM Ở ĐÂY ---
-        // 1. Nếu đây là bước cuối cùng của hướng dẫn
-        if (forStep == TutorialStep.showAddItem) {
-          // Kết thúc toàn bộ luồng
-          ref.read(tutorialProvider.notifier).dismissTutorial();
-          ref.read(questMascotProvider.notifier).showMascotWithQuestNotification();
-          ShowCaseWidget.of(context).dismiss();
-        } else {
-          // 2. Nếu không, chỉ cần chuyển sang bước tiếp theo
-          ShowCaseWidget.of(context).next();
-        }
+        ShowCaseWidget.of(context).next();
       },
       child: SpeechBubble(
         text: bubbleText,
@@ -275,15 +273,6 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
 
   @override
   Widget build(BuildContext context) {
-    // Gọi `startShowCase` từ context của Builder trong ShowCaseWidget
-    // Điều này đảm bảo context hợp lệ
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !ref.read(tutorialProvider).isActive) {
-        ShowCaseWidget.of(context).startShowCase([_welcomeKey, _introduceKey, _addKey]);
-        ref.read(tutorialProvider.notifier).startTutorial();
-      }
-    });
-
     final mascotState = ref.watch(questMascotProvider);
     final selectedPageIndex = ref.watch(mainScreenIndexProvider);
 
@@ -419,6 +408,15 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
       );
   }
 }
+
+// Widget MainScreenView không đổi
+class MainScreenView extends ConsumerStatefulWidget {
+  const MainScreenView({super.key});
+
+  @override
+  ConsumerState<MainScreenView> createState() => _MainScreenViewState();
+}
+
 
 class TrianglePainter extends CustomPainter {
   final Color color;

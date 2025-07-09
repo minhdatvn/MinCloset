@@ -27,7 +27,7 @@ class SpeechBubble extends StatelessWidget {
               // Không cần borderRadius nữa vì đã có ClipOval
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
+                  color: Colors.black.withValues(alpha:0.15),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),

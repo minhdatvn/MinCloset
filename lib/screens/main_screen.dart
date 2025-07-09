@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mincloset/notifiers/quest_fab_notifier.dart';
+import 'package:mincloset/notifiers/quest_mascot_notifier.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/pages/closets_page.dart';
@@ -24,7 +24,12 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // --- SỬA LỖI TẠI ĐÂY ---
+    // Xóa widget `Builder` và truyền trực tiếp hàm vào
     return ShowCaseWidget(
+      onFinish: () {
+        // Sử dụng context.read là không an toàn, chúng ta sẽ xử lý việc này sau
+      },
       builder: (context) => const MainScreenView(),
     );
   }
@@ -63,12 +68,8 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     );
     _menuOverlay = null;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        ShowCaseWidget.of(context).startShowCase([_welcomeKey, _introduceKey, _addKey]);
-        ref.read(tutorialProvider.notifier).startTutorial();
-      }
-    });
+    // Logic khởi tạo showcase được chuyển vào hàm `build`
+    // để đảm bảo context hợp lệ.
   }
 
   @override
@@ -120,7 +121,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
         return GestureDetector(
           onTap: _closeMenu,
           child: Material(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha:0.5),
             child: SafeArea(
               child: Stack(
                 children: [
@@ -247,7 +248,17 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
 
     return GestureDetector(
       onTap: () {
-        ShowCaseWidget.of(context).next();
+        // --- LOGIC MỚI NẰM Ở ĐÂY ---
+        // 1. Nếu đây là bước cuối cùng của hướng dẫn
+        if (forStep == TutorialStep.showAddItem) {
+          // Kết thúc toàn bộ luồng
+          ref.read(tutorialProvider.notifier).dismissTutorial();
+          ref.read(questMascotProvider.notifier).showMascotWithQuestNotification();
+          ShowCaseWidget.of(context).dismiss();
+        } else {
+          // 2. Nếu không, chỉ cần chuyển sang bước tiếp theo
+          ShowCaseWidget.of(context).next();
+        }
       },
       child: SpeechBubble(
         text: bubbleText,
@@ -264,6 +275,15 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
 
   @override
   Widget build(BuildContext context) {
+    // Gọi `startShowCase` từ context của Builder trong ShowCaseWidget
+    // Điều này đảm bảo context hợp lệ
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !ref.read(tutorialProvider).isActive) {
+        ShowCaseWidget.of(context).startShowCase([_welcomeKey, _introduceKey, _addKey]);
+        ref.read(tutorialProvider.notifier).startTutorial();
+      }
+    });
+
     final mascotState = ref.watch(questMascotProvider);
     final selectedPageIndex = ref.watch(mainScreenIndexProvider);
 
@@ -274,7 +294,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
         const mascotWidth = 80.0;
         const rightPadding = 16.0;
         final dx = size.width - mascotWidth - rightPadding;
-        const dy = 450.0;
+        final dy = 450.0;
         ref.read(questMascotProvider.notifier).updatePosition(Offset(dx, dy));
       });
     }
@@ -312,7 +332,6 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
                   children: [
                      Showcase.withWidget(
                       key: _welcomeKey,
-                      // --- THAY ĐỔI KÍCH THƯỚC Ở ĐÂY ---
                       height: 250,
                       width: MediaQuery.of(context).size.width * 0.7,
                       targetShapeBorder: const CircleBorder(),
@@ -321,7 +340,6 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
                      ),
                       Showcase.withWidget(
                       key: _introduceKey,
-                      // --- THAY ĐỔI KÍCH THƯỚC Ở ĐÂY ---
                       height: 250,
                       width: MediaQuery.of(context).size.width * 0.7,
                       targetShapeBorder: const CircleBorder(),
@@ -349,7 +367,6 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
                   label: 'Closets'),
               Showcase.withWidget(
                 key: _addKey,
-                // --- THAY ĐỔI KÍCH THƯỚC Ở ĐÂY ---
                 height: 250,
                 width: MediaQuery.of(context).size.width * 0.7,
                 container: _buildMascotContainer(context, forStep: TutorialStep.showAddItem),

@@ -1,4 +1,6 @@
 // lib/notifiers/quest_mascot_notifier.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,23 +9,30 @@ import 'package:mincloset/providers/service_providers.dart';
 class QuestMascotState {
   final bool isVisible;
   final Offset? position;
-  final bool showQuestNotification;
+  
+  // THAY ĐỔI 1: Hợp nhất các trạng thái thông báo
+  final bool showNotification;
+  final String notificationText;
+  Timer? _dismissTimer;
 
-  const QuestMascotState({
+  QuestMascotState({
     this.isVisible = false,
     this.position,
-    this.showQuestNotification = false,
+    this.showNotification = false,
+    this.notificationText = '',
   });
 
   QuestMascotState copyWith({
     bool? isVisible,
     Offset? position,
-    bool? showQuestNotification,
+    bool? showNotification,
+    String? notificationText,
   }) {
     return QuestMascotState(
       isVisible: isVisible ?? this.isVisible,
       position: position ?? this.position,
-      showQuestNotification: showQuestNotification ?? this.showQuestNotification,
+      showNotification: showNotification ?? this.showNotification,
+      notificationText: notificationText ?? this.notificationText,
     );
   }
 }
@@ -35,24 +44,16 @@ final questMascotProvider = StateNotifierProvider.autoDispose<QuestMascotNotifie
 
 class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
   final SharedPreferences? _prefs;
-  static const String _dismissedKey = 'quest_mascot_dismissed';
   static const String _positionDxKey = 'quest_mascot_pos_dx';
   static const String _positionDyKey = 'quest_mascot_pos_dy';
 
-  QuestMascotNotifier(this._prefs) : super(const QuestMascotState()) {
+  QuestMascotNotifier(this._prefs) : super(QuestMascotState()) {
     _loadState();
   }
 
   void _loadState() {
     if (_prefs == null) return;
     
-    // --- VÔ HIỆU HÓA VIỆC KIỂM TRA TRẠNG THÁI ĐÃ ẨN ---
-    // final bool isDismissed = _prefs!.getBool(_dismissedKey) ?? false;
-    // if (isDismissed) {
-    //   state = state.copyWith(isVisible: false);
-    //   return;
-    // }
-
     final dx = _prefs!.getDouble(_positionDxKey);
     final dy = _prefs!.getDouble(_positionDyKey);
 
@@ -62,9 +63,8 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
   }
 
   void dismiss() {
-    // --- VÔ HIỆU HÓA VIỆC LƯU TRẠNG THÁI ĐÃ ẨN ---
-    // _prefs?.setBool(_dismissedKey, true);
-    state = state.copyWith(isVisible: false);
+    state = state.copyWith(isVisible: false, showNotification: false);
+    state._dismissTimer?.cancel();
   }
 
   void updatePosition(Offset newPosition) {
@@ -72,16 +72,25 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     _prefs?.setDouble(_positionDyKey, newPosition.dy);
     state = state.copyWith(position: newPosition);
   }
-
-  void showMascotWithQuestNotification() {
-    // --- VÔ HIỆU HÓA VIỆC KIỂM TRA TRẠNG THÁI ĐÃ ẨN ---
-    // final bool isDismissed = _prefs?.getBool(_dismissedKey) ?? false;
-    // if (!isDismissed) {
-      state = state.copyWith(isVisible: true, showQuestNotification: true);
-    // }
+  
+  void hideNotification() {
+    state._dismissTimer?.cancel();
+    state = state.copyWith(showNotification: false);
   }
 
-  void hideQuestNotification() {
-    state = state.copyWith(showQuestNotification: false);
+  // THAY ĐỔI 2: Tạo một hàm showNotification linh hoạt
+  void showNotification(String text) {
+    state._dismissTimer?.cancel();
+
+    state = state.copyWith(
+      isVisible: true,
+      showNotification: true,
+      notificationText: text,
+    );
+    
+    // Tự động ẩn thông báo sau 5 giây
+    state._dismissTimer = Timer(const Duration(seconds: 5), () {
+      hideNotification();
+    });
   }
 }

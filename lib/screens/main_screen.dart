@@ -6,7 +6,9 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/quest_mascot_notifier.dart';
+import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/pages/closets_page.dart';
@@ -17,7 +19,7 @@ import 'package:mincloset/states/tutorial_state.dart';
 import 'package:mincloset/widgets/quest_mascot.dart';
 import 'package:mincloset/widgets/speech_bubble.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:showcaseview/showcaseview.dart';
+import 'package:showcaseview/showcaseview.dart'; 
 
 // THAY ĐỔI 1: Chuyển StatelessWidget thành ConsumerWidget
 class MainScreen extends ConsumerWidget {
@@ -31,7 +33,7 @@ class MainScreen extends ConsumerWidget {
       // Đây sẽ là nơi duy nhất xử lý việc này, đảm bảo nó luôn được gọi.
       onFinish: () {
         ref.read(tutorialProvider.notifier).dismissTutorial();
-        ref.read(questMascotProvider.notifier).showMascotWithQuestNotification();
+        ref.read(questMascotProvider.notifier).showNotification('New Quest!');
       },
       builder: (context) => const MainScreenView(),
     );
@@ -126,7 +128,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
         return GestureDetector(
           onTap: _closeMenu,
           child: Material(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha:0.5),
             child: SafeArea(
               child: Stack(
                 children: [
@@ -273,6 +275,16 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<Quest?>(completedQuestProvider, (previous, next) {
+      // Nếu có một nhiệm vụ mới được hoàn thành (state không phải là null)
+      if (next != null) {
+        // Gọi notifier của mascot để hiển thị lời chúc mừng
+        ref.read(questMascotProvider.notifier).showNotification('Quest Completed!');
+        
+        // Reset lại provider sau khi đã xử lý, để sẵn sàng cho lần sau
+        ref.read(completedQuestProvider.notifier).state = null;
+      }
+    });
     final mascotState = ref.watch(questMascotProvider);
     final selectedPageIndex = ref.watch(mainScreenIndexProvider);
 

@@ -1,9 +1,8 @@
 // lib/widgets/quest_mascot.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/notifiers/quest_mascot_notifier.dart';
-import 'package:mincloset/routing/app_routes.dart';
+import 'package:mincloset/routing/app_routes.dart'; 
 
 class QuestMascot extends ConsumerWidget {
   const QuestMascot({super.key});
@@ -13,96 +12,96 @@ class QuestMascot extends ConsumerWidget {
     final mascotState = ref.watch(questMascotProvider);
     final mascotNotifier = ref.read(questMascotProvider.notifier);
 
-    // Nếu không hiển thị hoặc không có vị trí, trả về widget trống
-    if (!mascotState.isVisible) {
+    if (!mascotState.isVisible || mascotState.position == null) {
       return const SizedBox.shrink();
     }
     
-    // Lấy kích thước màn hình
-    final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    // SỬA LỖI: Định nghĩa mascotImage ở phạm vi cao hơn để tất cả các widget con có thể truy cập
+    final mascotImage = Image.asset(
+      'assets/images/mascot.webp',
+      width: 80,
+      height: 80,
+      errorBuilder: (context, error, stackTrace) {
+        return const Icon(Icons.flutter_dash, size: 60, color: Colors.blue);
+      },
+    );
 
-    // --- BẮT ĐẦU THAY ĐỔI CẤU TRÚC WIDGET ---
     final child = Stack(
-      clipBehavior: Clip.none, // Cho phép widget con tràn ra ngoài
+      clipBehavior: Clip.none,
       alignment: Alignment.center,
       children: [
-        // Ảnh mascot
-        Image.asset(
-          'assets/images/mascot.webp',
-          width: 80,
-          height: 80,
-          errorBuilder: (context, error, stackTrace) {
-            return const Icon(Icons.flutter_dash, size: 60, color: Colors.blue);
+        GestureDetector(
+          onTap: () {
+            Navigator.of(context).pushNamed(AppRoutes.quests);
+            mascotNotifier.hideNotification();
           },
+          child: mascotImage, // Sử dụng biến đã định nghĩa
         ),
-        // Nút 'X' để đóng
         Positioned(
           top: 0,
           right: 0,
           child: GestureDetector(
-            onTap: mascotNotifier.dismiss, // Gọi hàm dismiss mới
+            onTap: mascotNotifier.dismiss,
             child: Container(
               padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
-                color: Colors.black.withAlpha(150),
+                color: Colors.black.withValues(alpha:0.6),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.close, color: Colors.white, size: 14),
             ),
           ),
         ),
-        // Thông báo nhiệm vụ mới
-        if (mascotState.showQuestNotification)
+        if (mascotState.showNotification)
           Positioned(
-            top: -18, // Đặt thông báo phía trên đầu mascot
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.redAccent,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha:0.2),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  )
-                ],
-              ),
-              child: const Text(
-                'New Quests!',
-                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+            top: -18,
+            child: GestureDetector(
+              onTap: mascotNotifier.hideNotification,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha:0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    )
+                  ],
+                ),
+                child: Text(
+                  mascotState.notificationText,
+                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ),
       ],
     );
 
-    // Bọc Draggable trong GestureDetector để xử lý onTap
     return Positioned(
-      left: mascotState.position?.dx,
-      top: mascotState.position?.dy,
-      child: GestureDetector(
-        onTap: () {
-          // 1. Chuyển đến trang nhiệm vụ
-          Navigator.of(context).pushNamed(AppRoutes.quests);
-          // 2. Ẩn thông báo để nó không hiện lại
-          mascotNotifier.hideQuestNotification();
-        },
-        child: Draggable(
-          feedback: child,
-          childWhenDragging: const SizedBox.shrink(),
-          onDragEnd: (details) {
-            // ... (toàn bộ logic onDragEnd giữ nguyên như cũ)
+      left: mascotState.position!.dx,
+      top: mascotState.position!.dy,
+      child: Draggable(
+        feedback: mascotImage, // Bây giờ có thể truy cập biến này
+        childWhenDragging: const SizedBox.shrink(),
+        onDragEnd: (details) {
             double newDx = details.offset.dx;
             double newDy = details.offset.dy;
 
             final mascotWidth = 80.0;
             final mascotHeight = 80.0;
             if (newDx < 0) newDx = 0;
-            if (newDx > screenWidth - mascotWidth) newDx = screenWidth - mascotWidth;
+            if (newDx > screenWidth - mascotWidth) {
+              newDx = screenWidth - mascotWidth;
+            }
             if (newDy < 0) newDy = 0;
-            if (newDy > screenHeight - mascotHeight) newDy = screenHeight - mascotHeight;
+            if (newDy > screenHeight - mascotHeight) {
+              newDy = screenHeight - mascotHeight;
+            }
             
             final double centerDx = newDx + mascotWidth / 2;
             final double distanceToLeft = centerDx;
@@ -116,10 +115,8 @@ class QuestMascot extends ConsumerWidget {
             
             mascotNotifier.updatePosition(Offset(newDx, newDy));
           },
-          child: child,
-        ),
+        child: child,
       ),
     );
-    // --- KẾT THÚC THAY ĐỔI CẤU TRÚC WIDGET ---
   }
 }

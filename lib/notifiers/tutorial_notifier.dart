@@ -2,16 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/states/tutorial_state.dart';
-// <<< XÓA IMPORT KHÔNG SỬ DỤNG: package:showcaseview/showcaseview.dart >>>
 
 class TutorialNotifier extends StateNotifier<TutorialState> {
-  // <<< XÓA `Ref` KHÔNG SỬ DỤNG >>>
   TutorialNotifier() : super(const TutorialState());
 
   void startTutorial() {
     state = const TutorialState(isActive: true, currentStep: TutorialStep.welcome);
   }
 
+  // Logic nextStep giờ đơn giản hơn
   void nextStep(BuildContext context) {
     if (!state.isActive) return;
 

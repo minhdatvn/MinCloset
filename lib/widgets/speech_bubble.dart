@@ -21,7 +21,7 @@ class SpeechBubble extends StatelessWidget {
         ClipOval(
           child: Container(
             // Tăng padding để chữ không bị quá sát viền của hình elip
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 36),
             decoration: BoxDecoration(
               color: Colors.white,
               // Không cần borderRadius nữa vì đã có ClipOval

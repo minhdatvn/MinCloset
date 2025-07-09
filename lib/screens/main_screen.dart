@@ -21,10 +21,12 @@ import 'package:showcaseview/showcaseview.dart';
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
-    return const MainScreenView();
+    return ShowCaseWidget(
+      builder: (context) => const MainScreenView(),
+    );
   }
 }
 
@@ -38,7 +40,7 @@ class MainScreenView extends ConsumerStatefulWidget {
 class _MainScreenViewState extends ConsumerState<MainScreenView>
     with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
-  OverlayEntry? _overlayEntry;
+  late OverlayEntry? _menuOverlay;
   bool _isMenuOpen = false;
 
   final List<Widget> _pages = const [
@@ -48,6 +50,8 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     ProfilePage(),
   ];
 
+  final GlobalKey _welcomeKey = GlobalKey();
+  final GlobalKey _introduceKey = GlobalKey();
   final GlobalKey _addKey = GlobalKey();
 
   @override
@@ -57,38 +61,39 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+    _menuOverlay = null;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        ShowCaseWidget.of(context).startShowCase([_welcomeKey, _introduceKey, _addKey]);
         ref.read(tutorialProvider.notifier).startTutorial();
       }
     });
   }
 
-  void _removeOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-  }
-
   @override
   void dispose() {
     _animationController.dispose();
-    _removeOverlay();
+    _removeMenuOverlay();
     super.dispose();
   }
+  
+  void _removeMenuOverlay() {
+    _menuOverlay?.remove();
+    _menuOverlay = null;
+  }
 
-  // Các hàm tiện ích (_toggleMenu, _closeMenu, v.v.) giữ nguyên
   void _toggleMenu() {
     if (ref.read(tutorialProvider).isActive) return;
     setState(() {
       _isMenuOpen = !_isMenuOpen;
       if (_isMenuOpen) {
         _animationController.forward();
-        _overlayEntry = _buildMenuOverlay();
-        Overlay.of(context).insert(_overlayEntry!);
+        _menuOverlay = _buildMenuOverlay();
+        Overlay.of(context).insert(_menuOverlay!);
       } else {
         _animationController.reverse();
-        _removeOverlay();
+        _removeMenuOverlay();
       }
     });
   }
@@ -102,7 +107,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
   OverlayEntry _buildMenuOverlay() {
     final theme = Theme.of(context);
     final bottomPadding = MediaQuery.of(context).padding.bottom;
-
+    
     void performAction(ImageSource source) {
       _closeMenu();
       Future.delayed(const Duration(milliseconds: 100), () {
@@ -110,7 +115,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
       });
     }
 
-    return OverlayEntry(
+    _menuOverlay = OverlayEntry(
       builder: (context) {
         return GestureDetector(
           onTap: _closeMenu,
@@ -128,18 +133,14 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
                       child: FadeTransition(
                         opacity: _animationController,
                         child: SlideTransition(
-                          position: Tween<Offset>(
-                                  begin: const Offset(0, 0.1), end: Offset.zero)
-                              .animate(CurvedAnimation(
-                                  parent: _animationController,
-                                  curve: Curves.easeOut)),
+                          position: Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero)
+                              .animate(CurvedAnimation(parent: _animationController, curve: Curves.easeOut)),
                           child: Stack(
                             alignment: Alignment.bottomCenter,
                             children: [
                               CustomPaint(
                                 size: const Size(20, 10),
-                                painter: TrianglePainter(
-                                    color: theme.cardTheme.color ?? Colors.white),
+                                painter: TrianglePainter(color: theme.cardTheme.color ?? Colors.white),
                               ),
                               Container(
                                 margin: const EdgeInsets.only(bottom: 10),
@@ -151,19 +152,15 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     ListTile(
-                                      leading: const Icon(
-                                          Icons.photo_camera_outlined),
+                                      leading: const Icon(Icons.photo_camera_outlined),
                                       title: const Text('Take photo'),
-                                      onTap: () =>
-                                          performAction(ImageSource.camera),
+                                      onTap: () => performAction(ImageSource.camera),
                                     ),
                                     const Divider(height: 1),
                                     ListTile(
-                                      leading: const Icon(
-                                          Icons.photo_library_outlined),
+                                      leading: const Icon(Icons.photo_library_outlined),
                                       title: const Text('From album (up to 10)'),
-                                      onTap: () =>
-                                          performAction(ImageSource.gallery),
+                                      onTap: () => performAction(ImageSource.gallery),
                                     ),
                                   ],
                                 ),
@@ -181,8 +178,9 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
         );
       },
     );
+    return _menuOverlay!;
   }
-
+  
   void _onItemTapped(int index) {
     if (ref.read(tutorialProvider).isActive) return;
 
@@ -204,77 +202,68 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     final imagePicker = ImagePicker();
 
     if (source == ImageSource.gallery) {
-      final pickedFiles = await imagePicker.pickMultiImage(
-        maxWidth: 1024,
-        imageQuality: 85,
-      );
+      final pickedFiles = await imagePicker.pickMultiImage(maxWidth: 1024, imageQuality: 85);
       if (pickedFiles.isNotEmpty && mounted) {
-        navigator.pushNamed(AppRoutes.analysisLoading,
-            arguments: pickedFiles);
+        navigator.pushNamed(AppRoutes.analysisLoading, arguments: pickedFiles);
       }
       return;
     }
 
-    final pickedFile = await imagePicker.pickImage(
-      source: ImageSource.camera,
-      maxWidth: 1024,
-      imageQuality: 85,
-    );
+    final pickedFile = await imagePicker.pickImage(source: ImageSource.camera, maxWidth: 1024, imageQuality: 85);
 
     if (pickedFile == null) return;
     final imageBytes = await pickedFile.readAsBytes();
     if (!mounted) return;
 
-    final editedBytes = await navigator.pushNamed<Uint8List?>(
-      AppRoutes.imageEditor,
-      arguments: imageBytes,
-    );
+    final editedBytes = await navigator.pushNamed<Uint8List?>(AppRoutes.imageEditor, arguments: imageBytes);
 
     if (editedBytes != null && mounted) {
       final tempDir = await getTemporaryDirectory();
-      final tempPath =
-          '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final tempPath = '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
       final tempFile = await File(tempPath).writeAsBytes(editedBytes);
       final editedXFile = XFile(tempFile.path);
 
       if (mounted) {
-        navigator.pushNamed(AppRoutes.analysisLoading,
-            arguments: [editedXFile]);
+        navigator.pushNamed(AppRoutes.analysisLoading, arguments: [editedXFile]);
       }
     }
   }
+  
+  Widget _buildMascotContainer(BuildContext context, {required TutorialStep forStep}) {
+    String bubbleText;
+    switch (forStep) {
+      case TutorialStep.welcome:
+        bubbleText = "Welcome to MinCloset! I'm your personal fashion assistant.";
+        break;
+      case TutorialStep.introduce:
+        bubbleText = "Let me introduce you to the first and most important feature!";
+        break;
+      case TutorialStep.showAddItem:
+        bubbleText = "Let's start by adding your first item to the closet!";
+        break;
+      default:
+        return const SizedBox.shrink();
+    }
 
-  final GlobalKey _scaffoldKey = GlobalKey();
+    return GestureDetector(
+      onTap: () {
+        ShowCaseWidget.of(context).next();
+      },
+      child: SpeechBubble(
+        text: bubbleText,
+        child: Image.asset(
+          'assets/images/mascot.webp',
+          width: 150,
+          height: 150,
+          errorBuilder: (context, error, stackTrace) =>
+              const Icon(Icons.flutter_dash, size: 120, color: Colors.blue),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Lắng nghe thay đổi state của tutorial
-    ref.listen<TutorialState>(tutorialProvider, (previous, next) {
-      if (!mounted) return;
-
-      // Gỡ bỏ overlay tùy chỉnh nếu có
-      if (_overlayEntry != null) {
-        _overlayEntry?.remove();
-        _overlayEntry = null;
-      }
-
-      // Hiển thị overlay tùy chỉnh cho các bước welcome và introduce
-      if (next.isActive && (next.currentStep == TutorialStep.welcome || next.currentStep == TutorialStep.introduce)) {
-        _overlayEntry = _buildCustomTutorialOverlay(next.currentStep);
-        Overlay.of(context).insert(_overlayEntry!);
-      }
-      // Khi đến bước showAddItem, bắt đầu showcase
-      else if (next.isActive && next.currentStep == TutorialStep.showAddItem) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          // Lấy context hợp lệ từ GlobalKey của Scaffold
-          final showcaseContext = _scaffoldKey.currentContext;
-          if (mounted && showcaseContext != null) {
-            ShowCaseWidget.of(showcaseContext).startShowCase([_addKey]);
-          }
-        });
-      }
-    });
-
-    // Các logic khác giữ nguyên
     final mascotState = ref.watch(questMascotProvider);
     final selectedPageIndex = ref.watch(mainScreenIndexProvider);
 
@@ -290,8 +279,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
       });
     }
 
-    int destinationIndex =
-        selectedPageIndex >= 2 ? selectedPageIndex + 1 : selectedPageIndex;
+    int destinationIndex = selectedPageIndex >= 2 ? selectedPageIndex + 1 : selectedPageIndex;
     if (_isMenuOpen) destinationIndex = 2;
 
     final theme = Theme.of(context);
@@ -300,20 +288,14 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     final labelStyle = navBarTheme.labelTextStyle?.resolve(states);
     final iconColor = navBarTheme.iconTheme?.resolve(states)?.color;
 
-    return ShowCaseWidget(
-      onComplete: (index, key) {
-        ref.read(tutorialProvider.notifier).dismissTutorial();
-      },
-      builder: (context) => PopScope(
+    return PopScope(
         canPop: !_isMenuOpen,
         onPopInvokedWithResult: (didPop, result) {
           if (!didPop && _isMenuOpen) {
             _closeMenu();
           }
         },
-        // Gán key cho Scaffold tại đây
         child: Scaffold(
-          key: _scaffoldKey,
           body: Stack(
             children: [
               SafeArea(
@@ -322,6 +304,31 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
                 child: IndexedStack(
                   index: selectedPageIndex,
                   children: _pages,
+                ),
+              ),
+              Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                     Showcase.withWidget(
+                      key: _welcomeKey,
+                      // --- THAY ĐỔI KÍCH THƯỚC Ở ĐÂY ---
+                      height: 250,
+                      width: MediaQuery.of(context).size.width * 0.7,
+                      targetShapeBorder: const CircleBorder(),
+                      container: _buildMascotContainer(context, forStep: TutorialStep.welcome),
+                      child: const SizedBox(width: 1, height: 1),
+                     ),
+                      Showcase.withWidget(
+                      key: _introduceKey,
+                      // --- THAY ĐỔI KÍCH THƯỚC Ở ĐÂY ---
+                      height: 250,
+                      width: MediaQuery.of(context).size.width * 0.7,
+                      targetShapeBorder: const CircleBorder(),
+                      container: _buildMascotContainer(context, forStep: TutorialStep.introduce),
+                      child: const SizedBox(width: 1, height: 1),
+                     ),
+                  ],
                 ),
               ),
               if (mascotState.isVisible && mascotState.position != null)
@@ -340,34 +347,12 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
                   icon: Icon(Icons.door_sliding_outlined),
                   selectedIcon: Icon(Icons.door_sliding),
                   label: 'Closets'),
-              
               Showcase.withWidget(
                 key: _addKey,
-                height: 200,
-                width: MediaQuery.of(context).size.width * 0.8,
-                container: GestureDetector(
-                  onTap: () {
-                    // Lấy context hợp lệ từ builder của chính GestureDetector
-                    final showcaseContext = context; 
-                    
-                    // 1. Gọi dismiss() để ẩn giao diện của showcase
-                    ShowCaseWidget.of(showcaseContext).dismiss();
-                    
-                    // 2. Trực tiếp gọi notifier để kết thúc trạng thái tutorial
-                    ref.read(tutorialProvider.notifier).dismissTutorial();
-                  },
-                  child: SpeechBubble(
-                    text: "Let's start by adding your first item to the closet!",
-                    child: Image.asset(
-                      'assets/images/mascot.webp',
-                      width: 150,
-                      height: 150,
-                      errorBuilder: (context, error, stackTrace) =>
-                          const Icon(Icons.flutter_dash, size: 120, color: Colors.blue),
-                    ),
-                  ),
-                ),
-                disableDefaultTargetGestures: true,
+                // --- THAY ĐỔI KÍCH THƯỚC Ở ĐÂY ---
+                height: 250,
+                width: MediaQuery.of(context).size.width * 0.7,
+                container: _buildMascotContainer(context, forStep: TutorialStep.showAddItem),
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 9.5),
                   child: GestureDetector(
@@ -414,45 +399,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  OverlayEntry _buildCustomTutorialOverlay(TutorialStep currentStep) {
-    return OverlayEntry(
-      builder: (context) {
-        String bubbleText = '';
-        switch (currentStep) {
-          case TutorialStep.welcome:
-            bubbleText = "Welcome to MinCloset! I'm your personal fashion assistant.";
-            break;
-          case TutorialStep.introduce:
-            bubbleText = "Let me introduce you to the first and most important feature!";
-            break;
-          default:
-            return const SizedBox.shrink();
-        }
-
-        return GestureDetector(
-          onTap: () => ref.read(tutorialProvider.notifier).nextStep(context),
-          child: Material(
-            color: Colors.black.withOpacity(0.8),
-            child: Center(
-              child: SpeechBubble(
-                text: bubbleText,
-                child: Image.asset(
-                  'assets/images/mascot.webp',
-                  width: 150,
-                  height: 150,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.flutter_dash, size: 120, color: Colors.blue),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
+      );
   }
 }
 

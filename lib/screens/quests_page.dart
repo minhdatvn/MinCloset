@@ -11,9 +11,10 @@ class QuestsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final quests = ref.watch(questsPageProvider);
 
+    // THAY ĐỔI 1: Chỉ lọc ra các quest đang và đã hoàn thành. Bỏ qua quest bị khóa.
     final inProgressQuests = quests.where((q) => q.status == QuestStatus.inProgress).toList();
     final completedQuests = quests.where((q) => q.status == QuestStatus.completed).toList();
-
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Quests'),
@@ -34,7 +35,9 @@ class QuestsPage extends ConsumerWidget {
             const SizedBox(height: 24),
             _buildSectionTitle(context, 'Completed'),
             ...completedQuests.map((quest) => _QuestCard(quest: quest)),
-          ]
+          ],
+
+          // THAY ĐỔI 2: Xóa bỏ hoàn toàn khối code hiển thị các quest bị khóa
         ],
       ),
     );
@@ -51,25 +54,37 @@ class QuestsPage extends ConsumerWidget {
   }
 }
 
-// Widget cho mỗi thẻ nhiệm vụ
 class _QuestCard extends StatelessWidget {
   final Quest quest;
   const _QuestCard({required this.quest});
+
+  String _getEventLabel(QuestEvent event) {
+    switch (event) {
+      case QuestEvent.topAdded:
+        return 'Tops Added';
+      case QuestEvent.bottomAdded:
+        return 'Bottoms Added';
+      case QuestEvent.suggestionReceived:
+        return 'AI Suggestion';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isCompleted = quest.status == QuestStatus.completed;
 
+    final Color cardColor = isCompleted ? Colors.green.withAlpha(20) : theme.colorScheme.surfaceContainerHighest;
+    final Color borderColor = isCompleted ? Colors.green : Colors.grey.shade300;
+    final IconData leadingIcon = isCompleted ? Icons.check_circle : Icons.stream;
+    final Color iconColor = isCompleted ? Colors.green : theme.colorScheme.primary;
+
     return Card(
       elevation: 0,
-      color: isCompleted ? Colors.green.withAlpha(20) : theme.colorScheme.surfaceContainerHighest,
+      color: cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: isCompleted ? Colors.green : Colors.grey.shade300,
-          width: 1,
-        ),
+        side: BorderSide(color: borderColor, width: 1),
       ),
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -79,10 +94,7 @@ class _QuestCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(
-                  isCompleted ? Icons.check_circle : Icons.stream,
-                  color: isCompleted ? Colors.green : theme.colorScheme.primary,
-                ),
+                Icon(leadingIcon, color: iconColor),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -94,16 +106,13 @@ class _QuestCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(quest.description, style: theme.textTheme.bodyMedium),
-            if (!isCompleted) ...[
+            
+            if (quest.status == QuestStatus.inProgress) ...[
               const SizedBox(height: 16),
-              // Hiển thị các thanh tiến trình cho từng mục tiêu
-              ...quest.goal.requiredCounts.keys.map((category) {
-                final required = quest.goal.requiredCounts[category]!;
-                final current = quest.progress.currentCounts[category] ?? 0;
-                final progressValue = required > 0 ? (current / required) : 1.0;
-
+              ...quest.goal.requiredCounts.keys.map((event) {
+                final progressValue = (quest.progress.currentCounts[event] ?? 0) / (quest.goal.requiredCounts[event]!);
                 return _ProgressIndicator(
-                  label: '$category: ${quest.getProgressString(category)}',
+                  label: '${_getEventLabel(event)}: ${quest.getProgressString(event)}',
                   value: progressValue,
                 );
               }),
@@ -115,7 +124,6 @@ class _QuestCard extends StatelessWidget {
   }
 }
 
-// Widget cho thanh tiến trình
 class _ProgressIndicator extends StatelessWidget {
   final String label;
   final double value;

@@ -4,7 +4,6 @@ import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/services/quest_service.dart';
 
-// Repository đóng vai trò là cầu nối, giúp các Notifier/UseCase không cần biết về QuestService
 class QuestRepository {
   final QuestService _questService;
 
@@ -14,7 +13,8 @@ class QuestRepository {
     return _questService.getCurrentQuests();
   }
 
-  Future<void> updateQuestProgress(ClothingItem newItem) {
+  // SỬA LỖI: Thay đổi kiểu trả về từ Future<void> thành Future<Quest?>
+  Future<Quest?> updateQuestProgress(ClothingItem newItem) {
     return _questService.updateQuestProgress(newItem);
   }
 

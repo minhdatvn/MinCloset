@@ -284,8 +284,14 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
         );
 
         // <<< GỌI HÀM CẬP NHẬT TIẾN TRÌNH NHIỆM VỤ >>>
-        if (!state.isEditing) { // Chỉ cập nhật tiến trình khi thêm món đồ mới
-            await _questRepo.updateQuestProgress(savedItem);
+        if (!state.isEditing) {
+            // SỬA LỖI TẠI ĐÂY: Bắt lấy kết quả từ hàm updateQuestProgress
+            final completedQuest = await _questRepo.updateQuestProgress(savedItem);
+            // Nếu có nhiệm vụ vừa hoàn thành và widget vẫn còn tồn tại
+            if (completedQuest != null && mounted) {
+              // "Phát" tín hiệu vào kênh giao tiếp
+              _ref.read(completedQuestProvider.notifier).state = completedQuest;
+            }
         }
 
         _ref.read(itemChangedTriggerProvider.notifier).state++;

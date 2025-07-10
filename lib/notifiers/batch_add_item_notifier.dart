@@ -8,6 +8,7 @@ import 'package:mincloset/domain/use_cases/analyze_item_use_case.dart';
 import 'package:mincloset/domain/use_cases/validate_item_name_use_case.dart';
 import 'package:mincloset/domain/use_cases/validate_required_fields_use_case.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
@@ -204,9 +205,9 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
     final itemsToSave = itemStates.map((itemState) {
       return ClothingItem(
         id: const Uuid().v4(), name: itemState.name.trim(), category: itemState.selectedCategoryValue,
-        closetId: itemState.selectedClosetId!, imagePath: itemState.image!.path, color: itemState.selectedColors.join(', '),
-        season: itemState.selectedSeasons.join(', '), occasion: itemState.selectedOccasions.join(', '),
-        material: itemState.selectedMaterials.join(', '), pattern: itemState.selectedPatterns.join(', '),
+        closetId: itemState.selectedClosetId!, imagePath: itemState.image!.path, color: itemState.selectedColors.join(','),
+        season: itemState.selectedSeasons.join(','), occasion: itemState.selectedOccasions.join(','),
+        material: itemState.selectedMaterials.join(','), pattern: itemState.selectedPatterns.join(','),
       );
     }).toList();
     
@@ -218,11 +219,27 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
       (failure) {
         state = state.copyWith(isSaving: false, saveErrorMessage: failure.message);
       },
-      (_) async { // <<< CHUYỂN THÀNH HÀM ASYNC >>>
-        // <<< GỌI CẬP NHẬT TIẾN TRÌNH CHO TỪNG ITEM >>>
+      (_) async {
+        // SỬA LỖI: Chỉ phát tín hiệu một lần duy nhất sau khi vòng lặp kết thúc
+        Quest? finalCompletedQuest;
+
         for (final item in itemsToSave) {
-          await _questRepo.updateQuestProgress(item);
+          // Vẫn gọi updateQuestProgress cho mỗi vật phẩm và bắt lấy kết quả
+          final completedQuest = await _questRepo.updateQuestProgress(item);
+          
+          // Nếu có một nhiệm vụ được hoàn thành, lưu nó lại
+          if (completedQuest != null) {
+            finalCompletedQuest = completedQuest;
+          }
         }
+
+        // Sau khi vòng lặp kết thúc, kiểm tra xem có nhiệm vụ nào đã hoàn thành không
+        if (finalCompletedQuest != null && mounted) {
+          // Chỉ phát tín hiệu một lần duy nhất tại đây
+          _ref.read(completedQuestProvider.notifier).state = finalCompletedQuest;
+        }
+
+        // Các hành động còn lại giữ nguyên
         _ref.read(itemChangedTriggerProvider.notifier).state++;
         state = state.copyWith(isSaving: false, saveSuccess: true);
       },

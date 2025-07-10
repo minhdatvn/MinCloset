@@ -35,7 +35,7 @@ class QuestMascot extends ConsumerWidget {
         GestureDetector(
           onTap: () {
             // Khi nhấn vào mascot, luôn ẩn thông báo hiện tại và mở trang Quest
-            mascotNotifier.hideCurrentNotification();
+            mascotNotifier.markCurrentQuestsAsSeen();
             Navigator.of(context).pushNamed(AppRoutes.quests);
           },
           child: mascotImage,
@@ -60,7 +60,10 @@ class QuestMascot extends ConsumerWidget {
           Positioned(
             top: -18,
             child: GestureDetector(
-              onTap: mascotNotifier.hideCurrentNotification, // Nhấn vào để ẩn
+              onTap: () {
+                mascotNotifier.hideCurrentNotificationAndCheckForNew();
+                Navigator.of(context).pushNamed(AppRoutes.quests);
+              }, // Nhấn vào để ẩn
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(

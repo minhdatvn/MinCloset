@@ -32,7 +32,7 @@ class MainScreen extends ConsumerWidget {
       onFinish: () {
         ref.read(tutorialProvider.notifier).dismissTutorial();
         // THAY ĐỔI: Gọi hàm mới để hiển thị thông báo "New Quest!"
-        ref.read(questMascotProvider.notifier).showNewQuestNotification();
+        ref.read(questMascotProvider.notifier).checkForNewQuests();
       },
       builder: (context) => const MainScreenView(),
     );
@@ -276,7 +276,6 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
   Widget build(BuildContext context) {
     ref.listen<Quest?>(completedQuestProvider, (previous, next) {
       if (next != null) {
-        // THAY ĐỔI: Gọi hàm mới để hiển thị thông báo hoàn thành nhiệm vụ
         final screenWidth = MediaQuery.of(context).size.width;
         ref.read(questMascotProvider.notifier).showQuestCompletedNotification(next.title, screenWidth);
         ref.read(completedQuestProvider.notifier).state = null;

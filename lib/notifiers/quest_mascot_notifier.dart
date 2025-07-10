@@ -3,11 +3,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/models/quest.dart'; // Thêm import này
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// THAY ĐỔI 1: Tạo enum để quản lý các loại thông báo một cách rõ ràng
 enum MascotNotificationType {
   none,
   newQuestAvailable,
@@ -18,10 +18,7 @@ class QuestMascotState {
   final bool isVisible;
   final Offset? position;
   final Offset? originalPositionBeforeNotification;
-
-  // THAY ĐỔI 2: Dùng enum để quản lý trạng thái thông báo
   final MascotNotificationType notificationType;
-  // Dùng để chứa nội dung thông báo (ví dụ: tên quest đã hoàn thành)
   final String notificationMessage;
   Timer? _dismissTimer;
 
@@ -51,17 +48,16 @@ class QuestMascotState {
   }
 }
 
-// Provider không đổi
 final questMascotProvider = StateNotifierProvider.autoDispose<QuestMascotNotifier, QuestMascotState>((ref) {
   final prefs = ref.watch(sharedPreferencesProvider).value;
-  // THAY ĐỔI 3: Cung cấp `ref` cho Notifier để nó có thể đọc các provider khác
   return QuestMascotNotifier(prefs, ref);
 });
 
 class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
   final SharedPreferences? _prefs;
-  // THAY ĐỔI 4: Lưu lại `ref` để sử dụng
   final Ref _ref;
+  // THAY ĐỔI 1: Key mới để lưu danh sách các ID đã xem
+  static const String _seenQuestIdsKey = 'seen_quest_ids';
   static const String _positionDxKey = 'quest_mascot_pos_dx';
   static const String _positionDyKey = 'quest_mascot_pos_dy';
   final double mascotWidth = 80.0;
@@ -90,7 +86,6 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     state = state.copyWith(isVisible: false, notificationType: MascotNotificationType.none);
   }
 
-  // THAY ĐỔI 5: Nâng cấp toàn bộ logic xử lý thông báo
   void _moveMascotForNotification(double screenWidth) {
     Offset? newPosition;
     Offset? originalPosition;
@@ -99,7 +94,6 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     if (currentDx < 1.0 || currentDx > screenWidth - mascotWidth - 1.0) {
       originalPosition = state.position;
       newPosition = Offset((screenWidth - mascotWidth) / 2, state.position?.dy ?? 450.0);
-      
       state = state.copyWith(
         position: newPosition,
         originalPositionBeforeNotification: originalPosition,
@@ -117,17 +111,45 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     }
   }
 
-  // Hiển thị thông báo có nhiệm vụ mới
-  void showNewQuestNotification() {
-    state._dismissTimer?.cancel();
-    state = state.copyWith(
-      isVisible: true,
-      notificationType: MascotNotificationType.newQuestAvailable,
-      notificationMessage: 'New Quest!',
-    );
+  // THAY ĐỔI 2: Hàm helper để lấy các quest chưa xem
+  List<Quest> _getUnseenActiveQuests() {
+    final allActiveQuests = _ref.read(questRepositoryProvider).getCurrentQuests().where((q) => q.status == QuestStatus.inProgress).toList();
+    final seenIds = _prefs?.getStringList(_seenQuestIdsKey)?.toSet() ?? {};
+    return allActiveQuests.where((quest) => !seenIds.contains(quest.id)).toList();
   }
 
-  // Hiển thị thông báo hoàn thành nhiệm vụ
+  // THAY ĐỔI 3: Hàm này sẽ đánh dấu tất cả các quest đang active là đã xem
+  void markCurrentQuestsAsSeen() {
+    final allActiveQuests = _ref.read(questRepositoryProvider).getCurrentQuests().where((q) => q.status == QuestStatus.inProgress).toList();
+    final seenIds = _prefs?.getStringList(_seenQuestIdsKey)?.toSet() ?? {};
+    
+    for (var quest in allActiveQuests) {
+      seenIds.add(quest.id);
+    }
+    
+    _prefs?.setStringList(_seenQuestIdsKey, seenIds.toList());
+    // Sau khi đánh dấu là đã xem, ẩn thông báo "New Quest!"
+    if (state.notificationType == MascotNotificationType.newQuestAvailable) {
+        state = state.copyWith(notificationType: MascotNotificationType.none);
+    }
+  }
+  
+  // THAY ĐỔI 4: Logic hiển thị "New Quest!" được nâng cấp
+  void checkForNewQuests() {
+    state._dismissTimer?.cancel();
+    final unseenQuests = _getUnseenActiveQuests();
+
+    if (unseenQuests.isNotEmpty) {
+      state = state.copyWith(
+        isVisible: true,
+        notificationType: MascotNotificationType.newQuestAvailable,
+        notificationMessage: 'New Quest!',
+      );
+    } else {
+      state = state.copyWith(notificationType: MascotNotificationType.none);
+    }
+  }
+
   void showQuestCompletedNotification(String questTitle, double screenWidth) {
     state._dismissTimer?.cancel();
     _moveMascotForNotification(screenWidth);
@@ -138,22 +160,18 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
       notificationMessage: 'Quest Completed!',
     );
 
-    // Tự động chuyển trạng thái sau 5 giây
     state._dismissTimer = Timer(const Duration(seconds: 5), () {
-      hideCurrentNotification();
+      hideCurrentNotificationAndCheckForNew();
     });
   }
-
-  // Ẩn thông báo hiện tại và kiểm tra xem có cần hiện "New Quest!" không
-  void hideCurrentNotification() {
+  
+  // THAY ĐỔI 5: Hàm này giờ sẽ ẩn thông báo hiện tại và gọi hàm kiểm tra quest mới
+  void hideCurrentNotificationAndCheckForNew() {
     state._dismissTimer?.cancel();
     _restoreMascotPosition();
     state = state.copyWith(notificationType: MascotNotificationType.none);
-
-    // KIỂM TRA ĐIỀU KIỆN KẾ TIẾP: Sau khi ẩn, kiểm tra xem có quest nào đang hoạt động không
-    final activeQuest = _ref.read(questRepositoryProvider).getFirstActiveQuest();
-    if (activeQuest != null) {
-      showNewQuestNotification();
-    }
+    
+    // Sau khi ẩn, gọi hàm kiểm tra lại
+    checkForNewQuests();
   }
 }

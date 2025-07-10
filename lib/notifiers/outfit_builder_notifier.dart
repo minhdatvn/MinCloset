@@ -6,6 +6,8 @@ import 'package:fpdart/fpdart.dart';
 import 'package:mincloset/domain/failures/failures.dart';
 import 'package:mincloset/domain/providers.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/models/quest.dart';
+import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
@@ -106,7 +108,14 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
       (failure) {
         state = state.copyWith(errorMessage: failure.message, isSaving: false);
       },
-      (_) {
+      (_) async { // THAY ĐỔI 1: Chuyển thành hàm async
+        // THAY ĐỔI 2: Phát đi sự kiện và kiểm tra kết quả
+        final completedQuests = await _ref.read(questRepositoryProvider).updateQuestProgress(QuestEvent.outfitCreated);
+        if (completedQuests.isNotEmpty && mounted) {
+            _ref.read(completedQuestProvider.notifier).state = completedQuests.first;
+        }
+
+        // Các dòng code cũ giữ nguyên
         _ref.invalidate(outfitsHubProvider);
         state = state.copyWith(saveSuccess: true, isSaving: false);
       }

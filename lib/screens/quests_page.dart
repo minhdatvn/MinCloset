@@ -66,6 +66,12 @@ class _QuestCard extends StatelessWidget {
         return 'Bottoms Added';
       case QuestEvent.suggestionReceived:
         return 'AI Suggestion';
+      case QuestEvent.outfitCreated: 
+        return 'Outfit Created';
+      case QuestEvent.closetCreated: 
+        return 'New Closet';
+      case QuestEvent.logAdded:
+        return 'Item/Outfit Logged';
     }
   }
 

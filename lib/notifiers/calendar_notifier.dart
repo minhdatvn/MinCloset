@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit.dart';
+import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/models/wear_log.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
@@ -14,6 +15,8 @@ import 'package:mincloset/repositories/wear_log_repository.dart';
 import 'package:mincloset/services/notification_service.dart';
 import 'package:mincloset/states/log_wear_state.dart';
 import 'package:mincloset/utils/logger.dart';
+
+import '../providers/event_providers.dart';
 
 // State cho Calendar
 class WornGroup extends Equatable {
@@ -63,12 +66,14 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
   final ClothingItemRepository _itemRepo;
   final OutfitRepository _outfitRepo;
   final NotificationService _notificationService;
+  final Ref _ref;
 
   CalendarNotifier(
     this._wearLogRepo, 
     this._itemRepo, 
     this._outfitRepo,
     this._notificationService,
+    this._ref,
   ) : super(const CalendarState()) {
     loadEvents();
   }
@@ -210,11 +215,17 @@ class CalendarNotifier extends StateNotifier<CalendarState> {
       (l) {
         logger.e("Error logging wear", error: l.message);
         _notificationService.showBanner(message: "Failed to log wear: ${l.message}");
-        return false; // Trả về false khi thất bại
+        return false;
       },
-      (_) {
-        loadEvents(); // Tải lại sự kiện
-        return true; // Trả về true khi thành công
+      (_) async {
+        final completedQuests = await _ref.read(questRepositoryProvider).updateQuestProgress(QuestEvent.logAdded);
+        if (completedQuests.isNotEmpty && mounted) {
+          _ref.read(completedQuestProvider.notifier).state = completedQuests.first;
+        }
+
+        // Các dòng code cũ giữ nguyên
+        loadEvents();
+        return true;
       },
     );
   }
@@ -236,5 +247,5 @@ final calendarProvider = StateNotifierProvider<CalendarNotifier, CalendarState>(
   final itemRepo = ref.watch(clothingItemRepositoryProvider);
   final outfitRepo = ref.watch(outfitRepositoryProvider);
   final notificationService = ref.watch(notificationServiceProvider);
-  return CalendarNotifier(wearLogRepo, itemRepo, outfitRepo, notificationService);
+  return CalendarNotifier(wearLogRepo, itemRepo, outfitRepo, notificationService, ref);
 });

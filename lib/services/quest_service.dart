@@ -29,6 +29,33 @@ class QuestService {
       status: QuestStatus.locked, // Bắt đầu ở trạng thái khóa
       prerequisiteQuestId: 'first_steps', // Điều kiện là phải xong quest 1
     ),
+    // Quest 3: Tạo outfit đầu tiên
+    const Quest(
+      id: 'first_outfit',
+      title: 'Your First Creation',
+      description: 'Use the Outfit Builder to create and save your first custom outfit.',
+      goal: QuestGoal(requiredCounts: {QuestEvent.outfitCreated: 1}),
+      status: QuestStatus.locked,
+      prerequisiteQuestId: 'first_suggestion', // Điều kiện là phải xong quest 2
+    ),
+    // Quest 4: Tạo mới tủ đồ
+    const Quest(
+      id: 'organize_closet',
+      title: 'Get Organized',
+      description: 'Create a new closet to better organize your clothing items (e.g., for work, for sports).',
+      goal: QuestGoal(requiredCounts: {QuestEvent.closetCreated: 1}),
+      status: QuestStatus.locked,
+      prerequisiteQuestId: 'first_outfit', // Điều kiện là phải xong quest 3
+    ),
+    // Quest 5: Ghi nhận mặc đồ trong Nhật ký
+    const Quest(
+      id: 'first_log',
+      title: 'Track Your Style Journey',
+      description: 'Log an item or an outfit to your Journey to keep track of what you wear.',
+      goal: QuestGoal(requiredCounts: {QuestEvent.logAdded: 1}),
+      status: QuestStatus.locked,
+      prerequisiteQuestId: 'organize_closet', // Điều kiện là phải xong quest 4
+    ),
   ];
   
   static const String _questProgressKey = 'quest_progress_key';

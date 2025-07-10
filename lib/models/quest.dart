@@ -6,6 +6,9 @@ enum QuestEvent {
   topAdded,
   bottomAdded,
   suggestionReceived,
+  outfitCreated,
+  closetCreated,
+  logAdded,
 }
 
 enum QuestStatus {

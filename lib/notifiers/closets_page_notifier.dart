@@ -1,7 +1,9 @@
 // lib/notifiers/closets_page_notifier.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/closet.dart';
+import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/providers/database_providers.dart';
+import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/closet_repository.dart';
 import 'package:uuid/uuid.dart';
@@ -40,19 +42,15 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
 
     state = state.copyWith(isLoading: true);
 
-    // Gọi trực tiếp repository để lấy danh sách closets
     final closetsResult = await _closetRepo.getClosets();
 
     if (!mounted) return null;
 
-    // Sử dụng fold để xử lý an toàn
     return await closetsResult.fold(
-      // Trường hợp 1: Không thể lấy danh sách tủ đồ
       (failure) {
         state = state.copyWith(isLoading: false);
         return failure.message;
       },
-      // Trường hợp 2: Lấy được danh sách, tiếp tục logic
       (closets) async {
         if (closets.length >= 10) {
           state = state.copyWith(isLoading: false);
@@ -75,16 +73,27 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
         state = state.copyWith(isLoading: false);
 
         return insertResult.fold(
-          (failure) => failure.message, // Trả về lỗi nếu thêm thất bại
-          (_) {
-            _ref.invalidate(closetsProvider); // Làm mới danh sách cho UI
-            return null; // Trả về null nếu thành công
+          (failure) => failure.message,
+          (_) async { // THAY ĐỔI 1: Chuyển thành hàm async để dùng await
+            
+            // THAY ĐỔI 2: Phát đi sự kiện closetCreated và kiểm tra kết quả
+            final completedQuests = await _ref
+                .read(questRepositoryProvider)
+                .updateQuestProgress(QuestEvent.closetCreated);
+            
+            if (completedQuests.isNotEmpty && mounted) {
+              _ref.read(completedQuestProvider.notifier).state = completedQuests.first;
+            }
+
+            // Các dòng code cũ giữ nguyên
+            _ref.invalidate(closetsProvider); 
+            return null;
           },
         );
       },
     );
   }
-
+  
   Future<String?> updateCloset(Closet closetToUpdate, String newName) async {
     final trimmedName = newName.trim();
     if (trimmedName.isEmpty) {

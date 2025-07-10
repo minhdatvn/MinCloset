@@ -48,7 +48,7 @@ class QuestMascotState {
   }
 }
 
-final questMascotProvider = StateNotifierProvider.autoDispose<QuestMascotNotifier, QuestMascotState>((ref) {
+final questMascotProvider = StateNotifierProvider<QuestMascotNotifier, QuestMascotState>((ref) {
   final prefs = ref.watch(sharedPreferencesProvider).value;
   return QuestMascotNotifier(prefs, ref);
 });

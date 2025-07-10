@@ -9,6 +9,7 @@ import 'package:mincloset/routing/route_generator.dart';
 import 'package:mincloset/theme/app_theme.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:mincloset/services/weather_image_service.dart';
+import 'package:mincloset/widgets/global_ui_scope.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,11 +52,15 @@ class MinClosetApp extends ConsumerWidget {
       theme: appTheme,
       initialRoute: AppRoutes.splash,
       onGenerateRoute: RouteGenerator.onGenerateRoute,
-      builder: (context, child) { // `child` ở đây chính là các màn hình của bạn (AddItemScreen, v.v.)
+      builder: (context, child) {
+        // Bọc child bằng cả hai widget theo đúng thứ tự
         return SafeArea(
-          top: false,   // Luôn cho phép tràn viền trên
-          bottom: true,  // Luôn ngăn tràn viền dưới
-          child: child!, // Dấu ! để khẳng định child không bao giờ null
+          top: false,   // Vẫn giữ nguyên logic cho phép tràn viền trên
+          bottom: true,  // Vẫn giữ nguyên logic ngăn tràn viền dưới
+          // GlobalUiScope sẽ là con của SafeArea
+          child: GlobalUiScope(
+            child: child!, 
+          ),
         );
       },
       locale: locale,

@@ -1,15 +1,24 @@
 // lib/services/quest_service.dart
 import 'dart:convert';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/quest.dart';
+import 'package:mincloset/providers/event_providers.dart';
+import 'package:mincloset/repositories/achievement_repository.dart';
 import 'package:mincloset/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class QuestService {
   final SharedPreferences _prefs;
+  // THAY ĐỔI 1: Thêm dependency đến AchievementRepository và Ref
+  final AchievementRepository _achievementRepo;
+  final Ref _ref;
 
-  // THAY ĐỔI 1: Cập nhật danh sách nhiệm vụ theo yêu cầu mới
+  // THAY ĐỔI 2: Cập nhật constructor
+  QuestService(this._prefs, this._achievementRepo, this._ref);
+
+  // ... (danh sách _allQuests không đổi)
   static final List<Quest> _allQuests = [
-    // Quest 1: Yêu cầu 3 áo, 3 quần/váy. Trạng thái bắt đầu là inProgress.
     const Quest(
       id: 'first_steps',
       title: 'First Steps into Your Digital Closet',
@@ -20,48 +29,43 @@ class QuestService {
       }),
       status: QuestStatus.inProgress, 
     ),
-    // Quest 2: Yêu cầu 1 gợi ý AI. Trạng thái bắt đầu là locked và có điều kiện.
     const Quest(
       id: 'first_suggestion',
       title: 'Your First AI-Powered Suggestion',
       description: 'Let\'s see what the AI has in store for you. Get your first outfit suggestion!',
       goal: QuestGoal(requiredCounts: {QuestEvent.suggestionReceived: 1}),
-      status: QuestStatus.locked, // Bắt đầu ở trạng thái khóa
-      prerequisiteQuestId: 'first_steps', // Điều kiện là phải xong quest 1
+      status: QuestStatus.locked,
+      prerequisiteQuestId: 'first_steps',
     ),
-    // Quest 3: Tạo outfit đầu tiên
     const Quest(
       id: 'first_outfit',
       title: 'Your First Creation',
       description: 'Use the Outfit Builder to create and save your first custom outfit.',
       goal: QuestGoal(requiredCounts: {QuestEvent.outfitCreated: 1}),
       status: QuestStatus.locked,
-      prerequisiteQuestId: 'first_suggestion', // Điều kiện là phải xong quest 2
+      prerequisiteQuestId: 'first_suggestion',
     ),
-    // Quest 4: Tạo mới tủ đồ
     const Quest(
       id: 'organize_closet',
       title: 'Get Organized',
       description: 'Create a new closet to better organize your clothing items (e.g., for work, for sports).',
       goal: QuestGoal(requiredCounts: {QuestEvent.closetCreated: 1}),
       status: QuestStatus.locked,
-      prerequisiteQuestId: 'first_outfit', // Điều kiện là phải xong quest 3
+      prerequisiteQuestId: 'first_outfit',
     ),
-    // Quest 5: Ghi nhận mặc đồ trong Nhật ký
     const Quest(
       id: 'first_log',
       title: 'Track Your Style Journey',
       description: 'Log an item or an outfit to your Journey to keep track of what you wear.',
       goal: QuestGoal(requiredCounts: {QuestEvent.logAdded: 1}),
       status: QuestStatus.locked,
-      prerequisiteQuestId: 'organize_closet', // Điều kiện là phải xong quest 4
+      prerequisiteQuestId: 'organize_closet',
     ),
   ];
   
   static const String _questProgressKey = 'quest_progress_key';
-
-  QuestService(this._prefs);
-
+  
+  // ... (hàm getCurrentQuests không đổi)
   List<Quest> getCurrentQuests() {
     final questsJson = _prefs.getString(_questProgressKey);
     if (questsJson == null) {
@@ -90,7 +94,7 @@ class QuestService {
     }
   }
 
-  // THAY ĐỔI 2: Nâng cấp logic để có thể "mở khóa" quest mới
+
   Future<List<Quest>> updateQuestProgress(QuestEvent event) async {
     final quests = getCurrentQuests();
     final List<Quest> newlyCompletedQuests = [];
@@ -107,7 +111,6 @@ class QuestService {
             newlyCompletedQuests.add(quests[i]);
             logger.i("Quest '${quests[i].id}' completed!");
 
-            // Sau khi hoàn thành 1 quest, kiểm tra xem có quest nào được mở khóa không
             for (int j = 0; j < quests.length; j++) {
               if (quests[j].prerequisiteQuestId == quests[i].id && quests[j].status == QuestStatus.locked) {
                 quests[j] = quests[j].copyWith(status: QuestStatus.inProgress);
@@ -119,13 +122,23 @@ class QuestService {
       }
     }
 
+    // THAY ĐỔI 3: Sau khi cập nhật quest, gọi hàm kiểm tra thành tích
+    if (newlyCompletedQuests.isNotEmpty) {
+      final unlockedAchievement = await _achievementRepo.checkAndUnlockAchievements(quests);
+      if (unlockedAchievement != null) {
+        // Phát tín hiệu khi có thành tích mới được mở khóa
+        _ref.read(unlockedAchievementProvider.notifier).state = unlockedAchievement;
+      }
+    }
+
     if (newlyCompletedQuests.isNotEmpty || questsUnlocked) {
       await _saveQuests(quests);
     }
     
     return newlyCompletedQuests;
   }
-
+  
+  // ... (các hàm _saveQuests và getFirstActiveQuest không đổi)
   Future<void> _saveQuests(List<Quest> quests) async {
     final List<Map<String, dynamic>> dataToSave = quests.map((q) {
       final Map<String, int> stringProgress = q.progress.currentCounts.map(

@@ -1,19 +1,19 @@
 // lib/notifiers/outfit_builder_notifier.dart
 
 import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:mincloset/domain/failures/failures.dart';
 import 'package:mincloset/domain/providers.dart';
+import 'package:mincloset/domain/use_cases/save_outfit_use_case.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/quest.dart';
-import 'package:mincloset/providers/event_providers.dart';
+import 'package:mincloset/notifiers/outfits_hub_notifier.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
 import 'package:mincloset/states/outfit_builder_state.dart';
-import 'package:mincloset/domain/use_cases/save_outfit_use_case.dart';
-import 'package:mincloset/notifiers/outfits_hub_notifier.dart';
 
 class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
   final ClothingItemRepository _clothingItemRepo;
@@ -108,16 +108,25 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
       (failure) {
         state = state.copyWith(errorMessage: failure.message, isSaving: false);
       },
-      (_) async { // THAY ĐỔI 1: Chuyển thành hàm async
-        // THAY ĐỔI 2: Phát đi sự kiện và kiểm tra kết quả
-        final completedQuests = await _ref.read(questRepositoryProvider).updateQuestProgress(QuestEvent.outfitCreated);
-        if (completedQuests.isNotEmpty && mounted) {
-            _ref.read(completedQuestProvider.notifier).state = completedQuests.first;
-        }
+      (_) async {
+        final questRepo = _ref.read(questRepositoryProvider);
+        final achievementRepo = _ref.read(achievementRepositoryProvider);
 
-        // Các dòng code cũ giữ nguyên
+        // Phát sự kiện quest
+        await questRepo.updateQuestProgress(QuestEvent.outfitCreated);
+        
+        // KIỂM TRA THÀNH TÍCH NGAY TẠI ĐÂY
+        final allQuests = questRepo.getCurrentQuests();
+        final unlockedAchievement = await achievementRepo.checkAndUnlockAchievements(allQuests);
+
         _ref.invalidate(outfitsHubProvider);
-        state = state.copyWith(saveSuccess: true, isSaving: false);
+        
+        // Cập nhật state với cả saveSuccess và thành tích đã mở khóa (nếu có)
+        state = state.copyWith(
+          saveSuccess: true, 
+          isSaving: false,
+          newlyUnlockedAchievement: unlockedAchievement,
+        );
       }
     );
   }

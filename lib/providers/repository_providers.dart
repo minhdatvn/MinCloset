@@ -2,7 +2,6 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/providers/database_providers.dart';
-// THAY ĐỔI 1: Import file service_providers.dart
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/repositories/city_repository.dart';
 import 'package:mincloset/repositories/closet_repository.dart';
@@ -13,6 +12,7 @@ import 'package:mincloset/repositories/suggestion_repository.dart';
 import 'package:mincloset/repositories/wear_log_repository.dart';
 import 'package:mincloset/repositories/weather_repository.dart';
 import 'package:mincloset/repositories/quest_repository.dart';
+import 'package:mincloset/repositories/achievement_repository.dart';
 
 final closetRepositoryProvider = Provider<ClosetRepository>((ref) {
   final dbHelper = ref.watch(dbHelperProvider);
@@ -62,4 +62,9 @@ final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
 final questRepositoryProvider = Provider<QuestRepository>((ref) {
   final questService = ref.watch(questServiceProvider);
   return QuestRepository(questService);
+});
+
+final achievementRepositoryProvider = Provider<AchievementRepository>((ref) {
+  final service = ref.watch(achievementServiceProvider);
+  return AchievementRepository(service);
 });

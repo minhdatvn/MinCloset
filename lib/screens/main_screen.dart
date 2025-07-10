@@ -6,9 +6,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/quest_mascot_notifier.dart';
-import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/pages/closets_page.dart';
@@ -16,7 +14,6 @@ import 'package:mincloset/screens/pages/home_page.dart';
 import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/screens/pages/profile_page.dart';
 import 'package:mincloset/states/tutorial_state.dart';
-import 'package:mincloset/widgets/quest_mascot.dart';
 import 'package:mincloset/widgets/speech_bubble.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:showcaseview/showcaseview.dart'; 
@@ -274,28 +271,8 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<Quest?>(completedQuestProvider, (previous, next) {
-      if (next != null) {
-        final screenWidth = MediaQuery.of(context).size.width;
-        ref.read(questMascotProvider.notifier).showQuestCompletedNotification(next.title, screenWidth);
-        ref.read(completedQuestProvider.notifier).state = null;
-      }
-    });
 
-    final mascotState = ref.watch(questMascotProvider);
     final selectedPageIndex = ref.watch(mainScreenIndexProvider);
-
-    if (mascotState.position == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        final size = MediaQuery.of(context).size;
-        const mascotWidth = 80.0;
-        const rightPadding = 16.0;
-        final dx = size.width - mascotWidth - rightPadding;
-        final dy = 450.0;
-        ref.read(questMascotProvider.notifier).updatePosition(Offset(dx, dy));
-      });
-    }
 
     int destinationIndex = selectedPageIndex >= 2 ? selectedPageIndex + 1 : selectedPageIndex;
     if (_isMenuOpen) destinationIndex = 2;
@@ -347,8 +324,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
                   ],
                 ),
               ),
-              if (mascotState.isVisible && mascotState.position != null)
-                const QuestMascot(),
+              // QuestMascot đã được chuyển ra GlobalUiScope, nên ta xóa nó ở đây.
             ],
           ),
           bottomNavigationBar: NavigationBar(

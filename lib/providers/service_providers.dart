@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/services/notification_service.dart';
 import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/services/quest_service.dart';
@@ -9,6 +10,7 @@ import 'package:mincloset/services/suggestion_service.dart';
 import 'package:mincloset/services/weather_image_service.dart';
 import 'package:mincloset/services/weather_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mincloset/services/achievement_service.dart';
 
 final weatherServiceProvider = Provider<WeatherService>((ref) {
   // <<< THAY ĐỔI: Đọc key ở đây và truyền vào service >>>
@@ -44,16 +46,26 @@ final numberFormattingServiceProvider = Provider<NumberFormattingService>((ref) 
 
 // <<< PROVIDER CHO QUEST SERVICE >>>
 final questServiceProvider = Provider<QuestService>((ref) {
-  // QuestService cần SharedPreferences, chúng ta sẽ lấy nó từ một provider khác
   final prefs = ref.watch(sharedPreferencesProvider).value;
+  // Lấy ra achievementRepo
+  final achievementRepo = ref.watch(achievementRepositoryProvider); 
+  
   if (prefs == null) {
-    // Trường hợp SharedPreferences chưa sẵn sàng, có thể throw lỗi hoặc trả về một giá trị mặc định
-    // Ở đây, chúng ta sẽ throw lỗi để đảm bảo không có lỗi logic không mong muốn
     throw Exception("SharedPreferences not initialized for QuestService");
   }
-  return QuestService(prefs);
+  
+  // Truyền các dependency vào constructor
+  return QuestService(prefs, achievementRepo, ref);
 });
 
 final sharedPreferencesProvider = FutureProvider<SharedPreferences>((ref) {
   return SharedPreferences.getInstance();
+});
+
+final achievementServiceProvider = Provider<AchievementService>((ref) {
+  final prefs = ref.watch(sharedPreferencesProvider).value;
+  if (prefs == null) {
+    throw Exception("SharedPreferences not initialized for AchievementService");
+  }
+  return AchievementService(prefs);
 });

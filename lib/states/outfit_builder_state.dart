@@ -1,52 +1,53 @@
 // lib/states/outfit_builder_state.dart
-
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mincloset/models/achievement.dart'; // Thêm import
 import 'package:mincloset/models/clothing_item.dart';
 
 @immutable
 class OutfitBuilderState extends Equatable {
-  // Trạng thái cho biết đang tải danh sách vật phẩm hay không
   final bool isLoading;
-  // <<< THÊM MỚI: Trạng thái cho biết có đang lưu bộ đồ hay không >>>
   final bool isSaving;
-  // Danh sách tất cả vật phẩm để hiển thị trong ngăn sticker
   final List<ClothingItem> allItems;
-  // Trạng thái lỗi nếu có
   final String? errorMessage;
-  // Trạng thái khi lưu thành công
   final bool saveSuccess;
+  // THÊM THUỘC TÍNH MỚI
+  final Achievement? newlyUnlockedAchievement; 
 
   const OutfitBuilderState({
     this.isLoading = true,
-    this.isSaving = false, // <<< THÊM MỚI
+    this.isSaving = false,
     this.allItems = const [],
     this.errorMessage,
     this.saveSuccess = false,
+    this.newlyUnlockedAchievement, // Thêm vào constructor
   });
 
   OutfitBuilderState copyWith({
     bool? isLoading,
-    bool? isSaving, // <<< THÊM MỚI
+    bool? isSaving,
     List<ClothingItem>? allItems,
     String? errorMessage,
     bool? saveSuccess,
+    Achievement? newlyUnlockedAchievement, // Thêm vào copyWith
   }) {
     return OutfitBuilderState(
       isLoading: isLoading ?? this.isLoading,
-      isSaving: isSaving ?? this.isSaving, // <<< THÊM MỚI
+      isSaving: isSaving ?? this.isSaving,
       allItems: allItems ?? this.allItems,
       errorMessage: errorMessage ?? this.errorMessage,
       saveSuccess: saveSuccess ?? this.saveSuccess,
+      newlyUnlockedAchievement: newlyUnlockedAchievement ?? this.newlyUnlockedAchievement,
     );
   }
 
   @override
   List<Object?> get props => [
         isLoading,
-        isSaving, // <<< THÊM MỚI
+        isSaving,
         allItems,
         errorMessage,
-        saveSuccess
+        saveSuccess,
+        newlyUnlockedAchievement, // Thêm vào props
       ];
 }

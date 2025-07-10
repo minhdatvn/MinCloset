@@ -220,26 +220,30 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
         state = state.copyWith(isSaving: false, saveErrorMessage: failure.message);
       },
       (_) async {
-        // SỬA LỖI: Chỉ phát tín hiệu một lần duy nhất sau khi vòng lặp kết thúc
-        Quest? finalCompletedQuest;
+        Quest? lastCompletedQuest;
 
         for (final item in itemsToSave) {
-          // Vẫn gọi updateQuestProgress cho mỗi vật phẩm và bắt lấy kết quả
-          final completedQuest = await _questRepo.updateQuestProgress(item);
-          
-          // Nếu có một nhiệm vụ được hoàn thành, lưu nó lại
-          if (completedQuest != null) {
-            finalCompletedQuest = completedQuest;
-          }
+            // THAY ĐỔI: Xác định loại sự kiện dựa trên category
+            final mainCategory = item.category.split(' > ').first.trim();
+            QuestEvent? event;
+            if (mainCategory == 'Tops') {
+              event = QuestEvent.topAdded;
+            } else if (mainCategory == 'Bottoms' || mainCategory == 'Dresses/Jumpsuits') {
+              event = QuestEvent.bottomAdded;
+            }
+            
+            if (event != null) {
+              final completedQuests = await _questRepo.updateQuestProgress(event);
+              if (completedQuests.isNotEmpty) {
+                lastCompletedQuest = completedQuests.last;
+              }
+            }
+        }
+        
+        if (lastCompletedQuest != null && mounted) {
+          _ref.read(completedQuestProvider.notifier).state = lastCompletedQuest;
         }
 
-        // Sau khi vòng lặp kết thúc, kiểm tra xem có nhiệm vụ nào đã hoàn thành không
-        if (finalCompletedQuest != null && mounted) {
-          // Chỉ phát tín hiệu một lần duy nhất tại đây
-          _ref.read(completedQuestProvider.notifier).state = finalCompletedQuest;
-        }
-
-        // Các hành động còn lại giữ nguyên
         _ref.read(itemChangedTriggerProvider.notifier).state++;
         state = state.copyWith(isSaving: false, saveSuccess: true);
       },

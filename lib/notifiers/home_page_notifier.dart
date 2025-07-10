@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/domain/providers.dart';
 import 'package:mincloset/domain/use_cases/get_outfit_suggestion_use_case.dart';
+import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
+import 'package:mincloset/providers/event_providers.dart';
+import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/services/notification_service.dart';
 import 'package:mincloset/states/home_page_state.dart';
@@ -88,7 +91,13 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
         _notificationService.showBanner(message: failure.message);
         state = state.copyWith(isLoading: false);
       },
-      (result) {
+      (result) async { //Chuyển thành hàm async
+        //Bắt lấy kết quả và phát tín hiệu
+        final completedQuests = await _ref.read(questRepositoryProvider).updateQuestProgress(QuestEvent.suggestionReceived);
+        if (completedQuests.isNotEmpty && mounted) {
+            _ref.read(completedQuestProvider.notifier).state = completedQuests.first;
+        }
+
         final weatherData = result['weather'] as Map<String, dynamic>?;
         
         // Bây giờ 'weatherImageService' đã được định nghĩa và có thể sử dụng ở đây

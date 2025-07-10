@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/city_suggestion.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/repositories/closet_repository.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';

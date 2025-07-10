@@ -29,11 +29,10 @@ class MainScreen extends ConsumerWidget {
   // Thêm WidgetRef ref vào hàm build
   Widget build(BuildContext context, WidgetRef ref) {
     return ShowCaseWidget(
-      // THAY ĐỔI 2: Triển khai toàn bộ logic kết thúc hướng dẫn tại đây.
-      // Đây sẽ là nơi duy nhất xử lý việc này, đảm bảo nó luôn được gọi.
       onFinish: () {
         ref.read(tutorialProvider.notifier).dismissTutorial();
-        ref.read(questMascotProvider.notifier).showNotification('New Quest!');
+        // THAY ĐỔI: Gọi hàm mới để hiển thị thông báo "New Quest!"
+        ref.read(questMascotProvider.notifier).showNewQuestNotification();
       },
       builder: (context) => const MainScreenView(),
     );
@@ -276,15 +275,14 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
   @override
   Widget build(BuildContext context) {
     ref.listen<Quest?>(completedQuestProvider, (previous, next) {
-      // Nếu có một nhiệm vụ mới được hoàn thành (state không phải là null)
       if (next != null) {
-        // Gọi notifier của mascot để hiển thị lời chúc mừng
-        ref.read(questMascotProvider.notifier).showNotification('Quest Completed!');
-        
-        // Reset lại provider sau khi đã xử lý, để sẵn sàng cho lần sau
+        // THAY ĐỔI: Gọi hàm mới để hiển thị thông báo hoàn thành nhiệm vụ
+        final screenWidth = MediaQuery.of(context).size.width;
+        ref.read(questMascotProvider.notifier).showQuestCompletedNotification(next.title, screenWidth);
         ref.read(completedQuestProvider.notifier).state = null;
       }
     });
+
     final mascotState = ref.watch(questMascotProvider);
     final selectedPageIndex = ref.watch(mainScreenIndexProvider);
 

@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/notifiers/quest_mascot_notifier.dart';
-import 'package:mincloset/routing/app_routes.dart'; 
+import 'package:mincloset/routing/app_routes.dart';
 
 class QuestMascot extends ConsumerWidget {
   const QuestMascot({super.key});
@@ -18,7 +18,7 @@ class QuestMascot extends ConsumerWidget {
     
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    // SỬA LỖI: Định nghĩa mascotImage ở phạm vi cao hơn để tất cả các widget con có thể truy cập
+
     final mascotImage = Image.asset(
       'assets/images/mascot.webp',
       width: 80,
@@ -34,10 +34,11 @@ class QuestMascot extends ConsumerWidget {
       children: [
         GestureDetector(
           onTap: () {
+            // Khi nhấn vào mascot, luôn ẩn thông báo hiện tại và mở trang Quest
+            mascotNotifier.hideCurrentNotification();
             Navigator.of(context).pushNamed(AppRoutes.quests);
-            mascotNotifier.hideNotification();
           },
-          child: mascotImage, // Sử dụng biến đã định nghĩa
+          child: mascotImage,
         ),
         Positioned(
           top: 0,
@@ -54,11 +55,12 @@ class QuestMascot extends ConsumerWidget {
             ),
           ),
         ),
-        if (mascotState.showNotification)
+        // THAY ĐỔI 1: Chỉ hiển thị thông báo khi notificationType không phải là 'none'
+        if (mascotState.notificationType != MascotNotificationType.none)
           Positioned(
             top: -18,
             child: GestureDetector(
-              onTap: mascotNotifier.hideNotification,
+              onTap: mascotNotifier.hideCurrentNotification, // Nhấn vào để ẩn
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
@@ -72,8 +74,9 @@ class QuestMascot extends ConsumerWidget {
                     )
                   ],
                 ),
+                // Hiển thị nội dung văn bản từ state
                 child: Text(
-                  mascotState.notificationText,
+                  mascotState.notificationMessage,
                   style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -86,7 +89,7 @@ class QuestMascot extends ConsumerWidget {
       left: mascotState.position!.dx,
       top: mascotState.position!.dy,
       child: Draggable(
-        feedback: mascotImage, // Bây giờ có thể truy cập biến này
+        feedback: mascotImage,
         childWhenDragging: const SizedBox.shrink(),
         onDragEnd: (details) {
             double newDx = details.offset.dx;

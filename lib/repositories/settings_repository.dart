@@ -1,6 +1,6 @@
 // lib/repositories/settings_repository.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/utils/logger.dart'; // <<< THÊM IMPORT
 
 class SettingsRepository {

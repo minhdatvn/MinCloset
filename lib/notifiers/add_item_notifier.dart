@@ -16,6 +16,7 @@ import 'package:mincloset/domain/use_cases/validate_item_name_use_case.dart';
 import 'package:mincloset/domain/use_cases/validate_required_fields_use_case.dart';
 import 'package:mincloset/helpers/image_helper.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
@@ -264,33 +265,23 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
         state = state.copyWith(isLoading: false, errorMessage: failure.message);
         return false;
       },
-      (_) async { // <<< CHUYỂN THÀNH HÀM ASYNC >>>
-        // Tạo lại đối tượng ClothingItem hoàn chỉnh đã được lưu
-        final savedItem = ClothingItem(
-            id: state.isEditing ? state.id : const Uuid().v4(),
-            name: state.name.trim(),
-            category: state.selectedCategoryValue,
-            closetId: state.selectedClosetId!,
-            imagePath: state.image?.path ?? state.imagePath!,
-            thumbnailPath: state.thumbnailPath,
-            color: state.selectedColors.join(', '),
-            season: state.selectedSeasons.join(', '),
-            occasion: state.selectedOccasions.join(', '),
-            material: state.selectedMaterials.join(', '),
-            pattern: state.selectedPatterns.join(', '),
-            isFavorite: state.isFavorite,
-            price: state.price,
-            notes: state.notes,
-        );
-
-        // <<< GỌI HÀM CẬP NHẬT TIẾN TRÌNH NHIỆM VỤ >>>
+      (_) async {
+        // Chỉ cập nhật tiến trình khi thêm món đồ mới
         if (!state.isEditing) {
-            // SỬA LỖI TẠI ĐÂY: Bắt lấy kết quả từ hàm updateQuestProgress
-            final completedQuest = await _questRepo.updateQuestProgress(savedItem);
-            // Nếu có nhiệm vụ vừa hoàn thành và widget vẫn còn tồn tại
-            if (completedQuest != null && mounted) {
-              // "Phát" tín hiệu vào kênh giao tiếp
-              _ref.read(completedQuestProvider.notifier).state = completedQuest;
+            // THAY ĐỔI: Xác định loại sự kiện dựa trên category
+            final mainCategory = state.selectedCategoryValue.split(' > ').first.trim();
+            QuestEvent? event;
+            if (mainCategory == 'Tops') {
+              event = QuestEvent.topAdded;
+            } else if (mainCategory == 'Bottoms' || mainCategory == 'Dresses/Jumpsuits') {
+              event = QuestEvent.bottomAdded;
+            }
+
+            if (event != null) {
+              final completedQuests = await _questRepo.updateQuestProgress(event);
+              if (completedQuests.isNotEmpty && mounted) {
+                _ref.read(completedQuestProvider.notifier).state = completedQuests.first;
+              }
             }
         }
 

@@ -10,6 +10,7 @@ import 'package:mincloset/domain/use_cases/save_outfit_use_case.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/outfits_hub_notifier.dart';
+import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
@@ -52,7 +53,7 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
     );
   }
 
-  // <<< VIẾT LẠI HOÀN TOÀN HÀM NÀY ĐỂ SỬA LỖI >>>
+  // <<< THAY ĐỔI 1: Chuyển lại thành Future<void> và quản lý state >>>
   Future<void> saveOutfit({
     required String name,
     required bool isFixed,
@@ -66,21 +67,17 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
       return;
     }
 
-    // Nếu là bộ đồ cố định, thực hiện kiểm tra xung đột
     if (isFixed) {
       final Either<Failure, String?> validationResult = await _validateFixedOutfit(itemsOnCanvas);
       
       if (!mounted) return;
 
-      // Xử lý kết quả kiểm tra
       final hasError = validationResult.fold(
         (failure) {
-          // Lỗi hệ thống khi kiểm tra
           state = state.copyWith(errorMessage: failure.message, isSaving: false);
           return true;
         },
         (errorMessage) {
-          // Có lỗi logic (trùng lặp) hoặc không có lỗi (null)
           if (errorMessage != null) {
             state = state.copyWith(errorMessage: errorMessage, isSaving: false);
             return true;
@@ -90,11 +87,10 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
       );
 
       if (hasError) {
-        return; // Dừng lại nếu có lỗi
+        return;
       }
     }
 
-    // Nếu không có lỗi, tiếp tục lưu
     final saveResult = await _saveOutfitUseCase.execute(
       name: name,
       isFixed: isFixed,
@@ -112,16 +108,21 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
         final questRepo = _ref.read(questRepositoryProvider);
         final achievementRepo = _ref.read(achievementRepositoryProvider);
 
-        // Phát sự kiện quest
-        await questRepo.updateQuestProgress(QuestEvent.outfitCreated);
+        // 1. Lấy kết quả từ việc cập nhật quest
+        final completedQuests = await questRepo.updateQuestProgress(QuestEvent.outfitCreated);
+
+        // 2. Nếu có quest hoàn thành, gửi tín hiệu cho mascot thông qua provider
+        if (completedQuests.isNotEmpty && mounted) {
+            _ref.read(completedQuestProvider.notifier).state = completedQuests.first;
+        }
         
-        // KIỂM TRA THÀNH TÍCH NGAY TẠI ĐÂY
         final allQuests = questRepo.getCurrentQuests();
         final unlockedAchievement = await achievementRepo.checkAndUnlockAchievements(allQuests);
 
         _ref.invalidate(outfitsHubProvider);
         
-        // Cập nhật state với cả saveSuccess và thành tích đã mở khóa (nếu có)
+        // <<< THAY ĐỔI 2: Đặt cờ saveSuccess thành true >>>
+        // Giao diện sẽ lắng nghe sự thay đổi này để tự điều hướng
         state = state.copyWith(
           saveSuccess: true, 
           isSaving: false,
@@ -131,16 +132,12 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
     );
   }
 
-  // Tách logic validation ra một hàm riêng, trả về Either<Failure, String?>
-  // Left: Lỗi hệ thống
-  // Right(String): Lỗi validation
-  // Right(null): Validation thành công
   Future<Either<Failure, String?>> _validateFixedOutfit(Map<String, ClothingItem> itemsOnCanvas) async {
     final newItemIds = itemsOnCanvas.values.map((item) => item.id).toSet();
     final existingFixedOutfitsEither = await _outfitRepo.getFixedOutfits();
 
     return existingFixedOutfitsEither.fold(
-      (failure) => Left(failure), // Nếu không lấy được danh sách, trả về lỗi hệ thống
+      (failure) => Left(failure), 
       (existingFixedOutfits) async {
         for (final fixedOutfit in existingFixedOutfits) {
           final existingItemIds = fixedOutfit.itemIds.split(',').toSet();
@@ -151,12 +148,12 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
             final conflictingItemEither = await _clothingItemRepo.getItemById(conflictingItemId);
             
             return conflictingItemEither.fold(
-              (failure) => Left(failure), // Lỗi hệ thống khi lấy item
-              (conflictingItem) => Right("Error: '${conflictingItem?.name ?? 'An item'}' already belongs to another fixed outfit.") // Lỗi validation
+              (failure) => Left(failure), 
+              (conflictingItem) => Right("Error: '${conflictingItem?.name ?? 'An item'}' already belongs to another fixed outfit.")
             );
           }
         }
-        return const Right(null); // Không có lỗi validation
+        return const Right(null); 
       },
     );
   }

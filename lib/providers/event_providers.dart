@@ -8,10 +8,12 @@ import 'package:mincloset/models/achievement.dart';
 /// Các widget khác sẽ lắng nghe sự thay đổi này để thực hiện hành động.
 final itemChangedTriggerProvider = StateProvider<int>((ref) => 0);
 
-// --- BỔ SUNG PHẦN BỊ THIẾU DƯỚI ĐÂY ---
-
 /// Provider này hoạt động như một kênh giao tiếp cho sự kiện hoàn thành nhiệm vụ.
 /// Các notifier khác sẽ "ghi" vào đây, và UI sẽ "đọc" từ đây.
 final completedQuestProvider = StateProvider<Quest?>((ref) => null);
 
+/// Provider này gửi tín hiệu khi một thành tích mới được mở khóa.
 final unlockedAchievementProvider = StateProvider<Achievement?>((ref) => null);
+
+/// Provider này sẽ được kích hoạt khi nhóm nhiệm vụ tân thủ hoàn thành.
+final beginnerAchievementProvider = StateProvider<Achievement?>((ref) => null);

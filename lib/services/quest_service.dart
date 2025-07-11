@@ -99,6 +99,7 @@ class QuestService {
     final quests = getCurrentQuests();
     final List<Quest> newlyCompletedQuests = [];
     bool questsUnlocked = false;
+    Quest? finalBeginnerQuest;
 
     for (int i = 0; i < quests.length; i++) {
       if (quests[i].status == QuestStatus.inProgress && quests[i].goal.requiredCounts.containsKey(event)) {
@@ -111,6 +112,11 @@ class QuestService {
             newlyCompletedQuests.add(quests[i]);
             logger.i("Quest '${quests[i].id}' completed!");
 
+            // Kiểm tra xem đây có phải là nhiệm vụ tân thủ cuối cùng không
+            if (quests[i].id == 'first_log') {
+              finalBeginnerQuest = quests[i];
+            }
+
             for (int j = 0; j < quests.length; j++) {
               if (quests[j].prerequisiteQuestId == quests[i].id && quests[j].status == QuestStatus.locked) {
                 quests[j] = quests[j].copyWith(status: QuestStatus.inProgress);
@@ -122,15 +128,21 @@ class QuestService {
       }
     }
 
-    // THAY ĐỔI 3: Sau khi cập nhật quest, gọi hàm kiểm tra thành tích
-    if (newlyCompletedQuests.isNotEmpty) {
-      final unlockedAchievement = await _achievementRepo.checkAndUnlockAchievements(quests);
-      if (unlockedAchievement != null) {
-        // Phát tín hiệu khi có thành tích mới được mở khóa
-        _ref.read(unlockedAchievementProvider.notifier).state = unlockedAchievement;
-      }
+    // Nếu nhiệm vụ cuối cùng đã hoàn thành
+    if (finalBeginnerQuest != null) {
+        // Gọi hàm kiểm tra để mở khóa thành tích
+        final unlockedAchievement = await _achievementRepo.checkAndUnlockAchievements(quests);
+        if (unlockedAchievement != null) {
+          // Kích hoạt provider chúc mừng hoành tráng
+          _ref.read(beginnerAchievementProvider.notifier).state = unlockedAchievement;
+        }
+    } 
+    // Nếu không phải nhiệm vụ cuối, nhưng vẫn có nhiệm vụ hoàn thành
+    else if (newlyCompletedQuests.isNotEmpty) {
+      // Chỉ gửi tín hiệu cho mascot như bình thường
+      _ref.read(completedQuestProvider.notifier).state = newlyCompletedQuests.first;
     }
-
+    
     if (newlyCompletedQuests.isNotEmpty || questsUnlocked) {
       await _saveQuests(quests);
     }
@@ -138,7 +150,6 @@ class QuestService {
     return newlyCompletedQuests;
   }
   
-  // ... (các hàm _saveQuests và getFirstActiveQuest không đổi)
   Future<void> _saveQuests(List<Quest> quests) async {
     final List<Map<String, dynamic>> dataToSave = quests.map((q) {
       final Map<String, int> stringProgress = q.progress.currentCounts.map(

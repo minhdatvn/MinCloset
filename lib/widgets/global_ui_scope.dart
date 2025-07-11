@@ -2,14 +2,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/models/achievement.dart'; // <<< THÊM IMPORT NÀY
 import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/quest_mascot_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
+import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/providers/ui_providers.dart';
-import 'package:mincloset/routing/app_routes.dart'; 
+import 'package:mincloset/routing/app_routes.dart';
+import 'package:mincloset/widgets/achievement_unlocked_dialog.dart'; // <<< THÊM IMPORT NÀY
 import 'package:mincloset/widgets/quest_mascot.dart';
 import 'package:mincloset/widgets/quest_mascot_image.dart';
-import 'package:mincloset/providers/service_providers.dart';
 
 class GlobalUiScope extends ConsumerStatefulWidget {
   const GlobalUiScope({super.key});
@@ -38,42 +41,46 @@ class _GlobalUiScopeState extends ConsumerState<GlobalUiScope> {
 
   @override
   Widget build(BuildContext context) {
+    // Lắng nghe sự kiện hoàn thành nhiệm vụ ĐƠN LẺ
     ref.listen<Quest?>(completedQuestProvider, (previous, next) {
       if (next != null) {
         final screenWidth = MediaQuery.of(context).size.width;
         ref
             .read(questMascotProvider.notifier)
             .showQuestCompletedNotification(next.title, screenWidth);
-        ref.read(completedQuestProvider.notifier).state = null;
+        ref.read(completedQuestProvider.notifier).state = null; // Reset lại
       }
     });
 
+    // <<< BẮT ĐẦU SỬA ĐỔI: Lắng nghe sự kiện hoàn thành NHÓM NHIỆM VỤ >>>
+    ref.listen<Achievement?>(beginnerAchievementProvider, (previous, next) {
+      if (next != null) {
+        // Tìm huy hiệu tương ứng với thành tích
+        final badge = ref.read(achievementRepositoryProvider).getBadgeById(next.badgeId);
+        if (badge != null) {
+          // Hiển thị dialog chúc mừng hoành tráng
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (ctx) => AchievementUnlockedDialog(badge: badge),
+          );
+        }
+        // Reset provider để không hiển thị lại
+        ref.read(beginnerAchievementProvider.notifier).state = null;
+      }
+    });
+    // <<< KẾT THÚC SỬA ĐỔI >>>
+
     final mascotState = ref.watch(questMascotProvider);
     final mascotNotifier = ref.read(questMascotProvider.notifier);
+    final isQuestsPageActive = ref.watch(isQuestsPageActiveProvider);
 
     if (!mascotState.isVisible || mascotState.position == null) {
       return const SizedBox.shrink();
     }
 
-    // <<< BẮT ĐẦU THAY ĐỔI >>>
-
-    // Hàm xử lý logic nhấn cho navigator gốc
-    Future<void> handleRootTap() async {
-      if (ref.read(isQuestsPageActiveProvider)) return;
-
-      final questsPageNotifier = ref.read(isQuestsPageActiveProvider.notifier);
-      
-      questsPageNotifier.state = true;
-      mascotNotifier.hideCurrentNotification();
-
-      await Navigator.of(context).pushNamed(AppRoutes.quests);
-
-      questsPageNotifier.state = false;
-    }
-    
-    // Hàm xử lý logic nhấn cho nested navigator
-    Future<void> handleNestedTap() async {
-      if (ref.read(isQuestsPageActiveProvider)) return;
+    Future<void> handleTap() async {
+      if (isQuestsPageActive) return;
 
       final questsPageNotifier = ref.read(isQuestsPageActiveProvider.notifier);
       final navigatorKey = ref.read(nestedNavigatorKeyProvider);
@@ -83,16 +90,17 @@ class _GlobalUiScopeState extends ConsumerState<GlobalUiScope> {
 
       await navigatorKey.currentState?.pushNamed(AppRoutes.quests);
 
-      questsPageNotifier.state = false;
+      // Đặt lại cờ sau khi quay về
+      if (mounted) {
+        questsPageNotifier.state = false;
+      }
     }
-
-    // <<< KẾT THÚC THAY ĐỔI >>>
 
     return Positioned(
       left: mascotState.position!.dx,
       top: mascotState.position!.dy,
       child: GestureDetector(
-        onTap: handleRootTap, // <<< CẬP NHẬT
+        onTap: handleTap,
         child: Draggable(
           feedback: const QuestMascotImage(),
           childWhenDragging: const SizedBox.shrink(),
@@ -116,7 +124,7 @@ class _GlobalUiScopeState extends ConsumerState<GlobalUiScope> {
             }
           },
           child: QuestMascot(
-            onTap: handleNestedTap, // <<< CẬP NHẬT
+            onTap: handleTap,
           ),
         ),
       ),

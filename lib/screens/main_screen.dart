@@ -26,10 +26,12 @@ class MainScreen extends ConsumerWidget {
   // Thêm WidgetRef ref vào hàm build
   Widget build(BuildContext context, WidgetRef ref) {
     return ShowCaseWidget(
+      // THAY ĐỔI 2: Cập nhật onFinish
       onFinish: () {
+        // Dòng này để kết thúc tutorial
         ref.read(tutorialProvider.notifier).dismissTutorial();
-        // THAY ĐỔI: Gọi hàm mới để hiển thị thông báo "New Quest!"
-        ref.read(questMascotProvider.notifier).checkForNewQuests();
+        // Dòng này gọi notifier để cho mascot xuất hiện
+        ref.read(questMascotProvider.notifier).showNewQuestNotification();
       },
       builder: (context) => const MainScreenView(),
     );

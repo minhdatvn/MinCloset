@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/notifiers/quest_mascot_notifier.dart';
-import 'package:mincloset/routing/app_routes.dart';
+import 'package:mincloset/widgets/quest_mascot_image.dart';
 
 class QuestMascot extends ConsumerWidget {
   const QuestMascot({super.key});
@@ -12,34 +12,13 @@ class QuestMascot extends ConsumerWidget {
     final mascotState = ref.watch(questMascotProvider);
     final mascotNotifier = ref.read(questMascotProvider.notifier);
 
-    if (!mascotState.isVisible || mascotState.position == null) {
-      return const SizedBox.shrink();
-    }
-    
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    final mascotImage = Image.asset(
-      'assets/images/mascot.webp',
-      width: 80,
-      height: 80,
-      errorBuilder: (context, error, stackTrace) {
-        return const Icon(Icons.flutter_dash, size: 60, color: Colors.blue);
-      },
-    );
-
-    final child = Stack(
+    return Stack(
       clipBehavior: Clip.none,
       alignment: Alignment.center,
       children: [
-        GestureDetector(
-          onTap: () {
-            // Khi nhấn vào mascot, luôn ẩn thông báo hiện tại và mở trang Quest
-            mascotNotifier.markCurrentQuestsAsSeen();
-            Navigator.of(context).pushNamed(AppRoutes.quests);
-          },
-          child: mascotImage,
-        ),
+        // THAY ĐỔI 2: Xóa GestureDetector ở đây, chỉ còn lại ảnh
+        const QuestMascotImage(),
+
         Positioned(
           top: 0,
           right: 0,
@@ -48,81 +27,44 @@ class QuestMascot extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha:0.6),
+                color: Colors.black.withOpacity(0.6),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.close, color: Colors.white, size: 14),
             ),
           ),
         ),
-        // THAY ĐỔI 1: Chỉ hiển thị thông báo khi notificationType không phải là 'none'
+        
         if (mascotState.notificationType != MascotNotificationType.none)
           Positioned(
-            top: -18,
+            top: -22,
             child: GestureDetector(
-              onTap: () {
-                mascotNotifier.hideCurrentNotificationAndCheckForNew();
-                Navigator.of(context).pushNamed(AppRoutes.quests);
-              }, // Nhấn vào để ẩn
+              onTap: mascotNotifier.hideCurrentNotification,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.redAccent,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha:0.2),
+                      color: Colors.black.withOpacity(0.2),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     )
                   ],
                 ),
-                // Hiển thị nội dung văn bản từ state
                 child: Text(
                   mascotState.notificationMessage,
-                  style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
             ),
           ),
       ],
-    );
-
-    return Positioned(
-      left: mascotState.position!.dx,
-      top: mascotState.position!.dy,
-      child: Draggable(
-        feedback: mascotImage,
-        childWhenDragging: const SizedBox.shrink(),
-        onDragEnd: (details) {
-            double newDx = details.offset.dx;
-            double newDy = details.offset.dy;
-
-            final mascotWidth = 80.0;
-            final mascotHeight = 80.0;
-            if (newDx < 0) newDx = 0;
-            if (newDx > screenWidth - mascotWidth) {
-              newDx = screenWidth - mascotWidth;
-            }
-            if (newDy < 0) newDy = 0;
-            if (newDy > screenHeight - mascotHeight) {
-              newDy = screenHeight - mascotHeight;
-            }
-            
-            final double centerDx = newDx + mascotWidth / 2;
-            final double distanceToLeft = centerDx;
-            final double distanceToRight = screenWidth - centerDx;
-
-            if (distanceToLeft < distanceToRight) {
-              newDx = 0;
-            } else {
-              newDx = screenWidth - mascotWidth;
-            }
-            
-            mascotNotifier.updatePosition(Offset(newDx, newDy));
-          },
-        child: child,
-      ),
     );
   }
 }

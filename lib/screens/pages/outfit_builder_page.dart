@@ -245,7 +245,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
 
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
         if (!didPop) {
           Navigator.of(context).pop(false);
         }

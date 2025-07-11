@@ -436,7 +436,6 @@ class _InsightItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // THAY ĐỔI 3: Bọc Card trong AspectRatio để giữ tỷ lệ 3:4
     return AspectRatio(
       aspectRatio: 3 / 4,
       child: Card(
@@ -444,11 +443,24 @@ class _InsightItemCard extends StatelessWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            Image.file(
-              File(insight.item.thumbnailPath ?? insight.item.imagePath),
-              fit: BoxFit.cover,
-              errorBuilder: (ctx, err, stack) => const Icon(Icons.error),
+            // --- BẮT ĐẦU SỬA ĐỔI TẠI ĐÂY ---
+            // 1. Thêm một Container nền trắng
+            Container(
+              color: Colors.white,
+              // 2. Thêm Padding để ảnh không bị dính sát vào viền
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Image.file(
+                  File(insight.item.thumbnailPath ?? insight.item.imagePath),
+                  // 3. Thay đổi thuộc tính fit thành .contain
+                  fit: BoxFit.contain, 
+                  errorBuilder: (ctx, err, stack) => const Icon(Icons.error),
+                ),
+              ),
             ),
+            // --- KẾT THÚC SỬA ĐỔI ---
+
+            // Các lớp phủ (gradient và text) không thay đổi
             Positioned(
               bottom: 0,
               left: 0,

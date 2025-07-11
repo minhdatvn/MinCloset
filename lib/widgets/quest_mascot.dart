@@ -35,7 +35,7 @@ class QuestMascot extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.6),
+                color: Colors.black.withValues(alpha:0.6),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.close, color: Colors.white, size: 14),
@@ -56,7 +56,7 @@ class QuestMascot extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(14),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black.withValues(alpha:0.2),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     )

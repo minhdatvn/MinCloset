@@ -19,7 +19,7 @@ class AchievementService {
       id: 'badge_beginner',
       name: 'Fashion Beginner',
       description: 'You\'ve mastered the basics of MinCloset and started your style journey!',
-      imagePath: 'assets/images/badges/badge_beginner.png', // <-- Bạn sẽ cần tạo ảnh này
+      imagePath: 'assets/images/badges/badge_beginner.webp',
     ),
     // Thêm các huy hiệu khác ở đây trong tương lai
   ];

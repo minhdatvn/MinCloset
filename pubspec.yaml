@@ -70,6 +70,7 @@ flutter:
   assets:
     - .env
     - assets/images/
+    - assets/images/badges/
     - assets/images/weather_backgrounds/
     - assets/images/materials/
     - assets/images/patterns/ 

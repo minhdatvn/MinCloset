@@ -1,21 +1,21 @@
 // lib/screens/quests_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/badge.dart' as model;
 import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/achievements_page_notifier.dart';
 
+// Trả về dạng ConsumerWidget đơn giản
 class QuestsPage extends ConsumerWidget {
   const QuestsPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // THAY ĐỔI 1: Sử dụng provider mới
     final state = ref.watch(achievementsPageProvider);
     final notifier = ref.read(achievementsPageProvider.notifier);
 
     return Scaffold(
-      // THAY ĐỔI 2: Đổi tên màn hình
       appBar: AppBar(
         title: const Text('Quests & Achievements'),
       ),
@@ -26,12 +26,10 @@ class QuestsPage extends ConsumerWidget {
             : ListView(
                 padding: const EdgeInsets.all(16.0),
                 children: [
-                  // THAY ĐỔI 3: Thêm khu vực hiển thị huy hiệu
                   _buildSectionTitle(context, 'Your Badges'),
                   const SizedBox(height: 8),
                   _buildBadgesGrid(context, state.allBadges, state.unlockedBadgeIds),
                   const SizedBox(height: 24),
-
                   _buildSectionTitle(context, 'In Progress'),
                   if (state.inProgressQuests.isEmpty)
                     const Center(child: Padding(
@@ -52,7 +50,6 @@ class QuestsPage extends ConsumerWidget {
     );
   }
   
-  // Widget helper để tạo tiêu đề
   Widget _buildSectionTitle(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0, top: 16.0),
@@ -63,7 +60,6 @@ class QuestsPage extends ConsumerWidget {
     );
   }
 
-  // THAY ĐỔI 4: Widget mới để hiển thị lưới huy hiệu
   Widget _buildBadgesGrid(BuildContext context, List<model.Badge> allBadges, Set<String> unlockedIds) {
     if (allBadges.isEmpty) return const SizedBox.shrink();
 
@@ -77,7 +73,6 @@ class QuestsPage extends ConsumerWidget {
       ),
       itemCount: allBadges.length,
       itemBuilder: (context, index) {
-        // THAY ĐỔI 4: Sử dụng kiểu dữ liệu đã có tiền tố
         final model.Badge badge = allBadges[index];
         final isUnlocked = unlockedIds.contains(badge.id);
 
@@ -99,7 +94,6 @@ class QuestsPage extends ConsumerWidget {
   }
 }
 
-// Widget _QuestCard và _ProgressIndicator không thay đổi
 class _QuestCard extends StatelessWidget {
   final Quest quest;
   const _QuestCard({required this.quest});

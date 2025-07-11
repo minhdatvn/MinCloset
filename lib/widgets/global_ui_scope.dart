@@ -1,10 +1,12 @@
 // lib/widgets/global_ui_scope.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/quest_mascot_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
-import 'package:mincloset/routing/app_routes.dart'; // Thêm import này
+import 'package:mincloset/providers/ui_providers.dart';
+import 'package:mincloset/routing/app_routes.dart'; 
 import 'package:mincloset/widgets/quest_mascot.dart';
 import 'package:mincloset/widgets/quest_mascot_image.dart';
 import 'package:mincloset/providers/service_providers.dart';
@@ -53,16 +55,44 @@ class _GlobalUiScopeState extends ConsumerState<GlobalUiScope> {
       return const SizedBox.shrink();
     }
 
+    // <<< BẮT ĐẦU THAY ĐỔI >>>
+
+    // Hàm xử lý logic nhấn cho navigator gốc
+    Future<void> handleRootTap() async {
+      if (ref.read(isQuestsPageActiveProvider)) return;
+
+      final questsPageNotifier = ref.read(isQuestsPageActiveProvider.notifier);
+      
+      questsPageNotifier.state = true;
+      mascotNotifier.hideCurrentNotification();
+
+      await Navigator.of(context).pushNamed(AppRoutes.quests);
+
+      questsPageNotifier.state = false;
+    }
+    
+    // Hàm xử lý logic nhấn cho nested navigator
+    Future<void> handleNestedTap() async {
+      if (ref.read(isQuestsPageActiveProvider)) return;
+
+      final questsPageNotifier = ref.read(isQuestsPageActiveProvider.notifier);
+      final navigatorKey = ref.read(nestedNavigatorKeyProvider);
+      
+      questsPageNotifier.state = true;
+      mascotNotifier.hideCurrentNotification();
+
+      await navigatorKey.currentState?.pushNamed(AppRoutes.quests);
+
+      questsPageNotifier.state = false;
+    }
+
+    // <<< KẾT THÚC THAY ĐỔI >>>
+
     return Positioned(
       left: mascotState.position!.dx,
       top: mascotState.position!.dy,
-      // THAY ĐỔI 1: BỌC DRAGGABLE BẰNG GESTUREDETECTOR
       child: GestureDetector(
-        onTap: () {
-          // Chuyển logic điều hướng ra đây
-          Navigator.of(context).pushNamed(AppRoutes.quests);
-          mascotNotifier.hideCurrentNotification();
-        },
+        onTap: handleRootTap, // <<< CẬP NHẬT
         child: Draggable(
           feedback: const QuestMascotImage(),
           childWhenDragging: const SizedBox.shrink(),
@@ -86,17 +116,7 @@ class _GlobalUiScopeState extends ConsumerState<GlobalUiScope> {
             }
           },
           child: QuestMascot(
-            onTap: () {
-              // THAY ĐỔI CỐT LÕI NẰM Ở ĐÂY
-              // 1. Đọc key từ provider
-              final navigatorKey = ref.read(nestedNavigatorKeyProvider);
-
-              // 2. Sử dụng key để điều hướng, đảm bảo gọi đúng Navigator
-              navigatorKey.currentState?.pushNamed(AppRoutes.quests);
-
-              // 3. Logic còn lại giữ nguyên
-              mascotNotifier.hideCurrentNotification();
-            },
+            onTap: handleNestedTap, // <<< CẬP NHẬT
           ),
         ),
       ),

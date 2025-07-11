@@ -65,20 +65,23 @@ class MinClosetApp extends ConsumerWidget {
 }
 
 // THAY ĐỔI 3: Tạo một widget mới để chứa Stack
-class MainAppWrapper extends StatelessWidget {
+class MainAppWrapper extends ConsumerWidget {
   const MainAppWrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold( // Bọc trong Scaffold để có nền trắng và các thuộc tính cơ bản
+  // Thêm WidgetRef ref
+  Widget build(BuildContext context, WidgetRef ref) { 
+    // THAY ĐỔI 2: Đọc key từ provider
+    final nestedNavigatorKey = ref.watch(nestedNavigatorKeyProvider);
+
+    return Scaffold(
       body: Stack(
         children: [
-          // Lớp dưới cùng: Navigator để quản lý các trang
           Navigator(
+            key: nestedNavigatorKey, // <<< THAY ĐỔI 3: GÁN KEY VÀO ĐÂY
             initialRoute: AppRoutes.splash,
             onGenerateRoute: RouteGenerator.onGenerateRoute,
           ),
-          // Lớp trên cùng: Lớp UI toàn cục của chúng ta
           const GlobalUiScope(),
         ],
       ),

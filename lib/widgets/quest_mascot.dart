@@ -5,7 +5,11 @@ import 'package:mincloset/notifiers/quest_mascot_notifier.dart';
 import 'package:mincloset/widgets/quest_mascot_image.dart';
 
 class QuestMascot extends ConsumerWidget {
-  const QuestMascot({super.key});
+  // THAY ĐỔI 1: Khai báo một tham số mới để nhận hàm onTap
+  final VoidCallback? onTap;
+
+  // THAY ĐỔI 2: Thêm 'this.onTap' vào hàm khởi tạo
+  const QuestMascot({super.key, this.onTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,8 +20,12 @@ class QuestMascot extends ConsumerWidget {
       clipBehavior: Clip.none,
       alignment: Alignment.center,
       children: [
-        // THAY ĐỔI 2: Xóa GestureDetector ở đây, chỉ còn lại ảnh
-        const QuestMascotImage(),
+        // THAY ĐỔI 3: Bọc ảnh mascot trong GestureDetector để xử lý nhấn
+        GestureDetector(
+          onTap: onTap, // Gọi hàm onTap đã được truyền vào
+          behavior: HitTestBehavior.opaque, // Thêm dòng này để giải quyết xung đột cử chỉ
+          child: const QuestMascotImage(),
+        ),
 
         Positioned(
           top: 0,

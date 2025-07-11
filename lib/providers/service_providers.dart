@@ -69,3 +69,5 @@ final achievementServiceProvider = Provider<AchievementService>((ref) {
   }
   return AchievementService(prefs);
 });
+
+final nestedNavigatorKeyProvider = Provider((ref) => GlobalKey<NavigatorState>());

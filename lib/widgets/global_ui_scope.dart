@@ -7,6 +7,7 @@ import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/routing/app_routes.dart'; // Thêm import này
 import 'package:mincloset/widgets/quest_mascot.dart';
 import 'package:mincloset/widgets/quest_mascot_image.dart';
+import 'package:mincloset/providers/service_providers.dart';
 
 class GlobalUiScope extends ConsumerStatefulWidget {
   const GlobalUiScope({super.key});
@@ -84,7 +85,19 @@ class _GlobalUiScopeState extends ConsumerState<GlobalUiScope> {
               mascotNotifier.updatePosition(Offset(newDx, details.offset.dy));
             }
           },
-          child: const QuestMascot(),
+          child: QuestMascot(
+            onTap: () {
+              // THAY ĐỔI CỐT LÕI NẰM Ở ĐÂY
+              // 1. Đọc key từ provider
+              final navigatorKey = ref.read(nestedNavigatorKeyProvider);
+
+              // 2. Sử dụng key để điều hướng, đảm bảo gọi đúng Navigator
+              navigatorKey.currentState?.pushNamed(AppRoutes.quests);
+
+              // 3. Logic còn lại giữ nguyên
+              mascotNotifier.hideCurrentNotification();
+            },
+          ),
         ),
       ),
     );

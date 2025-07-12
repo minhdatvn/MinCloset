@@ -7,6 +7,8 @@ import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
+import 'package:mincloset/providers/ui_providers.dart';
+import 'package:mincloset/routing/app_routes.dart';
 
 class BatchAddItemScreen extends ConsumerStatefulWidget {
   const BatchAddItemScreen({super.key});
@@ -39,7 +41,8 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
     ref.listen<BatchAddItemState>(batchAddScreenProvider, (previous, next) {
       // 1. Xử lý thành công
       if (next.saveSuccess && !previous!.saveSuccess) {
-        Navigator.of(context).pop(true);
+        ref.read(mainScreenIndexProvider.notifier).state = 1;
+        Navigator.of(context).popUntil((route) => route.settings.name == AppRoutes.main);
         return;
       }
       

@@ -10,6 +10,7 @@ import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
@@ -65,10 +66,9 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
 
     if (confirmed == true) {
-      // Lấy navigator ra trước khi gọi await
-      final notifier = ref.read(singleItemProvider(_providerArgs).notifier);
-      final itemName = widget.itemToEdit!.name; // Lưu lại tên trước khi xóa
       final navigator = Navigator.of(context); // ignore: use_build_context_synchronously
+      final notifier = ref.read(singleItemProvider(_providerArgs).notifier); // Lấy navigator ra trước khi gọi await
+      final itemName = widget.itemToEdit!.name; // Lưu lại tên trước khi xóa
       final notificationService = ref.read(notificationServiceProvider); // Lưu service
 
       final success = await notifier.deleteItem();
@@ -177,6 +177,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
            onPressed: state.isLoading
               ? null
               : () async {
+                  final navigator = Navigator.of(context);
                   final notifier = ref.read(provider.notifier); // Lấy notifier
                   final success = await notifier.saveItem(); // Gọi hàm saveItem và chờ kết quả
                   
@@ -190,7 +191,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                           message: successMessage,
                           type: NotificationType.success,
                         );
-                    Navigator.of(context).pop(true); // ignore: use_build_context_synchronously
+                    ref.read(mainScreenIndexProvider.notifier).state = 1;
+                    navigator.popUntil((route) => route.settings.name == AppRoutes.main);
                   } else {
                     final errorMessage = ref.read(provider).errorMessage; // Nếu thất bại, đọc lỗi từ state và hiển thị banner
                     if (errorMessage != null) {

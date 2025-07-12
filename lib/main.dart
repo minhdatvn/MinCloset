@@ -7,11 +7,10 @@ import 'package:mincloset/providers/locale_provider.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/routing/route_generator.dart';
-import 'package:mincloset/theme/app_theme.dart';
 import 'package:mincloset/services/weather_image_service.dart';
+import 'package:mincloset/theme/app_theme.dart';
 import 'package:mincloset/widgets/global_ui_scope.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:mincloset/providers/ui_providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

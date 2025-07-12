@@ -18,7 +18,8 @@ import 'package:showcaseview/showcaseview.dart';
 
 class CalendarPage extends ConsumerStatefulWidget {
   final DateTime? initialDate;
-  const CalendarPage({super.key, this.initialDate});
+  final bool showHintOnLoad;
+  const CalendarPage({super.key, this.initialDate, this.showHintOnLoad = false});
 
   @override
   ConsumerState<CalendarPage> createState() => _CalendarPageState();
@@ -35,9 +36,13 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     _focusedDay = widget.initialDate ?? DateTime.now();
     _selectedDay = widget.initialDate ?? _focusedDay;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ShowCaseWidget.of(context).startShowCase([QuestHintKeys.logWearHintKey]);
-    });
+    if (widget.showHintOnLoad) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ShowCaseWidget.of(context).startShowCase([QuestHintKeys.logWearHintKey]);
+        }
+      });
+    }
   }
 
   void _showLogWearActionSheet(BuildContext context) {
@@ -140,28 +145,21 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
           : AppBar(
               title: const Text('Style Journal'),
               actions: [
-                // --- BẮT ĐẦU THAY ĐỔI ---
-                StatefulBuilder(
-                  builder: (BuildContext context, StateSetter setState) {
-                    return Showcase(
-                      key: QuestHintKeys.logWearHintKey,
-                      title: 'Log Your Wear',
-                      description:
-                          'Select a day and tap here to log the items or outfits you wore. This helps you track your style journey!',
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 8.0),
-                        child: TextButton.icon(
-                          onPressed: _selectedDay == null
-                              ? null
-                              : () => _showLogWearActionSheet(context),
-                          icon: const Icon(Icons.add_task_outlined),
-                          label: const Text('Add'),
-                        ),
-                      ),
-                    );
-                  },
+                Showcase(
+                  key: QuestHintKeys.logWearHintKey,
+                  title: 'Log Your Wear',
+                  description: 'Select a day and tap here to log what you wore.',
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: TextButton.icon(
+                      onPressed: _selectedDay == null
+                          ? null
+                          : () => _showLogWearActionSheet(context),
+                      icon: const Icon(Icons.add_task_outlined),
+                      label: const Text('Add'),
+                    ),
+                  ),
                 ),
-                // --- KẾT THÚC THAY ĐỔI ---
               ],
             ),
       body: Column(

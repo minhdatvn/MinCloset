@@ -5,10 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/achievement.dart';
 import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/achievements_page_notifier.dart';
+import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
+import 'package:mincloset/routing/route_generator.dart';
 import 'package:mincloset/screens/badge_detail_page.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
-import 'package:mincloset/providers/ui_providers.dart';
 
 // Trả về dạng ConsumerWidget đơn giản
 class QuestsPage extends ConsumerWidget {
@@ -45,11 +47,17 @@ class QuestsPage extends ConsumerWidget {
                       // Bọc QuestCard trong GestureDetector
                       return GestureDetector(
                         onTap: () {
-                          // Nếu quest có hintKey, kích hoạt gợi ý
-                          if (quest.hintKey != null) {
-                            final hintNotifier = ref.read(questHintProvider.notifier);
-                            hintNotifier.triggerHint(quest.hintKey!);
-                            // Đóng trang Quests sau khi kích hoạt
+                          // --- BẮT ĐẦU SỬA ĐỔI ---
+                          // Nếu quest này có hintKey, chúng ta sẽ xử lý điều hướng tại đây
+                          if (quest.hintKey == 'log_wear_hint') {
+                            // Lấy nested navigator key và điều hướng với argument
+                            ref.read(nestedNavigatorKeyProvider).currentState?.pushNamed(
+                              AppRoutes.calendar,
+                              arguments: const CalendarPageArgs(showHint: true), // Truyền tín hiệu trực tiếp
+                            );
+                          } else if (quest.hintKey != null) {
+                            // Xử lý cho các hint khác trên MainScreen nếu có
+                            ref.read(questHintProvider.notifier).triggerHint(quest.hintKey!);
                             Navigator.of(context).pop();
                           }
                         },

@@ -1,8 +1,9 @@
 // lib/routing/route_generator.dart
 
 import 'dart:typed_data';
-import 'package:flutter_animate/flutter_animate.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/models/closet.dart';
@@ -11,8 +12,8 @@ import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/notifiers/log_wear_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/about_legal_page.dart';
-import 'package:mincloset/screens/item_detail_screen.dart';
 import 'package:mincloset/screens/analysis_loading_screen.dart';
+import 'package:mincloset/screens/avatar_cropper_screen.dart';
 import 'package:mincloset/screens/background_remover_page.dart';
 import 'package:mincloset/screens/badge_detail_page.dart';
 import 'package:mincloset/screens/batch_add_item_screen.dart';
@@ -21,19 +22,24 @@ import 'package:mincloset/screens/city_selection_screen.dart';
 import 'package:mincloset/screens/closet_insights_screen.dart';
 import 'package:mincloset/screens/edit_profile_screen.dart';
 import 'package:mincloset/screens/image_editor_screen.dart';
+import 'package:mincloset/screens/item_detail_screen.dart';
 import 'package:mincloset/screens/language_selection_screen.dart';
 import 'package:mincloset/screens/log_wear_screen.dart';
 import 'package:mincloset/screens/main_screen.dart';
+import 'package:mincloset/screens/onboarding_screen.dart';
 import 'package:mincloset/screens/outfit_detail_page.dart';
 import 'package:mincloset/screens/pages/closet_detail_page.dart';
 import 'package:mincloset/screens/pages/outfit_builder_page.dart';
+import 'package:mincloset/screens/quests_page.dart';
 import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/screens/splash_screen.dart';
 import 'package:mincloset/screens/webview_page.dart';
-import 'package:mincloset/screens/avatar_cropper_screen.dart';
-import 'package:mincloset/screens/quests_page.dart';
-import 'package:mincloset/screens/onboarding_screen.dart';
 import 'package:showcaseview/showcaseview.dart';
+
+class CalendarPageArgs {
+  final bool showHint;
+  const CalendarPageArgs({this.showHint = false});
+}
 
 class RouteGenerator {
   static const Widget _mainScreen = MainScreen();
@@ -111,12 +117,15 @@ class RouteGenerator {
         return _errorRoute();
       
       case AppRoutes.calendar:
-        final initialDate = args as DateTime?;
+        final calendarArgs = args is CalendarPageArgs ? args : const CalendarPageArgs();
         return AnimatePageRoute(
           page: ShowCaseWidget(
-              // CalendarPage giờ là con của một ShowCaseWidget mới
-              builder: (context) => CalendarPage(initialDate: initialDate),
+              builder: (context) => CalendarPage(
+                initialDate: null, // hoặc logic lấy ngày của bạn
+                showHintOnLoad: calendarArgs.showHint, // Truyền tín hiệu vào
+              ),
             ),
+          settings: settings,
         );
 
       case AppRoutes.logWearSelection:

@@ -16,8 +16,8 @@ import 'package:mincloset/screens/pages/profile_page.dart';
 import 'package:mincloset/states/tutorial_state.dart';
 import 'package:mincloset/widgets/speech_bubble.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:showcaseview/showcaseview.dart'; 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
@@ -271,26 +271,6 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
 
   @override
   Widget build(BuildContext context) {
-    // <<< SỬA LẠI LOGIC LISTEN CHO ĐƠN GIẢN VÀ ĐÚNG ĐẮN >>>
-    ref.listen<QuestHintState?>(questHintProvider, (previous, next) {
-      if (next != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            // Chỉ xử lý điều hướng
-            if (next.routeName != null) {
-              Navigator.of(context).pushNamed(next.routeName!);
-              // Xóa hint ngay sau khi yêu cầu điều hướng
-              ref.read(questHintProvider.notifier).clearHint();
-            } 
-            // Xử lý hint không điều hướng (cho các tab chính)
-            else if (next.hintKey != null) {
-              ShowCaseWidget.of(context).startShowCase([next.hintKey!]);
-              ref.read(questHintProvider.notifier).clearHint();
-            }
-          }
-        });
-      }
-    });
 
     final selectedPageIndex = ref.watch(mainScreenIndexProvider);
 

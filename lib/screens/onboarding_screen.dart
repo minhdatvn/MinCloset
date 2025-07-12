@@ -49,12 +49,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Chúng ta sẽ truyền index vào _buildPage để nó biết đang ở trang nào
+    // We will pass the index to _buildPage to know which page it is
     final pages = [
       _buildPage(
         context,
-        index: 0, // << Trang đầu tiên
-        imagePath: 'assets/images/onboarding/onboarding_p1.webp', // << SỬA LẠI ĐÚNG ĐƯỜNG DẪN CỦA BẠN
+        index: 0, // Page 1
+        imagePath: 'assets/images/onboarding/onboarding_p1.webp',
         title: "A closet full of clothes...",
         subtitle: "...but nothing to wear?",
         description:
@@ -62,9 +62,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       ),
       _buildPage(
         context,
-        index: 1, // << Trang thứ hai
-        imagePath: 'assets/images/badges/badge_beginner.webp', // Placeholder
-        title: "MinCloset, Your Smart Closet Assistant",
+        index: 1, // Page 2
+        imagePath: 'assets/images/onboarding/onboarding_p2.webp',
+        title: "MinCloset\nYour Smart Closet Assistant",
         description:
             "We help you digitize your closet, get AI-powered outfit suggestions, creatively build your own outfits, and track your style journey.",
         isFeatureList: true,
@@ -97,7 +97,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   // Widget to build the pages
   Widget _buildPage(BuildContext context,
-      {required int index, // << THÊM THAM SỐ INDEX
+      {required int index,
       required String imagePath,
       required String title,
       String? subtitle,
@@ -105,44 +105,46 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       bool isFeatureList = false}) {
     final theme = Theme.of(context);
 
-    // SỬ DỤNG INDEX ĐỂ KIỂM TRA, KHÔNG DÙNG IMAGEPATH NỮA
-    if (index == 0) {
-      // GIAO DIỆN MỚI CHO TRANG ĐẦU TIÊN
+    // Apply the new style for page 0 and 1
+    if (index == 0 || index == 1) {
       return Stack(
         fit: StackFit.expand,
         children: [
-          // Lớp 1: Ảnh nền toàn màn hình
+          // Layer 1: Full-screen background image
           Image.asset(
             imagePath,
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) {
-                // Widget hiển thị khi có lỗi tải ảnh
-                return Container(
-                  color: Colors.grey.shade200,
-                  child: const Center(
-                    child: Text('Image not found.\nPlease check path in pubspec.yaml', textAlign: TextAlign.center),
-                  ),
-                );
-              },
+              return Container(
+                color: Colors.grey.shade200,
+                child: Center(
+                  child: Text(
+                      'Image not found.\nPlease check path in pubspec.yaml\nPath: $imagePath',
+                      textAlign: TextAlign.center),
+                ),
+              );
+            },
           ),
-          // Lớp 2: Lớp phủ gradient
+          // Layer 2: Gradient overlay
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
                   Colors.white,
-                  Colors.white.withValues(alpha:0.8),
+                  Colors.white.withValues(alpha:1),
                   Colors.white.withValues(alpha:0.0),
                 ],
-                stops: const [0.2, 0.7, 1.0],
+                stops: const [0.0, 0.4, 1.0],
                 begin: Alignment.bottomCenter,
-                end: const Alignment(0.0, -1.0 / 3.0)
+                end: const Alignment(0.0, -1.0 / 3.0),
               ),
             ),
           ),
-          // Lớp 3: Nội dung
+          // Layer 3: Content
           Positioned(
-            bottom: 60,
+            // Nếu là trang 1 (index 0), giữ nguyên khoảng cách 120.
+            // Nếu là trang 2 (index 1), giảm khoảng cách xuống còn 80 để chữ đi xuống thấp hơn.
+            bottom: index == 0 ? 120 : 40, 
             left: 24,
             right: 24,
             child: Column(
@@ -159,11 +161,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       style: theme.textTheme.headlineSmall),
                 ],
                 const SizedBox(height: 16),
-                Text(
-                  description,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
-                ),
+                // Show feature list on the second page
+                if (isFeatureList)
+                  _buildFeatureList(context)
+                else
+                  Text(
+                    description,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+                  ),
               ],
             ),
           )
@@ -171,13 +177,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       );
     }
 
-    // GIAO DIỆN CŨ CHO CÁC TRANG CÒN LẠI
+    // Default layout for any other pages (not used in this 3-page setup but good for fallback)
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(imagePath, height: 200, errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, size: 150)),
+          Image.asset(imagePath,
+              height: 200,
+              errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.image_not_supported, size: 150)),
           const SizedBox(height: 40),
           Text(title,
               textAlign: TextAlign.center,
@@ -190,20 +199,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 style: theme.textTheme.headlineSmall),
           ],
           const SizedBox(height: 16),
-          if (isFeatureList)
-            _buildFeatureList(context)
-          else
-            Text(
-              description,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
-            ),
+          Text(
+            description,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+          ),
         ],
       ),
     );
   }
 
-  // ... (các hàm build còn lại không thay đổi)
+  // Widget for the final name input page
   Widget _buildNamePage(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
@@ -218,7 +224,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               style: theme.textTheme.headlineSmall
                   ?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          Text("Tell MinCloset your name so we can get more personal.",
+          Text("Tell your name so we can get more personal.",
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyLarge?.copyWith(height: 1.5)),
           const SizedBox(height: 32),
@@ -245,12 +251,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 
+  // Page indicator dots and buttons
   Widget _buildBottomControls(BuildContext context, int pageCount) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 20), // Increased bottom padding
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Dots indicator
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
@@ -269,6 +277,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               ),
             ),
           ),
+
+          // Button
           ElevatedButton(
             onPressed: () {
               if (_currentPage < pageCount - 1) {

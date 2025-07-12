@@ -17,6 +17,7 @@ import 'package:mincloset/states/tutorial_state.dart';
 import 'package:mincloset/widgets/speech_bubble.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:showcaseview/showcaseview.dart'; 
+import 'package:shared_preferences/shared_preferences.dart';
 
 // THAY ĐỔI 1: Chuyển StatelessWidget thành ConsumerWidget
 class MainScreen extends ConsumerWidget {
@@ -27,12 +28,16 @@ class MainScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ShowCaseWidget(
       // THAY ĐỔI 2: Cập nhật onFinish
-      onFinish: () {
-        // Dòng này để kết thúc tutorial
+      onFinish: () async {
+        // Kết thúc luồng hướng dẫn của tutorialProvider
         ref.read(tutorialProvider.notifier).dismissTutorial();
-        // Dòng này gọi notifier để cho mascot xuất hiện
+        // Gọi mascot xuất hiện
         final screenWidth = MediaQuery.of(context).size.width;
         ref.read(questMascotProvider.notifier).showNewQuestNotification(screenWidth);
+        
+        // Đánh dấu là đã hoàn thành hướng dẫn trong SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('has_completed_tutorial', true);
       },
       builder: (context) => const MainScreenView(),
     );
@@ -65,13 +70,12 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     );
     _menuOverlay = null;
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final tutorialState = ref.read(tutorialProvider);
-      if (mounted && !tutorialState.isActive && tutorialState.currentStep == TutorialStep.none) {
-        // Kiểm tra xem đã hoàn thành hướng dẫn lần nào chưa
-        // Nếu chưa thì mới bắt đầu
-        // (Logic kiểm tra này bạn có thể lưu vào SharedPreferences)
-        // Hiện tại, chúng ta giả định luôn bắt đầu khi mở app lần đầu.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Đọc trạng thái từ SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final bool hasCompletedTutorial = prefs.getBool('has_completed_tutorial') ?? false;
+      // Chỉ bắt đầu hướng dẫn nếu chưa hoàn thành
+      if (!hasCompletedTutorial && mounted) {
         ShowCaseWidget.of(context).startShowCase([_welcomeKey, _introduceKey, _addKey]);
         ref.read(tutorialProvider.notifier).startTutorial();
       }

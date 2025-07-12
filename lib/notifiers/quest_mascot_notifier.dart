@@ -68,12 +68,20 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     if (_prefs == null) return;
     final dx = _prefs!.getDouble(_positionDxKey);
     final dy = _prefs!.getDouble(_positionDyKey);
-    if (dx != null && dy != null) {
-      // Cập nhật state với vị trí đã lưu
-      if (mounted) {
-        state = state.copyWith(position: Offset(dx, dy));
-      }
+
+    // === BẮT ĐẦU LOGIC MỚI ===
+    // Kiểm tra xem người dùng đã hoàn thành hướng dẫn chưa
+    final bool hasCompletedTutorial = _prefs!.getBool('has_completed_tutorial') ?? false;
+
+    if (mounted) {
+      state = state.copyWith(
+        // Cập nhật vị trí đã lưu như cũ
+        position: (dx != null && dy != null) ? Offset(dx, dy) : null,
+        // ĐẶT TRẠNG THÁI HIỂN THỊ DỰA VÀO CỜ ĐÃ LƯU
+        isVisible: hasCompletedTutorial,
+      );
     }
+    // === KẾT THÚC LOGIC MỚI ===
   }
 
   Future<void> updatePosition(Offset newPosition) async {

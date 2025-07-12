@@ -14,6 +14,7 @@ import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 import 'package:mincloset/widgets/closet_form_dialog.dart';
 import 'package:mincloset/widgets/item_search_filter_bar.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:mincloset/helpers/dialog_helpers.dart';
@@ -43,7 +44,7 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
     const allItemsProviderId = 'closetsPage';
     final allItemsState = ref.watch(itemFilterProvider(allItemsProviderId));  
 
-    return Scaffold(
+    return PageScaffold(
       appBar: AppBar(
         // Tự động tắt nút back khi ở chế độ chọn nhiều
         automaticallyImplyLeading: !allItemsState.isMultiSelectMode,
@@ -125,108 +126,99 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
     final notifier = ref.read(provider.notifier);
     final state = ref.watch(provider);
 
-    return PopScope(
-      canPop: !state.isMultiSelectMode,
-      onPopInvokedWithResult: (bool didPop, dynamic result) {
-        if (didPop) return;
-        if (state.isMultiSelectMode) {
-          notifier.clearSelectionAndExitMode();
-        }
-      },
-      child: Scaffold(
-        body: RefreshIndicator(
-          onRefresh: notifier.fetchInitialItems,
-          child: CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: _SliverAppBarDelegate(
-                  ItemSearchFilterBar(providerId: providerId),
-                ),
+    return Scaffold(
+      body: RefreshIndicator(
+        onRefresh: notifier.fetchInitialItems,
+        child: CustomScrollView(
+          controller: _scrollController,
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _SliverAppBarDelegate(
+                ItemSearchFilterBar(providerId: providerId),
               ),
-              // Xử lý các trạng thái loading/empty/error
-              if (state.isLoading && state.items.isEmpty)
-                const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
-              else if (state.errorMessage != null && state.items.isEmpty)
-                SliverFillRemaining(child: Center(child: Text(state.errorMessage!)))
-              else if (state.items.isEmpty)
-                 SliverFillRemaining(
-                    child: Center(
-                      child: Text(
-                        state.searchQuery.isNotEmpty || state.activeFilters.isApplied ? 'No items found.' : 'Your closet is empty.',
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 18, color: Colors.grey),
-                      ),
+            ),
+            // Xử lý các trạng thái loading/empty/error
+            if (state.isLoading && state.items.isEmpty)
+              const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
+            else if (state.errorMessage != null && state.items.isEmpty)
+              SliverFillRemaining(child: Center(child: Text(state.errorMessage!)))
+            else if (state.items.isEmpty)
+                SliverFillRemaining(
+                  child: Center(
+                    child: Text(
+                      state.searchQuery.isNotEmpty || state.activeFilters.isApplied ? 'No items found.' : 'Your closet is empty.',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 18, color: Colors.grey),
                     ),
-                  )
-              else
-                _buildItemsGrid(state.items, state.hasMore, state.isMultiSelectMode),
-            ],
-          ),
+                  ),
+                )
+            else
+              _buildItemsGrid(state.items, state.hasMore, state.isMultiSelectMode),
+          ],
         ),
-        bottomNavigationBar: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          final offsetAnimation = Tween<Offset>(
-            begin: const Offset(0.0, 1.0),
-            end: Offset.zero,
-          ).animate(animation);
-          return SlideTransition(
-            position: offsetAnimation,
-            child: child,
-          );
-        },
-        child: state.isMultiSelectMode
-            ? BottomAppBar(
-                key: const ValueKey('closets_page_bottom_bar'),
-                height: 60,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    // Các nút bấm giữ nguyên như cũ
-                    _buildBottomBarButton(
-                      context: context,
-                      icon: Icons.delete_outline,
-                      label: 'Delete',
-                      color: Colors.red,
-                      onPressed: () async {
-                        final confirmed = await showAnimatedDialog<bool>(
-                          context,
-                          builder: (ctx) => AlertDialog(
-                            title: const Text('Confirm Deletion'),
-                            content: Text('Are you sure you want to permanently delete ${state.selectedItemIds.length} selected item(s)?'),
-                            actions: [
-                              TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-                              TextButton(
-                                onPressed: () => Navigator.of(ctx).pop(true),
-                                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                                child: const Text('Delete'),
-                              ),
-                            ],
-                          ),
-                        );
-                        if (confirmed == true) {
-                          await notifier.deleteSelectedItems();
-                        }
-                      },
-                    ),
-                    _buildBottomBarButton(
-                      context: context,
-                      icon: Icons.add_to_photos_outlined,
-                      label: 'Create Outfit',
-                      onPressed: () {
-                        final selectedItems = state.items.where((item) => state.selectedItemIds.contains(item.id)).toList();
-                        notifier.clearSelectionAndExitMode();
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => OutfitBuilderPage(preselectedItems: selectedItems)));
-                      },
-                    ),
-                  ],
-                ),
-              )
-            // Khi không ở chế độ chọn nhiều, widget sẽ là một hộp rỗng
-            : const SizedBox.shrink(key: ValueKey('empty_closets_page_bar')),
-        ),
+      ),
+      bottomNavigationBar: AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        final offsetAnimation = Tween<Offset>(
+          begin: const Offset(0.0, 1.0),
+          end: Offset.zero,
+        ).animate(animation);
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+      child: state.isMultiSelectMode
+          ? BottomAppBar(
+              key: const ValueKey('closets_page_bottom_bar'),
+              height: 60,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  // Các nút bấm giữ nguyên như cũ
+                  _buildBottomBarButton(
+                    context: context,
+                    icon: Icons.delete_outline,
+                    label: 'Delete',
+                    color: Colors.red,
+                    onPressed: () async {
+                      final confirmed = await showAnimatedDialog<bool>(
+                        context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Confirm Deletion'),
+                          content: Text('Are you sure you want to permanently delete ${state.selectedItemIds.length} selected item(s)?'),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(true),
+                              style: TextButton.styleFrom(foregroundColor: Colors.red),
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirmed == true) {
+                        await notifier.deleteSelectedItems();
+                      }
+                    },
+                  ),
+                  _buildBottomBarButton(
+                    context: context,
+                    icon: Icons.add_to_photos_outlined,
+                    label: 'Create Outfit',
+                    onPressed: () {
+                      final selectedItems = state.items.where((item) => state.selectedItemIds.contains(item.id)).toList();
+                      notifier.clearSelectionAndExitMode();
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => OutfitBuilderPage(preselectedItems: selectedItems)));
+                    },
+                  ),
+                ],
+              ),
+            )
+          // Khi không ở chế độ chọn nhiều, widget sẽ là một hộp rỗng
+          : const SizedBox.shrink(key: ValueKey('empty_closets_page_bar')),
       ),
     );
   }

@@ -244,116 +244,108 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
       }
     });
 
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (bool didPop, dynamic result) {
-        if (!didPop) {
-          Navigator.of(context).pop(false);
-        }
-      },
-      child: PageScaffold(
-        appBar: AppBar(
-          title: const Text('Outfit studio'),
-          leading: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.of(context).pop(false)),
-          actions: [
-            Consumer(
-              builder: (context, ref, child) {
-                final isSaving = ref.watch(outfitBuilderProvider.select((s) => s.isSaving));
-                if (isSaving) {
-                  return const Padding(
-                    padding: EdgeInsets.only(right: 16.0),
-                    child: Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 3))),
-                  );
-                }
-                return TextButton(
-                  onPressed: () async {
-                    final Uint8List? bytes = await _editorKey.currentState?.captureEditorImage();
-                    if (bytes == null || !mounted) return;
-
-                    final result = await showAnimatedDialog<Map<String, dynamic>>(
-                      context,
-                      barrierDismissible: false,
-                      builder: (ctx) => _SaveOutfitDialog(),
-                    );
-
-                    if (result != null && mounted) {
-                      ref.read(outfitBuilderProvider.notifier).saveOutfit(
-                            name: result['name'] as String,
-                            isFixed: result['isFixed'] as bool,
-                            itemsOnCanvas: _itemsOnCanvas,
-                            capturedImage: bytes,
-                          );
-                    }
-                  },
-                  child: Text('Save', style: Theme.of(context).appBarTheme.titleTextStyle),
+    return PageScaffold(
+      appBar: AppBar(
+        title: const Text('Outfit studio'),
+        leading: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.of(context).pop(false)),
+        actions: [
+          Consumer(
+            builder: (context, ref, child) {
+              final isSaving = ref.watch(outfitBuilderProvider.select((s) => s.isSaving));
+              if (isSaving) {
+                return const Padding(
+                  padding: EdgeInsets.only(right: 16.0),
+                  child: Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 3))),
                 );
-              },
-            ),
-          ],
-        ),
-        body: Stack(
-          children: [
-            Column(
-              children: [
-                const SizedBox(height: 48), 
-                Expanded(
-                  child: Container(
-                    color: Colors.grey.shade200,
-                    child: _imageData == null
-                        ? const Center(child: CircularProgressIndicator())
-                        : ProImageEditor.memory(
-                            _imageData!,
-                            key: _editorKey,
-                            callbacks: ProImageEditorCallbacks(
-                              mainEditorCallbacks: MainEditorCallbacks(
-                                onRemoveLayer: (layer) {
-                                  if (_itemsOnCanvas.containsKey(layer.id)) { _itemsOnCanvas.remove(layer.id); }
-                                  _recalculateItemCounts();
-                                },
-                              ),
-                              onImageEditingComplete: (_) async {},
-                              onCloseEditor: (EditorMode mode) {
-                                if (Navigator.of(context).canPop()) { Navigator.of(context).pop(false); }
+              }
+              return TextButton(
+                onPressed: () async {
+                  final Uint8List? bytes = await _editorKey.currentState?.captureEditorImage();
+                  if (bytes == null || !mounted) return;
+
+                  final result = await showAnimatedDialog<Map<String, dynamic>>(
+                    context,
+                    barrierDismissible: false,
+                    builder: (ctx) => _SaveOutfitDialog(),
+                  );
+
+                  if (result != null && mounted) {
+                    ref.read(outfitBuilderProvider.notifier).saveOutfit(
+                          name: result['name'] as String,
+                          isFixed: result['isFixed'] as bool,
+                          itemsOnCanvas: _itemsOnCanvas,
+                          capturedImage: bytes,
+                        );
+                  }
+                },
+                child: Text('Save', style: Theme.of(context).appBarTheme.titleTextStyle),
+              );
+            },
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          Column(
+            children: [
+              const SizedBox(height: 48), 
+              Expanded(
+                child: Container(
+                  color: Colors.grey.shade200,
+                  child: _imageData == null
+                      ? const Center(child: CircularProgressIndicator())
+                      : ProImageEditor.memory(
+                          _imageData!,
+                          key: _editorKey,
+                          callbacks: ProImageEditorCallbacks(
+                            mainEditorCallbacks: MainEditorCallbacks(
+                              onRemoveLayer: (layer) {
+                                if (_itemsOnCanvas.containsKey(layer.id)) { _itemsOnCanvas.remove(layer.id); }
+                                _recalculateItemCounts();
                               },
                             ),
-                            configs: ProImageEditorConfigs(   
-                              layerInteraction: const LayerInteractionConfigs(
-                                  selectable: LayerInteractionSelectable.enabled,
-                                  initialSelected: false,
-                                  icons: LayerInteractionIcons(remove: Icons.clear, edit: Icons.edit_outlined, rotateScale: Icons.sync),
-                                ),
-                              mainEditor: MainEditorConfigs(
-                                style: const MainEditorStyle(background: Colors.transparent),
-                                widgets: MainEditorWidgets(appBar: (_, __) => null),
-                              ),
-                              textEditor: TextEditorConfigs(
-                                showSelectFontStyleBottomBar: true,
-                                customTextStyles: [ GoogleFonts.roboto(), GoogleFonts.beVietnamPro(), GoogleFonts.lora(), GoogleFonts.montserrat(), GoogleFonts.pacifico() ],
-                              ),
-                              stickerEditor: StickerEditorConfigs(
-                                enabled: true,
-                                builder: (setLayer, scrollController) => const Center(child: Text('Stickers will be available soon.')),
-                              ),
-                              cropRotateEditor: const CropRotateEditorConfigs(enabled: false),
-                              filterEditor: const FilterEditorConfigs(enabled: false),
-                              blurEditor: const BlurEditorConfigs(enabled: false),
-                              tuneEditor: const TuneEditorConfigs(enabled: false),
-                            ),
+                            onImageEditingComplete: (_) async {},
+                            onCloseEditor: (EditorMode mode) {
+                              if (Navigator.of(context).canPop()) { Navigator.of(context).pop(false); }
+                            },
                           ),
-                  ),
+                          configs: ProImageEditorConfigs(   
+                            layerInteraction: const LayerInteractionConfigs(
+                                selectable: LayerInteractionSelectable.enabled,
+                                initialSelected: false,
+                                icons: LayerInteractionIcons(remove: Icons.clear, edit: Icons.edit_outlined, rotateScale: Icons.sync),
+                              ),
+                            mainEditor: MainEditorConfigs(
+                              style: const MainEditorStyle(background: Colors.transparent),
+                              widgets: MainEditorWidgets(appBar: (_, __) => null),
+                            ),
+                            textEditor: TextEditorConfigs(
+                              showSelectFontStyleBottomBar: true,
+                              customTextStyles: [ GoogleFonts.roboto(), GoogleFonts.beVietnamPro(), GoogleFonts.lora(), GoogleFonts.montserrat(), GoogleFonts.pacifico() ],
+                            ),
+                            stickerEditor: StickerEditorConfigs(
+                              enabled: true,
+                              builder: (setLayer, scrollController) => const Center(child: Text('Stickers will be available soon.')),
+                            ),
+                            cropRotateEditor: const CropRotateEditorConfigs(enabled: false),
+                            filterEditor: const FilterEditorConfigs(enabled: false),
+                            blurEditor: const BlurEditorConfigs(enabled: false),
+                            tuneEditor: const TuneEditorConfigs(enabled: false),
+                          ),
+                        ),
                 ),
-              ],
-            ),
-            _buildSecondaryToolbar(),
-            Positioned(
-              bottom: 57.0,
-              left: 0,
-              right: 0,
-              top: 0,
-              child: _buildItemBrowserSheet(),
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+          _buildSecondaryToolbar(),
+          Positioned(
+            bottom: 57.0,
+            left: 0,
+            right: 0,
+            top: 0,
+            child: _buildItemBrowserSheet(),
+          ),
+        ],
       ),
     );
   }

@@ -18,7 +18,6 @@ class OutfitDetailPage extends ConsumerStatefulWidget {
 }
 
 class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
-  bool _didChange = false;
 
   @override
   Widget build(BuildContext context) {
@@ -26,57 +25,49 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
     final currentOutfit = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
     
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (bool didPop, dynamic result) {
-        if (!didPop) {
-          Navigator.of(context).pop(_didChange);
-        }
-      },
-      child: PageScaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: Text(currentOutfit.name),
-          actions: [
-            OutfitActionsMenu(
-              outfit: currentOutfit,
-              onUpdate: () => setState(() => _didChange = true),
-            ),
-          ],
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: [
-              InteractiveViewer(
-                minScale: 1.0,
-                maxScale: 4.0,
-                child: Image.file(
-                  File(currentOutfit.imagePath),
-                  fit: BoxFit.contain,
-                ),
-              ),
-              const Divider(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                child: SwitchListTile(
-                  title: const Text('Fixed outfit', style: TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: const Text('Items in this outfit are always worn together. Each item can only belong to one fixed outfit.'),
-                  value: currentOutfit.isFixed,
-                  onChanged: (newValue) async {
-                    final errorMessage = await notifier.toggleIsFixed(newValue);
-                    if (errorMessage == null) {
-                      setState(() => _didChange = true);
-                    } else {
-                      ref
-                          .read(notificationServiceProvider)
-                          .showBanner(message: errorMessage);
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(height: 80),
-            ],
+    return PageScaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(currentOutfit.name),
+        actions: [
+          OutfitActionsMenu(
+            outfit: currentOutfit,
+            // onUpdate không còn cần thiết vì chúng ta không quản lý `_didChange` ở đây nữa
+            // onUpdate: () => setState(() => _didChange = true), 
           ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            InteractiveViewer(
+              minScale: 1.0,
+              maxScale: 4.0,
+              child: Image.file(
+                File(currentOutfit.imagePath),
+                fit: BoxFit.contain,
+              ),
+            ),
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: SwitchListTile(
+                title: const Text('Fixed outfit', style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text('Items in this outfit are always worn together. Each item can only belong to one fixed outfit.'),
+                value: currentOutfit.isFixed,
+                onChanged: (newValue) async {
+                  final errorMessage = await notifier.toggleIsFixed(newValue);
+                  if (errorMessage != null) {
+                    ref
+                        .read(notificationServiceProvider)
+                        .showBanner(message: errorMessage);
+                  }
+                  // Không cần setState nữa vì state của outfit đã được cập nhật trong notifier
+                },
+              ),
+            ),
+            const SizedBox(height: 80),
+          ],
         ),
       ),
     );

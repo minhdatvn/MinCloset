@@ -22,8 +22,7 @@ class PageScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Chúng ta chỉ áp dụng SafeArea cho phần dưới (bottom: true)
-    // vì phần trên đã được AppBar xử lý.
+    // PopScope đã được xóa, vì logic đã chuyển lên main.dart
     return SafeArea(
       top: false,
       bottom: true,

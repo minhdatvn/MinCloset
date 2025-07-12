@@ -11,6 +11,7 @@ import 'package:mincloset/theme/app_theme.dart';
 import 'package:mincloset/services/weather_image_service.dart';
 import 'package:mincloset/widgets/global_ui_scope.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:mincloset/providers/ui_providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -74,16 +75,34 @@ class MainAppWrapper extends ConsumerWidget {
     // THAY ĐỔI 2: Đọc key từ provider
     final nestedNavigatorKey = ref.watch(nestedNavigatorKeyProvider);
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          Navigator(
-            key: nestedNavigatorKey, // <<< THAY ĐỔI 3: GÁN KEY VÀO ĐÂY
-            initialRoute: AppRoutes.splash,
-            onGenerateRoute: RouteGenerator.onGenerateRoute,
-          ),
-          const GlobalUiScope(),
-        ],
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
+        // Nếu hành động pop chưa được hệ thống xử lý
+        if (didPop) return;
+
+        // Lấy trạng thái của navigator lồng nhau
+        final navigator = nestedNavigatorKey.currentState;
+        
+        // Nếu navigator lồng nhau có thể pop (tức là đang ở trang con)
+        if (navigator != null && navigator.canPop()) {
+          // Thì thực hiện pop trên navigator lồng nhau
+          navigator.pop();
+        } 
+        // Nếu không, nghĩa là đang ở các trang chính, không làm gì cả
+        // để người dùng có thể thoát app bằng nút back 2 lần như bình thường.
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            Navigator(
+              key: nestedNavigatorKey,
+              initialRoute: AppRoutes.splash,
+              onGenerateRoute: RouteGenerator.onGenerateRoute,
+            ),
+            const GlobalUiScope(),
+          ],
+        ),
       ),
     );
   }

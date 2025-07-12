@@ -351,6 +351,24 @@ class _ClosetsListTab extends ConsumerStatefulWidget {
 class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
   @override
   Widget build(BuildContext context) {
+    // Lắng nghe thay đổi từ Notifier để hiển thị banner
+    ref.listen<ClosetsPageState>(closetsPageProvider, (previous, next) {
+      final notificationService = ref.read(notificationServiceProvider);
+      final notifier = ref.read(closetsPageProvider.notifier);
+
+      if (next.successMessage != null) {
+        notificationService.showBanner(
+          message: next.successMessage!,
+          type: NotificationType.success,
+        );
+        notifier.clearMessages(); // Xóa thông báo sau khi đã hiển thị
+      }
+      if (next.errorMessage != null) {
+        notificationService.showBanner(message: next.errorMessage!);
+        notifier.clearMessages(); // Xóa thông báo sau khi đã hiển thị
+      }
+    });
+
     final closetsAsyncValue = ref.watch(closetsProvider);
     final theme = Theme.of(context);
     return closetsAsyncValue.when(
@@ -363,7 +381,6 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
           itemCount: closets.length + 1,
           itemBuilder: (ctx, index) {
             if (index == 0) {
-              // ... Mục "Add new closet" giữ nguyên, không có gì thay đổi
               if (isLimitReached) {
                 return Container(
                   padding: const EdgeInsets.all(16.0),
@@ -387,15 +404,11 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                     showAnimatedDialog(
                       context,
                       builder: (ctx) => ClosetFormDialog(
+                        // Logic onSubmit giờ chỉ cần gọi notifier
                         onSubmit: (name) async {
-                          final error = await ref.read(closetsPageProvider.notifier).addCloset(name);
-                          if (error == null && context.mounted) {
-                            ref.read(notificationServiceProvider).showBanner(
-                                  message: 'Successfully created "$name" closet.',
-                                  type: NotificationType.success,
-                                );
-                          }
-                          return error;
+                          await ref.read(closetsPageProvider.notifier).addCloset(name);
+                          // Không cần trả về gì cả
+                          return null;
                         },
                       ),
                     );
@@ -404,7 +417,6 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
               );
             }
             final closet = closets[index - 1];
-            // <<< BẮT ĐẦU TÁI CẤU TRÚC HOÀN TOÀN TỪ ĐÂY >>>
             return Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: ClipRRect(
@@ -440,34 +452,21 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                           ],
                         ),
                       );
-                      if (!mounted || confirmed != true) return false;
-                      final error = await ref.read(closetsPageProvider.notifier).deleteCloset(closet.id);
-                      if (!mounted) return false;
-                      if (error != null) {
-                        ref.read(notificationServiceProvider).showBanner(message: error);
-                        return false;
+                      if (confirmed == true) {
+                          // Chỉ cần gọi notifier để xóa
+                          await ref.read(closetsPageProvider.notifier).deleteCloset(closet.id);
                       }
-                      // <<< Banner khi xóa thành công >>>
-                      ref.read(notificationServiceProvider).showBanner( 
-                        message: 'Deleted closet "${closet.name}"',
-                        type: NotificationType.success,
-                      );
-                      return true;
+                      // Luôn trả về false để Dismissible không tự xóa widget
+                      // Việc cập nhật UI sẽ do provider đảm nhiệm
+                      return false; 
                     } else {
                       showDialog(
                         context: context,
                         builder: (ctx) => ClosetFormDialog(
                           initialName: closet.name,
-                          onSubmit: (newName) async { // Thêm async ở đây
-                            final error = await ref.read(closetsPageProvider.notifier).updateCloset(closet, newName);
-                            // <<< Banner khi sửa thành công >>>
-                            if (error == null && mounted) {
-                              ref.read(notificationServiceProvider).showBanner(
-                                    message: 'Closet name updated to "$newName"',
-                                    type: NotificationType.success,
-                                  );
-                            }
-                            return error;
+                          onSubmit: (newName) async {
+                            await ref.read(closetsPageProvider.notifier).updateCloset(closet, newName);
+                            return null;
                           },
                         ),
                       );
@@ -494,24 +493,18 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                // Icon tạm thời, sẵn sàng để thay bằng hình ảnh
                                 child: const Icon(Icons.style_outlined, color: Colors.grey, size: 32),
                               ),
                             ),
-                            // TIÊU ĐỀ: Tên closet
                             title: Text(closet.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                            // PHỤ ĐỀ: Số lượng item
                             subtitle: Consumer(
                               builder: (context, ref, child) {
-                                // Lắng nghe provider để lấy số lượng item
                                 final itemsCountAsync = ref.watch(itemsInClosetProvider(closet.id));
                                 return itemsCountAsync.when(
                                   data: (items) {
-                                    // Định dạng số nhiều/ít cho "item"
                                     final itemText = items.length == 1 ? 'item' : 'items';
                                     return Text('${items.length} $itemText');
                                   },
-                                  // Hiển thị tạm thời trong khi tải
                                   loading: () => const Text('...'),
                                   error: (err, stack) => const Text('Error'),
                                 );

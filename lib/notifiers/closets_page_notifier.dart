@@ -8,19 +8,27 @@ import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/closet_repository.dart';
 import 'package:uuid/uuid.dart';
 
-// State của trang này rất đơn giản, chỉ cần biết loading hay có lỗi không
 class ClosetsPageState {
   final bool isLoading;
-  final String? error;
-  const ClosetsPageState({this.isLoading = false, this.error});
+  final String? successMessage;
+  final String? errorMessage;
+
+  const ClosetsPageState({
+    this.isLoading = false,
+    this.successMessage,
+    this.errorMessage,
+  });
 
   ClosetsPageState copyWith({
     bool? isLoading,
-    String? error,
+    String? successMessage,
+    String? errorMessage,
   }) {
     return ClosetsPageState(
       isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
+      // Dùng `?.` để cho phép xóa message bằng cách truyền vào null
+      successMessage: successMessage,
+      errorMessage: errorMessage,
     );
   }
 }
@@ -31,52 +39,55 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
 
   ClosetsPageNotifier(this._closetRepo, this._ref) : super(const ClosetsPageState());
 
-  Future<String?> addCloset(String name) async {
+  void clearMessages() {
+    state = state.copyWith(successMessage: null, errorMessage: null);
+  }
+
+  Future<void> addCloset(String name) async {
     final trimmedName = name.trim();
     if (trimmedName.isEmpty) {
-      return 'Closet name cannot be empty.';
+      state = state.copyWith(errorMessage: 'Closet name cannot be empty.');
+      return;
     }
     if (trimmedName.length > 30) {
-      return 'Closet name cannot exceed 30 characters.';
+      state = state.copyWith(errorMessage: 'Closet name cannot exceed 30 characters.');
+      return;
     }
 
     state = state.copyWith(isLoading: true);
 
     final closetsResult = await _closetRepo.getClosets();
 
-    if (!mounted) return null;
+    if (!mounted) return;
 
-    return await closetsResult.fold(
-      (failure) {
-        state = state.copyWith(isLoading: false);
-        return failure.message;
+    await closetsResult.fold(
+      (failure) async {
+        state = state.copyWith(isLoading: false, errorMessage: failure.message);
       },
       (closets) async {
         if (closets.length >= 10) {
-          state = state.copyWith(isLoading: false);
-          return 'Maximum number of closets (10) reached.';
+          state = state.copyWith(isLoading: false, errorMessage: 'Maximum number of closets (10) reached.');
+          return;
         }
 
         final isDuplicate = closets.any((closet) =>
             closet.name.trim().toLowerCase() == trimmedName.toLowerCase());
 
         if (isDuplicate) {
-          state = state.copyWith(isLoading: false);
-          return 'A closet with this name already exists.';
+          state = state.copyWith(isLoading: false, errorMessage: 'A closet with this name already exists.');
+          return;
         }
 
         final newCloset = Closet(id: const Uuid().v4(), name: trimmedName);
         final insertResult = await _closetRepo.insertCloset(newCloset);
 
-        if (!mounted) return null;
+        if (!mounted) return;
 
-        state = state.copyWith(isLoading: false);
-
-        return insertResult.fold(
-          (failure) => failure.message,
-          (_) async { // THAY ĐỔI 1: Chuyển thành hàm async để dùng await
-            
-            // THAY ĐỔI 2: Phát đi sự kiện closetCreated và kiểm tra kết quả
+        insertResult.fold(
+          (failure) {
+            state = state.copyWith(isLoading: false, errorMessage: failure.message);
+          },
+          (_) async {
             final completedQuests = await _ref
                 .read(questRepositoryProvider)
                 .updateQuestProgress(QuestEvent.closetCreated);
@@ -84,74 +95,82 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
             if (completedQuests.isNotEmpty && mounted) {
               _ref.read(completedQuestProvider.notifier).state = completedQuests.first;
             }
-
-            // Các dòng code cũ giữ nguyên
-            _ref.invalidate(closetsProvider); 
-            return null;
+            
+            _ref.invalidate(closetsProvider);
+            state = state.copyWith(isLoading: false, successMessage: 'Successfully created "$trimmedName" closet.');
           },
         );
       },
     );
   }
   
-  Future<String?> updateCloset(Closet closetToUpdate, String newName) async {
+  Future<void> updateCloset(Closet closetToUpdate, String newName) async {
     final trimmedName = newName.trim();
     if (trimmedName.isEmpty) {
-      return 'Closet name cannot be empty.';
+      state = state.copyWith(errorMessage: 'Closet name cannot be empty.');
+      return;
     }
     if (trimmedName.length > 30) {
-      return 'Closet name cannot exceed 30 characters.';
+      state = state.copyWith(errorMessage: 'Closet name cannot exceed 30 characters.');
+      return;
     }
 
     final closetsResult = await _closetRepo.getClosets();
-    if (!mounted) return null;
+    if (!mounted) return;
 
-    return await closetsResult.fold((failure) {
-      return failure.message;
+    await closetsResult.fold((failure) {
+      state = state.copyWith(errorMessage: failure.message);
     }, (closets) async {
       final isDuplicate = closets.any((closet) =>
           closet.id != closetToUpdate.id &&
           closet.name.trim().toLowerCase() == trimmedName.toLowerCase());
 
       if (isDuplicate) {
-        return 'A closet with this name already exists.';
+        state = state.copyWith(errorMessage: 'A closet with this name already exists.');
+        return;
       }
 
       final result = await _closetRepo
           .updateCloset(closetToUpdate.copyWith(name: trimmedName));
 
-      if (!mounted) return null;
+      if (!mounted) return;
 
-      return result.fold(
-        (failure) => failure.message,
+      result.fold(
+        (failure) {
+          state = state.copyWith(errorMessage: failure.message);
+        },
         (_) {
           _ref.invalidate(closetsProvider);
-          return null;
+          state = state.copyWith(successMessage: 'Closet name updated to "$trimmedName".');
         },
       );
     });
   }
 
-  Future<String?> deleteCloset(String closetId) async {
+  Future<void> deleteCloset(String closetId) async {
     final clothingItemRepo = _ref.read(clothingItemRepositoryProvider);
     final itemsResult = await clothingItemRepo.getItemsInCloset(closetId);
 
-    if (!mounted) return null;
+    if (!mounted) return;
 
     final itemsInCloset = itemsResult.getOrElse((_) => []);
     if (itemsInCloset.isNotEmpty) {
-      return 'Closet is not empty. Move or delete items first.';
+      state = state.copyWith(errorMessage: 'Closet is not empty. Move or delete items first.');
+      return;
     }
 
     final deleteResult = await _closetRepo.deleteCloset(closetId);
 
-    if (!mounted) return null;
+    if (!mounted) return;
 
-    return deleteResult.fold(
-      (failure) => failure.message,
+    deleteResult.fold(
+      (failure) {
+        state = state.copyWith(errorMessage: failure.message);
+      },
       (_) {
         _ref.invalidate(closetsProvider);
-        return null;
+        // Lấy tên closet để hiển thị thông báo (tùy chọn, có thể bỏ qua để đơn giản)
+        state = state.copyWith(successMessage: 'Closet deleted successfully.');
       },
     );
   }

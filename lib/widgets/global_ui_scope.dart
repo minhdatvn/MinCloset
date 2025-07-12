@@ -13,6 +13,8 @@ import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/widgets/achievement_unlocked_dialog.dart'; // <<< THÊM IMPORT NÀY
 import 'package:mincloset/widgets/quest_mascot.dart';
 import 'package:mincloset/widgets/quest_mascot_image.dart';
+import 'package:mincloset/models/notification_type.dart';
+import 'package:mincloset/notifiers/closets_page_notifier.dart';
 
 class GlobalUiScope extends ConsumerStatefulWidget {
   const GlobalUiScope({super.key});
@@ -69,8 +71,24 @@ class _GlobalUiScopeState extends ConsumerState<GlobalUiScope> {
         ref.read(beginnerAchievementProvider.notifier).state = null;
       }
     });
-    // <<< KẾT THÚC SỬA ĐỔI >>>
 
+    ref.listen<ClosetsPageState>(closetsPageProvider, (previous, next) {
+      final notifier = ref.read(closetsPageProvider.notifier);
+      final notificationService = ref.read(notificationServiceProvider);
+
+      if (next.successMessage != null) {
+        notificationService.showBanner(
+          message: next.successMessage!,
+          type: NotificationType.success,
+        );
+        notifier.clearMessages(); // Xóa thông báo sau khi đã hiển thị
+      }
+      if (next.errorMessage != null) {
+        notificationService.showBanner(message: next.errorMessage!);
+        notifier.clearMessages(); // Xóa thông báo sau khi đã hiển thị
+      }
+    });
+    
     final mascotState = ref.watch(questMascotProvider);
     final mascotNotifier = ref.read(questMascotProvider.notifier);
     final isQuestsPageActive = ref.watch(isQuestsPageActiveProvider);

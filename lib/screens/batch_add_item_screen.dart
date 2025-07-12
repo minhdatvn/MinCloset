@@ -1,4 +1,7 @@
 // lib/screens/batch_add_item_screen.dart
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/notifiers/item_detail_notifier.dart';
@@ -90,11 +93,7 @@ class _BatchItemDetailScreenState extends ConsumerState<BatchItemDetailScreen> {
                 ElevatedButton.icon(
                   onPressed: state.currentIndex > 0 ? notifier.previousPage : null,
                   icon: const Icon(Icons.arrow_back),
-                  label: const Text('Previous'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.onSurface,
-                    foregroundColor: Theme.of(context).colorScheme.surface,
-                  )
+                  label: const Text('Previous'),              
                 ),
                 if (state.currentIndex < itemArgsList.length - 1)
                   // Nút "Sau" giờ sẽ gọi hàm nextPage đã có validation
@@ -140,6 +139,30 @@ class ItemFormPage extends ConsumerWidget {
       onNotesChanged: itemNotifier.onNotesChanged,
       onImageUpdated: (newBytes) {
         itemNotifier.updateImageWithBytes(newBytes);
+      },
+      onEditImagePressed: () async {
+        final navigator = Navigator.of(context);
+
+        // Lấy dữ liệu byte của ảnh hiện tại
+        Uint8List? currentImageBytes;
+        if (itemState.image != null) {
+          currentImageBytes = await itemState.image!.readAsBytes();
+        } else if (itemState.imagePath != null) {
+          currentImageBytes = await File(itemState.imagePath!).readAsBytes();
+        }
+
+        if (currentImageBytes == null || !context.mounted) return;
+
+        // Điều hướng đến màn hình chỉnh sửa và chờ kết quả
+        final editedBytes = await navigator.pushNamed<Uint8List?>(
+          AppRoutes.imageEditor,
+          arguments: currentImageBytes,
+        );
+
+        // Nếu có ảnh đã sửa trả về, cập nhật state
+        if (editedBytes != null && context.mounted) {
+          itemNotifier.updateImageWithBytes(editedBytes);
+        }
       },
     );
   }

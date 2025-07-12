@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit.dart';
-import 'package:mincloset/notifiers/add_item_notifier.dart';
+import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/notifiers/calendar_notifier.dart';
 import 'package:mincloset/notifiers/log_wear_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
@@ -260,7 +260,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                 Navigator.pushNamed(
                   context,
                   AppRoutes.addItem,
-                  arguments: ItemNotifierArgs(itemToEdit: item, tempId: item.id),
+                  arguments: ItemDetailNotifierArgs(itemToEdit: item, tempId: item.id),
                 ).then((wasChanged) {
                   // Sau khi quay lại, kiểm tra xem có cần làm mới không
                   if (wasChanged == true) {

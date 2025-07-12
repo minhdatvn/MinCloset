@@ -1,7 +1,7 @@
 // lib/screens/batch_add_item_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/notifiers/add_item_notifier.dart';
+import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
@@ -10,13 +10,13 @@ import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 
-class BatchAddItemScreen extends ConsumerStatefulWidget {
-  const BatchAddItemScreen({super.key});
+class BatchItemDetailScreen extends ConsumerStatefulWidget {
+  const BatchItemDetailScreen({super.key});
   @override
-  ConsumerState<BatchAddItemScreen> createState() => _BatchAddItemScreenState();
+  ConsumerState<BatchItemDetailScreen> createState() => _BatchItemDetailScreenState();
 }
 
-class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
+class _BatchItemDetailScreenState extends ConsumerState<BatchItemDetailScreen> {
   late final PageController _pageController;
 
   @override
@@ -38,7 +38,7 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
     final itemArgsList = state.itemArgsList;
 
     // <<< THAY ĐỔI LOGIC LISTENER ĐỂ MẠNH MẼ HƠN >>>
-    ref.listen<BatchAddItemState>(batchAddScreenProvider, (previous, next) {
+    ref.listen<BatchItemDetailState>(batchAddScreenProvider, (previous, next) {
       // 1. Xử lý thành công
       if (next.saveSuccess && !previous!.saveSuccess) {
         ref.read(mainScreenIndexProvider.notifier).state = 1;
@@ -118,7 +118,7 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
 
 // ItemFormPage không thay đổi
 class ItemFormPage extends ConsumerWidget {
-  final ItemNotifierArgs providerArgs;
+  final ItemDetailNotifierArgs providerArgs;
   const ItemFormPage({super.key, required this.providerArgs});
 
   @override

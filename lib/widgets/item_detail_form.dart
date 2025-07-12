@@ -13,13 +13,13 @@ import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/services/number_formatting_service.dart';
-import 'package:mincloset/states/add_item_state.dart';
+import 'package:mincloset/states/item_detail_state.dart';
 import 'package:mincloset/widgets/category_selector.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
 import 'package:image/image.dart' as img;
 
 class ItemDetailForm extends ConsumerStatefulWidget {
-  final AddItemState itemState;
+  final ItemDetailState itemState;
   final Function(String) onNameChanged;
   final Function(String?) onClosetChanged;
   final Function(String) onCategoryChanged;

@@ -7,38 +7,38 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/notification_type.dart';
-import 'package:mincloset/notifiers/add_item_notifier.dart';
+import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
-import 'package:mincloset/states/add_item_state.dart';
+import 'package:mincloset/states/item_detail_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:uuid/uuid.dart';
 
-class AddItemScreen extends ConsumerStatefulWidget {
+class ItemDetailScreen extends ConsumerStatefulWidget {
   final ClothingItem? itemToEdit;
-  final AddItemState? preAnalyzedState;
+  final ItemDetailState? preAnalyzedState;
 
-  const AddItemScreen({
+  const ItemDetailScreen({
     super.key,
     this.itemToEdit,
     this.preAnalyzedState,
   });
 
   @override
-  ConsumerState<AddItemScreen> createState() => _AddItemScreenState();
+  ConsumerState<ItemDetailScreen> createState() => _ItemDetailScreenState();
 }
 
-class _AddItemScreenState extends ConsumerState<AddItemScreen> {
+class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
   late final String _tempId;
-  late final ItemNotifierArgs _providerArgs;
+  late final ItemDetailNotifierArgs _providerArgs;
 
   @override
   void initState() {
     super.initState();
     _tempId = widget.itemToEdit?.id ?? widget.preAnalyzedState?.id ?? const Uuid().v4();
-    _providerArgs = ItemNotifierArgs(
+    _providerArgs = ItemDetailNotifierArgs(
       tempId: _tempId,
       itemToEdit: widget.itemToEdit,
       preAnalyzedState: widget.preAnalyzedState,
@@ -66,18 +66,18 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
     if (confirmed == true) {
       // Logic đã được đơn giản hóa, chỉ cần gọi notifier
-      await ref.read(singleItemProvider(_providerArgs).notifier).deleteItem();
+      await ref.read(itemDetailProvider(_providerArgs).notifier).deleteItem();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = singleItemProvider(_providerArgs);
+    final provider = itemDetailProvider(_providerArgs);
     final state = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
 
     // <<< KHỐI LISTEN ĐỂ XỬ LÝ THÔNG BÁO VÀ ĐIỀU HƯỚNG >>>
-    ref.listen<AddItemState>(provider, (previous, next) {
+    ref.listen<ItemDetailState>(provider, (previous, next) {
       if (next.successMessage != null) {
         ref.read(notificationServiceProvider).showBanner(
           message: next.successMessage!,
@@ -103,7 +103,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 color: state.isFavorite ? Colors.pink : null,
               ),
               onPressed: () {
-                notifier.toggleFavorite();
+                ref.read(itemDetailProvider(_providerArgs).notifier).toggleFavorite();
                 ref.read(itemChangedTriggerProvider.notifier).state++;
               },
               tooltip: state.isFavorite ? 'Remove from favorites' : 'Add to favorites',

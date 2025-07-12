@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mincloset/models/clothing_item.dart';
 
 @immutable
-class AddItemState extends Equatable {
+class ItemDetailState extends Equatable {
   // Trạng thái của các trường trong form
   final String id;
   final String name;
@@ -31,7 +31,7 @@ class AddItemState extends Equatable {
   final bool isSuccess;
   final String? successMessage;
 
-  const AddItemState({
+  const ItemDetailState({
     this.id = '',
     this.name = '',
     this.image,
@@ -55,10 +55,10 @@ class AddItemState extends Equatable {
     this.successMessage,
   });
 
-  factory AddItemState.fromClothingItem(ClothingItem item) {
+  factory ItemDetailState.fromClothingItem(ClothingItem item) {
     Set<String> stringToSet(String? s) => (s == null || s.isEmpty) ? {} : s.split(', ').toSet();
 
-    return AddItemState(
+    return ItemDetailState(
       id: item.id,
       name: item.name,
       imagePath: item.imagePath,
@@ -77,7 +77,7 @@ class AddItemState extends Equatable {
     );
   }
 
-  AddItemState copyWith({
+  ItemDetailState copyWith({
     String? id,
     String? name,
     File? image,
@@ -100,7 +100,7 @@ class AddItemState extends Equatable {
     bool? isSuccess,
     String? successMessage,
   }) {
-    return AddItemState(
+    return ItemDetailState(
       id: id ?? this.id,
       name: name ?? this.name,
       image: image ?? this.image,

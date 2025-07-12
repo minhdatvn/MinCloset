@@ -20,16 +20,16 @@ import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/quest_repository.dart';
-import 'package:mincloset/states/add_item_state.dart';
+import 'package:mincloset/states/item_detail_state.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
-class ItemNotifierArgs extends Equatable {
+class ItemDetailNotifierArgs extends Equatable {
   final String tempId;
   final ClothingItem? itemToEdit;
-  final AddItemState? preAnalyzedState;
+  final ItemDetailState? preAnalyzedState;
 
-  const ItemNotifierArgs({
+  const ItemDetailNotifierArgs({
     required this.tempId,
     this.itemToEdit,
     this.preAnalyzedState,
@@ -39,7 +39,7 @@ class ItemNotifierArgs extends Equatable {
   List<Object?> get props => [tempId];
 }
 
-class AddItemNotifier extends StateNotifier<AddItemState> {
+class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
   final ClothingItemRepository _clothingItemRepo;
   final QuestRepository _questRepo;
   final ImageHelper _imageHelper;
@@ -48,7 +48,7 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
   final ValidateItemNameUseCase _validateNameUseCase;
   final Ref _ref;
 
-  AddItemNotifier(
+  ItemDetailNotifier(
     this._clothingItemRepo,
     this._questRepo,
     this._imageHelper,
@@ -56,12 +56,12 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
     this._validateRequiredUseCase,
     this._validateNameUseCase,
     this._ref,
-    ItemNotifierArgs args,
+    ItemDetailNotifierArgs args,
   ) : super(
           args.preAnalyzedState ??
           (args.itemToEdit != null
-              ? AddItemState.fromClothingItem(args.itemToEdit!)
-              : AddItemState(id: args.tempId))
+              ? ItemDetailState.fromClothingItem(args.itemToEdit!)
+              : ItemDetailState(id: args.tempId))
         );
   
   void clearMessages() {
@@ -310,9 +310,9 @@ class AddItemNotifier extends StateNotifier<AddItemState> {
 
 /// Provider cho màn hình Thêm/Sửa MỘT vật phẩm.
 /// Sẽ tự động hủy state khi rời khỏi màn hình.
-final singleItemProvider = StateNotifierProvider
+final itemDetailProvider = StateNotifierProvider
     .autoDispose
-    .family<AddItemNotifier, AddItemState, ItemNotifierArgs>((ref, args) {
+    .family<ItemDetailNotifier, ItemDetailState, ItemDetailNotifierArgs>((ref, args) {
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
   final questRepo = ref.watch(questRepositoryProvider);
   final imageHelper = ref.watch(imageHelperProvider);
@@ -320,7 +320,7 @@ final singleItemProvider = StateNotifierProvider
   final validateRequiredUseCase = ref.watch(validateRequiredFieldsUseCaseProvider);
   final validateNameUseCase = ref.watch(validateItemNameUseCaseProvider);
   
-  return AddItemNotifier(
+  return ItemDetailNotifier(
     clothingItemRepo,
     questRepo,
     imageHelper,
@@ -335,7 +335,7 @@ final singleItemProvider = StateNotifierProvider
 /// Provider cho màn hình Thêm HÀNG LOẠT.
 /// Sẽ GIỮ LẠI state khi người dùng vuốt qua lại giữa các item.
 final batchItemFormProvider = StateNotifierProvider
-    .family<AddItemNotifier, AddItemState, ItemNotifierArgs>((ref, args) {
+    .family<ItemDetailNotifier, ItemDetailState, ItemDetailNotifierArgs>((ref, args) {
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
   final questRepo = ref.watch(questRepositoryProvider);
   final imageHelper = ref.watch(imageHelperProvider);
@@ -343,7 +343,7 @@ final batchItemFormProvider = StateNotifierProvider
   final validateRequiredUseCase = ref.watch(validateRequiredFieldsUseCaseProvider);
   final validateNameUseCase = ref.watch(validateItemNameUseCaseProvider);
   
-  return AddItemNotifier(
+  return ItemDetailNotifier(
     clothingItemRepo,
     questRepo,
     imageHelper,

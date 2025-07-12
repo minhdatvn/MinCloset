@@ -4,7 +4,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:mincloset/domain/failures/failures.dart';
 import 'package:mincloset/domain/models/validation_result.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
-import 'package:mincloset/states/add_item_state.dart';
+import 'package:mincloset/states/item_detail_state.dart';
 
 class ValidateItemNameUseCase {
   final ClothingItemRepository _repo;
@@ -37,7 +37,7 @@ class ValidateItemNameUseCase {
     );
   }
 
-  Future<Either<Failure, ValidationResult>> forBatch(List<AddItemState> itemStates) async {
+  Future<Either<Failure, ValidationResult>> forBatch(List<ItemDetailState> itemStates) async {
     // 1. Kiểm tra trùng lặp bên trong nhóm (logic này không đổi vì không gọi repo)
     final nameTracker = <String, int>{};
     for (int i = 0; i < itemStates.length; i++) {

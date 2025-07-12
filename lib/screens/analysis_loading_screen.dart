@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:mincloset/notifiers/add_item_notifier.dart';
+import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
@@ -70,7 +70,7 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
   @override
   Widget build(BuildContext context) {
     // Lắng nghe để điều hướng khi phân tích xong
-    ref.listen<BatchAddItemState>(batchAddScreenProvider, (previous, next) {
+    ref.listen<BatchItemDetailState>(batchAddScreenProvider, (previous, next) {
       if (!mounted) return;
       if (next.analysisSuccess && previous?.analysisSuccess == false) {
         final analyzedItemArgs = ref.read(batchAddScreenProvider).itemArgsList;
@@ -79,7 +79,7 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
         if (analyzedItemArgs.length == 1) {
           navigator.pushReplacementNamed(
             AppRoutes.addItem,
-            arguments: ItemNotifierArgs(
+            arguments: ItemDetailNotifierArgs(
               tempId: analyzedItemArgs.first.tempId,
               preAnalyzedState: analyzedItemArgs.first.preAnalyzedState,
             ),

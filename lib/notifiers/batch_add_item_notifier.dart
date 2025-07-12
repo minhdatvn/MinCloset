@@ -9,17 +9,17 @@ import 'package:mincloset/domain/use_cases/validate_item_name_use_case.dart';
 import 'package:mincloset/domain/use_cases/validate_required_fields_use_case.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/quest.dart';
-import 'package:mincloset/notifiers/add_item_notifier.dart';
+import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
-import 'package:mincloset/states/add_item_state.dart';
+import 'package:mincloset/states/item_detail_state.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mincloset/repositories/quest_repository.dart';
 
-class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
+class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
   final ClothingItemRepository _clothingItemRepo;
   final QuestRepository _questRepo;
   final AnalyzeItemUseCase _analyzeItemUseCase;
@@ -35,7 +35,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
     this._validateRequiredUseCase,
     this._validateNameUseCase,
     this._ref,
-  ) : super(const BatchAddItemState());
+  ) : super(const BatchItemDetailState());
 
   // Các hàm helper và setCurrentIndex/nextPage/previousPage không thay đổi
   Set<String> _normalizeColors(List<dynamic>? rawColors) {
@@ -93,7 +93,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
 
     if (!mounted) return;
 
-    final List<ItemNotifierArgs> itemArgsList = [];
+    final List<ItemDetailNotifierArgs> itemArgsList = [];
     
     // 3. Lặp qua danh sách kết quả (đã có đủ) để xử lý
     for (int i = 0; i < results.length; i++) {
@@ -106,19 +106,19 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
             message: "Pre-filling information failed.\nReason: ${failure.message}",
           );
           final tempId = const Uuid().v4();
-          final preAnalyzedState = AddItemState(id: tempId, image: File(image.path));
-          itemArgsList.add(ItemNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState));
+          final preAnalyzedState = ItemDetailState(id: tempId, image: File(image.path));
+          itemArgsList.add(ItemDetailNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState));
         },
         (result) {
           final tempId = const Uuid().v4();
-          final preAnalyzedState = AddItemState(
+          final preAnalyzedState = ItemDetailState(
             id: tempId, name: result['name'] as String? ?? '', image: File(image.path),
             selectedCategoryValue: _normalizeCategory(result['category'] as String?),
             selectedColors: _normalizeColors(result['colors'] as List<dynamic>?),
             selectedMaterials: _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList()),
             selectedPatterns: _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList()),
           );
-          itemArgsList.add(ItemNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState));
+          itemArgsList.add(ItemDetailNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState));
         },
       );
     }
@@ -201,7 +201,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
     );
   }
 
-  Future<void> _performSave(List<AddItemState> itemStates) async {
+  Future<void> _performSave(List<ItemDetailState> itemStates) async {
     final itemsToSave = itemStates.map((itemState) {
       return ClothingItem(
         id: const Uuid().v4(), name: itemState.name.trim(), category: itemState.selectedCategoryValue,
@@ -251,7 +251,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchAddItemState> {
   }
 }
 
-final batchAddScreenProvider = StateNotifierProvider.autoDispose<BatchAddItemNotifier, BatchAddItemState>((ref) {
+final batchAddScreenProvider = StateNotifierProvider.autoDispose<BatchAddItemNotifier, BatchItemDetailState>((ref) {
   // <<< THAY ĐỔI 7: Lấy tất cả dependency và truyền vào Notifier >>>
   final repo = ref.watch(clothingItemRepositoryProvider);
   final questRepo = ref.watch(questRepositoryProvider);

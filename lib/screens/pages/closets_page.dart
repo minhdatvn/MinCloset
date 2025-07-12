@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/notification_type.dart';
-import 'package:mincloset/notifiers/add_item_notifier.dart';
+import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/notifiers/closets_page_notifier.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
@@ -255,7 +255,7 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
               if (isMultiSelectMode) {
                 notifier.toggleItemSelection(item.id);
               } else {
-                final wasChanged = await Navigator.pushNamed(context, AppRoutes.addItem, arguments: ItemNotifierArgs(tempId: item.id, itemToEdit: item));
+                final wasChanged = await Navigator.pushNamed(context, AppRoutes.addItem, arguments: ItemDetailNotifierArgs(tempId: item.id, itemToEdit: item));
                 if (wasChanged == true) {
                   ref.read(itemChangedTriggerProvider.notifier).state++;
                 }

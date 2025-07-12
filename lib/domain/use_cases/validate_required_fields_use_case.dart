@@ -1,11 +1,11 @@
 // lib/domain/use_cases/validate_required_fields_use_case.dart
 
 import 'package:mincloset/domain/models/validation_result.dart';
-import 'package:mincloset/states/add_item_state.dart';
+import 'package:mincloset/states/item_detail_state.dart';
 
 class ValidateRequiredFieldsUseCase {
   /// Xác thực các trường bắt buộc cho một món đồ duy nhất.
-  ValidationResult executeForSingle(AddItemState itemState) {
+  ValidationResult executeForSingle(ItemDetailState itemState) {
     if (itemState.name.trim().isEmpty) {
       return ValidationResult.failure("Please enter item name");
     }
@@ -19,7 +19,7 @@ class ValidateRequiredFieldsUseCase {
   }
 
   /// Xác thực các trường bắt buộc cho một danh sách các món đồ.
-  ValidationResult executeForBatch(List<AddItemState> itemStates) {
+  ValidationResult executeForBatch(List<ItemDetailState> itemStates) {
     for (int i = 0; i < itemStates.length; i++) {
       final itemState = itemStates[i];
       if (itemState.name.trim().isEmpty) {

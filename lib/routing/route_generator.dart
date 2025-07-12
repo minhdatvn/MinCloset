@@ -7,11 +7,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/outfit.dart';
-import 'package:mincloset/notifiers/add_item_notifier.dart';
+import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/notifiers/log_wear_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/about_legal_page.dart';
-import 'package:mincloset/screens/add_item_screen.dart';
+import 'package:mincloset/screens/item_detail_screen.dart';
 import 'package:mincloset/screens/analysis_loading_screen.dart';
 import 'package:mincloset/screens/background_remover_page.dart';
 import 'package:mincloset/screens/badge_detail_page.dart';
@@ -54,9 +54,9 @@ class RouteGenerator {
           );
 
       case AppRoutes.addItem:
-        final itemArgs = args as ItemNotifierArgs?;
+        final itemArgs = args as ItemDetailNotifierArgs?;
         return AnimatePageRoute<bool>( // Sử dụng lớp mới
-          page: AddItemScreen(
+          page: ItemDetailScreen(
             itemToEdit: itemArgs?.itemToEdit,
             preAnalyzedState: itemArgs?.preAnalyzedState,
           ),
@@ -64,7 +64,7 @@ class RouteGenerator {
         );
 
       case AppRoutes.batchAddItem:
-        return MaterialPageRoute<bool>(builder: (_) => const BatchAddItemScreen(), settings: settings);
+        return MaterialPageRoute<bool>(builder: (_) => const BatchItemDetailScreen(), settings: settings);
 
       case AppRoutes.outfitBuilder:
         final suggestionResult = args as SuggestionResult?;

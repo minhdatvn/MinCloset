@@ -1,15 +1,15 @@
 // lib/states/batch_add_item_state.dart
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mincloset/notifiers/add_item_notifier.dart';
+import 'package:mincloset/notifiers/item_detail_notifier.dart';
 
 enum AnalysisStage { preparing, analyzing } // <<< Enum để định nghĩa các giai đoạn loading >>>
 
 @immutable
-class BatchAddItemState extends Equatable {
+class BatchItemDetailState extends Equatable {
   final bool isLoading;
   final bool analysisSuccess;
-  final List<ItemNotifierArgs> itemArgsList;
+  final List<ItemDetailNotifierArgs> itemArgsList;
   final int currentIndex;
   final bool isSaving;
   final bool saveSuccess;
@@ -23,7 +23,7 @@ class BatchAddItemState extends Equatable {
   final int totalItemsToProcess;
   final int itemsProcessed;
 
-  const BatchAddItemState({
+  const BatchItemDetailState({
     this.isLoading = false,
     this.analysisSuccess = false,
     this.itemArgsList = const [],
@@ -37,10 +37,10 @@ class BatchAddItemState extends Equatable {
     this.itemsProcessed = 0,
   });
 
-  BatchAddItemState copyWith({
+  BatchItemDetailState copyWith({
     bool? isLoading,
     bool? analysisSuccess,
-    List<ItemNotifierArgs>? itemArgsList,
+    List<ItemDetailNotifierArgs>? itemArgsList,
     int? currentIndex,
     bool? isSaving,
     bool? saveSuccess,
@@ -52,7 +52,7 @@ class BatchAddItemState extends Equatable {
     bool clearAnalysisError = false,
     bool clearSaveError = false,
   }) {
-    return BatchAddItemState(
+    return BatchItemDetailState(
       isLoading: isLoading ?? this.isLoading,
       analysisSuccess: analysisSuccess ?? this.analysisSuccess,
       itemArgsList: itemArgsList ?? this.itemArgsList,

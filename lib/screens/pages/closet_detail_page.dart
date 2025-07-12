@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/clothing_item.dart';
-import 'package:mincloset/notifiers/add_item_notifier.dart';
+import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/notifiers/closet_detail_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/providers/event_providers.dart';
@@ -279,7 +279,7 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
             if (state.isMultiSelectMode) {
               notifier.toggleItemSelection(item.id);
             } else {
-              final wasChanged = await Navigator.pushNamed(context, AppRoutes.addItem, arguments: ItemNotifierArgs(tempId: item.id, itemToEdit: item));
+              final wasChanged = await Navigator.pushNamed(context, AppRoutes.addItem, arguments: ItemDetailNotifierArgs(tempId: item.id, itemToEdit: item));
               if (wasChanged == true) {
                 setState(() => _didChange = true);
                 ref.read(itemChangedTriggerProvider.notifier).state++;

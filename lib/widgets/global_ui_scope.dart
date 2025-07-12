@@ -31,7 +31,7 @@ class _GlobalUiScopeState extends ConsumerState<GlobalUiScope> {
         final viewPadding = MediaQuery.of(context).viewPadding;
         const mascotWidth = 80.0;
         final double initialDx = size.width - mascotWidth - 16.0;
-        final double initialDy = viewPadding.top + kToolbarHeight + 20.0;
+        final double initialDy = viewPadding.top + kToolbarHeight + 420.0;
         ref
             .read(questMascotProvider.notifier)
             .updatePosition(Offset(initialDx, initialDy));

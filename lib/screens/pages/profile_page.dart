@@ -305,6 +305,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     const double chartSize = 90;
 
+    // Hàm helper để cắt chuỗi
+    String _truncateText(String text, int maxLength) {
+      if (text.length <= maxLength) {
+        return text;
+      }
+      return '${text.substring(0, maxLength)}...';
+    }
+
     return Card(
       elevation: 0,
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -318,12 +326,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             Expanded(
-              // 1. Center widget để căn giữa toàn bộ nội dung (chart + chú giải)
               child: Center(
                 child: Row(
-                  mainAxisSize: MainAxisSize.min, // 2. Row chỉ chiếm không gian cần thiết
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // --- BIỂU ĐỒ TRÒN ---
                     SizedBox(
                       width: chartSize,
                       height: chartSize,
@@ -336,7 +342,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       ),
                     ),
                     const SizedBox(width: 24),
-                    // --- KHU VỰC CHÚ GIẢI ---
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -344,11 +349,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         final percentage = (entry.value / totalValue * 100);
                         final color = (specificColors ?? AppChartColors.defaultChartColors)[sortedEntries.indexOf(entry) % (specificColors ?? AppChartColors.defaultChartColors).length];
                         
+                        // Áp dụng hàm cắt chuỗi cho tên danh mục
+                        final truncatedName = _truncateText(entry.key, 10);
+
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 2.0),
                           child: Row(
                             children: [
-                              // Chấm màu hình vuông bo góc
                               Container(
                                 width: 12,
                                 height: 12,
@@ -358,12 +365,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              // 3. Kết hợp Tên và % trong cùng một Text
                               RichText(
                                 text: TextSpan(
                                   style: Theme.of(context).textTheme.bodyMedium,
                                   children: [
-                                    TextSpan(text: '${entry.key} '),
+                                    // Hiển thị tên đã được cắt ngắn
+                                    TextSpan(text: '$truncatedName '),
                                     TextSpan(
                                       text: '${percentage.toStringAsFixed(0)}%',
                                       style: TextStyle(

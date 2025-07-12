@@ -191,7 +191,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: ListTile(
                 leading: Icon(Icons.flag_outlined, color: Theme.of(context).colorScheme.primary),
-                title: const Text("Quests & Achievements", style: TextStyle(fontWeight: FontWeight.bold)),
+                title: const Text("Achievements", style: TextStyle(fontWeight: FontWeight.bold)),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                 onTap: () {
                   Navigator.pushNamed(context, AppRoutes.quests);

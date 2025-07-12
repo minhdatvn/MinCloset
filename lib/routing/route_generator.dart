@@ -14,6 +14,7 @@ import 'package:mincloset/screens/about_legal_page.dart';
 import 'package:mincloset/screens/add_item_screen.dart';
 import 'package:mincloset/screens/analysis_loading_screen.dart';
 import 'package:mincloset/screens/background_remover_page.dart';
+import 'package:mincloset/screens/badge_detail_page.dart';
 import 'package:mincloset/screens/batch_add_item_screen.dart';
 import 'package:mincloset/screens/calendar_page.dart';
 import 'package:mincloset/screens/city_selection_screen.dart';
@@ -155,6 +156,12 @@ class RouteGenerator {
       
       case AppRoutes.quests:
         return MaterialPageRoute(builder: (_) => const QuestsPage());
+
+      case AppRoutes.badgeDetail:
+        if (args is BadgeDetailPageArgs) {
+          return AnimatePageRoute(page: BadgeDetailPage(args: args));
+        }
+        return _errorRoute();
 
       default:
         return _errorRoute();

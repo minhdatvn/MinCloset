@@ -306,7 +306,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     const double chartSize = 90;
 
     // Hàm helper để cắt chuỗi
-    String _truncateText(String text, int maxLength) {
+    String truncateText(String text, int maxLength) {
       if (text.length <= maxLength) {
         return text;
       }
@@ -350,7 +350,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         final color = (specificColors ?? AppChartColors.defaultChartColors)[sortedEntries.indexOf(entry) % (specificColors ?? AppChartColors.defaultChartColors).length];
                         
                         // Áp dụng hàm cắt chuỗi cho tên danh mục
-                        final truncatedName = _truncateText(entry.key, 10);
+                        final truncatedName = truncateText(entry.key, 10);
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 2.0),

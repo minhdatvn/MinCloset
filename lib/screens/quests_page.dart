@@ -2,9 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/models/badge.dart' as model;
+import 'package:mincloset/models/achievement.dart';
 import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/achievements_page_notifier.dart';
+import 'package:mincloset/routing/app_routes.dart';
+import 'package:mincloset/screens/badge_detail_page.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
 
 // Trả về dạng ConsumerWidget đơn giản
@@ -18,7 +20,7 @@ class QuestsPage extends ConsumerWidget {
 
     return PageScaffold(
       appBar: AppBar(
-        title: const Text('Quests & Achievements'),
+        title: const Text('Achievements'),
       ),
       body: RefreshIndicator(
         onRefresh: notifier.loadData,
@@ -29,7 +31,7 @@ class QuestsPage extends ConsumerWidget {
                 children: [
                   _buildSectionTitle(context, 'Your Badges'),
                   const SizedBox(height: 8),
-                  _buildBadgesGrid(context, state.allBadges, state.unlockedBadgeIds),
+                  _buildBadgesGrid(context, state),
                   const SizedBox(height: 24),
                   _buildSectionTitle(context, 'In Progress'),
                   if (state.inProgressQuests.isEmpty)
@@ -38,13 +40,7 @@ class QuestsPage extends ConsumerWidget {
                       child: Text('No active quests. Great job!'),
                     ))
                   else
-                    ...state.inProgressQuests.map((quest) => _QuestCard(quest: quest)),
-                  
-                  if (state.completedQuests.isNotEmpty) ...[
-                    const SizedBox(height: 24),
-                    _buildSectionTitle(context, 'Completed'),
-                    ...state.completedQuests.map((quest) => _QuestCard(quest: quest)),
-                  ],
+                    ...state.inProgressQuests.map((quest) => QuestCard(quest: quest)),
                 ],
               ),
       ),
@@ -61,8 +57,8 @@ class QuestsPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildBadgesGrid(BuildContext context, List<model.Badge> allBadges, Set<String> unlockedIds) {
-    if (allBadges.isEmpty) return const SizedBox.shrink();
+  Widget _buildBadgesGrid(BuildContext context, AchievementsPageState state) {
+    if (state.allBadges.isEmpty) return const SizedBox.shrink();
 
     return GridView.builder(
       shrinkWrap: true,
@@ -72,20 +68,37 @@ class QuestsPage extends ConsumerWidget {
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
       ),
-      itemCount: allBadges.length,
+      itemCount: state.allBadges.length,
       itemBuilder: (context, index) {
-        final model.Badge badge = allBadges[index];
-        final isUnlocked = unlockedIds.contains(badge.id);
+        final badge = state.allBadges[index];
+        final isUnlocked = state.unlockedBadgeIds.contains(badge.id);
 
-        return Tooltip(
-          message: '${badge.name}\n${badge.description}',
-          child: Opacity(
-            opacity: isUnlocked ? 1.0 : 0.3,
-            child: Image.asset(
-              badge.imagePath,
-              errorBuilder: (ctx, err, stack) => Container(
-                color: Colors.grey.shade200,
-                child: const Icon(Icons.shield_outlined, color: Colors.grey),
+        return GestureDetector(
+          onTap: () {
+            final achievement = state.allAchievements.firstWhere(
+              (a) => a.badgeId == badge.id,
+              orElse: () => const Achievement(id: '', name: '', description: '', badgeId: '', requiredQuestIds: []),
+            );
+
+            // Quan trọng: Vì huy hiệu chưa mở khóa nên danh sách quest hoàn thành sẽ rỗng
+            final questsForBadge = state.completedQuestsByAchievement[achievement.id] ?? [];
+
+            Navigator.pushNamed(
+              context, 
+              AppRoutes.badgeDetail, 
+              arguments: BadgeDetailPageArgs(badge: badge, quests: questsForBadge, isUnlocked: isUnlocked)
+            );
+          },
+          child: Tooltip(
+            message: '${badge.name}\n${badge.description}',
+            child: Opacity(
+              opacity: isUnlocked ? 1.0 : 0.3,
+              child: Image.asset(
+                badge.imagePath,
+                errorBuilder: (ctx, err, stack) => Container(
+                  color: Colors.grey.shade200,
+                  child: const Icon(Icons.shield_outlined, color: Colors.grey),
+                ),
               ),
             ),
           ),
@@ -95,9 +108,9 @@ class QuestsPage extends ConsumerWidget {
   }
 }
 
-class _QuestCard extends StatelessWidget {
+class QuestCard extends StatelessWidget {
   final Quest quest;
-  const _QuestCard({required this.quest});
+  const QuestCard({super.key, required this.quest});
 
   String _getEventLabel(QuestEvent event) {
     switch (event) {

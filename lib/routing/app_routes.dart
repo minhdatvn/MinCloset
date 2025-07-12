@@ -22,4 +22,5 @@ class AppRoutes {
   static const String imageEditor = '/image-editor';
   static const avatarCropper = '/avatar-cropper';
   static const String quests = '/quests'; 
+  static const String badgeDetail = '/badge-detail';
 }

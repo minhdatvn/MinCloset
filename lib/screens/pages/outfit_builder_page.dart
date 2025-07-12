@@ -17,6 +17,8 @@ import 'package:mincloset/states/outfit_builder_state.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:mincloset/widgets/item_search_filter_bar.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
+import 'package:mincloset/providers/ui_providers.dart';
+import 'package:mincloset/routing/app_routes.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 import 'package:uuid/uuid.dart';
 
@@ -233,7 +235,8 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
       // Khi cờ saveSuccess chuyển từ false -> true
       if (next.saveSuccess && previous?.saveSuccess == false) {
         // Pop màn hình và trả về true
-        Navigator.of(context).pop(true);
+        ref.read(mainScreenIndexProvider.notifier).state = 2;
+        Navigator.of(context).popUntil((route) => route.settings.name == AppRoutes.main);
       }
 
       // Hiển thị lỗi nếu có

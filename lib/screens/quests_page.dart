@@ -8,6 +8,7 @@ import 'package:mincloset/notifiers/achievements_page_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/badge_detail_page.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
+import 'package:mincloset/providers/ui_providers.dart';
 
 // Trả về dạng ConsumerWidget đơn giản
 class QuestsPage extends ConsumerWidget {
@@ -40,7 +41,21 @@ class QuestsPage extends ConsumerWidget {
                       child: Text('No active quests. Great job!'),
                     ))
                   else
-                    ...state.inProgressQuests.map((quest) => QuestCard(quest: quest)),
+                    ...state.inProgressQuests.map((quest) {
+                      // Bọc QuestCard trong GestureDetector
+                      return GestureDetector(
+                        onTap: () {
+                          // Nếu quest có hintKey, kích hoạt gợi ý
+                          if (quest.hintKey != null) {
+                            final hintNotifier = ref.read(questHintProvider.notifier);
+                            hintNotifier.triggerHint(quest.hintKey!);
+                            // Đóng trang Quests sau khi kích hoạt
+                            Navigator.of(context).pop();
+                          }
+                        },
+                        child: QuestCard(quest: quest),
+                      );
+                    }),
                 ],
               ),
       ),
@@ -129,7 +144,7 @@ class QuestCard extends StatelessWidget {
     final isCompleted = quest.status == QuestStatus.completed;
     final cardColor = isCompleted ? Colors.green.withAlpha(20) : theme.colorScheme.surfaceContainerHighest;
     final borderColor = isCompleted ? Colors.green : Colors.grey.shade300;
-    final iconData = isCompleted ? Icons.check_circle : Icons.stream;
+    final iconData = isCompleted ? Icons.check_circle : (quest.hintKey != null ? Icons.lightbulb_outline : Icons.stream);
     final iconColor = isCompleted ? Colors.green : theme.colorScheme.primary;
 
     return Card(
@@ -147,6 +162,8 @@ class QuestCard extends StatelessWidget {
                 Icon(iconData, color: iconColor),
                 const SizedBox(width: 8),
                 Expanded(child: Text(quest.title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold))),
+                if (quest.status == QuestStatus.inProgress && quest.hintKey != null)
+                  const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey)
               ],
             ),
             const SizedBox(height: 8),

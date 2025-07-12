@@ -14,6 +14,8 @@ import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:mincloset/providers/ui_providers.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class OutfitsHubPage extends ConsumerStatefulWidget {
   const OutfitsHubPage({super.key});
@@ -290,7 +292,12 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
               itemBuilder: (ctx, index) {
                 // Ô đầu tiên luôn là nút "Thêm mới"
                 if (index == 0) {
-                  return _buildAddOutfitCard(context, ref);
+                  return Showcase(
+                    key: QuestHintKeys.createOutfitHintKey,
+                    title: 'Outfit Builder',
+                    description: 'Tap here to manually mix and match your items and create your own perfect outfits.',
+                    child: _buildAddOutfitCard(context, ref),
+                  );
                 }
 
                 // Nếu index nằm ngoài phạm vi của list, đó là ô loading

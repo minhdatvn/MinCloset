@@ -1,7 +1,6 @@
 // lib/models/quest.dart
 import 'package:equatable/equatable.dart';
 
-// THAY ĐỔI 1: Thêm các sự kiện cụ thể hơn
 enum QuestEvent {
   topAdded,
   bottomAdded,
@@ -45,8 +44,9 @@ class Quest extends Equatable {
   final QuestGoal goal;
   final QuestStatus status;
   final QuestProgress progress;
-  // THAY ĐỔI 2: Thêm trường để xác định nhiệm vụ điều kiện
   final String? prerequisiteQuestId;
+  // <<< THÊM DÒNG NÀY >>>
+  final String? hintKey;
 
   const Quest({
     required this.id,
@@ -55,7 +55,8 @@ class Quest extends Equatable {
     required this.goal,
     this.status = QuestStatus.locked,
     this.progress = const QuestProgress(),
-    this.prerequisiteQuestId, // Thêm vào constructor
+    this.prerequisiteQuestId,
+    this.hintKey,
   });
 
   Quest copyWith({
@@ -70,6 +71,7 @@ class Quest extends Equatable {
       status: status ?? this.status,
       progress: progress ?? this.progress,
       prerequisiteQuestId: prerequisiteQuestId,
+      hintKey: hintKey, // Giữ lại hintKey
     );
   }
 
@@ -96,5 +98,5 @@ class Quest extends Equatable {
   }
 
   @override
-@override
-List<Object?> get props => [id, title, description, goal, status, progress, prerequisiteQuestId];}
+  List<Object?> get props => [id, title, description, goal, status, progress, prerequisiteQuestId, hintKey]; 
+}

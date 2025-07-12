@@ -13,6 +13,8 @@ import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/log_wear_state.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:mincloset/providers/ui_providers.dart';
+import 'package:showcaseview/showcaseview.dart';  
 
 class CalendarPage extends ConsumerStatefulWidget {
   final DateTime? initialDate;
@@ -134,12 +136,17 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
           : AppBar(
               title: const Text('Style Journal'),
               actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: TextButton.icon(
-                    onPressed: _selectedDay == null ? null : () => _showLogWearActionSheet(context),
-                    icon: const Icon(Icons.add_task_outlined),
-                    label: const Text('Add'),
+                Showcase(
+                  key: QuestHintKeys.logWearHintKey,
+                  title: 'Log Your Wear',
+                  description: 'Select a day and tap here to log the items or outfits you wore. This helps you track your style journey!',
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: TextButton.icon(
+                      onPressed: _selectedDay == null ? null : () => _showLogWearActionSheet(context),
+                      icon: const Icon(Icons.add_task_outlined),
+                      label: const Text('Add'),
+                    ),
                   ),
                 )
               ],

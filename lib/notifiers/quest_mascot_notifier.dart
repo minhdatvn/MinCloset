@@ -69,7 +69,6 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     final dx = _prefs!.getDouble(_positionDxKey);
     final dy = _prefs!.getDouble(_positionDyKey);
 
-    // === BẮT ĐẦU LOGIC MỚI ===
     // Kiểm tra xem người dùng đã hoàn thành hướng dẫn chưa
     final bool hasCompletedTutorial = _prefs!.getBool('has_completed_tutorial') ?? false;
 
@@ -81,7 +80,6 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
         isVisible: hasCompletedTutorial,
       );
     }
-    // === KẾT THÚC LOGIC MỚI ===
   }
 
   Future<void> updatePosition(Offset newPosition) async {

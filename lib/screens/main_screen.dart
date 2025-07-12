@@ -19,24 +19,18 @@ import 'package:path_provider/path_provider.dart';
 import 'package:showcaseview/showcaseview.dart'; 
 import 'package:shared_preferences/shared_preferences.dart';
 
-// THAY ĐỔI 1: Chuyển StatelessWidget thành ConsumerWidget
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
 
   @override
-  // Thêm WidgetRef ref vào hàm build
   Widget build(BuildContext context, WidgetRef ref) {
+
     return ShowCaseWidget(
-      // THAY ĐỔI 2: Cập nhật onFinish
-      onFinish: () async {
-        // Kết thúc luồng hướng dẫn của tutorialProvider
-        ref.read(tutorialProvider.notifier).dismissTutorial();
-        // Gọi mascot xuất hiện
-        final screenWidth = MediaQuery.of(context).size.width;
+      onFinish: () async { 
+        ref.read(tutorialProvider.notifier).dismissTutorial(); // Kết thúc luồng hướng dẫn của tutorialProvider
+        final screenWidth = MediaQuery.of(context).size.width; // Gọi mascot xuất hiện
         ref.read(questMascotProvider.notifier).showNewQuestNotification(screenWidth);
-        
-        // Đánh dấu là đã hoàn thành hướng dẫn trong SharedPreferences
-        final prefs = await SharedPreferences.getInstance();
+        final prefs = await SharedPreferences.getInstance(); // Đánh dấu là đã hoàn thành hướng dẫn trong SharedPreferences
         await prefs.setBool('has_completed_tutorial', true);
       },
       builder: (context) => const MainScreenView(),
@@ -71,8 +65,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     _menuOverlay = null;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Đọc trạng thái từ SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = await SharedPreferences.getInstance(); // Đọc trạng thái từ SharedPreferences
       final bool hasCompletedTutorial = prefs.getBool('has_completed_tutorial') ?? false;
       // Chỉ bắt đầu hướng dẫn nếu chưa hoàn thành
       if (!hasCompletedTutorial && mounted) {
@@ -278,6 +271,29 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
 
   @override
   Widget build(BuildContext context) {
+    // <<< SỬA LẠI LOGIC LISTEN CHO ĐƠN GIẢN VÀ ĐÚNG ĐẮN >>>
+    ref.listen<QuestHintState?>(questHintProvider, (previous, next) {
+      if (next != null && next.hintKey != null) {
+        // Delay 1 frame để đảm bảo trang/tab đã build xong
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            // Nếu có routeName, điều hướng đến trang riêng
+            if (next.routeName != null) {
+              Navigator.of(context).pushNamed(next.routeName!).then((_) {
+                // Hiển thị showcase sau khi quay lại từ trang đó (nếu cần)
+                // Tuy nhiên, logic này có thể không cần thiết cho CalendarPage
+                // vì showcase nên được đặt bên trong chính trang đó.
+              });
+            } else {
+              // Trường hợp thông thường, chỉ cần hiển thị showcase
+              ShowCaseWidget.of(context).startShowCase([next.hintKey!]);
+            }
+            // Luôn reset hint sau khi đã xử lý
+            ref.read(questHintProvider.notifier).clearHint();
+          }
+        });
+      }
+    });
 
     final selectedPageIndex = ref.watch(mainScreenIndexProvider);
 
@@ -346,41 +362,46 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
                   icon: Icon(Icons.door_sliding_outlined),
                   selectedIcon: Icon(Icons.door_sliding),
                   label: 'Closets'),
-              Showcase.withWidget(
-                key: _addKey,
-                height: 250,
-                width: MediaQuery.of(context).size.width * 0.7,
-                container: _buildMascotContainer(context, forStep: TutorialStep.showAddItem),
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 9.5),
-                  child: GestureDetector(
-                    onTap: _toggleMenu,
-                    behavior: HitTestBehavior.opaque,
-                    child: Tooltip(
-                      message: "Add item",
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 300),
-                            transitionBuilder: (child, animation) =>
-                                ScaleTransition(scale: animation, child: child),
-                            child: _isMenuOpen
-                                ? Icon(
-                                    Icons.cancel,
-                                    key: const ValueKey('cancel_icon'),
-                                    size: 45,
-                                    color: iconColor,
-                                  )
-                                : Icon(
-                                    Icons.add_circle_outline,
-                                    key: const ValueKey('add_icon'),
-                                    size: 45,
-                                    color: iconColor,
-                                  ),
-                          ),
-                          Text('Add items', style: labelStyle),
-                        ],
+              Showcase(
+                key: QuestHintKeys.addItemHintKey,
+                title: 'Add Items',
+                description: 'Tap here to digitize your clothes by taking a photo or choosing from your library.',
+                child: Showcase.withWidget(
+                  key: _addKey,
+                  height: 250,
+                  width: MediaQuery.of(context).size.width * 0.7,
+                  container: _buildMascotContainer(context, forStep: TutorialStep.showAddItem),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 9.5),
+                    child: GestureDetector(
+                      onTap: _toggleMenu,
+                      behavior: HitTestBehavior.opaque,
+                      child: Tooltip(
+                        message: "Add item",
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              transitionBuilder: (child, animation) =>
+                                  ScaleTransition(scale: animation, child: child),
+                              child: _isMenuOpen
+                                  ? Icon(
+                                      Icons.cancel,
+                                      key: const ValueKey('cancel_icon'),
+                                      size: 45,
+                                      color: iconColor,
+                                    )
+                                  : Icon(
+                                      Icons.add_circle_outline,
+                                      key: const ValueKey('add_icon'),
+                                      size: 45,
+                                      color: iconColor,
+                                    ),
+                            ),
+                            Text('Add items', style: labelStyle),
+                          ],
+                        ),
                       ),
                     ),
                   ),

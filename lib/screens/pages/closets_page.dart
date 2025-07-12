@@ -18,6 +18,8 @@ import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:mincloset/helpers/dialog_helpers.dart';
+import 'package:mincloset/providers/ui_providers.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class ClosetsPage extends ConsumerStatefulWidget {
   const ClosetsPage({super.key});
@@ -31,6 +33,12 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    // Lắng nghe sự thay đổi từ provider và điều khiển TabController
+    ref.listenManual(closetsSubTabIndexProvider, (previous, next) {
+      if (_tabController.index != next) {
+        _tabController.animateTo(next);
+      }
+    });
   }
 
   @override
@@ -393,26 +401,29 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                   ),
                 );
               }
-              return Card(
-                elevation: 0,
-                color: theme.colorScheme.primary.withValues(alpha:0.05),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                child: ListTile(
-                  leading: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),
-                  title: Text('Add new closet', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
-                  onTap: () {
-                    showAnimatedDialog(
-                      context,
-                      builder: (ctx) => ClosetFormDialog(
-                        // Logic onSubmit giờ chỉ cần gọi notifier
-                        onSubmit: (name) async {
-                          await ref.read(closetsPageProvider.notifier).addCloset(name);
-                          // Không cần trả về gì cả
-                          return null;
-                        },
-                      ),
-                    );
-                  },
+              return Showcase(
+                key: QuestHintKeys.createClosetHintKey,
+                title: 'Create a New Closet',
+                description: 'Tap here to create a new closet, helping you organize your clothes for different purposes like "Work" or "Gym".',
+                child: Card(
+                  elevation: 0,
+                  color: theme.colorScheme.primary.withOpacity(0.05),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: ListTile(
+                    leading: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),
+                    title: Text('Add new closet', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
+                    onTap: () {
+                      showAnimatedDialog(
+                        context,
+                        builder: (ctx) => ClosetFormDialog(
+                          onSubmit: (name) async {
+                            await ref.read(closetsPageProvider.notifier).addCloset(name);
+                            return null;
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ),
               );
             }

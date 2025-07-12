@@ -20,6 +20,7 @@ import 'package:mincloset/widgets/action_card.dart';
 import 'package:mincloset/widgets/closet_form_dialog.dart';
 import 'package:mincloset/widgets/section_header.dart';
 import 'package:mincloset/widgets/weekly_planner.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 final recentItemsProvider =
     FutureProvider.autoDispose<List<ClothingItem>>((ref) async {
@@ -254,232 +255,237 @@ class _HomePageState extends ConsumerState<HomePage> {
   final profileState = ref.watch(profileProvider);
   final String backgroundImagePath = state.backgroundImagePath ?? 'assets/images/weather_backgrounds/default_1.webp';
   
-  return Card(
-    elevation: 0,
-    color: Colors.transparent,
-    shape: RoundedRectangleBorder(
-      side: BorderSide(
-        color: theme.colorScheme.outline,
-        width: 1,
+  return Showcase(
+      key: QuestHintKeys.getSuggestionHintKey,
+      title: 'AI Suggestions',
+      description: 'Describe your purpose for the day (e.g., "coffee with friends", "work meeting") and tap the send button to get a personalized outfit suggestion!',
+      child: Card(
+      elevation: 0,
+      color: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        side: BorderSide(
+          color: theme.colorScheme.outline,
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(16),
       ),
-      borderRadius: BorderRadius.circular(16),
-    ),
-    clipBehavior: Clip.antiAlias,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // ===== HEADER SECTION =====
-        ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(15.0)),
-          child: SizedBox(
-            height: 120,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                // Lớp 1: Ảnh nền (Không đổi)
-                if (profileState.showWeatherImage)
-                  Image.asset(
-                    backgroundImagePath,
-                    key: ValueKey(backgroundImagePath),
-                    fit: BoxFit.cover,
-                  )
-                else
-                  Container(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                  ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ===== HEADER SECTION =====
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(15.0)),
+            child: SizedBox(
+              height: 120,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Lớp 1: Ảnh nền (Không đổi)
+                  if (profileState.showWeatherImage)
+                    Image.asset(
+                      backgroundImagePath,
+                      key: ValueKey(backgroundImagePath),
+                      fit: BoxFit.cover,
+                    )
+                  else
+                    Container(
+                      color: theme.colorScheme.surfaceContainerHighest,
+                    ),
 
-                // Lớp 2: Gradient nền trắng để hòa vào nội dung (KHÔI PHỤC LẠI)
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [
-                          theme.scaffoldBackgroundColor,
-                          theme.scaffoldBackgroundColor.withValues(alpha:0),
-                        ],
-                        stops: const [0.0, 0.6],
+                  // Lớp 2: Gradient nền trắng để hòa vào nội dung (KHÔI PHỤC LẠI)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            theme.scaffoldBackgroundColor,
+                            theme.scaffoldBackgroundColor.withValues(alpha:0),
+                          ],
+                          stops: const [0.0, 0.6],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                
-                // Lớp 3: Nội dung (Nút Refresh và Thông tin thời tiết)
-                // Chúng ta sẽ đặt cả hai vào trong cùng một Stack con để quản lý
-                Stack(
-                  children: [
-                    if (profileState.showWeatherImage)
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: IconButton(
-                          iconSize: 20,
-                          icon: state.isRefreshingBackground
-                              ? const SizedBox(
-                                    width: 14,
-                                    height: 14,
-                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                  )
-                              : const Icon(Icons.refresh, color: Colors.black54),
-                          style: IconButton.styleFrom(
-                            backgroundColor: Colors.white.withValues(alpha:0.5),
-                          ),
-                          onPressed: state.isRefreshingBackground ? null : ref.read(homeProvider.notifier).refreshBackgroundImage,
-                        ),
-                      ),
-                    
-                    // Thông tin thời tiết được đặt trong Positioned như cũ
-                    if (state.weather != null)
-                      Positioned(
-                        bottom: 4,
-                        left: 16,
-                        right: 16,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(
-                              _getWeatherIcon(state.weather!['weather'][0]['icon'] as String),
-                              color: Colors.orange.shade700, // << Đổi lại màu chữ và icon
-                              size: 20,
+                  
+                  // Lớp 3: Nội dung (Nút Refresh và Thông tin thời tiết)
+                  // Chúng ta sẽ đặt cả hai vào trong cùng một Stack con để quản lý
+                  Stack(
+                    children: [
+                      if (profileState.showWeatherImage)
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: IconButton(
+                            iconSize: 20,
+                            icon: state.isRefreshingBackground
+                                ? const SizedBox(
+                                      width: 14,
+                                      height: 14,
+                                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                    )
+                                : const Icon(Icons.refresh, color: Colors.black54),
+                            style: IconButton.styleFrom(
+                              backgroundColor: Colors.white.withValues(alpha:0.5),
                             ),
-                            const SizedBox(width: 8),
-                            Flexible(
-                              child: Text(
-                                state.weather!['name'] as String,
+                            onPressed: state.isRefreshingBackground ? null : ref.read(homeProvider.notifier).refreshBackgroundImage,
+                          ),
+                        ),
+                      
+                      // Thông tin thời tiết được đặt trong Positioned như cũ
+                      if (state.weather != null)
+                        Positioned(
+                          bottom: 4,
+                          left: 16,
+                          right: 16,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                _getWeatherIcon(state.weather!['weather'][0]['icon'] as String),
+                                color: Colors.orange.shade700, // << Đổi lại màu chữ và icon
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Flexible(
+                                child: Text(
+                                  state.weather!['name'] as String,
+                                  style: const TextStyle(
+                                    color: Colors.black87, // << Đổi lại màu chữ
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C',
                                 style: const TextStyle(
                                   color: Colors.black87, // << Đổi lại màu chữ
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
                                 ),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
                               ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C',
-                              style: const TextStyle(
-                                color: Colors.black87, // << Đổi lại màu chữ
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+            
+            // <<< Thêm ô nhập liệu và nút bấm mới >>>
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end, // Căn lề phải cho bộ đếm
+              children: [
+                TextField(
+                  controller: _purposeController,
+                  maxLength: 150,
+                  maxLines: null, 
+                  decoration: InputDecoration(
+                    hintText: 'Purpose? (e.g. coffee, date night...)',
+                    border: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.transparent),
+                    ),
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.transparent),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: theme.colorScheme.primary, width: 2.0),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    counterText: "", // Quan trọng: Ẩn bộ đếm mặc định
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: state.isLoading 
+                        ? null
+                        : () {
+                            final notifier = ref.read(homeProvider.notifier);
+                            notifier.getNewSuggestion(purpose: _purposeController.text);
+                            FocusScope.of(context).unfocus();
+                        }
+                    )
+                  ),
+                ),
+                // <<< BỘ ĐẾM MỚI CỦA CHÚNG TA >>>
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Text(
+                    '$_currentPurposeLength/150',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha:0.6),
+                        ),
+                  ),
                 ),
               ],
             ),
-          ),
-        ),
-          
-          // <<< Thêm ô nhập liệu và nút bấm mới >>>
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end, // Căn lề phải cho bộ đếm
-            children: [
-              TextField(
-                controller: _purposeController,
-                maxLength: 150,
-                maxLines: null, 
-                decoration: InputDecoration(
-                  hintText: 'Purpose? (e.g. coffee, date night...)',
-                  border: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.transparent),
-                  ),
-                  enabledBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.transparent),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: theme.colorScheme.primary, width: 2.0),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  counterText: "", // Quan trọng: Ẩn bộ đếm mặc định
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: state.isLoading 
-                      ? null
-                      : () {
-                          final notifier = ref.read(homeProvider.notifier);
-                          notifier.getNewSuggestion(purpose: _purposeController.text);
-                          FocusScope.of(context).unfocus();
-                      }
-                  )
-                ),
-              ),
-              // <<< BỘ ĐẾM MỚI CỦA CHÚNG TA >>>
-              Padding(
-                padding: const EdgeInsets.only(top: 4.0),
-                child: Text(
-                  '$_currentPurposeLength/150',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha:0.6),
-                      ),
-                ),
-              ),
-            ],
-          ),
-          // <<< KẾT THÚC THAY ĐỔI 3 >>>
+            // <<< KẾT THÚC THAY ĐỔI 3 >>>
 
-          // ===== PHẦN 2: NỘI DUNG GỢI Ý (NỀN TRẮNG) =====
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: 
-            state.isLoading
-              ? const Center(heightFactor: 5, child: CircularProgressIndicator())
-              : state.suggestionResult != null
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildSuggestionPlaceholder(state.suggestionResult!),
-                    const SizedBox(height: 16),
-                    Text(
-                      state.suggestionResult!.outfitName,
-                      style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      state.suggestionResult!.reason,
-                      style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.edit_outlined),
-                        label: const Text('Edit & Save'),
-                        onPressed: () {
-                          Navigator.pushNamed(context, AppRoutes.outfitBuilder, arguments: state.suggestionResult);
-                        },
+            // ===== PHẦN 2: NỘI DUNG GỢI Ý (NỀN TRẮNG) =====
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: 
+              state.isLoading
+                ? const Center(heightFactor: 5, child: CircularProgressIndicator())
+                : state.suggestionResult != null
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSuggestionPlaceholder(state.suggestionResult!),
+                      const SizedBox(height: 16),
+                      Text(
+                        state.suggestionResult!.outfitName,
+                        style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                       ),
+                      const SizedBox(height: 8),
+                      Text(
+                        state.suggestionResult!.reason,
+                        style: theme.textTheme.bodyMedium?.copyWith(height: 1.5),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Icons.edit_outlined),
+                          label: const Text('Edit & Save'),
+                          onPressed: () {
+                            Navigator.pushNamed(context, AppRoutes.outfitBuilder, arguments: state.suggestionResult);
+                          },
+                        ),
+                      ),
+                    ],
+                  )
+                : Center(
+                    heightFactor: 5,
+                    child: Text(
+                      state.errorMessage ?? 'Describe your purpose and tap the send button to get suggestions!',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
                     ),
-                  ],
-                )
-              : Center(
-                  heightFactor: 5,
+                  ),
+            ),
+            
+            if (state.suggestionTimestamp != null && state.suggestionResult != null) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Align(
+                  alignment: Alignment.centerRight,
                   child: Text(
-                    state.errorMessage ?? 'Describe your purpose and tap the send button to get suggestions!',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
+                    'Last updated: ${DateFormat('HH:mm, dd/MM/yyyy').format(state.suggestionTimestamp!)}',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade700, fontStyle: FontStyle.italic),
                   ),
                 ),
-          ),
-          
-          if (state.suggestionTimestamp != null && state.suggestionResult != null) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  'Last updated: ${DateFormat('HH:mm, dd/MM/yyyy').format(state.suggestionTimestamp!)}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade700, fontStyle: FontStyle.italic),
-                ),
               ),
-            ),
-          ]
-        ],
-      ),
+            ]
+          ],
+        ),
+      )
     );
   }
 

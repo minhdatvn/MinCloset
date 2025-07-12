@@ -10,14 +10,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class QuestService {
   final SharedPreferences _prefs;
-  // THAY ĐỔI 1: Thêm dependency đến AchievementRepository và Ref
   final AchievementRepository _achievementRepo;
   final Ref _ref;
 
-  // THAY ĐỔI 2: Cập nhật constructor
   QuestService(this._prefs, this._achievementRepo, this._ref);
 
-  // ... (danh sách _allQuests không đổi)
+  // <<< THÊM hintKey VÀO ĐỊNH NGHĨA QUESTS >>>
   static final List<Quest> _allQuests = [
     const Quest(
       id: 'first_steps',
@@ -27,7 +25,8 @@ class QuestService {
         QuestEvent.topAdded: 3,
         QuestEvent.bottomAdded: 3,
       }),
-      status: QuestStatus.inProgress, 
+      status: QuestStatus.inProgress,
+      hintKey: 'add_item_hint', // Gợi ý chỉ vào nút "Add Item"
     ),
     const Quest(
       id: 'first_suggestion',
@@ -36,6 +35,7 @@ class QuestService {
       goal: QuestGoal(requiredCounts: {QuestEvent.suggestionReceived: 1}),
       status: QuestStatus.locked,
       prerequisiteQuestId: 'first_steps',
+      hintKey: 'get_suggestion_hint', // Gợi ý chỉ vào nút "Get Suggestion"
     ),
     const Quest(
       id: 'first_outfit',
@@ -44,6 +44,7 @@ class QuestService {
       goal: QuestGoal(requiredCounts: {QuestEvent.outfitCreated: 1}),
       status: QuestStatus.locked,
       prerequisiteQuestId: 'first_suggestion',
+      hintKey: 'create_outfit_hint', // Gợi ý chỉ vào nút "Create Outfits"
     ),
     const Quest(
       id: 'organize_closet',
@@ -52,6 +53,7 @@ class QuestService {
       goal: QuestGoal(requiredCounts: {QuestEvent.closetCreated: 1}),
       status: QuestStatus.locked,
       prerequisiteQuestId: 'first_outfit',
+      hintKey: 'create_closet_hint', // Gợi ý chỉ vào nút "Create New Closet"
     ),
     const Quest(
       id: 'first_log',
@@ -60,12 +62,12 @@ class QuestService {
       goal: QuestGoal(requiredCounts: {QuestEvent.logAdded: 1}),
       status: QuestStatus.locked,
       prerequisiteQuestId: 'organize_closet',
+      hintKey: 'log_wear_hint', // Gợi ý chỉ vào nút "Add" trên trang Lịch
     ),
   ];
   
   static const String _questProgressKey = 'quest_progress_key';
   
-  // ... (hàm getCurrentQuests không đổi)
   List<Quest> getCurrentQuests() {
     final questsJson = _prefs.getString(_questProgressKey);
     if (questsJson == null) {
@@ -112,7 +114,6 @@ class QuestService {
             newlyCompletedQuests.add(quests[i]);
             logger.i("Quest '${quests[i].id}' completed!");
 
-            // Kiểm tra xem đây có phải là nhiệm vụ tân thủ cuối cùng không
             if (quests[i].id == 'first_log') {
               finalBeginnerQuest = quests[i];
             }
@@ -128,18 +129,13 @@ class QuestService {
       }
     }
 
-    // Nếu nhiệm vụ cuối cùng đã hoàn thành
     if (finalBeginnerQuest != null) {
-        // Gọi hàm kiểm tra để mở khóa thành tích
         final unlockedAchievement = await _achievementRepo.checkAndUnlockAchievements(quests);
         if (unlockedAchievement != null) {
-          // Kích hoạt provider chúc mừng hoành tráng
           _ref.read(beginnerAchievementProvider.notifier).state = unlockedAchievement;
         }
     } 
-    // Nếu không phải nhiệm vụ cuối, nhưng vẫn có nhiệm vụ hoàn thành
     else if (newlyCompletedQuests.isNotEmpty) {
-      // Chỉ gửi tín hiệu cho mascot như bình thường
       _ref.read(completedQuestProvider.notifier).state = newlyCompletedQuests.first;
     }
     

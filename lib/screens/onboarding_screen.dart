@@ -49,10 +49,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Chúng ta sẽ truyền index vào _buildPage để nó biết đang ở trang nào
     final pages = [
       _buildPage(
         context,
-        imagePath: 'assets/images/badges/badge_beginner.webp', // Placeholder
+        index: 0, // << Trang đầu tiên
+        imagePath: 'assets/images/onboarding/onboarding_p1.webp', // << SỬA LẠI ĐÚNG ĐƯỜNG DẪN CỦA BẠN
         title: "A closet full of clothes...",
         subtitle: "...but nothing to wear?",
         description:
@@ -60,6 +62,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       ),
       _buildPage(
         context,
+        index: 1, // << Trang thứ hai
         imagePath: 'assets/images/badges/badge_beginner.webp', // Placeholder
         title: "MinCloset, Your Smart Closet Assistant",
         description:
@@ -92,20 +95,89 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 
-  // Widget to build the first two pages
+  // Widget to build the pages
   Widget _buildPage(BuildContext context,
-      {required String imagePath,
+      {required int index, // << THÊM THAM SỐ INDEX
+      required String imagePath,
       required String title,
       String? subtitle,
       required String description,
       bool isFeatureList = false}) {
     final theme = Theme.of(context);
+
+    // SỬ DỤNG INDEX ĐỂ KIỂM TRA, KHÔNG DÙNG IMAGEPATH NỮA
+    if (index == 0) {
+      // GIAO DIỆN MỚI CHO TRANG ĐẦU TIÊN
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          // Lớp 1: Ảnh nền toàn màn hình
+          Image.asset(
+            imagePath,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+                // Widget hiển thị khi có lỗi tải ảnh
+                return Container(
+                  color: Colors.grey.shade200,
+                  child: const Center(
+                    child: Text('Image not found.\nPlease check path in pubspec.yaml', textAlign: TextAlign.center),
+                  ),
+                );
+              },
+          ),
+          // Lớp 2: Lớp phủ gradient
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.white,
+                  Colors.white.withValues(alpha:0.8),
+                  Colors.white.withValues(alpha:0.0),
+                ],
+                stops: const [0.2, 0.7, 1.0],
+                begin: Alignment.bottomCenter,
+                end: const Alignment(0.0, -1.0 / 3.0)
+              ),
+            ),
+          ),
+          // Lớp 3: Nội dung
+          Positioned(
+            bottom: 60,
+            left: 24,
+            right: 24,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(title,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.headlineSmall
+                        ?.copyWith(fontWeight: FontWeight.bold)),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 8),
+                  Text(subtitle,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.headlineSmall),
+                ],
+                const SizedBox(height: 16),
+                Text(
+                  description,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+                ),
+              ],
+            ),
+          )
+        ],
+      );
+    }
+
+    // GIAO DIỆN CŨ CHO CÁC TRANG CÒN LẠI
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Image.asset(imagePath, height: 200),
+          Image.asset(imagePath, height: 200, errorBuilder: (context, error, stackTrace) => const Icon(Icons.image_not_supported, size: 150)),
           const SizedBox(height: 40),
           Text(title,
               textAlign: TextAlign.center,
@@ -131,7 +203,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 
-  // Widget for the final name input page
+  // ... (các hàm build còn lại không thay đổi)
   Widget _buildNamePage(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
@@ -173,14 +245,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 
-  // Page indicator dots and buttons
   Widget _buildBottomControls(BuildContext context, int pageCount) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Dots indicator
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
@@ -199,8 +269,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               ),
             ),
           ),
-
-          // Button
           ElevatedButton(
             onPressed: () {
               if (_currentPage < pageCount - 1) {

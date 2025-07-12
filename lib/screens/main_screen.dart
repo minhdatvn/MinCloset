@@ -273,23 +273,20 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
   Widget build(BuildContext context) {
     // <<< SỬA LẠI LOGIC LISTEN CHO ĐƠN GIẢN VÀ ĐÚNG ĐẮN >>>
     ref.listen<QuestHintState?>(questHintProvider, (previous, next) {
-      if (next != null && next.hintKey != null) {
-        // Delay 1 frame để đảm bảo trang/tab đã build xong
+      if (next != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            // Nếu có routeName, điều hướng đến trang riêng
+            // Chỉ xử lý điều hướng
             if (next.routeName != null) {
-              Navigator.of(context).pushNamed(next.routeName!).then((_) {
-                // Hiển thị showcase sau khi quay lại từ trang đó (nếu cần)
-                // Tuy nhiên, logic này có thể không cần thiết cho CalendarPage
-                // vì showcase nên được đặt bên trong chính trang đó.
-              });
-            } else {
-              // Trường hợp thông thường, chỉ cần hiển thị showcase
+              Navigator.of(context).pushNamed(next.routeName!);
+              // Xóa hint ngay sau khi yêu cầu điều hướng
+              ref.read(questHintProvider.notifier).clearHint();
+            } 
+            // Xử lý hint không điều hướng (cho các tab chính)
+            else if (next.hintKey != null) {
               ShowCaseWidget.of(context).startShowCase([next.hintKey!]);
+              ref.read(questHintProvider.notifier).clearHint();
             }
-            // Luôn reset hint sau khi đã xử lý
-            ref.read(questHintProvider.notifier).clearHint();
           }
         });
       }

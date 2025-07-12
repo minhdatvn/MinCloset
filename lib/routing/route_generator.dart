@@ -33,6 +33,7 @@ import 'package:mincloset/screens/webview_page.dart';
 import 'package:mincloset/screens/avatar_cropper_screen.dart';
 import 'package:mincloset/screens/quests_page.dart';
 import 'package:mincloset/screens/onboarding_screen.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class RouteGenerator {
   static const Widget _mainScreen = MainScreen();
@@ -112,7 +113,10 @@ class RouteGenerator {
       case AppRoutes.calendar:
         final initialDate = args as DateTime?;
         return AnimatePageRoute(
-          page: CalendarPage(initialDate: initialDate),
+          page: ShowCaseWidget(
+              // CalendarPage giờ là con của một ShowCaseWidget mới
+              builder: (context) => CalendarPage(initialDate: initialDate),
+            ),
         );
 
       case AppRoutes.logWearSelection:

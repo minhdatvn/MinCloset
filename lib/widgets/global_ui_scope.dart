@@ -54,7 +54,7 @@ class _GlobalUiScopeState extends ConsumerState<GlobalUiScope> {
       }
     });
 
-    // <<< BẮT ĐẦU SỬA ĐỔI: Lắng nghe sự kiện hoàn thành NHÓM NHIỆM VỤ >>>
+    // <<< Lắng nghe sự kiện hoàn thành NHÓM NHIỆM VỤ >>>
     ref.listen<Achievement?>(beginnerAchievementProvider, (previous, next) {
       if (next != null) {
         // Tìm huy hiệu tương ứng với thành tích
@@ -86,6 +86,21 @@ class _GlobalUiScopeState extends ConsumerState<GlobalUiScope> {
       if (next.errorMessage != null) {
         notificationService.showBanner(message: next.errorMessage!);
         notifier.clearMessages(); // Xóa thông báo sau khi đã hiển thị
+      }
+    });
+
+    ref.listen<QuestHintState?>(questHintProvider, (previous, next) {
+      // Nếu có state mới và state đó có yêu cầu điều hướng (routeName)
+      if (next != null && next.routeName != null) {
+        // Delay 1 frame để đảm bảo không bị xung đột trong quá trình build widget
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            final navigatorKey = ref.read(nestedNavigatorKeyProvider);
+            navigatorKey.currentState?.pushNamed(next.routeName!);
+            // Nhiệm vụ của listener này chỉ là điều hướng.
+            // Trang đích sẽ tự xử lý việc hiển thị và xóa hint.
+          }
+        });
       }
     });
     

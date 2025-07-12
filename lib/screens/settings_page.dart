@@ -6,6 +6,7 @@ import 'package:mincloset/providers/locale_provider.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/states/profile_page_state.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -16,7 +17,7 @@ class SettingsPage extends ConsumerWidget {
     final notifier = ref.read(profileProvider.notifier);
     final locale = ref.watch(localeProvider);
 
-    return Scaffold(
+    return PageScaffold(
       appBar: AppBar(
         title: const Text('Settings'),
       ),

@@ -16,6 +16,7 @@ import 'package:mincloset/screens/background_cropper_screen.dart';
 import 'package:mincloset/states/outfit_builder_state.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:mincloset/widgets/item_search_filter_bar.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 import 'package:uuid/uuid.dart';
 
@@ -250,12 +251,11 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
           Navigator.of(context).pop(false);
         }
       },
-      child: Scaffold(
+      child: PageScaffold(
         appBar: AppBar(
           title: const Text('Outfit studio'),
           leading: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.of(context).pop(false)),
           actions: [
-            // <<< THAY ĐỔI 2: Logic của nút Save giờ chỉ gọi notifier >>>
             Consumer(
               builder: (context, ref, child) {
                 final isSaving = ref.watch(outfitBuilderProvider.select((s) => s.isSaving));
@@ -277,7 +277,6 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                     );
 
                     if (result != null && mounted) {
-                      // Chỉ gọi notifier, không cần await hay nhận kết quả
                       ref.read(outfitBuilderProvider.notifier).saveOutfit(
                             name: result['name'] as String,
                             isFixed: result['isFixed'] as bool,

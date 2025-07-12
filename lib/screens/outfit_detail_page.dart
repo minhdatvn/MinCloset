@@ -7,6 +7,7 @@ import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/outfit_detail_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/widgets/outfit_actions_menu.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 
 class OutfitDetailPage extends ConsumerStatefulWidget {
   final Outfit outfit;
@@ -32,7 +33,7 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
           Navigator.of(context).pop(_didChange);
         }
       },
-      child: Scaffold(
+      child: PageScaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
           title: Text(currentOutfit.name),
@@ -43,7 +44,6 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
             ),
           ],
         ),
-        // <<< THAY ĐỔI: Toàn bộ FloatingActionButton đã được xóa bỏ >>>
         body: SingleChildScrollView(
           child: Column(
             children: [

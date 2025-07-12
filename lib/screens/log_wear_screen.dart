@@ -5,6 +5,7 @@ import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/log_wear_notifier.dart';
 import 'package:mincloset/states/log_wear_state.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 
 class LogWearScreen extends ConsumerStatefulWidget {
@@ -46,7 +47,7 @@ class _LogWearScreenState extends ConsumerState<LogWearScreen> {
     
     final String title = widget.args.type == SelectionType.items ? 'Select Items' : 'Select Outfits';
 
-    return Scaffold(
+    return PageScaffold(
       appBar: AppBar(
         title: Text(title),
         actions: [

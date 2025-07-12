@@ -6,6 +6,7 @@ import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 
 class BatchAddItemScreen extends ConsumerStatefulWidget {
   const BatchAddItemScreen({super.key});
@@ -63,7 +64,7 @@ class _BatchAddItemScreenState extends ConsumerState<BatchAddItemScreen> {
       return const Scaffold(body: Center(child: Text('No photos to display.')));
     }
 
-    return Scaffold(
+    return PageScaffold(
       appBar: AppBar(title: Text('Add item (${state.currentIndex + 1}/${itemArgsList.length})')),
       body: Column(
         children: [

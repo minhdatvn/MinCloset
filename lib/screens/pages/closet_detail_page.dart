@@ -11,6 +11,7 @@ import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:mincloset/helpers/dialog_helpers.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 
 class ClosetDetailPage extends ConsumerStatefulWidget {
   final Closet closet;
@@ -90,7 +91,7 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
           Navigator.of(context).pop(_didChange);
         }
       },
-      child: Scaffold(
+      child: PageScaffold(
         appBar: state.isMultiSelectMode
           ? AppBar(
               leading: IconButton(

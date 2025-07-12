@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_background_remover/image_background_remover.dart';
 import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 
 class BackgroundRemoverPage extends ConsumerStatefulWidget {
   final Uint8List imageBytes;
@@ -62,7 +63,7 @@ class _BackgroundRemoverPageState extends ConsumerState<BackgroundRemoverPage> {
   @override
   Widget build(BuildContext context) {
     // Giao diện không thay đổi
-    return Scaffold(
+    return PageScaffold(
       appBar: AppBar(
         title: const Text('Remove Background'),
         actions: [

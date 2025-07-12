@@ -11,6 +11,7 @@ import 'package:mincloset/notifiers/calendar_notifier.dart';
 import 'package:mincloset/notifiers/log_wear_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/log_wear_state.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class CalendarPage extends ConsumerStatefulWidget {
@@ -92,7 +93,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
       return calendarState.selectedLogIds.containsAll(group.logIds);
     }).length;
 
-    return Scaffold(
+    return PageScaffold(
       appBar: calendarState.isMultiSelectMode
           ? AppBar(
               leading: IconButton(

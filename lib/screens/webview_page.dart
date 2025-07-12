@@ -1,5 +1,6 @@
 // lib/screens/webview_page.dart
 import 'package:flutter/material.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 // Lớp để truyền tham số cho màn hình
@@ -44,7 +45,7 @@ class _WebViewPageState extends State<WebViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PageScaffold(
       appBar: AppBar(
         title: Text(widget.args.title),
       ),

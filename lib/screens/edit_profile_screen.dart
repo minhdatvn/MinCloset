@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -104,7 +105,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PageScaffold(
       appBar: AppBar(
         title: const Text('Edit profile'),
         leading: IconButton(

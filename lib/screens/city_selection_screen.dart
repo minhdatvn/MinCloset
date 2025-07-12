@@ -6,6 +6,7 @@ import 'package:mincloset/notifiers/city_selection_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/states/city_selection_state.dart';
 import 'package:mincloset/states/profile_page_state.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 
 class CitySelectionScreen extends ConsumerStatefulWidget {
   const CitySelectionScreen({super.key});
@@ -44,7 +45,7 @@ class _CitySelectionScreenState extends ConsumerState<CitySelectionScreen> {
       }
     });
 
-    return Scaffold(
+    return PageScaffold(
       appBar: AppBar(
         title: const Text('Select Location'),
       ),

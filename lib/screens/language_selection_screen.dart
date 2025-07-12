@@ -2,13 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/providers/locale_provider.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 
 class LanguageSelectionScreen extends StatelessWidget {
   const LanguageSelectionScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PageScaffold(
       appBar: AppBar(
         title: const Text('Select Language'),
       ),

@@ -13,6 +13,7 @@ import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/log_wear_state.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 
 // --- MÀN HÌNH CHÍNH ---
 class ClosetInsightsScreen extends ConsumerWidget {
@@ -25,7 +26,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
     final userName =
         ref.watch(profileProvider.select((s) => s.userName)) ?? 'You';
 
-    return Scaffold(
+    return PageScaffold(
       body: RefreshIndicator(
         onRefresh: notifier.fetchInsights,
         child: _buildBody(context, ref, state, userName),

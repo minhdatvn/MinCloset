@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/badge.dart' as model;
 import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/achievements_page_notifier.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 
 // Trả về dạng ConsumerWidget đơn giản
 class QuestsPage extends ConsumerWidget {
@@ -15,7 +16,7 @@ class QuestsPage extends ConsumerWidget {
     final state = ref.watch(achievementsPageProvider);
     final notifier = ref.read(achievementsPageProvider.notifier);
 
-    return Scaffold(
+    return PageScaffold(
       appBar: AppBar(
         title: const Text('Quests & Achievements'),
       ),

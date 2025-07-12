@@ -13,6 +13,7 @@ import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
+import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:uuid/uuid.dart';
 
 class AddItemScreen extends ConsumerStatefulWidget {
@@ -97,7 +98,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     final state = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
 
-    return Scaffold(
+    return PageScaffold(
       appBar: AppBar(
         title: Text(state.isEditing ? 'Edit item' : 'Add item'),
         actions: [

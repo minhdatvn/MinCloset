@@ -1,13 +1,15 @@
 // lib/screens/pages/profile_page.dart
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
-import 'package:mincloset/theme/app_theme.dart';
 import 'package:mincloset/states/profile_page_state.dart';
+import 'package:mincloset/theme/app_theme.dart';
 import 'package:mincloset/widgets/stats_overview_card.dart';
 import 'package:mincloset/widgets/stats_pie_chart.dart';
 
@@ -27,105 +29,142 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     _pageController.dispose();
     super.dispose();
   }
+  
+  // <<< LOGIC UI ĐƯỢC CHUYỂN VỀ ĐÂY >>>
+  Future<void> _handleAvatarTap() async {
+    final navigator = Navigator.of(context);
+
+    // 1. Hiển thị menu chọn nguồn ảnh
+    final imageSource = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text('Take Photo'),
+              onTap: () => Navigator.of(ctx).pop(ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('From Album'),
+              onTap: () => Navigator.of(ctx).pop(ImageSource.gallery),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (imageSource == null || !mounted) return;
+
+    // 2. Chọn ảnh
+    final imagePicker = ImagePicker();
+    final pickedFile = await imagePicker.pickImage(source: imageSource);
+    if (pickedFile == null || !mounted) return;
+
+    final imageBytes = await pickedFile.readAsBytes();
+    if (!mounted) return;
+
+    // 3. Điều hướng đến màn hình cắt ảnh
+    final croppedBytes = await navigator.pushNamed<Uint8List?>(
+      AppRoutes.avatarCropper,
+      arguments: imageBytes,
+    );
+
+    // 4. Gọi notifier để lưu kết quả
+    if (croppedBytes != null && mounted) {
+      await ref.read(profileProvider.notifier).saveAvatar(croppedBytes);
+    }
+  }
 
   Widget _buildProfileHeader(ProfilePageState state) {
-  return Row(
-    children: [
-      // --- CỤM AVATAR ---
-      Stack(
-        clipBehavior: Clip.none,
-        children: [
-          // 1. Bọc CircleAvatar trong GestureDetector để xử lý việc nhấn vào avatar lớn
-          GestureDetector(
-            onTap: () {
-              // Chỉ cần gọi updateAvatar, không cần await hay làm gì thêm
-              ref.read(profileProvider.notifier).updateAvatar(context);
-            },
-            child: CircleAvatar(
-              radius: 40,
-              backgroundColor: Colors.grey.shade200,
-              backgroundImage: state.avatarPath != null ? FileImage(File(state.avatarPath!)) : null,
-              child: state.avatarPath == null
-                  ? const Icon(Icons.person, size: 40, color: Colors.grey)
-                  : null,
+    return Row(
+      children: [
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // <<< GỌI HÀM _handleAvatarTap KHI NHẤN >>>
+            GestureDetector(
+              onTap: _handleAvatarTap,
+              child: CircleAvatar(
+                radius: 40,
+                backgroundColor: Colors.grey.shade200,
+                backgroundImage: state.avatarPath != null ? FileImage(File(state.avatarPath!)) : null,
+                child: state.avatarPath == null
+                    ? const Icon(Icons.person, size: 40, color: Colors.grey)
+                    : null,
+              ),
             ),
-          ),
-          // Giữ nguyên icon edit nhỏ
-          Positioned(
-            bottom: -2,
-            right: -2,
-            child: GestureDetector(
-              onTap: () => ref.read(profileProvider.notifier).updateAvatar(context),
-              child: Container(
-                padding: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2)),
-                child: const Icon(Icons.edit, size: 16, color: Colors.white),
+            Positioned(
+              bottom: -2,
+              right: -2,
+              child: GestureDetector(
+                onTap: _handleAvatarTap, // <<< GỌI HÀM _handleAvatarTap KHI NHẤN >>>
+                child: Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2)),
+                  child: const Icon(Icons.edit, size: 16, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: InkWell(
+            onTap: () {
+              Navigator.pushNamed(context, AppRoutes.editProfile);
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 80,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            state.userName ?? 'Unnamed',
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            'Edit profile',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                ],
               ),
             ),
           ),
-        ],
-      ),
-      const SizedBox(width: 16),
-
-      // --- CỤM TEXT ĐỂ ĐIỀU HƯỚNG ---
-      // 2. Bọc phần text và mũi tên trong InkWell riêng để điều hướng
-      Expanded(
-        child: InkWell(
-          onTap: () {
-            Navigator.pushNamed(context, AppRoutes.editProfile);
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: SizedBox(
-                    height: 80,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          state.userName ?? 'Unnamed',
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineSmall
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          'Edit profile',
-                          style: TextStyle(color: Colors.grey.shade600),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-              ],
-            ),
-          ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(profileProvider);
     final notifier = ref.read(profileProvider.notifier);
     return Scaffold(
-      // --- THAY ĐỔI AppBar ---
       appBar: AppBar(
         title: const Text('Profile'),
         actions: [
-          // Thay nút refresh bằng nút settings
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => Navigator.pushNamed(context, AppRoutes.settings),
@@ -182,8 +221,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           children: [
             _buildProfileHeader(state),
             const Divider(height: 32),
-
-            // Thêm một Card mới cho Quests
             Card(
               elevation: 0,
               color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -198,10 +235,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 },
               ),
             ),
-
-            const SizedBox(height: 24), // Thêm khoảng cách
-
-            // Row để chứa tiêu đề và nút "Insights"
+            const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -212,7 +246,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
                 TextButton(
                   onPressed: () {
-                    // 2. Gọi lệnh điều hướng đến màn hình insights
                     Navigator.pushNamed(context, AppRoutes.closetInsights);
                   },
                   child: Row(
@@ -233,7 +266,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
               ],
             ),
-            const SizedBox(height: 8), // Giảm khoảng cách một chút
+            const SizedBox(height: 8),
             StatsOverviewCard(
               totalItems: state.totalItems,
               totalClosets: state.totalClosets,
@@ -296,7 +329,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  // <<< HÀM ĐƯỢC THIẾT KẾ LẠI HOÀN CHỈNH >>>
   Widget _buildStatPage(String title, Map<String, int> dataMap, {List<Color>? specificColors}) {
     final totalValue = dataMap.values.fold(0, (sum, item) => sum + item);
     final sortedEntries = dataMap.entries.toList()
@@ -305,7 +337,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     const double chartSize = 90;
 
-    // Hàm helper để cắt chuỗi
     String truncateText(String text, int maxLength) {
       if (text.length <= maxLength) {
         return text;
@@ -349,7 +380,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         final percentage = (entry.value / totalValue * 100);
                         final color = (specificColors ?? AppChartColors.defaultChartColors)[sortedEntries.indexOf(entry) % (specificColors ?? AppChartColors.defaultChartColors).length];
                         
-                        // Áp dụng hàm cắt chuỗi cho tên danh mục
                         final truncatedName = truncateText(entry.key, 10);
 
                         return Padding(
@@ -369,7 +399,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                                 text: TextSpan(
                                   style: Theme.of(context).textTheme.bodyMedium,
                                   children: [
-                                    // Hiển thị tên đã được cắt ngắn
                                     TextSpan(text: '$truncatedName '),
                                     TextSpan(
                                       text: '${percentage.toStringAsFixed(0)}%',

@@ -49,12 +49,6 @@ final wearLogRepositoryProvider = Provider<WearLogRepository>((ref) {
   return WearLogRepository(dbHelper);
 });
 
-// THAY ĐỔI 2: Xóa bỏ hoàn toàn định nghĩa sharedPreferencesProvider bị trùng lặp ở đây
-// final sharedPreferencesProvider = FutureProvider<SharedPreferences>((ref) { ... }); // <- DÒNG NÀY ĐÃ ĐƯỢC XÓA
-
-// Provider để cung cấp SettingsRepository cho toàn bộ ứng dụng.
-// Nó vẫn hoạt động bình thường vì nó sẽ đọc `sharedPreferencesProvider`
-// từ file service_providers.dart đã được import.
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
   return SettingsRepository(ref);
 });

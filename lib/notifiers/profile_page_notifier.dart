@@ -1,6 +1,8 @@
 // lib/notifiers/profile_page_notifier.dart
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/models/city_suggestion.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
@@ -12,11 +14,7 @@ import 'package:mincloset/repositories/settings_repository.dart';
 import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/utils/logger.dart';
-import 'package:flutter/material.dart';
-import 'dart:typed_data';
-import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:mincloset/routing/app_routes.dart';
 
 final profileChangedTriggerProvider = StateProvider<int>((ref) => 0);
 
@@ -25,14 +23,14 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   final ClosetRepository _closetRepo;
   final ClothingItemRepository _itemRepo;
   final OutfitRepository _outfitRepo;
-  final SettingsRepository _settingsRepo; // <-- ĐÃ THÊM
+  final SettingsRepository _settingsRepo;
 
   ProfilePageNotifier(
     this._ref,
     this._closetRepo,
     this._itemRepo,
     this._outfitRepo,
-    this._settingsRepo, // <-- ĐÃ THÊM
+    this._settingsRepo,
   ) : super(const ProfilePageState()) {
     loadInitialData();
 
@@ -54,7 +52,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     try {
       logger.i('Loading profile data...');
       
-      // --- THAY ĐỔI: LẤY DỮ LIỆU TỪ REPOSITORY ---
       final profileData = await _settingsRepo.getUserProfile();
       final userName = profileData[SettingsRepository.userNameKey] as String? ?? 'MinCloset user';
       final avatarPath = profileData[SettingsRepository.avatarPathKey] as String?;
@@ -207,77 +204,30 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   }
 
   Future<void> updateShowWeatherImage(bool newValue) async {
-    // THAY ĐỔI: Sử dụng repository để lưu
     await _settingsRepo.saveUserProfile({'showWeatherImage': newValue});
     state = state.copyWith(showWeatherImage: newValue);
   }
 
-  Future<bool> updateAvatar(BuildContext context) async {
-    // Hàm helper để hiển thị menu lựa chọn
-    Future<ImageSource?> showImageSourceMenu() async {
-      return await showModalBottomSheet<ImageSource>(
-        context: context,
-        builder: (ctx) => SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              ListTile(
-                leading: const Icon(Icons.photo_camera_outlined),
-                title: const Text('Take Photo'),
-                onTap: () => Navigator.of(ctx).pop(ImageSource.camera),
-              ),
-              ListTile(
-                leading: const Icon(Icons.photo_library_outlined),
-                title: const Text('From Album'),
-                onTap: () => Navigator.of(ctx).pop(ImageSource.gallery),
-              ),
-            ],
-          ),
-        ),
-      );
+  // <<< PHƯƠNG THỨC MỚI ĐỂ LƯU AVATAR >>>
+  Future<bool> saveAvatar(Uint8List croppedBytes) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final path = '${directory.path}/avatar.png';
+      final imageFile = File(path);
+      await imageFile.writeAsBytes(croppedBytes);
+
+      // Lưu đường dẫn vào SharedPreferences
+      await _settingsRepo.saveUserProfile({SettingsRepository.avatarPathKey: path});
+      _ref.read(profileChangedTriggerProvider.notifier).state++;
+      
+      return true; // Trả về true để báo hiệu thành công
+    } catch (e) {
+      // Nếu có lỗi, trả về false
+      return false;
     }
-
-    // --- Bắt đầu luồng chính ---
-    final imageSource = await showImageSourceMenu();
-    if (imageSource == null) return false;
-
-    final imagePicker = ImagePicker();
-    final pickedFile = await imagePicker.pickImage(source: imageSource);
-    if (pickedFile == null) return false;
-
-    final imageBytes = await pickedFile.readAsBytes();
-
-    if (!context.mounted) return false;
-    final croppedBytes = await Navigator.of(context).pushNamed<Uint8List?>(
-      AppRoutes.avatarCropper,
-      arguments: imageBytes,
-    );
-
-    // Nếu người dùng có cắt và lưu ảnh
-    if (croppedBytes != null) {
-      try {
-        final directory = await getApplicationDocumentsDirectory();
-        final path = '${directory.path}/avatar.png';
-        final imageFile = File(path);
-        await imageFile.writeAsBytes(croppedBytes);
-
-        // Chỉ lưu đường dẫn vào SharedPreferences
-        await _settingsRepo.saveUserProfile({SettingsRepository.avatarPathKey: path});
-        _ref.read(profileChangedTriggerProvider.notifier).state++;
-        
-        // Thay vào đó, trả về true để báo hiệu thành công
-        return true; 
-      } catch (e) {
-        // Nếu có lỗi, trả về false
-        return false;
-      }
-    }
-    // Nếu người dùng không lưu, trả về false
-    return false;
   }
   
-    Future<void> updateProfileInfo(Map<String, dynamic> data) async {
-    // Sửa lỗi: Luôn sử dụng các key đã được định nghĩa trong SettingsRepository
+  Future<void> updateProfileInfo(Map<String, dynamic> data) async {
     await _settingsRepo.saveUserProfile({
       SettingsRepository.userNameKey: data['name'],
       SettingsRepository.genderKey: data['gender'],
@@ -288,7 +238,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       SettingsRepository.favoriteColorsKey: (data['favoriteColors'] as Set<String>?)?.toList(),
     });
 
-    // Cập nhật state như cũ
     state = state.copyWith(
       userName: data['name'],
       gender: data['gender'],
@@ -302,7 +251,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
 
   Future<void> updateCityPreference(
       CityMode mode, CitySuggestion? suggestion) async {
-    // THAY ĐỔI: Sử dụng các hằng số từ SettingsRepository cho tất cả các key
     await _settingsRepo.saveUserProfile({
       SettingsRepository.cityModeKey: mode.name,
       SettingsRepository.manualCityKey: suggestion?.displayName,
@@ -310,7 +258,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       SettingsRepository.manualCityLonKey: suggestion?.lon,
     });
     
-    // Cập nhật state của notifier như cũ
     state = state.copyWith(
         cityMode: mode,
         manualCity: suggestion != null ? suggestion.displayName : state.manualCity,
@@ -324,7 +271,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     final name = prefs.getString('manualCity');
     
     if (name != null && lat != null && lon != null) {
-        // Tách chuỗi tên để lấy các thành phần
         final parts = name.split(', ');
         return {
             'name': parts.first,
@@ -348,7 +294,6 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
 
     await _settingsRepo.saveUserProfile(dataToSave);
     
-    // Cập nhật state của notifier
     state = state.copyWith(
       currency: currency ?? state.currency,
       numberFormat: format ?? state.numberFormat,
@@ -356,13 +301,12 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   }
 }
 
-// THAY ĐỔI: Cập nhật provider
 final profileProvider =
     StateNotifierProvider<ProfilePageNotifier, ProfilePageState>((ref) {
   final closetRepo = ref.watch(closetRepositoryProvider);
   final itemRepo = ref.watch(clothingItemRepositoryProvider);
   final outfitRepo = ref.watch(outfitRepositoryProvider);
-  final settingsRepo = ref.watch(settingsRepositoryProvider); // Lấy repo mới
+  final settingsRepo = ref.watch(settingsRepositoryProvider); 
   
-  return ProfilePageNotifier(ref, closetRepo, itemRepo, outfitRepo, settingsRepo); // Truyền vào
+  return ProfilePageNotifier(ref, closetRepo, itemRepo, outfitRepo, settingsRepo);
 });

@@ -160,7 +160,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       InkWell(
         onTap: () {
           // Chỉ cần gọi updateAvatar, không cần await hay làm gì thêm
-          ref.read(profileProvider.notifier).updateAvatar(context);
+          ref.read(mainScreenIndexProvider.notifier).state = 3;
         },
         customBorder: const CircleBorder(), // Giúp hiệu ứng ripple tròn
         child: CircleAvatar(

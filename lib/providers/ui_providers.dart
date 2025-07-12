@@ -81,7 +81,7 @@ class QuestHintNotifier extends StateNotifier<QuestHintState?> {
       case 'create_outfit_hint':
         state = QuestHintState(
           hintKey: QuestHintKeys.createOutfitHintKey,
-          targetPageIndex: 0, // Tab Home
+          targetPageIndex: 2,
           triggerId: newTriggerId,
         );
         break;

@@ -22,7 +22,7 @@ dependencies:
   path: ^1.9.0
   http: ^1.2.1
   google_generative_ai: ^0.4.3
-  shared_preferences: ^2.2.3
+  shared_preferences: ^2.5.3
   flutter_dotenv: ^5.1.0
   logger: ^2.4.0
   intl: ^0.20.2
@@ -51,6 +51,9 @@ dependencies:
   ffi: ^2.1.4
   image_background_remover: ^1.0.0
   showcaseview: ^4.0.1
+  flutter_local_notifications: ^19.3.0
+  timezone: ^0.10.1
+  flutter_timezone: ^4.1.1
 
 
 dev_dependencies:

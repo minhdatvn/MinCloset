@@ -11,10 +11,12 @@ import 'package:mincloset/services/weather_image_service.dart';
 import 'package:mincloset/theme/app_theme.dart';
 import 'package:mincloset/widgets/global_ui_scope.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:mincloset/src/services/local_notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+  await LocalNotificationService().init();
 
   await SentryFlutter.init(
     (options) {

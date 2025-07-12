@@ -1,44 +1,44 @@
 // lib/notifiers/outfit_detail_notifier.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/helpers/image_helper.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/outfit_repository.dart';
-import 'package:mincloset/services/notification_service.dart';
 import 'package:mincloset/utils/logger.dart';
-import 'package:mincloset/helpers/image_helper.dart';
-import 'package:mincloset/providers/service_providers.dart';
-import 'package:mincloset/models/notification_type.dart';
 
 class OutfitDetailNotifier extends StateNotifier<Outfit> {
   final OutfitRepository _outfitRepo;
   final ClothingItemRepository _clothingItemRepo;
   final ImageHelper _imageHelper;
-  final NotificationService _notificationService;
 
   OutfitDetailNotifier(
     this._outfitRepo, 
     this._clothingItemRepo, 
     this._imageHelper, 
-    this._notificationService, 
     Outfit initialOutfit
     ) : super(initialOutfit);
 
-  Future<void> updateName(String newName) async {
+  // THAY ĐỔI: Giờ sẽ trả về Future<bool>
+  Future<bool> updateName(String newName) async {
     if (newName.trim().isEmpty || newName.trim() == state.name) {
-      return;
+      return false; // Không có gì thay đổi
     }
     final updatedOutfit = state.copyWith(name: newName.trim());
     final result = await _outfitRepo.updateOutfit(updatedOutfit);
     
-    result.fold(
+    // Dùng fold để xử lý kết quả
+    return result.fold(
       (failure) { 
-        _notificationService.showBanner(message: 'Failed to update outfit name: ${failure.message}'); // Banner thất bại
+        // Ghi log lỗi và trả về false
+        logger.e("Failed to update outfit name", error: failure.message);
+        return false;
       },
       (_) {
-        _notificationService.showBanner(message: 'Outfit name updated.', type: NotificationType.success); // Banner thành công
+        // Cập nhật state và trả về true
         state = updatedOutfit;
+        return true;
       },
     );
   }
@@ -120,6 +120,5 @@ final outfitDetailProvider = StateNotifierProvider.autoDispose
   final outfitRepo = ref.watch(outfitRepositoryProvider);
   final clothingItemRepo = ref.watch(clothingItemRepositoryProvider);
   final imageHelper = ref.watch(imageHelperProvider);
-  final notificationService = ref.watch(notificationServiceProvider);
-  return OutfitDetailNotifier(outfitRepo, clothingItemRepo, imageHelper, notificationService, initialOutfit);
+  return OutfitDetailNotifier(outfitRepo, clothingItemRepo, imageHelper, initialOutfit);
 });

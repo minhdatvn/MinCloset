@@ -10,8 +10,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/notifiers/outfit_builder_notifier.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/screens/background_cropper_screen.dart';
 import 'package:mincloset/states/outfit_builder_state.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
@@ -234,6 +236,10 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
     ref.listen<OutfitBuilderState>(outfitBuilderProvider, (previous, next) {
       // Khi cờ saveSuccess chuyển từ false -> true
       if (next.saveSuccess && previous?.saveSuccess == false) {
+        ref.read(notificationServiceProvider).showBanner(
+          message: 'Outfit saved successfully!',
+          type: NotificationType.success,
+        );
         // Pop màn hình và trả về true
         ref.read(mainScreenIndexProvider.notifier).state = 2;
         Navigator.of(context).popUntil((route) => route.settings.name == AppRoutes.main);

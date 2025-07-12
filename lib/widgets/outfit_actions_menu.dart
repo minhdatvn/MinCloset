@@ -20,44 +20,40 @@ class OutfitActionsMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-  return PopupMenuButton<String>(
-    icon: const Icon(Icons.more_vert, color: Colors.grey),
-    onSelected: (value) {
-      if (value == 'edit') {
-        _showEditOutfitNameDialog(context, ref, outfit, onUpdate);
-      } else if (value == 'share') {
-        _shareOutfit(context, ref, outfit);
-      } else if (value == 'delete') {
-        _deleteOutfit(context, ref, outfit, onUpdate);
-      }
-    },
-    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-      // <<< THAY ĐỔI 1: Luôn cho phép "Rename" >>>
-      const PopupMenuItem<String>(
-        value: 'edit',
-        // Đã xóa thuộc tính 'enabled' để nút luôn bật
-        child: ListTile(
-          leading: Icon(Icons.edit_outlined), // Icon luôn có màu mặc định
-          title: Text('Rename'),
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert, color: Colors.grey),
+      onSelected: (value) {
+        if (value == 'edit') {
+          _showEditOutfitNameDialog(context, ref, outfit, onUpdate);
+        } else if (value == 'share') {
+          _shareOutfit(context, ref, outfit);
+        } else if (value == 'delete') {
+          _deleteOutfit(context, ref, outfit, onUpdate);
+        }
+      },
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        const PopupMenuItem<String>(
+          value: 'edit',
+          child: ListTile(
+            leading: Icon(Icons.edit_outlined),
+            title: Text('Rename'),
+          ),
         ),
-      ),
-      const PopupMenuItem<String>(
-        value: 'share',
-        child: ListTile(leading: Icon(Icons.share_outlined), title: Text('Share')),
-      ),
-      const PopupMenuDivider(),
-      // <<< THAY ĐỔI 2: Luôn cho phép "Delete" >>>
-      const PopupMenuItem<String>(
-        value: 'delete',
-        // Đã xóa thuộc tính 'enabled' để nút luôn bật
-        child: ListTile(
-          leading: Icon(Icons.delete_outline, color: Colors.red), // Icon luôn có màu đỏ
-          title: Text('Delete', style: TextStyle(color: Colors.red)), // Chữ luôn có màu đỏ
+        const PopupMenuItem<String>(
+          value: 'share',
+          child: ListTile(leading: Icon(Icons.share_outlined), title: Text('Share')),
         ),
-      ),
-    ],
-  );
-}
+        const PopupMenuDivider(),
+        const PopupMenuItem<String>(
+          value: 'delete',
+          child: ListTile(
+            leading: Icon(Icons.delete_outline, color: Colors.red),
+            title: Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ),
+      ],
+    );
+  }
 
   void _showEditOutfitNameDialog(BuildContext context, WidgetRef ref, Outfit currentOutfit, VoidCallback? onUpdateCallback) {
     final nameController = TextEditingController(text: currentOutfit.name);
@@ -70,14 +66,24 @@ class OutfitActionsMenu extends ConsumerWidget {
           TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
           ElevatedButton(
             onPressed: () async {
-              // <<< SỬA LỖI: Lấy navigator ra trước khi có `await` >>>
               final navigator = Navigator.of(ctx);
               if (nameController.text.trim().isEmpty) return;
 
-              await ref.read(outfitDetailProvider(currentOutfit).notifier).updateName(nameController.text.trim());
+              // 1. Chờ kết quả từ notifier
+              final bool success = await ref
+                  .read(outfitDetailProvider(currentOutfit).notifier)
+                  .updateName(nameController.text.trim());
               
-              onUpdateCallback?.call();
-              // Giờ đây việc sử dụng `navigator` là an toàn
+              // 2. Nếu thành công, hiển thị banner và gọi callback
+              if (success) {
+                ref.read(notificationServiceProvider).showBanner(
+                      message: 'Outfit name updated.',
+                      type: NotificationType.success,
+                    );
+                onUpdateCallback?.call();
+              }
+              // Notifier đã tự log lỗi, ở đây UI không cần báo lỗi thất bại nữa
+
               navigator.pop();
             },
             child: const Text('Save'),
@@ -89,7 +95,6 @@ class OutfitActionsMenu extends ConsumerWidget {
 
   Future<void> _shareOutfit(BuildContext context, WidgetRef ref, Outfit outfit) async {
     try {
-      // Sử dụng API mới SharePlus.instance.share với ShareParams
       await SharePlus.instance.share(
         ShareParams(
           files: [XFile(outfit.imagePath)],
@@ -97,14 +102,13 @@ class OutfitActionsMenu extends ConsumerWidget {
         ),
       );
     } catch (e) {
-      // Giữ lại phần xử lý lỗi
       ref.read(notificationServiceProvider).showBanner(message: 'Could not share: $e');
     }
   }
 
   Future<void> _deleteOutfit(BuildContext context, WidgetRef ref, Outfit outfit, VoidCallback? onUpdateCallback) async {
-    // <<< SỬA LỖI: Lấy navigator và scaffoldMessenger ra trước khi có `await` >>>
     final navigator = Navigator.of(context);
+    final notificationService = ref.read(notificationServiceProvider); // Lấy service ra trước
 
     final confirmed = await showAnimatedDialog<bool>(
       context,
@@ -112,7 +116,7 @@ class OutfitActionsMenu extends ConsumerWidget {
         title: const Text('Confirm deletion'),
         content: Text('Permanently delete outfit "${outfit.name}"?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Hủy')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
@@ -122,29 +126,22 @@ class OutfitActionsMenu extends ConsumerWidget {
       )
     );
 
-    // Thêm một bước kiểm tra `context.mounted` để an toàn tuyệt đối
     if (confirmed == true && context.mounted) {
-      // Gọi hàm deleteOutfit và nhận lại kết quả true/false
       final bool success =
           await ref.read(outfitDetailProvider(outfit).notifier).deleteOutfit();
 
-      // Chỉ thực hiện các hành động tiếp theo NẾU xóa thành công
       if (success) {
         onUpdateCallback?.call();
-
-        ref.read(notificationServiceProvider).showBanner(
+        notificationService.showBanner(
               message: 'Deleted outfit "${outfit.name}".',
               type: NotificationType.success,
             );
-
         if (navigator.canPop()) {
           navigator.pop(true);
         }
       } else {
-        // Nếu xóa thất bại, thông báo cho người dùng
-        ref.read(notificationServiceProvider).showBanner(
+        notificationService.showBanner(
               message: 'Failed to delete outfit. Please try again.',
-              // type mặc định là error nên không cần truyền
             );
       }
     }

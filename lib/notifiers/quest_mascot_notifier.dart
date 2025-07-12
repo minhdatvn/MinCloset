@@ -86,7 +86,27 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     await _prefs?.setDouble(_positionDyKey, newPosition.dy);
   }
 
-  void showNewQuestNotification() {
+  // <<< HÀM ĐỂ MASCOT BÁM VÀO BIÊN >>>
+  void _snapToEdge(double screenWidth) {
+    if (state.position == null) return;
+    
+    const double mascotWidth = 80.0;
+    const double padding = 16.0;
+    double newDx;
+
+    // Kiểm tra xem mascot đang ở nửa bên nào của màn hình
+    if ((state.position!.dx + mascotWidth / 2) < screenWidth / 2) {
+      newDx = padding; // Bám vào cạnh trái
+    } else {
+      newDx = screenWidth - mascotWidth - padding; // Bám vào cạnh phải
+    }
+
+    // Cập nhật vị trí mới
+    final newPosition = Offset(newDx, state.position!.dy);
+    updatePosition(newPosition);
+  }
+
+  void showNewQuestNotification(double screenWidth) {
     _notificationTimer?.cancel();
     if (mounted) {
       state = state.copyWith(
@@ -95,7 +115,11 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
         notificationMessage: 'New Quest!',
       );
     }
-    _notificationTimer = Timer(const Duration(seconds: 5), hideCurrentNotification);
+    _notificationTimer = Timer(const Duration(seconds: 4), () {
+      hideCurrentNotification();
+      // Sau khi ẩn thông báo, gọi hàm bám biên
+      _snapToEdge(screenWidth);
+    });
   }
 
   void showQuestCompletedNotification(String title, double screenWidth) {
@@ -117,14 +141,18 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
 
     _notificationTimer = Timer(const Duration(seconds: 3), () {
       if (mounted && state.originalPosition != null) {
+        // Cập nhật lại vị trí gốc trước
         state = state.copyWith(
           position: state.originalPosition,
           clearOriginalPosition: true,
         );
+        // Sau đó ngay lập tức gọi hàm bám biên
+        _snapToEdge(screenWidth);
       }
       hideCurrentNotification();
     });
   }
+
 
   void hideCurrentNotification() {
     _notificationTimer?.cancel();

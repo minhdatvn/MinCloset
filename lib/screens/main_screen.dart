@@ -31,7 +31,8 @@ class MainScreen extends ConsumerWidget {
         // Dòng này để kết thúc tutorial
         ref.read(tutorialProvider.notifier).dismissTutorial();
         // Dòng này gọi notifier để cho mascot xuất hiện
-        ref.read(questMascotProvider.notifier).showNewQuestNotification();
+        final screenWidth = MediaQuery.of(context).size.width;
+        ref.read(questMascotProvider.notifier).showNewQuestNotification(screenWidth);
       },
       builder: (context) => const MainScreenView(),
     );

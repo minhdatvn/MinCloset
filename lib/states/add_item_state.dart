@@ -29,6 +29,7 @@ class AddItemState extends Equatable {
   final bool isAnalyzing;
   final String? errorMessage;
   final bool isSuccess;
+  final String? successMessage;
 
   const AddItemState({
     this.id = '',
@@ -51,6 +52,7 @@ class AddItemState extends Equatable {
     this.isAnalyzing = false,
     this.errorMessage,
     this.isSuccess = false,
+    this.successMessage,
   });
 
   factory AddItemState.fromClothingItem(ClothingItem item) {
@@ -96,6 +98,7 @@ class AddItemState extends Equatable {
     bool? isAnalyzing,
     String? errorMessage,
     bool? isSuccess,
+    String? successMessage,
   }) {
     return AddItemState(
       id: id ?? this.id,
@@ -118,17 +121,14 @@ class AddItemState extends Equatable {
       isAnalyzing: isAnalyzing ?? this.isAnalyzing,
       errorMessage: errorMessage ?? this.errorMessage,
       isSuccess: isSuccess ?? this.isSuccess,
+      successMessage: successMessage,
     );
   }
 
   @override
   List<Object?> get props => [
         id, name, image, imagePath, thumbnailPath, selectedClosetId,
-        selectedCategoryValue, selectedColors, selectedSeasons,
-        selectedOccasions, selectedMaterials, selectedPatterns,
-        isFavorite,
-        price,
-        notes,
-        isLoading, isEditing, isAnalyzing, errorMessage, isSuccess,
+        selectedCategoryValue, selectedColors, selectedSeasons, selectedOccasions, selectedMaterials, selectedPatterns,
+        isFavorite, price, notes, isLoading, isEditing, isAnalyzing, errorMessage, isSuccess, successMessage,
       ];
 }

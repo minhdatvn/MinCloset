@@ -10,7 +10,6 @@ import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/add_item_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
-import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
@@ -66,29 +65,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     );
 
     if (confirmed == true) {
-      final navigator = Navigator.of(context); // ignore: use_build_context_synchronously
-      final notifier = ref.read(singleItemProvider(_providerArgs).notifier); // Lấy navigator ra trước khi gọi await
-      final itemName = widget.itemToEdit!.name; // Lưu lại tên trước khi xóa
-      final notificationService = ref.read(notificationServiceProvider); // Lưu service
-
-      final success = await notifier.deleteItem();
-      
-      if (!mounted) return;
-
-      if (success) {
-        // <<< Banner khi xóa thành công >>>
-        notificationService.showBanner(
-          message: 'Successfully deleted item "$itemName".',
-          type: NotificationType.success,
-        );
-        navigator.pop(true);
-      } else {
-        // <<< Banner khi xóa thất bại >>>
-        final errorMessage = ref.read(singleItemProvider(_providerArgs)).errorMessage;
-        if (errorMessage != null) {
-          notificationService.showBanner(message: errorMessage);
-        }
-      }
+      // Logic đã được đơn giản hóa, chỉ cần gọi notifier
+      await ref.read(singleItemProvider(_providerArgs).notifier).deleteItem();
     }
   }
 
@@ -97,6 +75,22 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
     final provider = singleItemProvider(_providerArgs);
     final state = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
+
+    // <<< KHỐI LISTEN ĐỂ XỬ LÝ THÔNG BÁO VÀ ĐIỀU HƯỚNG >>>
+    ref.listen<AddItemState>(provider, (previous, next) {
+      if (next.successMessage != null) {
+        ref.read(notificationServiceProvider).showBanner(
+          message: next.successMessage!,
+          type: NotificationType.success,
+        );
+        notifier.clearMessages(); // Xóa thông điệp để không hiển thị lại
+        Navigator.of(context).pop(true); // Quay về và báo hiệu đã có thay đổi
+      }
+      if (next.errorMessage != null) {
+        ref.read(notificationServiceProvider).showBanner(message: next.errorMessage!);
+        notifier.clearMessages(); // Xóa thông điệp để không hiển thị lại
+      }
+    });
 
     return PageScaffold(
       appBar: AppBar(
@@ -108,13 +102,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                 state.isFavorite ? Icons.favorite : Icons.favorite_border,
                 color: state.isFavorite ? Colors.pink : null,
               ),
-              // <<< THAY ĐỔI DUY NHẤT LÀ Ở HÀM onPressed NÀY >>>
               onPressed: () {
-                // 1. Gọi hàm toggleFavorite trong notifier như bình thường
                 notifier.toggleFavorite();
-                
-                // 2. Kích hoạt trigger ngay tại màn hình này.
-                // Vì _AddItemScreenState là một ConsumerState, nó có quyền truy cập `ref`.
                 ref.read(itemChangedTriggerProvider.notifier).state++;
               },
               tooltip: state.isFavorite ? 'Remove from favorites' : 'Add to favorites',
@@ -143,10 +132,7 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
         onImageUpdated: (newBytes) {
           notifier.updateImageWithBytes(newBytes);
         },
-        // --- BẮT ĐẦU THÊM LOGIC VÀO ĐÂY ---
         onEditImagePressed: () async {
-          // Lấy ra notifier và navigator TRƯỚC khi có await
-          final notifier = ref.read(provider.notifier);
           final navigator = Navigator.of(context);
 
           Uint8List? currentImageBytes;
@@ -158,7 +144,6 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
 
           if (currentImageBytes == null || !mounted) return;
 
-          // Sử dụng navigator đã được lấy ra từ trước, giờ đây nó an toàn
           final editedBytes = await navigator.pushNamed<Uint8List?>(
             AppRoutes.imageEditor,
             arguments: currentImageBytes,
@@ -168,37 +153,15 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
             notifier.updateImageWithBytes(editedBytes);
           }
         },
-        // --- KẾT THÚC THÊM LOGIC ---
       ),
-      // <<< LUỒNG LƯU >>>
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ElevatedButton.icon(
-           onPressed: state.isLoading
+          onPressed: state.isLoading
               ? null
               : () async {
-                  final navigator = Navigator.of(context);
-                  final notifier = ref.read(provider.notifier); // Lấy notifier
-                  final success = await notifier.saveItem(); // Gọi hàm saveItem và chờ kết quả
-                  
-                  if (!mounted) return; // `mounted` check để đảm bảo widget vẫn còn tồn tại
-
-                  if (success) { // Nếu thành công, quay về màn hình trước
-                    final successMessage = state.isEditing // <<< Banner khi lưu/cập nhật thành công >>>
-                      ? 'Item successfully updated.'
-                      : 'Item successfully saved.';
-                    ref.read(notificationServiceProvider).showBanner(
-                          message: successMessage,
-                          type: NotificationType.success,
-                        );
-                    ref.read(mainScreenIndexProvider.notifier).state = 1;
-                    navigator.popUntil((route) => route.settings.name == AppRoutes.main);
-                  } else {
-                    final errorMessage = ref.read(provider).errorMessage; // Nếu thất bại, đọc lỗi từ state và hiển thị banner
-                    if (errorMessage != null) {
-                      ref.read(notificationServiceProvider).showBanner(message: errorMessage);
-                    }
-                  }
+                  // Chỉ cần gọi notifier để lưu
+                  await notifier.saveItem();
                 },
           icon: state.isLoading ? const SizedBox.shrink() : const Icon(Icons.save),
           label: state.isLoading 

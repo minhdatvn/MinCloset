@@ -14,10 +14,10 @@ class SettingsRepository {
   static const avatarPathKey = 'user_avatar_path';
   static const genderKey = 'user_gender';
   static const dobKey = 'user_dob';
-  static const heightKey = 'user_height';                 // <<< THÊM MỚI
-  static const weightKey = 'user_weight';                 // <<< THÊM MỚI
-  static const personalStylesKey = 'user_personal_styles'; // <<< THÊM MỚI
-  static const favoriteColorsKey = 'user_favorite_colors'; // <<< THÊM MỚI
+  static const heightKey = 'user_height';                 
+  static const weightKey = 'user_weight';                
+  static const personalStylesKey = 'user_personal_styles'; 
+  static const favoriteColorsKey = 'user_favorite_colors'; 
   static const styleKey = 'user_style';
   static const currencyKey = 'user_currency';
   static const numberFormatKey = 'user_number_format';
@@ -26,6 +26,7 @@ class SettingsRepository {
   static const manualCityLatKey = 'manual_city_lat';
   static const manualCityLonKey = 'manual_city_lon';
   static const showWeatherImageKey = 'showWeatherImage';
+  static const showMascotKey = 'show_mascot';
 
 
   Future<Map<String, dynamic>> getUserProfile() async {
@@ -47,6 +48,7 @@ class SettingsRepository {
       manualCityLatKey: prefs.getDouble(manualCityLatKey),
       manualCityLonKey: prefs.getDouble(manualCityLonKey),
       showWeatherImageKey: prefs.getBool(showWeatherImageKey),
+      showMascotKey: prefs.getBool(showMascotKey),
     };
 
     // DEBUG: In ra dữ liệu đọc được

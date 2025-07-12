@@ -88,14 +88,29 @@ class SettingsPage extends ConsumerWidget {
           _SettingsTile(
             icon: Icons.visibility_outlined,
             title: 'Display',
-            child: SwitchListTile(
-              title: const Text('Show weather background'),
-              subtitle: const Text('Display image based on weather'),
-              value: state.showWeatherImage,
-              onChanged: (bool value) {
-                notifier.updateShowWeatherImage(value);
-              },
-              secondary: const Icon(Icons.image_outlined),
+            child: Column(
+              children: [
+                // 1. Giữ nguyên Switch cũ
+                SwitchListTile(
+                  title: const Text('Show weather background'),
+                  subtitle: const Text('Display image based on weather'),
+                  value: state.showWeatherImage,
+                  onChanged: (bool value) {
+                    notifier.updateShowWeatherImage(value);
+                  },
+                  secondary: const Icon(Icons.image_outlined),
+                ),
+                // 2. Thêm Switch mới cho Mascot
+                SwitchListTile(
+                  title: const Text('Show Quest Mascot'),
+                  subtitle: const Text('Display the mascot for quests and hints'),
+                  value: state.showMascot,
+                  onChanged: (bool value) {
+                    notifier.updateShowMascot(value);
+                  },
+                  secondary: const Icon(Icons.memory),
+                ),
+              ],
             ),
           ),
           const Divider(height: 32),

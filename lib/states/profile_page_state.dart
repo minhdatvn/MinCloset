@@ -19,6 +19,7 @@ class ProfilePageState extends Equatable {
   final CityMode cityMode;
   final String manualCity;
   final bool showWeatherImage;
+  final bool showMascot;
   final int totalItems;
   final int totalClosets;
   final int totalOutfits;
@@ -45,6 +46,7 @@ class ProfilePageState extends Equatable {
     this.cityMode = CityMode.auto,
     this.manualCity = 'Da Nang',
     this.showWeatherImage = true,
+    this.showMascot = true,
     this.totalItems = 0,
     this.totalClosets = 0,
     this.totalOutfits = 0,
@@ -52,10 +54,10 @@ class ProfilePageState extends Equatable {
     this.categoryDistribution = const {},
     this.seasonDistribution = const {},
     this.occasionDistribution = const {},
-    this.materialDistribution = const {}, // <<< THÊM DÒNG NÀY
-    this.patternDistribution = const {},  // <<< THÊM DÒNG NÀY
+    this.materialDistribution = const {},
+    this.patternDistribution = const {},
     this.errorMessage,
-    this.currency = 'USD', // Giá trị mặc định
+    this.currency = 'USD',
     this.numberFormat = NumberFormatType.dotDecimal,
   });
 
@@ -83,6 +85,7 @@ class ProfilePageState extends Equatable {
     CityMode? cityMode,
     String? manualCity,
     bool? showWeatherImage,
+    bool? showMascot,
     int? totalItems,
     int? totalClosets,
     int? totalOutfits,
@@ -109,6 +112,7 @@ class ProfilePageState extends Equatable {
       cityMode: cityMode ?? this.cityMode,
       manualCity: manualCity ?? this.manualCity,
       showWeatherImage: showWeatherImage ?? this.showWeatherImage,
+      showMascot: showMascot ?? this.showMascot,
       totalItems: totalItems ?? this.totalItems,
       totalClosets: totalClosets ?? this.totalClosets,
       totalOutfits: totalOutfits ?? this.totalOutfits,
@@ -138,6 +142,7 @@ class ProfilePageState extends Equatable {
         cityMode,
         manualCity,
         showWeatherImage,
+        showMascot,
         totalItems,
         totalClosets,
         totalOutfits,

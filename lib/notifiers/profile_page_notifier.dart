@@ -66,6 +66,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       final cityMode = CityMode.values.byName(cityModeString);
       final manualCity = profileData[SettingsRepository.manualCityKey] as String? ?? 'Ha Noi, VN';
       final showWeatherImage = profileData[SettingsRepository.showWeatherImageKey] as bool? ?? true;
+      final showMascot = profileData[SettingsRepository.showMascotKey] as bool? ?? true;
       final currency = profileData[SettingsRepository.currencyKey] as String? ?? 'USD';
       final numberFormatString = profileData[SettingsRepository.numberFormatKey] as String? ?? 'dotDecimal';
       final numberFormat = NumberFormatType.values.firstWhere(
@@ -173,6 +174,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
                     cityMode: cityMode,
                     manualCity: manualCity,
                     showWeatherImage: showWeatherImage,
+                    showMascot: showMascot,
                     totalItems: allItems.length,
                     totalClosets: allClosets.length,
                     totalOutfits: allOutfits.length,
@@ -208,8 +210,12 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     state = state.copyWith(showWeatherImage: newValue);
   }
 
-  // <<< PHƯƠNG THỨC MỚI ĐỂ LƯU AVATAR >>>
-  Future<bool> saveAvatar(Uint8List croppedBytes) async {
+  Future<void> updateShowMascot(bool newValue) async {
+    await _settingsRepo.saveUserProfile({SettingsRepository.showMascotKey: newValue});
+    state = state.copyWith(showMascot: newValue);
+  }
+
+  Future<bool> saveAvatar(Uint8List croppedBytes) async { // <<< PHƯƠNG THỨC MỚI ĐỂ LƯU AVATAR >>>
     try {
       final directory = await getApplicationDocumentsDirectory();
       final path = '${directory.path}/avatar.png';

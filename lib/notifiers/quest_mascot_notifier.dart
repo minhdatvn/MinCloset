@@ -2,7 +2,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/repositories/settings_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum MascotNotificationType { none, newQuest, questCompleted }
@@ -62,6 +64,13 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     _prefs = await _ref.read(sharedPreferencesProvider.future);
     // Khi đã có, tiến hành load state
     _loadState();
+  // Lắng nghe sự thay đổi của cài đặt từ ProfileProvider
+    _ref.listen<bool>(profileProvider.select((s) => s.showMascot), (previous, next) {
+      final hasCompletedTutorial = _prefs?.getBool('has_completed_tutorial') ?? false;
+      if (mounted && hasCompletedTutorial) {
+        state = state.copyWith(isVisible: next);
+      }
+    });
   }
 
   void _loadState() {
@@ -71,13 +80,14 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
 
     // Kiểm tra xem người dùng đã hoàn thành hướng dẫn chưa
     final bool hasCompletedTutorial = _prefs!.getBool('has_completed_tutorial') ?? false;
+    final bool showMascotSetting = _prefs!.getBool(SettingsRepository.showMascotKey) ?? true;
 
     if (mounted) {
       state = state.copyWith(
         // Cập nhật vị trí đã lưu như cũ
         position: (dx != null && dy != null) ? Offset(dx, dy) : null,
         // ĐẶT TRẠNG THÁI HIỂN THỊ DỰA VÀO CỜ ĐÃ LƯU
-        isVisible: hasCompletedTutorial,
+        isVisible: hasCompletedTutorial && showMascotSetting,
       );
     }
   }
@@ -172,9 +182,7 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
 
   void dismiss() {
     _notificationTimer?.cancel();
-    if (mounted) {
-      state = state.copyWith(isVisible: false);
-    }
+    _ref.read(profileProvider.notifier).updateShowMascot(false);
   }
 }
 

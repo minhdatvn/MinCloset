@@ -41,12 +41,22 @@ class _SplashScreenState extends State<SplashScreen> {
       // Đánh dấu là đã tạo để không tạo lại ở các lần mở sau
       await prefs.setBool('has_created_default_closet', true);
     }
-    // ===================================
+     // === LOGIC MỚI ĐỂ KIỂM TRA ONBOARDING ===
+    final bool hasCompletedOnboarding =
+        prefs.getBool('has_completed_onboarding') ?? false;
 
     // Giữ lại độ trễ nhỏ để hiển thị logo
     await Future.delayed(const Duration(milliseconds: 500));
 
-    if (mounted) {Navigator.of(context).pushReplacementNamed(AppRoutes.main);}
+    if (mounted) {
+      if (hasCompletedOnboarding) {
+        // Nếu đã hoàn thành, đi tới màn hình chính
+        Navigator.of(context).pushReplacementNamed(AppRoutes.main);
+      } else {
+        // Nếu chưa, đi tới màn hình onboarding
+        Navigator.of(context).pushReplacementNamed(AppRoutes.onboarding);
+      }
+    }
   }
 
   @override

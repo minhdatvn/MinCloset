@@ -1,6 +1,7 @@
 // lib/routing/app_routes.dart
 
 class AppRoutes {
+  static const String onboarding = '/onboarding';
   static const String splash = '/';
   static const String main = '/main';
   static const String addItem = '/add-item';

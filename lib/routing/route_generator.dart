@@ -32,6 +32,7 @@ import 'package:mincloset/screens/splash_screen.dart';
 import 'package:mincloset/screens/webview_page.dart';
 import 'package:mincloset/screens/avatar_cropper_screen.dart';
 import 'package:mincloset/screens/quests_page.dart';
+import 'package:mincloset/screens/onboarding_screen.dart';
 
 class RouteGenerator {
   static const Widget _mainScreen = MainScreen();
@@ -39,6 +40,9 @@ class RouteGenerator {
     final args = settings.arguments;
 
     switch (settings.name) {
+      case AppRoutes.onboarding:
+        return MaterialPageRoute(builder: (_) => const OnboardingScreen());
+
       case AppRoutes.splash:
         return MaterialPageRoute(builder: (_) => const SplashScreen());
 

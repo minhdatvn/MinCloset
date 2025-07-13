@@ -1,24 +1,23 @@
 // lib/screens/pages/closets_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/notification_type.dart';
-import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/notifiers/closets_page_notifier.dart';
+import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/pages/outfit_builder_page.dart';
-import 'package:mincloset/widgets/closet_form_dialog.dart';
 import 'package:mincloset/widgets/item_search_filter_bar.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:mincloset/helpers/dialog_helpers.dart';
-import 'package:mincloset/providers/ui_providers.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 IconData _getIconDataFromName(String? iconName) {
@@ -437,16 +436,9 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                     clipBehavior: Clip.antiAlias,
                     child: InkWell( // 3. Bọc bằng InkWell để có hiệu ứng ripple
                       onTap: () {
-                        showAnimatedDialog(
-                          context,
-                          builder: (ctx) => ClosetFormDialog(
-                            onSubmit: (name) async {
-                              await ref.read(closetsPageProvider.notifier).addCloset(name);
-                              return null;
-                            },
-                          ),
-                        );
-                      },
+                            // Chỉ cần điều hướng đến màn hình mới, không cần truyền gì cả
+                            Navigator.pushNamed(context, AppRoutes.editCloset);
+                          },
                       child: Center(
                         child: ListTile(
                           leading: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),

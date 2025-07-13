@@ -8,7 +8,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/models/clothing_item.dart';
-import 'package:mincloset/notifiers/closets_page_notifier.dart';
 import 'package:mincloset/notifiers/home_page_notifier.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
@@ -17,7 +16,6 @@ import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/home_page_state.dart';
 import 'package:mincloset/widgets/action_card.dart';
-import 'package:mincloset/widgets/closet_form_dialog.dart';
 import 'package:mincloset/widgets/section_header.dart';
 import 'package:mincloset/widgets/weekly_planner.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -217,16 +215,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               label: 'Create Closet',
               icon: Icons.create_new_folder_outlined,
               onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (ctx) => ClosetFormDialog(
-                    // Logic onSubmit giờ chỉ cần gọi notifier và không xử lý kết quả
-                    onSubmit: (name) async {
-                      await ref.read(closetsPageProvider.notifier).addCloset(name);
-                      return null; // Luôn trả về null vì lỗi đã được xử lý trong State
-                    },
-                  ),
-                );
+                Navigator.pushNamed(context, AppRoutes.editCloset);
               },
             ),
             const SizedBox(width: 6),

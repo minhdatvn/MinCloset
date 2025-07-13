@@ -43,14 +43,14 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
     state = state.copyWith(successMessage: null, errorMessage: null);
   }
 
-  Future<void> addCloset(String name) async {
+  Future<void> addCloset(
+    String name, {
+    String? iconName,
+    String? colorHex,
+  }) async {
     final trimmedName = name.trim();
     if (trimmedName.isEmpty) {
       state = state.copyWith(errorMessage: 'Closet name cannot be empty.');
-      return;
-    }
-    if (trimmedName.length > 30) {
-      state = state.copyWith(errorMessage: 'Closet name cannot exceed 30 characters.');
       return;
     }
 
@@ -78,7 +78,12 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
           return;
         }
 
-        final newCloset = Closet(id: const Uuid().v4(), name: trimmedName);
+        final newCloset = Closet(
+          id: const Uuid().v4(),
+          name: trimmedName,
+          iconName: iconName,
+          colorHex: colorHex,
+        );
         final insertResult = await _closetRepo.insertCloset(newCloset);
 
         if (!mounted) return;

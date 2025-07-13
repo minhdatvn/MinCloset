@@ -1,11 +1,12 @@
-// lib/screens/edit_closet_screen.dart
+// lib/screens/closet_form_screen.dart (tên file mới)
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/closet.dart';
-import 'package:mincloset/notifiers/closets_page_notifier.dart'; 
+import 'package:mincloset/notifiers/closets_page_notifier.dart';
+import 'package:mincloset/providers/ui_providers.dart';
 
-// --- Định nghĩa sẵn các Icon và Màu sắc để chọn ---
+// --- THAY ĐỔI 1: Tách các Icon và Màu sắc ra khỏi widget để dễ quản lý ---
 const Map<String, IconData> _availableIcons = {
   'Default': Icons.style_outlined,
   'Work': Icons.business_center_outlined,
@@ -27,26 +28,32 @@ const List<String> _availableColors = [
   '#D7CCC8', // Light Brown
 ];
 
-// --- Bắt đầu Widget ---
-class EditClosetScreen extends ConsumerStatefulWidget {
-  final Closet closet;
-  const EditClosetScreen({super.key, required this.closet});
+// --- THAY ĐỔI 2: Đổi tên widget và cập nhật constructor ---
+class ClosetFormScreen extends ConsumerStatefulWidget {
+  // `closetToEdit` giờ đây là nullable. Nếu nó null, ta hiểu là đang ở chế độ "Thêm mới".
+  final Closet? closetToEdit; 
+  const ClosetFormScreen({super.key, this.closetToEdit});
 
   @override
-  ConsumerState<EditClosetScreen> createState() => _EditClosetScreenState();
+  ConsumerState<ClosetFormScreen> createState() => _ClosetFormScreenState();
 }
 
-class _EditClosetScreenState extends ConsumerState<EditClosetScreen> {
+class _ClosetFormScreenState extends ConsumerState<ClosetFormScreen> {
   late TextEditingController _nameController;
   late String _selectedIconName;
   late String _selectedColorHex;
+  late bool _isEditing;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.closet.name);
-    _selectedIconName = widget.closet.iconName ?? 'Default';
-    _selectedColorHex = widget.closet.colorHex ?? '#FFFFFF';
+    // Xác định xem có đang ở chế độ sửa không
+    _isEditing = widget.closetToEdit != null;
+    
+    // Khởi tạo các giá trị ban đầu
+    _nameController = TextEditingController(text: widget.closetToEdit?.name ?? '');
+    _selectedIconName = widget.closetToEdit?.iconName ?? 'Default';
+    _selectedColorHex = widget.closetToEdit?.colorHex ?? '#FFFFFF';
   }
 
   @override
@@ -56,17 +63,32 @@ class _EditClosetScreenState extends ConsumerState<EditClosetScreen> {
   }
 
   void _saveChanges() {
-    // 1. Tạo đối tượng closet đã cập nhật từ state của màn hình
-    final updatedCloset = widget.closet.copyWith(
-      name: _nameController.text.trim(),
-      iconName: _selectedIconName,
-      colorHex: _selectedColorHex,
-    );
+    final notifier = ref.read(closetsPageProvider.notifier);
+    final name = _nameController.text.trim();
 
-    // 2. Gọi notifier để thực hiện logic lưu trữ
-    ref.read(closetsPageProvider.notifier).updateClosetDetails(updatedCloset);
+    if (_isEditing) {
+      // Nếu là chế độ sửa, tạo một đối tượng mới với ID cũ
+      final updatedCloset = widget.closetToEdit!.copyWith(
+        name: name,
+        iconName: _selectedIconName,
+        colorHex: _selectedColorHex,
+      );
+      notifier.updateClosetDetails(updatedCloset);
+    } else {
+      // Nếu là chế độ thêm, gọi hàm addCloset với các thông tin đã chọn
+      notifier.addCloset(
+        name,
+        iconName: _selectedIconName,
+        colorHex: _selectedColorHex,
+      );
+      // Bổ sung logic điều hướng
+      // 1. Chuyển trang chính đến tab "Closets" (index = 1)
+      ref.read(mainScreenIndexProvider.notifier).state = 1;
+      // 2. Chỉ định cho trang Closets hiển thị tab "By Closet" (index = 1)
+      ref.read(closetsSubTabIndexProvider.notifier).state = 1;
+    }
     
-    // 3. Đóng màn hình lại
+    // Sau khi lưu, đóng màn hình lại
     Navigator.of(context).pop();
   }
   
@@ -82,7 +104,8 @@ class _EditClosetScreenState extends ConsumerState<EditClosetScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Closet'),
+        // --- THAY ĐỔI 3: Tiêu đề động ---
+        title: Text(_isEditing ? 'Edit Closet' : 'Add New Closet'),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
@@ -94,10 +117,10 @@ class _EditClosetScreenState extends ConsumerState<EditClosetScreen> {
           )
         ],
       ),
+      // --- Phần body giữ nguyên, không thay đổi ---
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          // --- Sửa Tên ---
           TextFormField(
             controller: _nameController,
             decoration: const InputDecoration(
@@ -107,8 +130,6 @@ class _EditClosetScreenState extends ConsumerState<EditClosetScreen> {
             maxLength: 30,
           ),
           const SizedBox(height: 24),
-
-          // --- Chọn Icon ---
           const Text('Choose Icon', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           GridView.builder(
@@ -143,8 +164,6 @@ class _EditClosetScreenState extends ConsumerState<EditClosetScreen> {
             },
           ),
           const SizedBox(height: 24),
-
-          // --- Chọn Màu ---
           const Text('Choose Card Color', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           GridView.builder(

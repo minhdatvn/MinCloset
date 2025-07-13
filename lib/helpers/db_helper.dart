@@ -24,7 +24,14 @@ class DatabaseHelper {
   }
 
   Future<void> _createDB(sql.Database db, int version) async {
-    await db.execute("""CREATE TABLE closets (id TEXT PRIMARY KEY, name TEXT)""");
+    await db.execute("""
+      CREATE TABLE closets (
+        id TEXT PRIMARY KEY, 
+        name TEXT,
+        iconName TEXT, 
+        colorHex TEXT
+      )
+    """);
     
     // <<< THAY ĐỔI 1: Thêm cột thumbnailPath >>>
     await db.execute("""CREATE TABLE clothing_items (

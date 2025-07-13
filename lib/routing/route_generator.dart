@@ -35,6 +35,7 @@ import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/screens/webview_page.dart';
 import 'package:mincloset/screens/permissions_screen.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:mincloset/screens/edit_closet_screen.dart';
 
 class CalendarPageArgs {
   final bool showHint;
@@ -174,6 +175,16 @@ class RouteGenerator {
       case AppRoutes.badgeDetail:
         if (args is BadgeDetailPageArgs) {
           return AnimatePageRoute(page: BadgeDetailPage(args: args));
+        }
+        return _errorRoute();
+
+      case AppRoutes.editCloset:
+        if (args is Closet) {
+          return MaterialPageRoute(
+            // Sử dụng fullscreenDialog để có hiệu ứng trượt từ dưới lên
+            fullscreenDialog: true, 
+            builder: (_) => EditClosetScreen(closet: args),
+          );
         }
         return _errorRoute();
       

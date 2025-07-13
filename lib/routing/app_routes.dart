@@ -25,4 +25,5 @@ class AppRoutes {
   static const String quests = '/quests'; 
   static const String badgeDetail = '/badge-detail';
   static const String permissions = '/permissions';
+  static const String editCloset = '/edit-closet'; 
 }

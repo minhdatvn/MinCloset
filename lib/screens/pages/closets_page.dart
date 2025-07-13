@@ -21,6 +21,20 @@ import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:showcaseview/showcaseview.dart';
 
+IconData _getIconDataFromName(String? iconName) {
+  // Đây là map tương tự như ở màn hình EditClosetScreen
+  const Map<String, IconData> availableIcons = {
+    'Default': Icons.style_outlined,
+    'Work': Icons.business_center_outlined,
+    'Gym': Icons.fitness_center_outlined,
+    'Travel': Icons.flight_takeoff_outlined,
+    'Home': Icons.home_outlined,
+    'Party': Icons.celebration_outlined,
+    'Formal': Icons.theater_comedy_outlined,
+  };
+  return availableIcons[iconName] ?? Icons.style_outlined; // Trả về icon mặc định nếu không tìm thấy
+}
+
 class ClosetsPage extends ConsumerStatefulWidget {
   const ClosetsPage({super.key});
   @override
@@ -440,6 +454,14 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
               );
             }
             final closet = closets[index - 1];
+            final Color cardColor;
+            if (closet.colorHex != null && closet.colorHex!.isNotEmpty) {
+              final colorString = closet.colorHex!.replaceAll("#", "");
+              final colorValue = int.tryParse(colorString, radix: 16);
+              cardColor = colorValue != null ? Color(0xFF000000 | colorValue) : theme.colorScheme.surfaceContainerHighest;
+            } else {
+              cardColor = theme.colorScheme.surfaceContainerHighest;
+            }
             return Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: ClipRRect(
@@ -483,17 +505,13 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                       // Việc cập nhật UI sẽ do provider đảm nhiệm
                       return false; 
                     } else {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => ClosetFormDialog(
-                          initialName: closet.name,
-                          onSubmit: (newName) async {
-                            await ref.read(closetsPageProvider.notifier).updateCloset(closet, newName);
-                            return null;
-                          },
-                        ),
+                      await Navigator.pushNamed(
+                        context,
+                        AppRoutes.editCloset,
+                        arguments: closet, // Truyền đối tượng closet cần sửa
                       );
-                      return false;
+                      // Không cần làm gì sau khi pop vì Notifier đã tự động cập nhật
+                      return false; // Luôn trả về false
                     }
                   },
                   child: SizedBox(
@@ -501,22 +519,28 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                     child: Card(
                       margin: EdgeInsets.zero,
                       elevation: 0,
-                      color: theme.colorScheme.surfaceContainerHighest,
+                      color: cardColor,
                       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                       clipBehavior: Clip.antiAlias,
                       child: Center(
-                          child: InkWell(
-                            onTap: () => Navigator.pushNamed(context, AppRoutes.closetDetail, arguments: closet),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-                              leading: AspectRatio(
+                        child: InkWell(
+                          onTap: () => Navigator.pushNamed(context, AppRoutes.closetDetail, arguments: closet),
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+                            // 2. SỬ DỤNG ICON ĐÃ LẤY TỪ HÀM HELPER
+                            leading: AspectRatio(
                               aspectRatio: 1,
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  // Làm màu nền của icon hơi tối hơn màu thẻ một chút
+                                  color: Color.alphaBlend(Colors.black.withValues(alpha:0.05), cardColor),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Icon(Icons.style_outlined, color: Colors.grey, size: 32),
+                                child: Icon(
+                                  _getIconDataFromName(closet.iconName), // <-- SỬ DỤNG HÀM MỚI
+                                  color: theme.colorScheme.onSurface,
+                                  size: 32
+                                ),
                               ),
                             ),
                             title: Text(closet.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),

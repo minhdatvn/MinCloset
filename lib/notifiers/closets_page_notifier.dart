@@ -104,8 +104,9 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
     );
   }
   
-  Future<void> updateCloset(Closet closetToUpdate, String newName) async {
-    final trimmedName = newName.trim();
+  Future<void> updateClosetDetails(Closet updatedCloset) async {
+    // 1. Kiểm tra tên mới có hợp lệ không
+    final trimmedName = updatedCloset.name.trim();
     if (trimmedName.isEmpty) {
       state = state.copyWith(errorMessage: 'Closet name cannot be empty.');
       return;
@@ -115,36 +116,41 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
       return;
     }
 
+    // 2. Lấy danh sách closets hiện tại để kiểm tra trùng lặp
     final closetsResult = await _closetRepo.getClosets();
     if (!mounted) return;
 
-    await closetsResult.fold((failure) {
-      state = state.copyWith(errorMessage: failure.message);
-    }, (closets) async {
-      final isDuplicate = closets.any((closet) =>
-          closet.id != closetToUpdate.id &&
-          closet.name.trim().toLowerCase() == trimmedName.toLowerCase());
+    await closetsResult.fold(
+      (failure) {
+        state = state.copyWith(errorMessage: failure.message);
+      },
+      (closets) async {
+        // Kiểm tra xem tên mới có trùng với một closet khác không (loại trừ chính nó)
+        final isDuplicate = closets.any((closet) =>
+            closet.id != updatedCloset.id &&
+            closet.name.trim().toLowerCase() == trimmedName.toLowerCase());
 
-      if (isDuplicate) {
-        state = state.copyWith(errorMessage: 'A closet with this name already exists.');
-        return;
-      }
+        if (isDuplicate) {
+          state = state.copyWith(errorMessage: 'A closet with this name already exists.');
+          return;
+        }
 
-      final result = await _closetRepo
-          .updateCloset(closetToUpdate.copyWith(name: trimmedName));
+        // 3. Gọi repository để cập nhật CSDL
+        final result = await _closetRepo.updateCloset(updatedCloset);
+        if (!mounted) return;
 
-      if (!mounted) return;
-
-      result.fold(
-        (failure) {
-          state = state.copyWith(errorMessage: failure.message);
-        },
-        (_) {
-          _ref.invalidate(closetsProvider);
-          state = state.copyWith(successMessage: 'Closet name updated to "$trimmedName".');
-        },
-      );
-    });
+        result.fold(
+          (failure) {
+            state = state.copyWith(errorMessage: failure.message);
+          },
+          (_) {
+            // 4. Cập nhật thành công, làm mới lại danh sách và báo thành công
+            _ref.invalidate(closetsProvider);
+            state = state.copyWith(successMessage: 'Closet updated successfully.');
+          },
+        );
+      },
+    );
   }
 
   Future<void> deleteCloset(String closetId) async {

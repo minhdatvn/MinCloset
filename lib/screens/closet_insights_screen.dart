@@ -43,10 +43,32 @@ class ClosetInsightsScreen extends ConsumerWidget {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
-          child: Text(state.errorMessage!, textAlign: TextAlign.center),
-        ),
-      );
-    }
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  state.errorMessage!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 4),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).popAndPushNamed(AppRoutes.calendar);
+                  },
+                  child: const Text(
+                    "Go to Style Journal",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
     if (state.insights == null) {
       return const Center(child: Text('No insights available.'));
     }

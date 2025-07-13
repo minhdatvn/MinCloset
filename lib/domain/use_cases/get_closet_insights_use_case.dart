@@ -35,7 +35,7 @@ class GetClosetInsightsUseCase {
       final allLogs = logsEither.getRight().getOrElse(() => []);
       
       if (allItems.isEmpty) {
-        return const Left(GenericFailure('Add items with prices to see insights.'));
+        return const Left(GenericFailure('Please add items or outfits to Style journal first!'));
       }
 
       // 2. Tính toán số lần mặc cho mỗi vật phẩm

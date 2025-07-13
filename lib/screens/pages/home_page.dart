@@ -51,6 +51,7 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   final TextEditingController _purposeController = TextEditingController();
+  final FocusNode _purposeFocusNode = FocusNode();
   int _currentPurposeLength = 0;
 
   @override
@@ -73,6 +74,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   void dispose() {
     // Hủy controller khi widget bị xóa
     _purposeController.dispose();
+    _purposeFocusNode.dispose(); 
     super.dispose();
   }
 
@@ -386,6 +388,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               children: [
                 TextField(
                   controller: _purposeController,
+                  focusNode: _purposeFocusNode,
                   maxLength: 150,
                   maxLines: null, 
                   decoration: InputDecoration(
@@ -408,7 +411,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         : () {
                             final notifier = ref.read(homeProvider.notifier);
                             notifier.getNewSuggestion(purpose: _purposeController.text);
-                            FocusScope.of(context).unfocus();
+                            _purposeFocusNode.unfocus(); 
                         }
                     )
                   ),

@@ -220,31 +220,17 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                           }
 
                           if (shouldProceed && context.mounted) {
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (ctx) => const PopScope(
-                                canPop: false,
-                                child:
-                                    Center(child: CircularProgressIndicator()),
-                              ),
-                            );
-
                             try {
-                              final removedBgBytes = await Navigator.pushNamed<
-                                      Uint8List?>(
+                              final removedBgBytes = await Navigator.pushNamed<Uint8List?>(
                                 context,
                                 AppRoutes.backgroundRemover,
                                 arguments: currentImageBytes,
                               ).timeout(const Duration(seconds: 45));
 
-                              if (context.mounted) Navigator.of(context).pop();
-
                               if (removedBgBytes != null) {
                                 widget.onImageUpdated?.call(removedBgBytes);
                               }
                             } on TimeoutException {
-                              if (context.mounted) Navigator.of(context).pop();
                               if (context.mounted) {
                                 ref.read(notificationServiceProvider).showBanner(
                                       message:
@@ -252,7 +238,6 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                                     );
                               }
                             } catch (e) {
-                              if (context.mounted) Navigator.of(context).pop();
                               if (context.mounted) {
                                 ref.read(notificationServiceProvider).showBanner(
                                       message:

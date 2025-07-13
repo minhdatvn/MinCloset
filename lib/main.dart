@@ -3,45 +3,52 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/helpers/db_helper.dart'; // Thêm import
-import 'package:mincloset/models/closet.dart'; // Thêm import
+import 'package:mincloset/helpers/db_helper.dart'; 
+import 'package:mincloset/models/closet.dart'; 
 import 'package:mincloset/providers/locale_provider.dart';
 import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/routing/route_generator.dart';
-import 'package:mincloset/screens/main_screen.dart'; // Thêm import
-import 'package:mincloset/screens/onboarding_screen.dart'; // Thêm import
+import 'package:mincloset/screens/main_screen.dart'; 
+import 'package:mincloset/screens/onboarding_screen.dart'; 
 import 'package:mincloset/services/weather_image_service.dart';
 import 'package:mincloset/src/services/local_notification_service.dart';
 import 'package:mincloset/theme/app_theme.dart';
 import 'package:mincloset/widgets/global_ui_scope.dart';
+import 'package:mincloset/screens/permissions_screen.dart';
+import 'package:mincloset/providers/flow_providers.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Thêm import
-import 'package:uuid/uuid.dart'; // Thêm import
+import 'package:shared_preferences/shared_preferences.dart'; 
+import 'package:uuid/uuid.dart'; 
 
 // BƯỚC 1: Chuyển hàm main thành async
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
   await LocalNotificationService().init();
-
-  // BƯỚC 2: Di chuyển toàn bộ logic từ SplashScreen vào đây
+  
   await DatabaseHelper.instance.database;
   final prefs = await SharedPreferences.getInstance();
-  final bool hasCompletedOnboarding = prefs.getBool('has_completed_onboarding') ?? false;
 
-  // Logic tạo tủ đồ mặc định khi onboarding chưa hoàn thành
+  // Đọc trạng thái từ SharedPreferences
+  final bool hasCompletedOnboarding = prefs.getBool('has_completed_onboarding') ?? false;
+  final bool hasSeenPermissionsScreen = prefs.getBool('has_seen_permissions_screen') ?? false;
+
+  // Logic tạo tủ đồ mặc định (giữ nguyên)
   if (!hasCompletedOnboarding) {
-      final defaultCloset = Closet(
-        id: const Uuid().v4(),
-        name: 'My first closet',
-      );
-      await DatabaseHelper.instance.insertCloset(defaultCloset.toMap());
+    final defaultCloset = Closet(id: const Uuid().v4(), name: 'My first closet');
+    await DatabaseHelper.instance.insertCloset(defaultCloset.toMap());
   }
   
-  // BƯỚC 3: Quyết định màn hình đầu tiên sẽ là gì
-  final Widget initialScreen = hasCompletedOnboarding
-      ? const MainScreen()
-      : const OnboardingScreen();
+  // Quyết định màn hình đầu tiên (giữ nguyên)
+  final Widget initialScreen;
+  if (!hasCompletedOnboarding) {
+    initialScreen = const OnboardingScreen();
+  } else if (!hasSeenPermissionsScreen) {
+    initialScreen = const PermissionsScreen();
+  } else {
+    initialScreen = const MainScreen();
+  }
 
   await SentryFlutter.init(
     (options) {
@@ -49,9 +56,11 @@ Future<void> main() async {
     },
     appRunner: () => runApp(
       ProviderScope(
-        // BƯỚC 4: Ghi đè provider để truyền màn hình đầu tiên vào trong
         overrides: [
+          // Ghi đè giá trị ban đầu cho các provider
           initialScreenProvider.overrideWithValue(initialScreen),
+          onboardingCompletedProvider.overrideWith((ref) => StateController(hasCompletedOnboarding)),
+          permissionsSeenProvider.overrideWith((ref) => StateController(hasSeenPermissionsScreen)),
         ],
         child: const MinClosetApp(),
       ),
@@ -101,6 +110,35 @@ class MinClosetApp extends ConsumerWidget {
   }
 }
 
+class AppFlowController extends ConsumerWidget {
+  final Widget child;
+  const AppFlowController({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final nestedNavigatorKey = ref.watch(nestedNavigatorKeyProvider);
+
+    // Lắng nghe trạng thái onboarding
+    ref.listen<bool>(onboardingCompletedProvider, (previous, next) {
+      // Khi trạng thái thay đổi từ false -> true
+      if (next == true && previous == false) {
+        // Chuyển tới màn hình xin quyền
+        nestedNavigatorKey.currentState?.pushReplacementNamed(AppRoutes.permissions);
+      }
+    });
+
+    // Lắng nghe trạng thái xin quyền
+    ref.listen<bool>(permissionsSeenProvider, (previous, next) {
+      // Khi trạng thái thay đổi từ false -> true
+      if (next == true && previous == false) {
+        // Chuyển tới màn hình chính
+        nestedNavigatorKey.currentState?.pushReplacementNamed(AppRoutes.main);
+      }
+    });
+
+    return child;
+  }
+}
 
 // BƯỚC 5: Cập nhật MainAppWrapper để đọc màn hình đầu tiên từ provider
 class MainAppWrapper extends ConsumerWidget {
@@ -123,17 +161,16 @@ class MainAppWrapper extends ConsumerWidget {
       child: Scaffold(
         body: Stack(
           children: [
-            Navigator(
-              key: nestedNavigatorKey,
-              // BƯỚC 6: Thay vì route, dùng onGenerateInitialRoutes
-              // Điều này cho phép chúng ta đặt một trang tùy chỉnh làm trang đầu tiên
-              // mà không cần route name.
-              onGenerateInitialRoutes: (navigator, initialRoute) {
-                return [
-                  MaterialPageRoute(builder: (context) => initialScreen)
-                ];
-              },
-              onGenerateRoute: RouteGenerator.onGenerateRoute,
+            AppFlowController(
+              child: Navigator(
+                key: nestedNavigatorKey,
+                onGenerateInitialRoutes: (navigator, initialRoute) {
+                  return [
+                    MaterialPageRoute(builder: (context) => initialScreen)
+                  ];
+                },
+                onGenerateRoute: RouteGenerator.onGenerateRoute,
+              ),
             ),
             const GlobalUiScope(),
           ],

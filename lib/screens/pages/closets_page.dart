@@ -407,7 +407,7 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                 description: 'Tap here to create a new closet, helping you organize your clothes for different purposes like "Work" or "Gym".',
                 child: Card(
                   elevation: 0,
-                  color: theme.colorScheme.primary.withOpacity(0.05),
+                  color: theme.colorScheme.primary.withValues(alpha:0.05),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   child: ListTile(
                     leading: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),

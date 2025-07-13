@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
-import 'package:mincloset/routing/app_routes.dart';
+import 'package:mincloset/providers/flow_providers.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart'; 
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -23,7 +23,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   // Function to complete the onboarding process
   Future<void> _completeOnboarding() async {
     if (_formKey.currentState?.validate() ?? false) {
-      final navigator = Navigator.of(context);
       // Save the user's name
       await ref
           .read(profileProvider.notifier)
@@ -33,10 +32,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('has_completed_onboarding', true);
 
-      // Navigate to the main screen
-      if (mounted) {
-        navigator.pushReplacementNamed(AppRoutes.main);
-      }
+      ref.read(onboardingCompletedProvider.notifier).state = true;
     }
   }
 

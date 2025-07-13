@@ -33,6 +33,7 @@ import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 import 'package:mincloset/screens/quests_page.dart';
 import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/screens/webview_page.dart';
+import 'package:mincloset/screens/permissions_screen.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 class CalendarPageArgs {
@@ -175,6 +176,9 @@ class RouteGenerator {
           return AnimatePageRoute(page: BadgeDetailPage(args: args));
         }
         return _errorRoute();
+      
+      case AppRoutes.permissions:
+        return MaterialPageRoute(builder: (_) => const PermissionsScreen());
 
       default:
         return _errorRoute();

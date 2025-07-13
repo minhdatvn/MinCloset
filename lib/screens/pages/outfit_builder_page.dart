@@ -242,7 +242,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
         );
         // Pop màn hình và trả về true
         ref.read(mainScreenIndexProvider.notifier).state = 2;
-        Navigator.of(context).popUntil((route) => route.settings.name == AppRoutes.main);
+        Navigator.of(context).pop(); 
       }
 
       // Hiển thị lỗi nếu có

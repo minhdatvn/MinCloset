@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/providers/flow_providers.dart';
+import 'package:mincloset/src/providers/notification_providers.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,9 +11,9 @@ class PermissionsScreen extends ConsumerWidget {
   const PermissionsScreen({super.key});
 
   Future<void> _requestPermissions(BuildContext context, WidgetRef ref) async {
+    await ref.read(localNotificationServiceProvider).requestPermissions();
     // Request the necessary permissions at once
     await [
-      Permission.notification,
       Permission.camera,
       Permission.locationWhenInUse,
     ].request();

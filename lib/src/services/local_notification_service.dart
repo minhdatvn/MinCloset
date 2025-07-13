@@ -14,7 +14,6 @@ class LocalNotificationService {
     const AndroidInitializationSettings androidInitializationSettings =
         AndroidInitializationSettings('app_icon');
 
-    // Sửa lỗi: Xóa tham số onDidReceiveLocalNotification không còn tồn tại
     final DarwinInitializationSettings darwinInitializationSettings =
         DarwinInitializationSettings();
 
@@ -33,28 +32,38 @@ class LocalNotificationService {
       onDidReceiveNotificationResponse: (details) {},
     );
 
-    // 4. Yêu cầu quyền trên Android
-    await _requestAndroidPermission();
+    // --- THAY ĐỔI 1: XÓA DÒNG GỌI HÀM XIN QUYỀN Ở ĐÂY ---
+    // await _requestAndroidPermission(); // <- Xóa dòng này
   }
 
   Future<void> _configureLocalTimezone() async {
     tz.initializeTimeZones();
-    // Sửa lỗi: Sử dụng đúng tên class FlutterTimezone
     final String timeZoneName = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZoneName));
   }
   
-  Future<void> _requestAndroidPermission() async {
-    final androidImplementation = _notificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>();
+  // --- THAY ĐỔI 2: ĐỔI TÊN HÀM TỪ PRIVATE THÀNH PUBLIC VÀ XIN THÊM QUYỀN IOS ---
+  Future<void> requestPermissions() async {
+    // Yêu cầu quyền trên iOS
+    final iOSImplementation = _notificationsPlugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+    if (iOSImplementation != null) {
+      await iOSImplementation.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
+
+    // Yêu cầu quyền trên Android
+    final androidImplementation = _notificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidImplementation != null) {
-        // Yêu cầu đồng thời 2 quyền cần thiết cho các phiên bản Android mới
         await androidImplementation.requestNotificationsPermission();
         await androidImplementation.requestExactAlarmsPermission();
     }
   }
 
+  // ... (các hàm lên lịch thông báo còn lại giữ nguyên không thay đổi)
+  // ... scheduleMorningReminder(), scheduleEveningReminder(), etc.
   Future<void> scheduleMorningReminder() async {
     await _notificationsPlugin.zonedSchedule(
       0, 
@@ -71,7 +80,6 @@ class LocalNotificationService {
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      // Sửa lỗi: Xóa tham số uiLocalNotificationDateInterpretation không còn tồn tại
       matchDateTimeComponents: DateTimeComponents.time, 
     );
   }
@@ -92,7 +100,6 @@ class LocalNotificationService {
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      // Sửa lỗi: Xóa tham số uiLocalNotificationDateInterpretation không còn tồn tại
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }
@@ -110,7 +117,7 @@ class LocalNotificationService {
   Future<void> showNow(int id, String title, String body) async {
     const NotificationDetails platformChannelSpecifics = NotificationDetails(
       android: AndroidNotificationDetails(
-        'instant_test_channel', // Một channel ID khác cho việc test
+        'instant_test_channel', 
         'Instant Test Notifications',
         channelDescription: 'For immediate testing of notifications.',
         importance: Importance.max,

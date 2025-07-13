@@ -271,6 +271,20 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<QuestHintState?>(questHintProvider, (previous, next) {
+      // Nếu có tín hiệu mới (next != null), có key để gợi ý, và không phải là điều hướng qua routeName
+      if (next != null && next.hintKey != null && next.routeName == null) {
+        // Đợi UI build xong frame tiếp theo (sau khi đã chuyển tab)
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            // Bắt đầu hiển thị showcase cho key được chỉ định
+            ShowCaseWidget.of(context).startShowCase([next.hintKey!]);
+            // Xóa tín hiệu đi để không bị gọi lại
+            ref.read(questHintProvider.notifier).clearHint();
+          }
+        });
+      }
+    });
 
     final selectedPageIndex = ref.watch(mainScreenIndexProvider);
 

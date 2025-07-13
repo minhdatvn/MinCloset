@@ -10,6 +10,7 @@ import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/item_detail_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
@@ -78,17 +79,32 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
 
     // <<< KHỐI LISTEN ĐỂ XỬ LÝ THÔNG BÁO VÀ ĐIỀU HƯỚNG >>>
     ref.listen<ItemDetailState>(provider, (previous, next) {
+      // Khi có thông báo thành công (tức là đã lưu item xong)
       if (next.successMessage != null) {
         ref.read(notificationServiceProvider).showBanner(
           message: next.successMessage!,
           type: NotificationType.success,
         );
-        notifier.clearMessages(); // Xóa thông điệp để không hiển thị lại
-        Navigator.of(context).pop(true); // Quay về và báo hiệu đã có thay đổi
+        notifier.clearMessages();
+        
+        // **LOGIC ĐIỀU HƯỚNG MỚI**
+        // Nếu đây là đang tạo item mới (không phải sửa)
+        if (!state.isEditing) {
+          // 1. Chuyển MainScreen đến trang Closets (index = 1)
+          ref.read(mainScreenIndexProvider.notifier).state = 1;
+          
+          // 2. Chỉ định cho ClosetsPage hiển thị tab "All Items" (index = 0)
+          ref.read(closetsSubTabIndexProvider.notifier).state = 0;
+        }
+
+        // 3. Đóng màn hình hiện tại và quay về
+        Navigator.of(context).pop(true);
       }
+      
+      // Logic xử lý lỗi giữ nguyên
       if (next.errorMessage != null) {
         ref.read(notificationServiceProvider).showBanner(message: next.errorMessage!);
-        notifier.clearMessages(); // Xóa thông điệp để không hiển thị lại
+        notifier.clearMessages();
       }
     });
 

@@ -4,14 +4,14 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
+import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/providers/ui_providers.dart';
+import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
-import 'package:mincloset/providers/ui_providers.dart';
-import 'package:mincloset/routing/app_routes.dart';
 
 class BatchItemDetailScreen extends ConsumerStatefulWidget {
   const BatchItemDetailScreen({super.key});
@@ -43,10 +43,16 @@ class _BatchItemDetailScreenState extends ConsumerState<BatchItemDetailScreen> {
     // <<< THAY ĐỔI LOGIC LISTENER ĐỂ MẠNH MẼ HƠN >>>
     ref.listen<BatchItemDetailState>(batchAddScreenProvider, (previous, next) {
       // 1. Xử lý thành công
-      if (next.saveSuccess && !previous!.saveSuccess) {
+      if (next.saveSuccess && previous?.saveSuccess == false) {
+        // Chuyển MainScreen đến trang Closets (index = 1)
         ref.read(mainScreenIndexProvider.notifier).state = 1;
-        Navigator.of(context).popUntil((route) => route.settings.name == AppRoutes.main);
-        return;
+
+        // **DÒNG LỆNH MỚI: Chỉ định cho ClosetsPage hiển thị tab "All Items"**
+        ref.read(closetsSubTabIndexProvider.notifier).state = 0;
+
+        // Điều hướng về màn hình chính
+        Navigator.of(context).pop(); 
+        return; // Kết thúc để tránh xử lý các điều kiện khác
       }
       
       // 2. Xử lý hiển thị lỗi

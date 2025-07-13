@@ -49,7 +49,9 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
     _tabController = TabController(length: 2, vsync: this);
     // Lắng nghe sự thay đổi từ provider và điều khiển TabController
     ref.listenManual(closetsSubTabIndexProvider, (previous, next) {
+      // Nếu index của TabController khác với giá trị mới từ provider
       if (_tabController.index != next) {
+        // thì thực hiện chuyển tab một cách mượt mà
         _tabController.animateTo(next);
       }
     });
@@ -92,6 +94,9 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
                   Tab(text: 'All Items'),
                   Tab(text: 'By Closet'),
                 ],
+                onTap: (index) {
+                  ref.read(closetsSubTabIndexProvider.notifier).state = index;
+                },
               ),
       ),
       body: TabBarView(
@@ -285,7 +290,7 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
             },
             child: RecentItemCard(item: item, isSelected: isSelected),
           )
-          // <<< BẮT ĐẦU THÊM HIỆU ỨNG >>>
+          // <<< HIỆU ỨNG >>>
           .animate()
           .fadeIn(duration: 400.ms, curve: Curves.easeOut)
           .slide(

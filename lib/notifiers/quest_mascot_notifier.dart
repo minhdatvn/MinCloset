@@ -2,7 +2,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
+import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/repositories/settings_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -122,7 +124,7 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     updatePosition(newPosition);
   }
 
-  void showNewQuestNotification(double screenWidth) {
+  void showNewQuestNotification(String questId) {
     _notificationTimer?.cancel();
     if (mounted) {
       state = state.copyWith(
@@ -131,10 +133,16 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
         notificationMessage: 'New Quest!',
       );
     }
+
+    // Logic lưu lại quest đã xem (giữ nguyên)
+    final seenIds = _prefs?.getStringList('seen_new_quest_ids')?.toList() ?? [];
+    if (!seenIds.contains(questId)) {
+      seenIds.add(questId);
+      _prefs?.setStringList('seen_new_quest_ids', seenIds);
+    }
+
     _notificationTimer = Timer(const Duration(seconds: 4), () {
       hideCurrentNotification();
-      // Sau khi ẩn thông báo, gọi hàm bám biên
-      _snapToEdge(screenWidth);
     });
   }
 
@@ -156,19 +164,52 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     }
 
     _notificationTimer = Timer(const Duration(seconds: 3), () {
+      // Ẩn thông báo "Quest Completed" đi
+      hideCurrentNotification();
+
+      // Di chuyển mascot về vị trí cũ (không đổi)
       if (mounted && state.originalPosition != null) {
-        // Cập nhật lại vị trí gốc trước
         state = state.copyWith(
           position: state.originalPosition,
           clearOriginalPosition: true,
         );
-        // Sau đó ngay lập tức gọi hàm bám biên
         _snapToEdge(screenWidth);
       }
-      hideCurrentNotification();
+      
+      // Bắt đầu thay đổi: Gọi hàm có sẵn của bạn tại đây
+      checkForNewQuests(); 
+      // Kết thúc thay đổi
     });
   }
 
+  void checkForNewQuests() {
+    if (state.notificationType != MascotNotificationType.none || !state.isVisible) {
+      return;
+    }
+
+    final questRepo = _ref.read(questRepositoryProvider);
+    final allQuests = questRepo.getCurrentQuests();
+    final seenQuestIds = _prefs?.getStringList('seen_new_quest_ids')?.toSet() ?? {};
+    
+    Quest? newQuestToShow; // Khai báo biến có thể null
+
+    try {
+      // Dùng try-catch để bắt lỗi khi không tìm thấy
+      newQuestToShow = allQuests.firstWhere(
+        (quest) => !seenQuestIds.contains(quest.id) && quest.status == QuestStatus.inProgress,
+      );
+    } catch (e) {
+      // Bắt lỗi StateError khi firstWhere không tìm thấy phần tử nào
+      // Gán newQuestToShow = null để xử lý ở bước tiếp theo
+      newQuestToShow = null;
+    }
+    
+    // Bây giờ, điều kiện kiểm tra null là cần thiết và chính xác
+    if (newQuestToShow != null) {
+      // Truyền questId (String) vào hàm đã được sửa
+      showNewQuestNotification(newQuestToShow.id);
+    }
+  }
 
   void hideCurrentNotification() {
     _notificationTimer?.cancel();

@@ -14,13 +14,12 @@ import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/notifiers/outfit_builder_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/screens/background_cropper_screen.dart';
 import 'package:mincloset/states/outfit_builder_state.dart';
 import 'package:mincloset/widgets/item_browser_view.dart';
 import 'package:mincloset/widgets/item_search_filter_bar.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
-import 'package:mincloset/providers/ui_providers.dart';
-import 'package:mincloset/routing/app_routes.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 import 'package:uuid/uuid.dart';
 

@@ -187,6 +187,22 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
             eventLoader: (day) {
               return calendarState.events[DateTime(day.year, day.month, day.day)] ?? [];
             },
+            daysOfWeekHeight: 30.0,
+            calendarStyle: CalendarStyle(
+              // Tùy chỉnh cho ngày được chọn (Selected Day)
+              selectedDecoration: BoxDecoration(
+                color: const Color(0xFF98D8C8), // <-- MÀU XANH BẠC HÀ ĐẬM
+                shape: BoxShape.circle,
+              ),
+              selectedTextStyle: const TextStyle(color: Colors.white),
+
+              // Tùy chỉnh cho ngày hôm nay (Today)
+              todayDecoration: BoxDecoration(
+                color: const Color(0xFFE0F2F1), // <-- MÀU XANH BẠC HÀ NHẠT
+                shape: BoxShape.circle,
+              ),
+              todayTextStyle: TextStyle(color: Colors.teal.shade800),
+            ),
             calendarBuilders: CalendarBuilders(
               markerBuilder: (context, date, events) {
                 if (events.isNotEmpty) {

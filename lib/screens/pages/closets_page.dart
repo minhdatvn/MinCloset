@@ -401,28 +401,40 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                   ),
                 );
               }
-              return Showcase(
-                key: QuestHintKeys.createClosetHintKey,
-                title: 'Create a New Closet',
-                description: 'Tap here to create a new closet, helping you organize your clothes for different purposes like "Work" or "Gym".',
-                child: Card(
-                  elevation: 0,
-                  color: theme.colorScheme.primary.withValues(alpha:0.05),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: ListTile(
-                    leading: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),
-                    title: Text('Add new closet', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
-                    onTap: () {
-                      showAnimatedDialog(
-                        context,
-                        builder: (ctx) => ClosetFormDialog(
-                          onSubmit: (name) async {
-                            await ref.read(closetsPageProvider.notifier).addCloset(name);
-                            return null;
-                          },
+              return SizedBox(
+                height: 90, // 1. Đặt chiều cao cố định là 90
+                child: Showcase(
+                  key: QuestHintKeys.createClosetHintKey,
+                  title: 'Create a New Closet',
+                  description: 'Tap here to create a new closet, helping you organize your clothes for different purposes like "Work" or "Gym".',
+                  child: Card(
+                    margin: EdgeInsets.zero, // 2. Đặt margin và elevation để khớp với thẻ closet
+                    elevation: 0,
+                    color: theme.colorScheme.primary.withValues(alpha:0.05),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(color: theme.colorScheme.primary, width: 1.5) // Thêm viền để nổi bật
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell( // 3. Bọc bằng InkWell để có hiệu ứng ripple
+                      onTap: () {
+                        showAnimatedDialog(
+                          context,
+                          builder: (ctx) => ClosetFormDialog(
+                            onSubmit: (name) async {
+                              await ref.read(closetsPageProvider.notifier).addCloset(name);
+                              return null;
+                            },
+                          ),
+                        );
+                      },
+                      child: Center(
+                        child: ListTile(
+                          leading: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),
+                          title: Text('Add new closet', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
                         ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
                 ),
               );

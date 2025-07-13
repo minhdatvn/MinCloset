@@ -54,6 +54,7 @@ dependencies:
   flutter_local_notifications: ^19.3.0
   timezone: ^0.10.1
   flutter_timezone: ^4.1.1
+  flutter_launcher_icons: ^0.14.4
 
 
 dev_dependencies:
@@ -98,3 +99,34 @@ sentry:
   upload_source_maps: true
   project: mincloset
   org: madebymin
+
+flutter_launcher_icons:
+  # Cài đặt cho Android
+  android: "launcher_icon"
+  
+  # Cài đặt cho iOS
+  ios: true
+  
+  # Đường dẫn tới file icon gốc bạn đã chuẩn bị ở Bước 1
+  image_path: "assets/icon/icon.png"
+  
+  # Chỉ định phiên bản Android tối thiểu, thường là 21
+  min_sdk_android: 21
+  
+  # Cài đặt cho Web
+  web:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    background_color: "#0175C2"
+    theme_color: "#0175C2"
+    
+  # Cài đặt cho Windows
+  windows:
+    generate: true
+    image_path: "assets/icon/icon.png"
+    icon_size: 48 # Kích thước icon cho file .ico
+
+  # Cài đặt cho macOS
+  macos:
+    generate: true
+    image_path: "assets/icon/icon.png"

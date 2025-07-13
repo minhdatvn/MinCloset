@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/locale_provider.dart';
 import 'package:mincloset/routing/app_routes.dart';
@@ -21,8 +22,6 @@ class SettingsPage extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
     final notificationSettings = ref.watch(notificationSettingsProvider);
     final notificationNotifier = ref.read(notificationSettingsProvider.notifier);
-    // --- LẤY SERVICE ĐỂ GỌI HÀM TEST ---
-    final notificationService = ref.read(localNotificationServiceProvider);
 
     return PageScaffold(
       appBar: AppBar(
@@ -119,23 +118,6 @@ class SettingsPage extends ConsumerWidget {
                       : null,
                   secondary: const Icon(Icons.wb_sunny_outlined),
                 ),
-                // --- NÚT TEST THÔNG BÁO BUỔI SÁNG ---
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0, bottom: 8.0),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        notificationService.showNow(
-                          0, // ID
-                          "Good Morning! ☀️", // Title
-                          "The weather is nice today! What will you wear to shine? Let's plan it!", // Body
-                        );
-                      },
-                      child: const Text('Test Morning'),
-                    ),
-                  ),
-                ),
                 SwitchListTile(
                   title: const Text('Evening reminder (20:00)'),
                   subtitle: const Text('Remind to update your fashion journal.'),
@@ -147,23 +129,6 @@ class SettingsPage extends ConsumerWidget {
                       : null,
                   secondary: const Icon(Icons.mode_night_outlined),
                 ),
-                // --- NÚT TEST THÔNG BÁO BUỔI TỐI ---
-                Padding(
-                  padding: const EdgeInsets.only(right: 16.0, bottom: 8.0),
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        notificationService.showNow(
-                          1, // ID
-                          "Daily Mission! ✨", // Title
-                          "One small step every day. Don't forget to update your fashion journal!", // Body
-                        );
-                      },
-                      child: const Text('Test Evening'),
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -171,14 +136,34 @@ class SettingsPage extends ConsumerWidget {
           _SettingsTile(
             icon: Icons.visibility_outlined,
             title: 'Display',
-            child: SwitchListTile(
-              title: const Text('Show weather background'),
-              subtitle: const Text('Display image based on weather'),
-              value: profileState.showWeatherImage,
-              onChanged: (bool value) {
-                profileNotifier.updateShowWeatherImage(value);
-              },
-              secondary: const Icon(Icons.image_outlined),
+            child: Column( // <<< Bọc các cài đặt hiển thị trong một Column
+              children: [
+                SwitchListTile(
+                  title: const Text('Show weather background'),
+                  subtitle: const Text('Display image based on weather'),
+                  value: profileState.showWeatherImage,
+                  onChanged: (bool value) {
+                    profileNotifier.updateShowWeatherImage(value);
+                  },
+                  secondary: const Icon(Icons.image_outlined),
+                ),
+                Consumer(
+                  builder: (context, ref, child) {
+                    // Lấy provider quản lý trạng thái hiển thị của mascot
+                    final isMascotEnabled = ref.watch(profileProvider.select((s) => s.showMascot));
+                    return SwitchListTile(
+                      title: const Text('Show Mascot'),
+                      subtitle: const Text('Display the assistant on screen'),
+                      value: isMascotEnabled,
+                      onChanged: (value) {
+                        // Gọi notifier để cập nhật và lưu cài đặt
+                        ref.read(profileProvider.notifier).updateShowMascot(value);
+                      },
+                      secondary: const Icon(Symbols.siren_check_rounded),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
           const Divider(height: 32),

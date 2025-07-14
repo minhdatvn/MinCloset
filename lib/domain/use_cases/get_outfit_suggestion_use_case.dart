@@ -124,26 +124,38 @@ class GetOutfitSuggestionUseCase {
           },
         );
       } catch (e, s) {
-        logger.e("Failed to get auto location, using default.", error: e, stackTrace: s);
+        logger.e("Failed to get auto location or weather.", error: e, stackTrace: s);
         Sentry.captureException(e, stackTrace: s);
-        return _weatherRepo.getWeather(defaultCity);
+        // Thay vì lấy thời tiết mặc định, trả về một Failure rõ ràng
+        return const Left(GenericFailure('Could not determine your location to get weather data. Please check your device settings or select a location manually.'));
       }
     }
   }
   
   // Sửa lỗi `tryCatch` và kiểu trả về bằng cách dùng TaskEither đúng cách
-  Future<Either<Failure, Map<String, dynamic>>> execute({String? purpose}) {
-    // Bọc hàm bất đồng bộ trả về Either vào trong TaskEither
-    final task = TaskEither(getWeatherForSuggestion)
-    .flatMap(_getItemsAndOutfits)
-    .flatMap((data) => _getSuggestionFromAI(data, purpose: purpose));    
+  Future<Either<Failure, Map<String, dynamic>>> execute({
+    String? purpose,
+    required bool isWeatherReliable, // Thêm tham số mới
+  }) {
+    TaskEither<Failure, Map<String, dynamic>> task;
 
-    return task.run(); 
+    if (isWeatherReliable) {
+      // Nếu cần thời tiết, bắt đầu bằng việc lấy thời tiết
+      task = TaskEither(getWeatherForSuggestion)
+        .flatMap((weatherData) => _getItemsAndOutfits(weatherData))
+        .flatMap((data) => _getSuggestionFromAI(data));
+    } else {
+      // Nếu không cần thời tiết, bắt đầu bằng việc lấy item/outfit
+      // và truyền weatherData là null
+      task = _getItemsAndOutfits(null) // Truyền null
+          .flatMap((data) => _getSuggestionFromAI(data, purpose: purpose));
+    }
+    return task.run();
   }
 
   // Helper function cho Bước 2, giờ nhận và trả về đúng kiểu
-  TaskEither<Failure, (Map<String, dynamic>, List<ClothingItem>, List<Outfit>)>
-      _getItemsAndOutfits(Map<String, dynamic> weatherData) {
+  TaskEither<Failure, (Map<String, dynamic>?, List<ClothingItem>, List<Outfit>)> 
+      _getItemsAndOutfits(Map<String, dynamic>? weatherData) { // Chấp nhận weatherData có thể null
     return TaskEither.tryCatch(
       () async {
         final itemsEither = await _clothingItemRepo.getAllItems();
@@ -162,8 +174,8 @@ class GetOutfitSuggestionUseCase {
 
   // Helper function cho Bước 3
   TaskEither<Failure, Map<String, dynamic>> _getSuggestionFromAI(
-      (Map<String, dynamic>, List<ClothingItem>, List<Outfit>) data, {String? purpose}) {
-        
+    (Map<String, dynamic>?, List<ClothingItem>, List<Outfit>) data, {String? purpose}
+  ) {
     final (weatherData, allItems, allOutfits) = data;
 
     // --- BƯỚC XÁC THỰC (VALIDATION) ---
@@ -197,7 +209,7 @@ class GetOutfitSuggestionUseCase {
 
         final suggestionJsonEither = await _suggestionRepo.getOutfitSuggestion(
           weather: weatherData,
-          cityName: weatherData['name'] as String,
+          cityName: weatherData?['name'] as String? ?? 'Unknown Location',
           gender: gender,
           userStyle: userStyle,
           favoriteColors: favoriteColors,

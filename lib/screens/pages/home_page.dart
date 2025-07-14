@@ -485,6 +485,15 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
             
             if (state.suggestionTimestamp != null && state.suggestionResult != null) ...[
+              if (state.weather == null)
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Text(
+                    "Weather data unavailable. This is a general suggestion.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
+                  ),
+                ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                 child: Align(

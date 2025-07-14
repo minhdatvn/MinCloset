@@ -1,11 +1,10 @@
 // lib/services/suggestion_service.dart
 
 import 'dart:convert';
-
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:mincloset/constants/prompt_strings.dart'; // <<< THÊM DÒNG NÀY
+import 'package:mincloset/constants/prompt_strings.dart';
 import 'package:mincloset/domain/core/type_defs.dart';
 import 'package:mincloset/domain/failures/failures.dart';
 import 'package:mincloset/utils/logger.dart';
@@ -16,7 +15,7 @@ class SuggestionService {
   final String _apiKey = dotenv.env['GEMINI_API_KEY'] ?? 'API_KEY_NOT_FOUND';
 
   FutureEither<Map<String, dynamic>> getOutfitSuggestion({
-    required Map<String, dynamic> weather,
+    required Map<String, dynamic>? weather,
     required String cityName,
     required String gender,
     required String userStyle,
@@ -30,14 +29,26 @@ class SuggestionService {
       apiKey: _apiKey,
     );
 
-    final temp = weather['main']['temp'].toStringAsFixed(0);
-    final condition = weather['weather'][0]['description'];
+    // --- BẮT ĐẦU SỬA ĐỔI ---
 
-    // <<< LOGIC MỚI: XÂY DỰNG PROMPT ĐỘNG >>>
+    // BƯỚC 1: Di chuyển khối code này lên đầu hàm.
     final prefs = await SharedPreferences.getInstance();
     final langCode = prefs.getString('language_code') ?? 'en';
     final strings = PromptStrings.localized[langCode]!; // Lấy bộ chuỗi dịch tương ứng
 
+    // BƯỚC 2: Logic xử lý weatherString giờ sẽ được đặt sau khi đã có `strings`.
+    final String weatherString;
+    if (weather != null) {
+      final temp = weather['main']['temp'].toStringAsFixed(0);
+      final condition = weather['weather'][0]['description'];
+      weatherString = "${strings['weather_label']} $temp°C, $condition";
+    } else {
+      weatherString = "${strings['weather_label']} Unknown. Please provide a versatile/all-weather suggestion suitable for indoor activities or a general stylish look.";
+    }
+
+    // --- KẾT THÚC SỬA ĐỔI ---
+
+    // Phần tạo prompt còn lại không thay đổi
     final prompt = """
     ${strings['assistant_role']}
 
@@ -48,7 +59,7 @@ class SuggestionService {
 
     ${strings['context_title']}
     ${strings['location_label']} $cityName
-    ${strings['weather_label']} $temp°C, $condition
+    $weatherString 
 
     ${purpose != null && purpose.isNotEmpty ? '**Purpose:**\n- $purpose\n' : ''}
 

@@ -36,23 +36,22 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
   }
 
   Future<void> refreshWeatherOnly() async {
-    logger.i("Weather refresh triggered.");
-    // Lấy service khi cần dùng
-    final weatherImageService = await _ref.read(weatherImageServiceProvider.future);
-    final weatherEither = await _getSuggestionUseCase.getWeatherForSuggestion();
+      logger.i("Weather refresh triggered.");
+      final weatherImageService = await _ref.read(weatherImageServiceProvider.future);
+      final weatherEither = await _getSuggestionUseCase.getWeatherForSuggestion();
 
-    if (mounted) {
-      weatherEither.fold(
-        (failure) {
-          logger.e("Failed to refresh weather: ${failure.message}");
-        },
-        (weatherData) {
-          final newPath = weatherImageService.getBackgroundImageForWeather(
-              weatherData['weather'][0]['icon'] as String?);
-          state = state.copyWith(weather: weatherData, backgroundImagePath: newPath);
-        },
-      );
-    }
+      if (mounted) {
+        weatherEither.fold(
+          (failure) {
+            logger.e("Failed to refresh weather: ${failure.message}");
+          },
+          (weatherData) {
+            final newPath = weatherImageService.getBackgroundImageForWeather(
+                weatherData['weather'][0]['icon'] as String?);
+            state = state.copyWith(weather: weatherData, backgroundImagePath: newPath);
+          },
+        );
+      }
   }
 
   Future<void> refreshBackgroundImage() async {
@@ -82,7 +81,13 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
   Future<void> getNewSuggestion({String? purpose}) async {
     state = state.copyWith(isLoading: true, clearError: true);
     final weatherImageService = await _ref.read(weatherImageServiceProvider.future);
-    final resultEither = await _getSuggestionUseCase.execute(purpose: purpose);
+
+    // Bắt đầu logic xử lý lỗi và thử lại ở đây
+    final resultEither = await _getSuggestionUseCase.execute(
+      purpose: purpose,
+      isWeatherReliable: true,
+    );
+    
     if (!mounted) return;
 
     resultEither.fold(

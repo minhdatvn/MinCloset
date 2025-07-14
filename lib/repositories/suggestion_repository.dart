@@ -8,7 +8,7 @@ class SuggestionRepository {
   SuggestionRepository(this._suggestionService);
 
   FutureEither<Map<String, dynamic>> getOutfitSuggestion({
-    required Map<String, dynamic> weather,
+    required Map<String, dynamic>? weather,
     required String cityName,
     required String gender,
     required String userStyle,

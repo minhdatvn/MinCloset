@@ -72,7 +72,7 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
     // 2. Kiểm tra xem có giá trị price ban đầu không
     if (widget.itemState.price != null && widget.itemState.price! > 0) {
       // 3. Sử dụng NumberFormat để định dạng giá trị ban đầu
-      final locale = settings.numberFormat == NumberFormatType.commaDecimal ? 'en_US' : 'vi_VN';
+      final locale = settings.numberFormat == NumberFormatType.dotDecimal ? 'en_US' : 'vi_VN';
       final formatter = NumberFormat.decimalPattern(locale);
       initialPriceText = formatter.format(widget.itemState.price);
     }
@@ -357,11 +357,9 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                 ),
               ),
             ),
-            keyboardType: TextInputType.number,
-            // Thêm inputFormatters để áp dụng logic định dạng
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.digitsOnly, // Chỉ cho phép nhập số
-              CurrencyInputFormatter(formatType: settings.numberFormat), // Áp dụng formatter của chúng ta
+              CurrencyInputFormatter(formatType: settings.numberFormat),
             ],
             onChanged: widget.onPriceChanged,
           ),

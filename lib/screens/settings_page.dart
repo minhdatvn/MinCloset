@@ -78,12 +78,12 @@ class SettingsPage extends ConsumerWidget {
                     underline: const SizedBox(),
                     items: const [
                       DropdownMenuItem(
-                        value: NumberFormatType.dotDecimal,
-                        child: Text('.', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        value: NumberFormatType.commaDecimal,
+                        child: Text("1.000,00"),
                       ),
                       DropdownMenuItem(
-                        value: NumberFormatType.commaDecimal,
-                        child: Text(',', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                        value: NumberFormatType.dotDecimal,
+                        child: Text("1,000.00"),
                       ),
                     ],
                     onChanged: (NumberFormatType? newValue) {

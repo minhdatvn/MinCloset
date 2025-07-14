@@ -16,6 +16,8 @@ import 'package:mincloset/domain/use_cases/validate_required_fields_use_case.dar
 import 'package:mincloset/helpers/image_helper.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/quest.dart';
+import 'package:mincloset/notifiers/profile_page_notifier.dart';
+import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
@@ -273,9 +275,20 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
   void onMaterialsChanged(Set<String> materials) => state = state.copyWith(selectedMaterials: materials);
   void onPatternsChanged(Set<String> patterns) => state = state.copyWith(selectedPatterns: patterns);
   void onPriceChanged(String value) {
-    final cleanValue = value.replaceAll(RegExp(r'[^0-9]'), '');
-    state = state.copyWith(price: double.tryParse(cleanValue));
+    if (value.isEmpty) {
+      state = state.copyWith(price: null);
+      return;
+    }
+    final formatType = _ref.read(profileProvider).numberFormat; // 1. Đọc cài đặt định dạng số của người dùng
+    String cleanValue;
+    if (formatType == NumberFormatType.commaDecimal) {
+      cleanValue = value.replaceAll(RegExp(r'\.'), '').replaceAll(',', '.'); // Định dạng 1.000,00 -> Thay thế dấu phẩy thập phân bằng dấu chấm
+    } else {
+      cleanValue = value.replaceAll(RegExp(r','), ''); // Định dạng 1,000.00 -> Chỉ cần xóa dấu phẩy
+    }    
+    state = state.copyWith(price: double.tryParse(cleanValue)); // 2. Chuyển đổi chuỗi đã được làm sạch thành double
   }
+
   void onNotesChanged(String value) {state = state.copyWith(notes: value);}
   Future<void> pickImage(ImageSource source) async {
     final imagePicker = ImagePicker();

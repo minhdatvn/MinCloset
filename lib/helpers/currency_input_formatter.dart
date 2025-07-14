@@ -10,38 +10,48 @@ class CurrencyInputFormatter extends TextInputFormatter {
 
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
-    if (newValue.selection.baseOffset == 0) {
-      return newValue;
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (newValue.text.isEmpty) {
+      return newValue.copyWith(text: '');
     }
 
-    // 1. Lấy chuỗi chỉ chứa số từ giá trị người dùng nhập
-    String newText = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
-    if (newText.isEmpty) {
-      return const TextEditingValue(
-        text: '',
-        selection: TextSelection.collapsed(offset: 0),
-      );
+    final separator = formatType == NumberFormatType.commaDecimal ? ',' : '.';
+    String newText = newValue.text.replaceAll(RegExp('[^0-9$separator]'), '');
+
+    // Ngăn người dùng nhập nhiều hơn một dấu phân cách
+    if (newText.split(separator).length > 2) {
+      return oldValue;
     }
-    
-    // 2. Chuyển chuỗi số thành kiểu double
-    double value = double.parse(newText);
 
-    // 3. Sử dụng NumberFormat để định dạng số
-    final locale = formatType == NumberFormatType.commaDecimal ? 'en_US' : 'vi_VN';
-    final formatter = NumberFormat.decimalPattern(locale);
-    String formattedText = formatter.format(value);
+    // Tách phần nguyên và phần thập phân
+    List<String> parts = newText.split(separator);
+    String integerPart = parts[0];
+    String? decimalPart = parts.length > 1 ? parts[1] : null;
 
-    // 4. Tính toán vị trí con trỏ mới để giữ nó ở đúng vị trí tương đối
-    // so với các ký tự số, tránh việc con trỏ nhảy về cuối.
-    int newCursorOffset = newValue.selection.baseOffset +
-        (formattedText.length - newValue.text.length);
+    // Định dạng phần nguyên
+    if (integerPart.isNotEmpty) {
+      final number = int.tryParse(integerPart.replaceAll(RegExp(r'[,.]'), ''));
+      if (number != null) {
+        final formatter = NumberFormat(
+            formatType == NumberFormatType.dotDecimal
+                ? '#,##0'
+                : '#,##0'.replaceAll(',', '.'),
+            formatType == NumberFormatType.dotDecimal ? 'en_US' : 'vi_VN');
+        integerPart = formatter.format(number);
+      }
+    }
+
+    // Ghép lại chuỗi cuối cùng
+    String finalText = integerPart;
+    if (decimalPart != null) {
+      finalText += separator + decimalPart;
+    }
 
     return TextEditingValue(
-      text: formattedText,
-      selection: TextSelection.collapsed(
-        offset: newCursorOffset,
-      ),
+      text: finalText,
+      selection: TextSelection.collapsed(offset: finalText.length),
     );
   }
 }

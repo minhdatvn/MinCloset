@@ -313,6 +313,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Item/Outfit Logged'**
   String get quest_event_logAdded;
+
+  /// No description provided for @quest_firstSteps_title.
+  ///
+  /// In en, this message translates to:
+  /// **'First Steps into Your Digital Closet'**
+  String get quest_firstSteps_title;
+
+  /// No description provided for @quest_firstSteps_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first 3 tops and 3 bottoms (pants, skirts, etc.) to start receiving personalized suggestions.'**
+  String get quest_firstSteps_description;
+
+  /// No description provided for @quest_firstSuggestion_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your First AI-Powered Suggestion'**
+  String get quest_firstSuggestion_title;
+
+  /// No description provided for @quest_firstSuggestion_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s see what the AI has in store for you. Get your first outfit suggestion!'**
+  String get quest_firstSuggestion_description;
+
+  /// No description provided for @quest_firstOutfit_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your First Creation'**
+  String get quest_firstOutfit_title;
+
+  /// No description provided for @quest_firstOutfit_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the Outfit Builder to create and save your first custom outfit.'**
+  String get quest_firstOutfit_description;
+
+  /// No description provided for @quest_organizeCloset_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Organized'**
+  String get quest_organizeCloset_title;
+
+  /// No description provided for @quest_organizeCloset_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new closet to better organize your clothing items (e.g., for work, for sports).'**
+  String get quest_organizeCloset_description;
+
+  /// No description provided for @quest_firstLog_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Your Style Journey'**
+  String get quest_firstLog_title;
+
+  /// No description provided for @quest_firstLog_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Log an item or an outfit to your Journey to keep track of what you wear.'**
+  String get quest_firstLog_description;
 }
 
 class _AppLocalizationsDelegate

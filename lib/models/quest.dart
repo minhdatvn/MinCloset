@@ -39,8 +39,8 @@ class QuestProgress extends Equatable {
 
 class Quest extends Equatable {
   final String id;
-  final String title;
-  final String description;
+  final String titleKey;       // Đổi từ 'title'
+  final String descriptionKey; // Đổi từ 'description'
   final QuestGoal goal;
   final QuestStatus status;
   final QuestProgress progress;
@@ -49,8 +49,8 @@ class Quest extends Equatable {
 
   const Quest({
     required this.id,
-    required this.title,
-    required this.description,
+    required this.titleKey,       // Đổi từ 'title'
+    required this.descriptionKey, // Đổi từ 'description'
     required this.goal,
     this.status = QuestStatus.locked,
     this.progress = const QuestProgress(),
@@ -64,13 +64,13 @@ class Quest extends Equatable {
   }) {
     return Quest(
       id: id,
-      title: title,
-      description: description,
+      titleKey: titleKey,             // Giữ nguyên
+      descriptionKey: descriptionKey, // Giữ nguyên
       goal: goal,
       status: status ?? this.status,
       progress: progress ?? this.progress,
       prerequisiteQuestId: prerequisiteQuestId,
-      hintKey: hintKey, // Giữ lại hintKey
+      hintKey: hintKey,
     );
   }
 
@@ -97,5 +97,5 @@ class Quest extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, title, description, goal, status, progress, prerequisiteQuestId, hintKey]; 
+  List<Object?> get props => [id, titleKey, descriptionKey, goal, status, progress, prerequisiteQuestId, hintKey]; 
 }

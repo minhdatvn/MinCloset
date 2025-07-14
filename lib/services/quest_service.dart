@@ -15,54 +15,54 @@ class QuestService {
 
   QuestService(this._prefs, this._achievementRepo, this._ref);
 
-  // <<< THÊM hintKey VÀO ĐỊNH NGHĨA QUESTS >>>
+  // Danh sách quest giờ đây sẽ lưu các "khóa" thay vì văn bản tĩnh
   static final List<Quest> _allQuests = [
     const Quest(
       id: 'first_steps',
-      title: 'First Steps into Your Digital Closet',
-      description: 'Add your first 3 tops and 3 bottoms (pants, skirts, etc.) to start receiving personalized suggestions.',
+      titleKey: 'quest_firstSteps_title',
+      descriptionKey: 'quest_firstSteps_description',
       goal: QuestGoal(requiredCounts: {
         QuestEvent.topAdded: 3,
         QuestEvent.bottomAdded: 3,
       }),
       status: QuestStatus.inProgress,
-      hintKey: 'add_item_hint', // Gợi ý chỉ vào nút "Add Item"
+      hintKey: 'add_item_hint',
     ),
     const Quest(
       id: 'first_suggestion',
-      title: 'Your First AI-Powered Suggestion',
-      description: 'Let\'s see what the AI has in store for you. Get your first outfit suggestion!',
+      titleKey: 'quest_firstSuggestion_title',
+      descriptionKey: 'quest_firstSuggestion_description',
       goal: QuestGoal(requiredCounts: {QuestEvent.suggestionReceived: 1}),
       status: QuestStatus.locked,
       prerequisiteQuestId: 'first_steps',
-      hintKey: 'get_suggestion_hint', // Gợi ý chỉ vào nút "Get Suggestion"
+      hintKey: 'get_suggestion_hint',
     ),
     const Quest(
       id: 'first_outfit',
-      title: 'Your First Creation',
-      description: 'Use the Outfit Builder to create and save your first custom outfit.',
+      titleKey: 'quest_firstOutfit_title',
+      descriptionKey: 'quest_firstOutfit_description',
       goal: QuestGoal(requiredCounts: {QuestEvent.outfitCreated: 1}),
       status: QuestStatus.locked,
       prerequisiteQuestId: 'first_suggestion',
-      hintKey: 'create_outfit_hint', // Gợi ý chỉ vào nút "Create Outfits"
+      hintKey: 'create_outfit_hint',
     ),
     const Quest(
       id: 'organize_closet',
-      title: 'Get Organized',
-      description: 'Create a new closet to better organize your clothing items (e.g., for work, for sports).',
+      titleKey: 'quest_organizeCloset_title',
+      descriptionKey: 'quest_organizeCloset_description',
       goal: QuestGoal(requiredCounts: {QuestEvent.closetCreated: 1}),
       status: QuestStatus.locked,
       prerequisiteQuestId: 'first_outfit',
-      hintKey: 'create_closet_hint', // Gợi ý chỉ vào nút "Create New Closet"
+      hintKey: 'create_closet_hint',
     ),
     const Quest(
       id: 'first_log',
-      title: 'Track Your Style Journey',
-      description: 'Log an item or an outfit to your Journey to keep track of what you wear.',
+      titleKey: 'quest_firstLog_title',
+      descriptionKey: 'quest_firstLog_description',
       goal: QuestGoal(requiredCounts: {QuestEvent.logAdded: 1}),
       status: QuestStatus.locked,
       prerequisiteQuestId: 'organize_closet',
-      hintKey: 'log_wear_hint', // Gợi ý chỉ vào nút "Add" trên trang Lịch
+      hintKey: 'log_wear_hint',
     ),
   ];
   

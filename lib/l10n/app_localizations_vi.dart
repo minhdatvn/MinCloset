@@ -119,4 +119,39 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get quest_event_logAdded => 'Đã ghi Nhật ký';
+
+  @override
+  String get quest_firstSteps_title => 'Bước chân đầu tiên vào Tủ đồ số';
+
+  @override
+  String get quest_firstSteps_description =>
+      'Thêm 3 áo và 3 quần/váy đầu tiên để bắt đầu nhận gợi ý trang phục cá nhân hóa.';
+
+  @override
+  String get quest_firstSuggestion_title => 'Gợi ý đầu tiên từ AI';
+
+  @override
+  String get quest_firstSuggestion_description =>
+      'Hãy xem AI có gì dành cho bạn. Nhận ngay gợi ý trang phục đầu tiên!';
+
+  @override
+  String get quest_firstOutfit_title => 'Sáng tạo đầu tay';
+
+  @override
+  String get quest_firstOutfit_description =>
+      'Sử dụng Trình tạo Trang phục để tạo và lưu bộ đồ tùy chỉnh đầu tiên của bạn.';
+
+  @override
+  String get quest_organizeCloset_title => 'Sắp xếp gọn gàng';
+
+  @override
+  String get quest_organizeCloset_description =>
+      'Tạo một tủ đồ mới để sắp xếp quần áo tốt hơn (ví dụ: cho công việc, cho thể thao).';
+
+  @override
+  String get quest_firstLog_title => 'Theo dõi Hành trình Phong cách';
+
+  @override
+  String get quest_firstLog_description =>
+      'Ghi lại một món đồ hoặc một bộ trang phục vào Nhật ký để theo dõi những gì bạn mặc.';
 }

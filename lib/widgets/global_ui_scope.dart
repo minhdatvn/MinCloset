@@ -49,7 +49,7 @@ class _GlobalUiScopeState extends ConsumerState<GlobalUiScope> {
         final screenWidth = MediaQuery.of(context).size.width;
         ref
             .read(questMascotProvider.notifier)
-            .showQuestCompletedNotification(next.title, screenWidth);
+            .showQuestCompletedNotification(next.titleKey, screenWidth);
         ref.read(completedQuestProvider.notifier).state = null; // Reset lại
       }
     });

@@ -13,7 +13,6 @@ import 'package:mincloset/routing/route_generator.dart';
 import 'package:mincloset/screens/badge_detail_page.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
 
-// Trả về dạng ConsumerWidget đơn giản
 class QuestsPage extends ConsumerWidget {
   const QuestsPage({super.key});
 
@@ -41,24 +40,19 @@ class QuestsPage extends ConsumerWidget {
                   _buildSectionTitle(context, l10n.quests_inProgress_sectionHeader),
                   if (state.inProgressQuests.isEmpty)
                     Center(child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 32.0),
+                      padding: const EdgeInsets.symmetric(vertical: 32.0),
                       child: Text(l10n.quests_noActiveQuests_message),
                     ))
                   else
                     ...state.inProgressQuests.map((quest) {
-                      // Bọc QuestCard trong GestureDetector
                       return GestureDetector(
                         onTap: () {
-                          // --- BẮT ĐẦU SỬA ĐỔI ---
-                          // Nếu quest này có hintKey, chúng ta sẽ xử lý điều hướng tại đây
                           if (quest.hintKey == 'log_wear_hint') {
-                            // Lấy nested navigator key và điều hướng với argument
                             ref.read(nestedNavigatorKeyProvider).currentState?.pushNamed(
                               AppRoutes.calendar,
-                              arguments: const CalendarPageArgs(showHint: true), // Truyền tín hiệu trực tiếp
+                              arguments: const CalendarPageArgs(showHint: true),
                             );
                           } else if (quest.hintKey != null) {
-                            // Xử lý cho các hint khác trên MainScreen nếu có
                             ref.read(questHintProvider.notifier).triggerHint(quest.hintKey!);
                             Navigator.of(context).pop();
                           }
@@ -107,7 +101,6 @@ class QuestsPage extends ConsumerWidget {
 
             // Quan trọng: Vì huy hiệu chưa mở khóa nên danh sách quest hoàn thành sẽ rỗng
             final questsForBadge = state.completedQuestsByAchievement[achievement.id] ?? [];
-
             Navigator.pushNamed(
               context, 
               AppRoutes.badgeDetail, 
@@ -148,6 +141,24 @@ class QuestCard extends StatelessWidget {
     }
   }
 
+  // --- HÀM ĐỂ DỊCH KEY ---
+  String _getQuestTranslation(String key, AppLocalizations l10n) {
+    switch (key) {
+      case 'quest_firstSteps_title': return l10n.quest_firstSteps_title;
+      case 'quest_firstSteps_description': return l10n.quest_firstSteps_description;
+      case 'quest_firstSuggestion_title': return l10n.quest_firstSuggestion_title;
+      case 'quest_firstSuggestion_description': return l10n.quest_firstSuggestion_description;
+      case 'quest_firstOutfit_title': return l10n.quest_firstOutfit_title;
+      case 'quest_firstOutfit_description': return l10n.quest_firstOutfit_description;
+      case 'quest_organizeCloset_title': return l10n.quest_organizeCloset_title;
+      case 'quest_organizeCloset_description': return l10n.quest_organizeCloset_description;
+      case 'quest_firstLog_title': return l10n.quest_firstLog_title;
+      case 'quest_firstLog_description': return l10n.quest_firstLog_description;
+      default: return key; // Trả về chính key nếu không tìm thấy
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -172,13 +183,15 @@ class QuestCard extends StatelessWidget {
               children: [
                 Icon(iconData, color: iconColor),
                 const SizedBox(width: 8),
-                Expanded(child: Text(quest.title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold))),
+                // --- SỬA Ở ĐÂY ---
+                Expanded(child: Text(_getQuestTranslation(quest.titleKey, l10n), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold))),
                 if (quest.status == QuestStatus.inProgress && quest.hintKey != null)
                   const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey)
               ],
             ),
             const SizedBox(height: 8),
-            Text(quest.description, style: theme.textTheme.bodyMedium),
+            // --- SỬA Ở ĐÂY ---
+            Text(_getQuestTranslation(quest.descriptionKey, l10n), style: theme.textTheme.bodyMedium),
             if (quest.status == QuestStatus.inProgress) ...[
               const SizedBox(height: 16),
               ...quest.goal.requiredCounts.keys.map((event) {

@@ -36,5 +36,15 @@
     "quest_event_suggestionReceived": "Gợi ý từ AI",
     "quest_event_outfitCreated": "Đã tạo Trang phục",
     "quest_event_closetCreated": "Đã tạo Tủ đồ mới",
-    "quest_event_logAdded": "Đã ghi Nhật ký"
+    "quest_event_logAdded": "Đã ghi Nhật ký",
+    "quest_firstSteps_title": "Bước chân đầu tiên vào Tủ đồ số",
+    "quest_firstSteps_description": "Thêm 3 áo và 3 quần/váy đầu tiên để bắt đầu nhận gợi ý trang phục cá nhân hóa.",
+    "quest_firstSuggestion_title": "Gợi ý đầu tiên từ AI",
+    "quest_firstSuggestion_description": "Hãy xem AI có gì dành cho bạn. Nhận ngay gợi ý trang phục đầu tiên!",
+    "quest_firstOutfit_title": "Sáng tạo đầu tay",
+    "quest_firstOutfit_description": "Sử dụng Trình tạo Trang phục để tạo và lưu bộ đồ tùy chỉnh đầu tiên của bạn.",
+    "quest_organizeCloset_title": "Sắp xếp gọn gàng",
+    "quest_organizeCloset_description": "Tạo một tủ đồ mới để sắp xếp quần áo tốt hơn (ví dụ: cho công việc, cho thể thao).",
+    "quest_firstLog_title": "Theo dõi Hành trình Phong cách",
+    "quest_firstLog_description": "Ghi lại một món đồ hoặc một bộ trang phục vào Nhật ký để theo dõi những gì bạn mặc."
 }

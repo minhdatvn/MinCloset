@@ -119,4 +119,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quest_event_logAdded => 'Item/Outfit Logged';
+
+  @override
+  String get quest_firstSteps_title => 'First Steps into Your Digital Closet';
+
+  @override
+  String get quest_firstSteps_description =>
+      'Add your first 3 tops and 3 bottoms (pants, skirts, etc.) to start receiving personalized suggestions.';
+
+  @override
+  String get quest_firstSuggestion_title => 'Your First AI-Powered Suggestion';
+
+  @override
+  String get quest_firstSuggestion_description =>
+      'Let\'s see what the AI has in store for you. Get your first outfit suggestion!';
+
+  @override
+  String get quest_firstOutfit_title => 'Your First Creation';
+
+  @override
+  String get quest_firstOutfit_description =>
+      'Use the Outfit Builder to create and save your first custom outfit.';
+
+  @override
+  String get quest_organizeCloset_title => 'Get Organized';
+
+  @override
+  String get quest_organizeCloset_description =>
+      'Create a new closet to better organize your clothing items (e.g., for work, for sports).';
+
+  @override
+  String get quest_firstLog_title => 'Track Your Style Journey';
+
+  @override
+  String get quest_firstLog_description =>
+      'Log an item or an outfit to your Journey to keep track of what you wear.';
 }

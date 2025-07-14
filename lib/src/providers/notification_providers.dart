@@ -7,71 +7,67 @@ import 'package:mincloset/src/domain/models/notification_settings.dart';
 import 'package:mincloset/src/domain/repositories/notification_settings_repository.dart';
 import 'package:mincloset/src/services/local_notification_service.dart';
 
-// Provider cho Notification Service
+// 1. Provider cho Notification Service (đã có sẵn, chỉ cần gọi lại)
 final localNotificationServiceProvider = Provider<LocalNotificationService>((ref) {
   return LocalNotificationService();
 });
 
-// Provider cho Repository
-final notificationSettingsRepositoryProvider = Provider<INotificationSettingsRepository>((ref) {
+// 2. Provider cho Repository
+final notificationSettingsRepositoryProvider =
+    Provider<INotificationSettingsRepository>((ref) {
+  // Lấy SharedPreferences từ một provider chung đã có
   final prefs = ref.watch(sharedPreferencesProvider).value;
   if (prefs == null) {
+    // Trường hợp này hiếm khi xảy ra nếu app được khởi tạo đúng cách
     throw Exception("SharedPreferences not initialized for NotificationSettingsRepository");
   }
   return NotificationSettingsRepositoryImpl(prefs);
 });
 
-// Provider để quản lý State và Logic của trang cài đặt
+// 3. Provider chính để quản lý State và Logic
 final notificationSettingsProvider =
-    StateNotifierProvider<NotificationSettingsNotifier, NotificationSettings>((ref) {
+    StateNotifierProvider<NotificationSettingsNotifier, NotificationSettings>(
+        (ref) {
   return NotificationSettingsNotifier(ref);
 });
 
-// Lớp Notifier để xử lý logic
+// 4. Lớp Notifier để xử lý logic nghiệp vụ
 class NotificationSettingsNotifier extends StateNotifier<NotificationSettings> {
   final Ref _ref;
   late final INotificationSettingsRepository _repository;
   late final LocalNotificationService _service;
 
   NotificationSettingsNotifier(this._ref) : super(const NotificationSettings()) {
+    // Đọc các dependency từ Ref
     _repository = _ref.read(notificationSettingsRepositoryProvider);
     _service = _ref.read(localNotificationServiceProvider);
+    // Tải cài đặt đã lưu ngay khi Notifier được tạo
     _loadSettings();
   }
 
+  /// Tải trạng thái cài đặt từ bộ nhớ (SharedPreferences)
   Future<void> _loadSettings() async {
     state = await _repository.getSettings();
+    // Sau khi tải, đồng bộ lại lịch thông báo
     _rescheduleNotifications();
   }
 
+  /// Cập nhật cài đặt Bật/Tắt chính
   Future<void> updateMaster(bool isEnabled) async {
-    state = state.copyWith(isMasterEnabled: isEnabled);
+    // Cập nhật state ngay lập tức để UI thay đổi
+    state = state.copyWith(isEnabled: isEnabled);
+    // Lưu cài đặt mới vào bộ nhớ
     await _repository.saveSettings(state);
+    // Đồng bộ lại lịch thông báo
     _rescheduleNotifications();
   }
 
-  Future<void> updateMorning(bool isEnabled) async {
-    state = state.copyWith(isMorningReminderEnabled: isEnabled);
-    await _repository.saveSettings(state);
-    _rescheduleNotifications();
-  }
-
-  Future<void> updateEvening(bool isEnabled) async {
-    state = state.copyWith(isEveningReminderEnabled: isEnabled);
-    await _repository.saveSettings(state);
-    _rescheduleNotifications();
-  }
-
+  /// Hủy tất cả thông báo cũ và đặt lại lịch mới dựa trên state hiện tại
   void _rescheduleNotifications() {
     _service.cancelAllNotifications();
-
-    if (state.isMasterEnabled) {
-      if (state.isMorningReminderEnabled) {
-        _service.scheduleMorningReminder();
-      }
-      if (state.isEveningReminderEnabled) {
-        _service.scheduleEveningReminder();
-      }
+    if (state.isEnabled) {
+      // Nếu người dùng bật thông báo, lên lịch cho thông báo hàng ngày
+      _service.scheduleDailyReminder();
     }
   }
 }

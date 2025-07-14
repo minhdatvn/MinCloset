@@ -22,7 +22,7 @@ class SettingsPage extends ConsumerWidget {
     final locale = ref.watch(localeProvider);
     final notificationSettings = ref.watch(notificationSettingsProvider);
     final notificationNotifier = ref.read(notificationSettingsProvider.notifier);
-    final l10n = AppLocalizations.of(context)!; // Khởi tạo biến AppLocalizations để dễ gọi
+    final l10n = AppLocalizations.of(context)!;
 
     return PageScaffold(
       appBar: AppBar(
@@ -164,34 +164,15 @@ class SettingsPage extends ConsumerWidget {
               children: [
                 SwitchListTile(
                   title: Text(l10n.settings_enableAllNotifications_label),
-                  value: notificationSettings.isMasterEnabled,
+                  subtitle: const Text(
+                      'Receive a daily reminder to log your outfit.'), // Thêm mô tả mới
+                  // Lấy giá trị từ model state mới
+                  value: notificationSettings.isEnabled,
                   onChanged: (bool value) {
+                    // Gọi hàm update trong notifier mới
                     notificationNotifier.updateMaster(value);
                   },
                   secondary: const Icon(Icons.notifications_active_outlined),
-                ),
-                const Divider(height: 1, indent: 16, endIndent: 16),
-                SwitchListTile(
-                  title: Text(l10n.settings_morningReminder_label),
-                  subtitle: Text(l10n.settings_morningReminder_subtitle),
-                  value: notificationSettings.isMorningReminderEnabled,
-                  onChanged: notificationSettings.isMasterEnabled
-                      ? (bool value) {
-                          notificationNotifier.updateMorning(value);
-                        }
-                      : null,
-                  secondary: const Icon(Icons.wb_sunny_outlined),
-                ),
-                SwitchListTile(
-                  title: Text(l10n.settings_eveningReminder_label),
-                  subtitle: Text(l10n.settings_eveningReminder_subtitle),
-                  value: notificationSettings.isEveningReminderEnabled,
-                  onChanged: notificationSettings.isMasterEnabled
-                      ? (bool value) {
-                          notificationNotifier.updateEvening(value);
-                        }
-                      : null,
-                  secondary: const Icon(Icons.mode_night_outlined),
                 ),
               ],
             ),

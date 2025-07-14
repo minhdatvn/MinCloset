@@ -3,34 +3,20 @@
 import 'package:equatable/equatable.dart';
 
 class NotificationSettings extends Equatable {
-  final bool isMasterEnabled;
-  final bool isMorningReminderEnabled;
-  final bool isEveningReminderEnabled;
+  final bool isEnabled;
 
   const NotificationSettings({
-    this.isMasterEnabled = true,
-    this.isMorningReminderEnabled = true,
-    this.isEveningReminderEnabled = true,
+    this.isEnabled = true, // Mặc định là bật
   });
 
   NotificationSettings copyWith({
-    bool? isMasterEnabled,
-    bool? isMorningReminderEnabled,
-    bool? isEveningReminderEnabled,
+    bool? isEnabled,
   }) {
     return NotificationSettings(
-      isMasterEnabled: isMasterEnabled ?? this.isMasterEnabled,
-      isMorningReminderEnabled:
-          isMorningReminderEnabled ?? this.isMorningReminderEnabled,
-      isEveningReminderEnabled:
-          isEveningReminderEnabled ?? this.isEveningReminderEnabled,
+      isEnabled: isEnabled ?? this.isEnabled,
     );
   }
 
   @override
-  List<Object> get props => [
-        isMasterEnabled,
-        isMorningReminderEnabled,
-        isEveningReminderEnabled,
-      ];
+  List<Object> get props => [isEnabled];
 }

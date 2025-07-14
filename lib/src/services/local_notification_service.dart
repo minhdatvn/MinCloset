@@ -1,5 +1,6 @@
 // lib/src/services/local_notification_service.dart
 
+import 'dart:math'; // Thêm import để sử dụng hàm ngẫu nhiên
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -9,8 +10,29 @@ class LocalNotificationService {
   final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
+  // Danh sách các nội dung thông báo ngẫu nhiên
+  final List<Map<String, String>> _randomMessages = [
+    {
+      "title": "Your Closet is Calling! ✨",
+      "body": "What amazing outfit did you wear today? Let's log it in your journal!"
+    },
+    {
+      "title": "Daily Style Recap 📔",
+      "body": "One small step every day. Take a moment to update your fashion journal."
+    },
+    {
+      "title": "Ready for Tomorrow? 👔",
+      "body": "A great day starts with a great outfit. Get inspired for tomorrow's look!"
+    },
+    {
+      "title": "MinCloset Misses You! 👋",
+      "body": "Don't forget to show your closet some love. What new items have you discovered?"
+    }
+    // Bạn có thể thêm nhiều cặp title/body khác vào đây
+  ];
+
+
   Future<void> init() async {
-    // 1. Khởi tạo cài đặt cho các nền tảng
     const AndroidInitializationSettings androidInitializationSettings =
         AndroidInitializationSettings('app_icon');
 
@@ -23,17 +45,12 @@ class LocalNotificationService {
       iOS: darwinInitializationSettings,
     );
 
-    // 2. Cấu hình múi giờ
     await _configureLocalTimezone();
 
-    // 3. Khởi tạo plugin
     await _notificationsPlugin.initialize(
       initializationSettings,
       onDidReceiveNotificationResponse: (details) {},
     );
-
-    // --- THAY ĐỔI 1: XÓA DÒNG GỌI HÀM XIN QUYỀN Ở ĐÂY ---
-    // await _requestAndroidPermission(); // <- Xóa dòng này
   }
 
   Future<void> _configureLocalTimezone() async {
@@ -42,9 +59,7 @@ class LocalNotificationService {
     tz.setLocalLocation(tz.getLocation(timeZoneName));
   }
   
-  // --- THAY ĐỔI 2: ĐỔI TÊN HÀM TỪ PRIVATE THÀNH PUBLIC VÀ XIN THÊM QUYỀN IOS ---
   Future<void> requestPermissions() async {
-    // Yêu cầu quyền trên iOS
     final iOSImplementation = _notificationsPlugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
       if (iOSImplementation != null) {
           await iOSImplementation.requestPermissions(
@@ -54,55 +69,46 @@ class LocalNotificationService {
           );
       }
 
-    // Yêu cầu quyền trên Android
     final androidImplementation = _notificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidImplementation != null) {
         await androidImplementation.requestNotificationsPermission();
     }
   }
+  
+  /// Lên lịch cho một thông báo hàng ngày với nội dung và thời gian ngẫu nhiên.
+  Future<void> scheduleDailyReminder() async {
+    // 1. Chọn ngẫu nhiên một tin nhắn
+    final random = Random();
+    final message = _randomMessages[random.nextInt(_randomMessages.length)];
+    final title = message['title']!;
+    final body = message['body']!;
 
-  // ... (các hàm lên lịch thông báo còn lại giữ nguyên không thay đổi)
-  // ... scheduleMorningReminder(), scheduleEveningReminder(), etc.
-  Future<void> scheduleMorningReminder() async {
+    // 2. Chọn ngẫu nhiên thời gian từ 19:00 đến 21:00
+    final hour = 19 + random.nextInt(3); // 19, 20, 21
+    final minute = random.nextInt(60);   // 0-59
+
     await _notificationsPlugin.zonedSchedule(
-      0, 
-      "Good Morning! ☀️",
-      "The weather is nice today! What will you wear to shine? Let's plan it!",
-      _nextInstanceOfTime(7, 0),
+      0, // Luôn dùng ID = 0 vì chúng ta chỉ có 1 thông báo định kỳ
+      title,
+      body,
+      _nextInstanceOfTime(hour, minute),
       const NotificationDetails(
         android: AndroidNotificationDetails(
-          'morning_reminder_channel',
-          'Morning Reminder',
-          channelDescription: 'Reminds user to plan their outfit for the day.',
-          importance: Importance.max,
-          priority: Priority.high,
+          'daily_reminder_channel', // ID kênh mới
+          'Daily Reminder',
+          channelDescription: 'A daily reminder to engage with your closet.',
+          importance: Importance.defaultImportance, // Giảm mức độ quan trọng để ít làm phiền hơn
+          priority: Priority.defaultPriority,
         ),
       ),
-      androidScheduleMode: AndroidScheduleMode.inexact, 
+      // Giúp Android lên lịch chính xác hơn sau khi thiết bị khởi động lại
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle, 
+      // Chỉ khớp với thời gian, thông báo sẽ lặp lại mỗi ngày vào giờ này
       matchDateTimeComponents: DateTimeComponents.time, 
     );
   }
 
-  Future<void> scheduleEveningReminder() async {
-    await _notificationsPlugin.zonedSchedule(
-      1, 
-      "Daily Mission! ✨",
-      "One small step every day. Don't forget to update your fashion journal!",
-      _nextInstanceOfTime(20, 0),
-      const NotificationDetails(
-        android: AndroidNotificationDetails(
-          'evening_reminder_channel',
-          'Evening Reminder',
-          channelDescription: 'Reminds user to log their outfit of the day.',
-          importance: Importance.max,
-          priority: Priority.high,
-        ),
-      ),
-      androidScheduleMode: AndroidScheduleMode.inexact,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
-  }
-
+  // Hàm _nextInstanceOfTime không thay đổi
   tz.TZDateTime _nextInstanceOfTime(int hour, int minute) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate =

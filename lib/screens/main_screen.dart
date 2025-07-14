@@ -26,17 +26,12 @@ class MainScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
 
     return ShowCaseWidget(
-      onFinish: () async { 
-        // 1. Kết thúc luồng hướng dẫn của tutorialProvider
-        ref.read(tutorialProvider.notifier).dismissTutorial(); 
+      onFinish: () {
+        // Gọi đến hàm trong tutorialProvider như cũ
+        ref.read(tutorialProvider.notifier).dismissTutorial();
         
-        // 2. Đánh dấu là đã hoàn thành hướng dẫn trong SharedPreferences
-        final prefs = await SharedPreferences.getInstance(); 
-        await prefs.setBool('has_completed_tutorial', true);
-
-        // 3. Gọi hàm checkForNewQuests() để tự động tìm và hiển thị quest mới đầu tiên
-        //    Hàm này sẽ tự xử lý logic, không cần truyền tham số gì vào.
-        ref.read(questMascotProvider.notifier).checkForNewQuests();
+        // Gọi đến hàm mới để xử lý toàn bộ logic của mascot
+        ref.read(questMascotProvider.notifier).finishTutorialAndShowMascot();
       },
       builder: (context) => const MainScreenView(),
     );

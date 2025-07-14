@@ -46,19 +46,18 @@ class LocalNotificationService {
   Future<void> requestPermissions() async {
     // Yêu cầu quyền trên iOS
     final iOSImplementation = _notificationsPlugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
-    if (iOSImplementation != null) {
-      await iOSImplementation.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-    }
+      if (iOSImplementation != null) {
+          await iOSImplementation.requestPermissions(
+              alert: true,
+              badge: true,
+              sound: true,
+          );
+      }
 
     // Yêu cầu quyền trên Android
     final androidImplementation = _notificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
     if (androidImplementation != null) {
         await androidImplementation.requestNotificationsPermission();
-        await androidImplementation.requestExactAlarmsPermission();
     }
   }
 

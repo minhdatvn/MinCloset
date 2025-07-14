@@ -65,7 +65,7 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     // Chờ cho đến khi SharedPreferences sẵn sàng
     _prefs = await _ref.read(sharedPreferencesProvider.future);
     // Khi đã có, tiến hành load state
-    _loadState();
+    loadState();
   // Lắng nghe sự thay đổi của cài đặt từ ProfileProvider
     _ref.listen<bool>(profileProvider.select((s) => s.showMascot), (previous, next) {
       final hasCompletedTutorial = _prefs?.getBool('has_completed_tutorial') ?? false;
@@ -75,7 +75,7 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     });
   }
 
-  void _loadState() {
+  void loadState() {
     if (_prefs == null) return;
     final dx = _prefs!.getDouble(_positionDxKey);
     final dy = _prefs!.getDouble(_positionDyKey);
@@ -221,13 +221,34 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     }
   }
 
+  Future<void> finishTutorialAndShowMascot() async {
+    // Đảm bảo SharedPreferences đã được khởi tạo
+    if (_prefs == null) await _init();
+    
+    // 1. Lưu lại trạng thái đã hoàn thành hướng dẫn
+    await _prefs?.setBool('has_completed_tutorial', true);
+
+    // 2. Cập nhật state để làm cho mascot hiển thị ngay lập tức
+    if (mounted) {
+      state = state.copyWith(isVisible: true);
+    }
+
+    // 3. Đợi một chút để mascot kịp xuất hiện trên màn hình
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // 4. Gọi hàm kiểm tra quest mới. Vì isVisible bây giờ đã là true,
+    // điều kiện bên trong checkForNewQuests() sẽ thỏa mãn.
+    if (mounted) {
+      checkForNewQuests();
+    }
+  }
+
   void dismiss() {
     _notificationTimer?.cancel();
     _ref.read(profileProvider.notifier).updateShowMascot(false);
   }
 }
 
-// THAY ĐỔI 2: Sửa lại cách khởi tạo provider
 final questMascotProvider =
     StateNotifierProvider<QuestMascotNotifier, QuestMascotState>(
   (ref) {

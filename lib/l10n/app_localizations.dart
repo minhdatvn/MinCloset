@@ -158,6 +158,30 @@ abstract class AppLocalizations {
   /// **'Decimal format'**
   String get settings_decimalFormat_tile;
 
+  /// No description provided for @settings_units_tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Units'**
+  String get settings_units_tile;
+
+  /// No description provided for @settings_height_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get settings_height_label;
+
+  /// No description provided for @settings_weight_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get settings_weight_label;
+
+  /// No description provided for @settings_temp_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Temperature'**
+  String get settings_temp_label;
+
   /// No description provided for @settings_notifications_tile.
   ///
   /// In en, this message translates to:

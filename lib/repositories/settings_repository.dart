@@ -1,96 +1,52 @@
 // lib/repositories/settings_repository.dart
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/providers/service_providers.dart';
-import 'package:mincloset/utils/logger.dart'; // <<< THÊM IMPORT
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsRepository {
-  final Ref _ref;
+  final SharedPreferences _prefs;
 
-  SettingsRepository(this._ref);
+  SettingsRepository(this._prefs);
 
-  // --- THỐNG NHẤT KHAI BÁO KEY ---
-  // Sử dụng static const để đảm bảo các key này là duy nhất và không đổi.
-  static const userNameKey = 'user_name';
-  static const avatarPathKey = 'user_avatar_path';
-  static const genderKey = 'user_gender';
-  static const dobKey = 'user_dob';
-  static const heightKey = 'user_height';                 
-  static const weightKey = 'user_weight';                
-  static const personalStylesKey = 'user_personal_styles'; 
-  static const favoriteColorsKey = 'user_favorite_colors'; 
-  static const styleKey = 'user_style';
-  static const currencyKey = 'user_currency';
-  static const numberFormatKey = 'user_number_format';
-  static const cityModeKey = 'city_mode';
-  static const manualCityKey = 'manualCity';
-  static const manualCityLatKey = 'manual_city_lat';
-  static const manualCityLonKey = 'manual_city_lon';
-  static const showWeatherImageKey = 'showWeatherImage';
-  static const showMascotKey = 'show_mascot';
-
-
-  Future<Map<String, dynamic>> getUserProfile() async {
-    final prefs = await _ref.read(sharedPreferencesProvider.future);
-    final profileData = {
-      userNameKey: prefs.getString(userNameKey),
-      avatarPathKey: prefs.getString(avatarPathKey),
-      genderKey: prefs.getString(genderKey),
-      dobKey: prefs.getString(dobKey),
-      heightKey: prefs.getInt(heightKey),
-      weightKey: prefs.getInt(weightKey),
-      personalStylesKey: prefs.getStringList(personalStylesKey),
-      favoriteColorsKey: prefs.getStringList(favoriteColorsKey),
-      styleKey: prefs.getString(styleKey),
-      currencyKey: prefs.getString(currencyKey),
-      numberFormatKey: prefs.getString(numberFormatKey),
-      cityModeKey: prefs.getString(cityModeKey),
-      manualCityKey: prefs.getString(manualCityKey),
-      manualCityLatKey: prefs.getDouble(manualCityLatKey),
-      manualCityLonKey: prefs.getDouble(manualCityLonKey),
-      showWeatherImageKey: prefs.getBool(showWeatherImageKey),
-      showMascotKey: prefs.getBool(showMascotKey),
-    };
-
-    // DEBUG: In ra dữ liệu đọc được
-    logger.i("Reading user profile: $profileData");
-
-    return profileData;
-  }
-
+  static const String userNameKey = 'user_name';
+  static const String avatarPathKey = 'avatar_path';
+  static const String genderKey = 'gender';
+  static const String dobKey = 'dob';
+  static const String heightKey = 'height';
+  static const String weightKey = 'weight';
+  static const String personalStylesKey = 'personal_styles';
+  static const String favoriteColorsKey = 'favorite_colors';
+  static const String cityModeKey = 'city_mode';
+  static const String manualCityKey = 'manual_city';
+  static const String manualCityLatKey = 'manual_city_lat';
+  static const String manualCityLonKey = 'manual_city_lon';
+  static const String showWeatherImageKey = 'show_weather_image';
+  static const String showMascotKey = 'show_mascot';
+  static const String currencyKey = 'currency';
+  static const String numberFormatKey = 'number_format';
+  static const String heightUnitKey = 'height_unit';
+  static const String weightUnitKey = 'weight_unit';
+  static const String tempUnitKey = 'temp_unit';
+  static const String _userProfileKey = 'user_profile_data';
 
   Future<void> saveUserProfile(Map<String, dynamic> data) async {
-    final prefs = await _ref.read(sharedPreferencesProvider.future);
-    
-    // DEBUG: In ra dữ liệu sắp được lưu
-    logger.i("Saving user profile with data: $data");
+    // Đọc dữ liệu hồ sơ hiện có
+    final existingProfileJson = _prefs.getString(_userProfileKey);
+    final Map<String, dynamic> existingProfile =
+        existingProfileJson != null ? json.decode(existingProfileJson) : {};
 
-    // Duyệt qua map dữ liệu và lưu vào SharedPreferences
-    for (var entry in data.entries) {
-      final key = entry.key;
-      final value = entry.value;
+    // Hợp nhất dữ liệu mới vào dữ liệu hiện có
+    existingProfile.addAll(data);
 
-      if (value == null) {
-        await prefs.remove(key);
-        logger.i("Removed key: $key");
-      } else if (value is String) {
-        await prefs.setString(key, value);
-        logger.i("Saved String: $key = $value");
-      } else if (value is bool) {
-        await prefs.setBool(key, value);
-        logger.i("Saved bool: $key = $value");
-      } else if (value is double) {
-        await prefs.setDouble(key, value);
-        logger.i("Saved double: $key = $value");
-      } else if (value is int) {
-        await prefs.setInt(key, value);
-        logger.i("Saved int: $key = $value");
-      } else if (value is List<String>) {
-        await prefs.setStringList(key, value);
-        logger.i("Saved List<String>: $key = $value");
-      }
-    }
+    // Lưu lại hồ sơ đã được hợp nhất
+    await _prefs.setString(_userProfileKey, json.encode(existingProfile));
   }
 
-  // Hàm này không còn cần thiết vì đã được tích hợp vào getUserProfile
-  // Future<Map<String, String?>> getSuggestionInfo() async { ... }
+  Future<Map<String, dynamic>> getUserProfile() async {
+    final profileJson = _prefs.getString(_userProfileKey);
+    if (profileJson != null) {
+      return json.decode(profileJson) as Map<String, dynamic>;
+    }
+    return {}; // Trả về một map rỗng nếu không có dữ liệu
+  }
 }

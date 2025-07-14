@@ -73,6 +73,12 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
         (e) => e.name == numberFormatString,
         orElse: () => NumberFormatType.dotDecimal,
       );
+      final heightUnitString = profileData[SettingsRepository.heightUnitKey] as String? ?? 'cm';
+      final heightUnit = HeightUnit.values.byName(heightUnitString);
+      final weightUnitString = profileData[SettingsRepository.weightUnitKey] as String? ?? 'kg';
+      final weightUnit = WeightUnit.values.byName(weightUnitString);
+      final tempUnitString = profileData[SettingsRepository.tempUnitKey] as String? ?? 'celsius';
+      final tempUnit = TempUnit.values.byName(tempUnitString);
       
       logger.i('3. Successfully read settings from repository.');
 
@@ -186,6 +192,9 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
                     patternDistribution: patternDist,
                     currency: currency,
                     numberFormat: numberFormat,
+                    heightUnit: heightUnit,
+                    weightUnit: weightUnit,
+                    tempUnit: tempUnit,
                   );
                   logger.i(
                       '8. State updated successfully! Profile page loading complete.');
@@ -303,6 +312,33 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     state = state.copyWith(
       currency: currency ?? state.currency,
       numberFormat: format ?? state.numberFormat,
+    );
+  }
+
+  Future<void> updateMeasurementUnits({
+    HeightUnit? height,
+    WeightUnit? weight,
+    TempUnit? temp,
+  }) async {
+    final Map<String, dynamic> dataToSave = {};
+    if (height != null) {
+      dataToSave[SettingsRepository.heightUnitKey] = height.name;
+    }
+    if (weight != null) {
+      dataToSave[SettingsRepository.weightUnitKey] = weight.name;
+    }
+    if (temp != null) {
+      dataToSave[SettingsRepository.tempUnitKey] = temp.name;
+    }
+
+    if (dataToSave.isNotEmpty) {
+      await _settingsRepo.saveUserProfile(dataToSave);
+    }
+    
+    state = state.copyWith(
+      heightUnit: height ?? state.heightUnit,
+      weightUnit: weight ?? state.weightUnit,
+      tempUnit: temp ?? state.tempUnit,
     );
   }
 }

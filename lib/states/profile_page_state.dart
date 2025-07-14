@@ -4,6 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:mincloset/services/number_formatting_service.dart';
 
 enum CityMode { auto, manual }
+enum HeightUnit { cm, ft }
+enum WeightUnit { kg, lbs }
+enum TempUnit { celsius, fahrenheit }
+
 
 @immutable
 class ProfilePageState extends Equatable {
@@ -27,11 +31,15 @@ class ProfilePageState extends Equatable {
   final Map<String, int> categoryDistribution;
   final Map<String, int> seasonDistribution;
   final Map<String, int> occasionDistribution;
-  final Map<String, int> materialDistribution; // <<< THÊM DÒNG NÀY
-  final Map<String, int> patternDistribution;  // <<< THÊM DÒNG NÀY
+  final Map<String, int> materialDistribution;
+  final Map<String, int> patternDistribution;
   final String? errorMessage;
   final String currency;
   final NumberFormatType numberFormat;
+
+  final HeightUnit heightUnit;
+  final WeightUnit weightUnit;
+  final TempUnit tempUnit;
 
   const ProfilePageState({
     this.isLoading = true,
@@ -59,6 +67,9 @@ class ProfilePageState extends Equatable {
     this.errorMessage,
     this.currency = 'USD',
     this.numberFormat = NumberFormatType.dotDecimal,
+    this.heightUnit = HeightUnit.cm,
+    this.weightUnit = WeightUnit.kg,
+    this.tempUnit = TempUnit.celsius,
   });
 
   int? get age {
@@ -98,6 +109,9 @@ class ProfilePageState extends Equatable {
     String? errorMessage,
     String? currency,
     NumberFormatType? numberFormat,
+    HeightUnit? heightUnit,
+    WeightUnit? weightUnit,
+    TempUnit? tempUnit,
   }) {
     return ProfilePageState(
       isLoading: isLoading ?? this.isLoading,
@@ -120,11 +134,14 @@ class ProfilePageState extends Equatable {
       categoryDistribution: categoryDistribution ?? this.categoryDistribution,
       seasonDistribution: seasonDistribution ?? this.seasonDistribution,
       occasionDistribution: occasionDistribution ?? this.occasionDistribution,
-      materialDistribution: materialDistribution ?? this.materialDistribution, // <<< THÊM DÒNG NÀY
-      patternDistribution: patternDistribution ?? this.patternDistribution,   // <<< THÊM DÒNG NÀY
+      materialDistribution: materialDistribution ?? this.materialDistribution,
+      patternDistribution: patternDistribution ?? this.patternDistribution,
       errorMessage: errorMessage ?? this.errorMessage,
       currency: currency ?? this.currency,
       numberFormat: numberFormat ?? this.numberFormat,
+      heightUnit: heightUnit ?? this.heightUnit,
+      weightUnit: weightUnit ?? this.weightUnit,
+      tempUnit: tempUnit ?? this.tempUnit,
     );
   }
 
@@ -154,6 +171,9 @@ class ProfilePageState extends Equatable {
         patternDistribution, 
         errorMessage,
         currency,
-        numberFormat
+        numberFormat,
+        heightUnit,
+        weightUnit,
+        tempUnit,
       ];
 }

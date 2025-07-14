@@ -39,6 +39,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_decimalFormat_tile => 'Decimal format';
 
   @override
+  String get settings_units_tile => 'Units';
+
+  @override
+  String get settings_height_label => 'Height';
+
+  @override
+  String get settings_weight_label => 'Weight';
+
+  @override
+  String get settings_temp_label => 'Temperature';
+
+  @override
   String get settings_notifications_tile => 'Notifications';
 
   @override

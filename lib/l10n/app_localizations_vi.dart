@@ -39,6 +39,18 @@ class AppLocalizationsVi extends AppLocalizations {
   String get settings_decimalFormat_tile => 'Định dạng số';
 
   @override
+  String get settings_units_tile => 'Đơn vị';
+
+  @override
+  String get settings_height_label => 'Chiều cao';
+
+  @override
+  String get settings_weight_label => 'Cân nặng';
+
+  @override
+  String get settings_temp_label => 'Nhiệt độ';
+
+  @override
   String get settings_notifications_tile => 'Thông báo';
 
   @override

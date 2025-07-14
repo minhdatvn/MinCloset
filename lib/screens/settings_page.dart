@@ -54,6 +54,65 @@ class SettingsPage extends ConsumerWidget {
                       : l10n.language_vietnamese),
                   onTap: () => Navigator.pushNamed(context, AppRoutes.languageSelection),
                 ),
+              ],
+            ),
+          ),
+          _SettingsTile(
+            icon: Icons.straighten_outlined,
+            title: l10n.settings_units_tile,
+            child: Column(
+              children: [
+                _SettingsTile(
+                  icon: Symbols.height,
+                  title: l10n.settings_height_label,
+                  trailing: DropdownButton<HeightUnit>(
+                    value: profileState.heightUnit,
+                    underline: const SizedBox(),
+                    items: const [
+                      DropdownMenuItem(value: HeightUnit.cm, child: Text("cm")),
+                      DropdownMenuItem(value: HeightUnit.ft, child: Text("ft")),
+                    ],
+                    onChanged: (HeightUnit? newValue) {
+                      if (newValue != null) {
+                        profileNotifier.updateMeasurementUnits(height: newValue);
+                      }
+                    },
+                  ),
+                ),
+                _SettingsTile(
+                  icon: Symbols.weight,
+                  title: l10n.settings_weight_label,
+                  trailing: DropdownButton<WeightUnit>(
+                    value: profileState.weightUnit,
+                    underline: const SizedBox(),
+                    items: const [
+                      DropdownMenuItem(value: WeightUnit.kg, child: Text("kg")),
+                      DropdownMenuItem(value: WeightUnit.lbs, child: Text("lbs")),
+                    ],
+                    onChanged: (WeightUnit? newValue) {
+                      if (newValue != null) {
+                        profileNotifier.updateMeasurementUnits(weight: newValue);
+                      }
+                    },
+                  ),
+                ),
+                _SettingsTile(
+                  icon: Symbols.device_thermostat,
+                  title: l10n.settings_temp_label,
+                  trailing: DropdownButton<TempUnit>(
+                    value: profileState.tempUnit,
+                    underline: const SizedBox(),
+                    items: const [
+                      DropdownMenuItem(value: TempUnit.celsius, child: Text("°C")),
+                      DropdownMenuItem(value: TempUnit.fahrenheit, child: Text("°F")),
+                    ],
+                    onChanged: (TempUnit? newValue) {
+                      if (newValue != null) {
+                        profileNotifier.updateMeasurementUnits(temp: newValue);
+                      }
+                    },
+                  ),
+                ),
                 _SettingsTile(
                   icon: Icons.paid_outlined,
                   title: l10n.settings_currency_tile,

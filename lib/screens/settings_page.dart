@@ -10,48 +10,53 @@ import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:mincloset/src/providers/notification_providers.dart';
+import 'package:mincloset/l10n/app_localizations.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Lấy state từ các provider
+  Widget build(BuildContext context, WidgetRef ref) { // Lấy state từ các provider
     final profileState = ref.watch(profileProvider);
     final profileNotifier = ref.read(profileProvider.notifier);
     final locale = ref.watch(localeProvider);
     final notificationSettings = ref.watch(notificationSettingsProvider);
     final notificationNotifier = ref.read(notificationSettingsProvider.notifier);
+    final l10n = AppLocalizations.of(context)!; // Khởi tạo biến AppLocalizations để dễ gọi
 
     return PageScaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(l10n.settingsTitle),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           // --- NHÓM 1: CÀI ĐẶT CHUNG ---
-          const _SectionTitle('General Settings'),
+          _SectionTitle(l10n.generalSettings), 
           _SettingsTile(
             icon: Icons.public_outlined,
-            title: 'Localization',
+            title: l10n.localizationTitle,
             child: Column(
               children: [
                 _SettingsTile(
                   icon: Icons.location_city_outlined,
-                  title: 'Location',
-                  subtitle: Text(profileState.cityMode == CityMode.auto ? 'Auto-detect' : profileState.manualCity),
+                  title: l10n.locationTitle,
+                  subtitle: Text(profileState.cityMode == CityMode.auto
+                      ? l10n.autoDetect
+                      : profileState.manualCity),
                   onTap: () => Navigator.pushNamed(context, AppRoutes.citySelection),
                 ),
                 _SettingsTile(
                   icon: Icons.language_outlined,
-                  title: 'Language',
-                  subtitle: Text(locale.languageCode == 'en' ? 'English' : 'Tiếng Việt'),
+                  title: l10n.languageTitle,
+                  subtitle: Text(locale.languageCode == 'en'
+                      ? l10n.languageEnglish
+                      : l10n.languageVietnamese),
                   onTap: () => Navigator.pushNamed(context, AppRoutes.languageSelection),
                 ),
                 _SettingsTile(
                   icon: Icons.paid_outlined,
-                  title: 'Currency',
+                  title: l10n.currencyTitle,
                   trailing: DropdownButton<String>(
                     value: profileState.currency,
                     underline: const SizedBox(),
@@ -67,7 +72,7 @@ class SettingsPage extends ConsumerWidget {
                 ),
                 _SettingsTile(
                   icon: Icons.pin_outlined,
-                  title: 'Decimal format',
+                  title: l10n.decimalFormatTitle,
                   trailing: DropdownButton<NumberFormatType>(
                     value: profileState.numberFormat,
                     underline: const SizedBox(),
@@ -95,11 +100,11 @@ class SettingsPage extends ConsumerWidget {
           // --- KHỐI CÀI ĐẶT THÔNG BÁO ---
           _SettingsTile(
             icon: Icons.notifications_outlined,
-            title: 'Notifications',
+            title: l10n.notificationsTitle,
             child: Column(
               children: [
                 SwitchListTile(
-                  title: const Text('Enable all notifications'),
+                  title: Text(l10n.enableAllNotifications),
                   value: notificationSettings.isMasterEnabled,
                   onChanged: (bool value) {
                     notificationNotifier.updateMaster(value);
@@ -108,8 +113,8 @@ class SettingsPage extends ConsumerWidget {
                 ),
                 const Divider(height: 1, indent: 16, endIndent: 16),
                 SwitchListTile(
-                  title: const Text('Morning reminder (7:00)'),
-                  subtitle: const Text('Get suggestions for your daily outfit plan.'),
+                  title: Text(l10n.morningReminder),
+                  subtitle: Text(l10n.morningReminderSubtitle),
                   value: notificationSettings.isMorningReminderEnabled,
                   onChanged: notificationSettings.isMasterEnabled
                       ? (bool value) {
@@ -119,8 +124,8 @@ class SettingsPage extends ConsumerWidget {
                   secondary: const Icon(Icons.wb_sunny_outlined),
                 ),
                 SwitchListTile(
-                  title: const Text('Evening reminder (20:00)'),
-                  subtitle: const Text('Remind to update your fashion journal.'),
+                  title: Text(l10n.eveningReminder),
+                  subtitle: Text(l10n.eveningReminderSubtitle),
                   value: notificationSettings.isEveningReminderEnabled,
                   onChanged: notificationSettings.isMasterEnabled
                       ? (bool value) {
@@ -135,12 +140,12 @@ class SettingsPage extends ConsumerWidget {
 
           _SettingsTile(
             icon: Icons.visibility_outlined,
-            title: 'Display',
+            title: l10n.displayTitle,
             child: Column( // <<< Bọc các cài đặt hiển thị trong một Column
               children: [
                 SwitchListTile(
-                  title: const Text('Show weather background'),
-                  subtitle: const Text('Display image based on weather'),
+                  title: Text(l10n.showWeatherBackground),
+                  subtitle: Text(l10n.showWeatherBackgroundSubtitle),
                   value: profileState.showWeatherImage,
                   onChanged: (bool value) {
                     profileNotifier.updateShowWeatherImage(value);
@@ -152,8 +157,8 @@ class SettingsPage extends ConsumerWidget {
                     // Lấy provider quản lý trạng thái hiển thị của mascot
                     final isMascotEnabled = ref.watch(profileProvider.select((s) => s.showMascot));
                     return SwitchListTile(
-                      title: const Text('Show Mascot'),
-                      subtitle: const Text('Display the assistant on screen'),
+                      title: Text(l10n.showMascot),
+                      subtitle: Text(l10n.showMascotSubtitle),
                       value: isMascotEnabled,
                       onChanged: (value) {
                         // Gọi notifier để cập nhật và lưu cài đặt
@@ -169,23 +174,23 @@ class SettingsPage extends ConsumerWidget {
           const Divider(height: 32),
 
           // --- NHÓM 2: GIỚI THIỆU & HỖ TRỢ ---
-          const _SectionTitle('About & Support'),
+          _SectionTitle(l10n.aboutAndSupport),
           _SettingsTile(
             icon: Icons.info_outline,
-            title: 'About & Legal',
+            title: l10n.aboutAndLegal,
             onTap: () => Navigator.pushNamed(context, AppRoutes.aboutLegal),
           ),
           _SettingsTile(
             icon: Icons.feedback_outlined,
-            title: 'Send Feedback',
-            subtitle: const Text('Help us improve MinCloset'),
+            title: l10n.sendFeedback,
+            subtitle: Text(l10n.sendFeedbackSubtitle),
             onTap: () {
               // TODO: Implement logic
             },
           ),
           _SettingsTile(
             icon: Icons.star_outline,
-            title: 'Rate on App Store',
+            title: l10n.rateOnAppStore,
             onTap: () {
               // TODO: Implement logic
             },

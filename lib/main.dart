@@ -20,6 +20,7 @@ import 'package:mincloset/providers/flow_providers.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart'; 
 import 'package:uuid/uuid.dart'; 
+import 'package:mincloset/l10n/app_localizations.dart';
 
 // BƯỚC 1: Chuyển hàm main thành async
 Future<void> main() async {
@@ -97,6 +98,7 @@ class MinClosetApp extends ConsumerWidget {
       home: const MainAppWrapper(), // Giữ nguyên
       locale: locale,
       localizationsDelegates: const [
+        AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,

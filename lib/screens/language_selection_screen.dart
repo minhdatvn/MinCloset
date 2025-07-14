@@ -3,15 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/providers/locale_provider.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
+import 'package:mincloset/l10n/app_localizations.dart';
 
 class LanguageSelectionScreen extends StatelessWidget {
   const LanguageSelectionScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return PageScaffold(
       appBar: AppBar(
-        title: const Text('Select Language'),
+        title: Text(l10n.languageTitle),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),

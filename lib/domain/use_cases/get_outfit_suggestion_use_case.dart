@@ -55,7 +55,7 @@ class GetOutfitSuggestionUseCase {
     // <<< KẾT THÚC VÙNG GIẢ LẬP DỮ LIỆU >>>
 
     final settings = await _settingsRepo.getUserProfile();
-    final cityModeString = settings['cityMode'] as String? ?? 'auto';
+    final cityModeString = settings[SettingsRepository.cityModeKey] as String? ?? 'auto';
     final cityMode = CityMode.values.byName(cityModeString);
     const defaultCity = 'Da Nang';
 

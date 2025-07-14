@@ -23,9 +23,12 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
       : super(const HomePageState()) {
     init();
     _ref.listen<ProfilePageState>(profileProvider, (previous, next) {
-      // Nếu chế độ thành phố hoặc tên thành phố thủ công thay đổi
+      // Kiểm tra xem các giá trị liên quan đến vị trí có thực sự thay đổi không
       if (previous != null && (previous.cityMode != next.cityMode || previous.manualCity != next.manualCity)) {
-        // Gọi trực tiếp hàm làm mới của chính notifier này
+        // Ghi log để debug (tùy chọn)
+        logger.i("Location settings changed, triggering weather refresh.");
+        
+        // Gọi hàm làm mới thời tiết đã có sẵn của notifier này
         refreshWeatherOnly();
       }
     });

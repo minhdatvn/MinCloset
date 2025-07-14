@@ -28,12 +28,10 @@ class _WeeklyPlannerState extends ConsumerState<WeeklyPlanner> {
         
         final screenWidth = MediaQuery.of(context).size.width;
         
-        // Chiều rộng của một thẻ bao gồm cả lề hai bên (4px + 110px + 4px)
-        const cardTotalWidth = 118.0; 
-        
-        // Vị trí tâm của thẻ "Today" (index 3) so với lề trái của ListView
-        // (Vị trí bắt đầu của thẻ thứ 4) + (một nửa chiều rộng của thẻ)
-        final todayCardCenterInList = (3 * cardTotalWidth) + (_cardWidth / 2);
+        // Chiều rộng của một thẻ là 110.0, được định nghĩa bởi _cardWidth.
+        // Vị trí của thẻ "Today" (index = 3) là 3 * _cardWidth.
+        // Tâm của nó sẽ là vị trí bắt đầu + một nửa chiều rộng.
+        final todayCardCenterInList = (3 * _cardWidth) + (_cardWidth / 2);
 
         // Tâm của màn hình
         final screenCenter = screenWidth / 2;

@@ -57,24 +57,25 @@ class GetOutfitSuggestionUseCase {
     final settings = await _settingsRepo.getUserProfile();
     final cityModeString = settings[SettingsRepository.cityModeKey] as String? ?? 'auto';
     final cityMode = CityMode.values.byName(cityModeString);
-    const defaultCity = 'Da Nang';
 
     if (cityMode == CityMode.manual) {
-      // Đọc các giá trị lat/lon từ map `settings`
       final lat = settings[SettingsRepository.manualCityLatKey] as double?;
-      final lon = settings['manual_city_lon'] as double?;
+      final lon = settings[SettingsRepository.manualCityLonKey] as double?;
 
       if (lat != null && lon != null) {
-        logger.i('Get weather by saved coordinates: ($lat, $lon)');
-        final weatherData = await _weatherRepo.getWeatherByCoords(lat, lon);
-        // Cập nhật lại tên thành phố để hiển thị đúng trên UI
-        return weatherData.map((data) {
-            data['name'] = settings['manualCity'] ?? defaultCity;
-            return data;
-        });
+          logger.i('Get weather by saved coordinates: ($lat, $lon)');
+          final weatherData = await _weatherRepo.getWeatherByCoords(lat, lon);
+          
+          return weatherData.map((data) {
+              data['name'] = settings['manualCity'] ?? 'Selected Location';
+              return data;
+          });
       } else {
-        logger.w('Manual location data missing, reverting to default.');
-        return _weatherRepo.getWeather(defaultCity);
+          // --- BẮT ĐẦU SỬA ĐỔI ---
+          logger.w('Manual location data is missing. User needs to re-select a city.');
+          // Trả về một Failure rõ ràng thay vì lấy thời tiết mặc định.
+          return const Left(GenericFailure('Your manually selected location data is missing. Please select your city again in the settings.'));
+          // --- KẾT THÚC SỬA ĐỔI ---
       }
     } else { // Chế độ Auto-detect không thay đổi
       try {
@@ -119,7 +120,7 @@ class GetOutfitSuggestionUseCase {
           (failure) => Left(failure),
           (weatherData) async {
             final placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
-            weatherData['name'] = placemarks.first.administrativeArea ?? placemarks.first.locality ?? defaultCity;
+            weatherData['name'] = placemarks.first.administrativeArea ?? placemarks.first.locality ?? 'Current Location';
             return Right(weatherData);
           },
         );

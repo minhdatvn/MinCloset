@@ -115,38 +115,59 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final homeState = ref.watch(homeProvider);
+  final homeState = ref.watch(homeProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: _buildHeader(context, ref),
-        toolbarHeight: 80,
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async => await ref.read(homeProvider.notifier).refreshWeatherOnly(),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildActionHub(context, ref),
-
-              const SizedBox(height: 32),
-              const WeeklyPlanner(),
-              const SizedBox(height: 32),
-              const SectionHeader(
-                title: 'Outfit suggestion',
+  return Scaffold(
+    appBar: AppBar(
+      title: _buildHeader(context, ref),
+      toolbarHeight: 80,
+    ),
+    body: RefreshIndicator(
+      onRefresh: () async => await ref.read(homeProvider.notifier).refreshWeatherOnly(),
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        // *** THAY ĐỔI 1: Xóa thuộc tính `padding` ở đây ***
+        // padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // *** THAY ĐỔI 2: Thêm Padding để bọc các phần tử phía trên ***
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildActionHub(context, ref),
+                ],
               ),
-              const SizedBox(height: 16),
-              _buildTodaysSuggestionCard(context, ref, homeState),
-              const SizedBox(height: 32),
-            ],
-          ),
+            ),
+            
+            // *** THAY ĐỔI 3: Để `WeeklyPlanner` ra ngoài Padding ***
+            const SizedBox(height: 32),
+            const WeeklyPlanner(),
+            const SizedBox(height: 32),
+
+            // *** THAY ĐỔI 4: Thêm Padding cho các phần tử còn lại phía dưới ***
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SectionHeader(
+                    title: 'Outfit suggestion',
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTodaysSuggestionCard(context, ref, homeState),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   // Các hàm build UI con không thay đổi, chỉ cần truyền ref nếu cần
   Widget _buildHeader(BuildContext context, WidgetRef ref) {

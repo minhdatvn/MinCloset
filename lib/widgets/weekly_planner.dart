@@ -22,13 +22,26 @@ class _WeeklyPlannerState extends ConsumerState<WeeklyPlanner> {
   void initState() {
     super.initState();
     _scrollController = ScrollController();
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
+      if (_scrollController.hasClients && mounted) {
+        
         final screenWidth = MediaQuery.of(context).size.width;
-        final scrollableAreaCenter = (screenWidth - 32.0) / 2;
-        final todayCardCenter = 3.5 * _cardWidth;
-        final targetOffset = todayCardCenter - scrollableAreaCenter;
-        _scrollController.jumpTo(targetOffset);
+        
+        // Chiều rộng của một thẻ bao gồm cả lề hai bên (4px + 110px + 4px)
+        const cardTotalWidth = 118.0; 
+        
+        // Vị trí tâm của thẻ "Today" (index 3) so với lề trái của ListView
+        // (Vị trí bắt đầu của thẻ thứ 4) + (một nửa chiều rộng của thẻ)
+        final todayCardCenterInList = (3 * cardTotalWidth) + (_cardWidth / 2);
+
+        // Tâm của màn hình
+        final screenCenter = screenWidth / 2;
+
+        // Vị trí cuộn cần thiết để đưa tâm thẻ vào tâm màn hình
+        final targetOffset = todayCardCenterInList - screenCenter;
+        
+        _scrollController.jumpTo(targetOffset < 0 ? 0 : targetOffset);
       }
     });
   }
@@ -49,12 +62,15 @@ class _WeeklyPlannerState extends ConsumerState<WeeklyPlanner> {
 
     return Column(
       children: [
-        SectionHeader(
-          title: "Week's Journal",
-          seeAllText: 'View more',
-          onSeeAll: () {
-            Navigator.pushNamed(context, AppRoutes.calendar);
-          },
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: SectionHeader(
+            title: "Week's Journal",
+            seeAllText: 'View more',
+            onSeeAll: () {
+              Navigator.pushNamed(context, AppRoutes.calendar);
+            },
+          ),
         ),
         const SizedBox(height: 16),
         SizedBox(

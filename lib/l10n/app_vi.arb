@@ -25,5 +25,16 @@
     "settings_aboutLegal_tile": "Giới thiệu & Pháp lý",
     "settings_sendFeedback_tile": "Gửi phản hồi",
     "settings_sendFeedback_subtitle": "Giúp chúng tôi cải thiện MinCloset",
-    "settings_rateApp_tile": "Đánh giá trên App Store"
+    "settings_rateApp_tile": "Đánh giá trên App Store",
+
+    "quests_title": "Thành tích",
+    "quests_yourBadges_sectionHeader": "Huy hiệu của bạn",
+    "quests_inProgress_sectionHeader": "Đang thực hiện",
+    "quests_noActiveQuests_message": "Không có nhiệm vụ nào.",
+    "quest_event_topAdded": "Số lượng áo đã thêm",
+    "quest_event_bottomAdded": "Số lượng quần/váy đã thêm",
+    "quest_event_suggestionReceived": "Gợi ý từ AI",
+    "quest_event_outfitCreated": "Đã tạo Trang phục",
+    "quest_event_closetCreated": "Đã tạo Tủ đồ mới",
+    "quest_event_logAdded": "Đã ghi Nhật ký"
 }

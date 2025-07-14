@@ -89,4 +89,34 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get settings_rateApp_tile => 'Đánh giá trên App Store';
+
+  @override
+  String get quests_title => 'Thành tích';
+
+  @override
+  String get quests_yourBadges_sectionHeader => 'Huy hiệu của bạn';
+
+  @override
+  String get quests_inProgress_sectionHeader => 'Đang thực hiện';
+
+  @override
+  String get quests_noActiveQuests_message => 'Không có nhiệm vụ nào.';
+
+  @override
+  String get quest_event_topAdded => 'Số lượng áo đã thêm';
+
+  @override
+  String get quest_event_bottomAdded => 'Số lượng quần/váy đã thêm';
+
+  @override
+  String get quest_event_suggestionReceived => 'Gợi ý từ AI';
+
+  @override
+  String get quest_event_outfitCreated => 'Đã tạo Trang phục';
+
+  @override
+  String get quest_event_closetCreated => 'Đã tạo Tủ đồ mới';
+
+  @override
+  String get quest_event_logAdded => 'Đã ghi Nhật ký';
 }

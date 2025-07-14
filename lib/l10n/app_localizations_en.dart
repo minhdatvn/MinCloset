@@ -89,4 +89,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settings_rateApp_tile => 'Rate on App Store';
+
+  @override
+  String get quests_title => 'Achievements';
+
+  @override
+  String get quests_yourBadges_sectionHeader => 'Your Badges';
+
+  @override
+  String get quests_inProgress_sectionHeader => 'In Progress';
+
+  @override
+  String get quests_noActiveQuests_message => 'No active quests.';
+
+  @override
+  String get quest_event_topAdded => 'Tops Added';
+
+  @override
+  String get quest_event_bottomAdded => 'Bottoms Added';
+
+  @override
+  String get quest_event_suggestionReceived => 'AI Suggestion';
+
+  @override
+  String get quest_event_outfitCreated => 'Outfit Created';
+
+  @override
+  String get quest_event_closetCreated => 'New Closet';
+
+  @override
+  String get quest_event_logAdded => 'Item/Outfit Logged';
 }

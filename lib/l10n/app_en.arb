@@ -14,6 +14,7 @@
     "@settings_title": {
         "description": "SCREEN: Settings. The title in the AppBar."
     },
+    
     "settings_general_sectionHeader": "General Settings",
     "settings_localization_tile": "Localization",
     "settings_location_tile": "Location",
@@ -36,5 +37,17 @@
     "settings_aboutLegal_tile": "About & Legal",
     "settings_sendFeedback_tile": "Send Feedback",
     "settings_sendFeedback_subtitle": "Help us improve MinCloset",
-    "settings_rateApp_tile": "Rate on App Store"
+    "settings_rateApp_tile": "Rate on App Store",
+
+    
+    "quests_title": "Achievements",
+    "quests_yourBadges_sectionHeader": "Your Badges",
+    "quests_inProgress_sectionHeader": "In Progress",
+    "quests_noActiveQuests_message": "No active quests.",
+    "quest_event_topAdded": "Tops Added",
+    "quest_event_bottomAdded": "Bottoms Added",
+    "quest_event_suggestionReceived": "AI Suggestion",
+    "quest_event_outfitCreated": "Outfit Created",
+    "quest_event_closetCreated": "New Closet",
+    "quest_event_logAdded": "Item/Outfit Logged"
 }

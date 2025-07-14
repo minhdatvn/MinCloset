@@ -253,6 +253,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rate on App Store'**
   String get settings_rateApp_tile;
+
+  /// No description provided for @quests_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get quests_title;
+
+  /// No description provided for @quests_yourBadges_sectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Badges'**
+  String get quests_yourBadges_sectionHeader;
+
+  /// No description provided for @quests_inProgress_sectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'In Progress'**
+  String get quests_inProgress_sectionHeader;
+
+  /// No description provided for @quests_noActiveQuests_message.
+  ///
+  /// In en, this message translates to:
+  /// **'No active quests.'**
+  String get quests_noActiveQuests_message;
+
+  /// No description provided for @quest_event_topAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Tops Added'**
+  String get quest_event_topAdded;
+
+  /// No description provided for @quest_event_bottomAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottoms Added'**
+  String get quest_event_bottomAdded;
+
+  /// No description provided for @quest_event_suggestionReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Suggestion'**
+  String get quest_event_suggestionReceived;
+
+  /// No description provided for @quest_event_outfitCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Outfit Created'**
+  String get quest_event_outfitCreated;
+
+  /// No description provided for @quest_event_closetCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'New Closet'**
+  String get quest_event_closetCreated;
+
+  /// No description provided for @quest_event_logAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Item/Outfit Logged'**
+  String get quest_event_logAdded;
 }
 
 class _AppLocalizationsDelegate

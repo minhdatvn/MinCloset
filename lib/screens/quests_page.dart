@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:mincloset/models/achievement.dart';
 import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/achievements_page_notifier.dart';
@@ -20,10 +21,11 @@ class QuestsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(achievementsPageProvider);
     final notifier = ref.read(achievementsPageProvider.notifier);
+    final l10n = AppLocalizations.of(context)!;
 
     return PageScaffold(
       appBar: AppBar(
-        title: const Text('Achievements'),
+        title: Text(l10n.quests_title),
       ),
       body: RefreshIndicator(
         onRefresh: notifier.loadData,
@@ -32,15 +34,15 @@ class QuestsPage extends ConsumerWidget {
             : ListView(
                 padding: const EdgeInsets.all(16.0),
                 children: [
-                  _buildSectionTitle(context, 'Your Badges'),
+                  _buildSectionTitle(context, l10n.quests_yourBadges_sectionHeader),
                   const SizedBox(height: 8),
                   _buildBadgesGrid(context, state),
                   const SizedBox(height: 24),
-                  _buildSectionTitle(context, 'In Progress'),
+                  _buildSectionTitle(context, l10n.quests_inProgress_sectionHeader),
                   if (state.inProgressQuests.isEmpty)
-                    const Center(child: Padding(
+                    Center(child: Padding(
                       padding: EdgeInsets.symmetric(vertical: 32.0),
-                      child: Text('No active quests. Great job!'),
+                      child: Text(l10n.quests_noActiveQuests_message),
                     ))
                   else
                     ...state.inProgressQuests.map((quest) {
@@ -135,20 +137,21 @@ class QuestCard extends StatelessWidget {
   final Quest quest;
   const QuestCard({super.key, required this.quest});
 
-  String _getEventLabel(QuestEvent event) {
+  String _getEventLabel(QuestEvent event, AppLocalizations l10n) {
     switch (event) {
-      case QuestEvent.topAdded: return 'Tops Added';
-      case QuestEvent.bottomAdded: return 'Bottoms Added';
-      case QuestEvent.suggestionReceived: return 'AI Suggestion';
-      case QuestEvent.outfitCreated: return 'Outfit Created';
-      case QuestEvent.closetCreated: return 'New Closet';
-      case QuestEvent.logAdded: return 'Item/Outfit Logged';
+      case QuestEvent.topAdded: return l10n.quest_event_topAdded;
+      case QuestEvent.bottomAdded: return l10n.quest_event_bottomAdded;
+      case QuestEvent.suggestionReceived: return l10n.quest_event_suggestionReceived;
+      case QuestEvent.outfitCreated: return l10n.quest_event_outfitCreated;
+      case QuestEvent.closetCreated: return l10n.quest_event_closetCreated;
+      case QuestEvent.logAdded: return l10n.quest_event_logAdded;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final isCompleted = quest.status == QuestStatus.completed;
     final cardColor = isCompleted ? Colors.green.withAlpha(20) : theme.colorScheme.surfaceContainerHighest;
     final borderColor = isCompleted ? Colors.green : Colors.grey.shade300;
@@ -181,7 +184,7 @@ class QuestCard extends StatelessWidget {
               ...quest.goal.requiredCounts.keys.map((event) {
                 final progressValue = (quest.progress.currentCounts[event] ?? 0) / (quest.goal.requiredCounts[event]!);
                 return _ProgressIndicator(
-                  label: '${_getEventLabel(event)}: ${quest.getProgressString(event)}',
+                  label: '${_getEventLabel(event, l10n)}: ${quest.getProgressString(event)}',
                   value: progressValue,
                 );
               }),

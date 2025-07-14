@@ -215,67 +215,78 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       onRefresh: notifier.loadInitialData,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16.0),
+        // *** THAY ĐỔI 1: Xóa bỏ `padding` ở đây
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildProfileHeader(state),
-            const Divider(height: 32),
-            Card(
-              elevation: 0,
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              clipBehavior: Clip.antiAlias,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              child: ListTile(
-                leading: Icon(Icons.flag_outlined, color: Theme.of(context).colorScheme.primary),
-                title: const Text("Achievements", style: TextStyle(fontWeight: FontWeight.bold)),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: () {
-                  Navigator.pushNamed(context, AppRoutes.quests);
-                },
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'Closets overview',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, AppRoutes.closetInsights);
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
+            // *** THAY ĐỔI 2: Thêm `Padding` để bọc các phần tử cần giữ padding
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: 16), // Thêm khoảng đệm trên cùng
+                  _buildProfileHeader(state),
+                  const Divider(height: 32),
+                  Card(
+                    elevation: 0,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    clipBehavior: Clip.antiAlias,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: ListTile(
+                      leading: Icon(Icons.flag_outlined, color: Theme.of(context).colorScheme.primary),
+                      title: const Text("Achievements", style: TextStyle(fontWeight: FontWeight.bold)),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () {
+                        Navigator.pushNamed(context, AppRoutes.quests);
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        'Insights',
-                        style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                        'Closets overview',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        size: 14,
-                        color: Theme.of(context).colorScheme.primary,
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, AppRoutes.closetInsights);
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Insights',
+                              style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              size: 14,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            StatsOverviewCard(
-              totalItems: state.totalItems,
-              totalClosets: state.totalClosets,
-              totalOutfits: state.totalOutfits,
+                  const SizedBox(height: 8),
+                  StatsOverviewCard(
+                    totalItems: state.totalItems,
+                    totalClosets: state.totalClosets,
+                    totalOutfits: state.totalOutfits,
+                  ),
+                  const SizedBox(height: 24),
+                  // Di chuyển tiêu đề "Statistics" vào trong Padding này
+                  Text('Statistics', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                ],
+              ),
             ),
             
-            const SizedBox(height: 24),
-
-            Text('Statistics', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+            // *** THAY ĐỔI 3: Phần thống kê bây giờ nằm ngoài Padding chính ***
             const SizedBox(height: 16),
             if (statPages.isEmpty)
               const Center(
@@ -297,7 +308,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       },
                       itemBuilder: (context, index) {
                         return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0), // Chỉ cần padding nhỏ giữa các card
                           child: statPages[index],
                         );
                       },
@@ -322,7 +333,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     }),
                   ),
                 ],
-              )
+              ),
+            const SizedBox(height: 16.0), // Thêm padding dưới cùng
           ],
         ),
       ),

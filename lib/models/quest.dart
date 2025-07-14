@@ -45,7 +45,6 @@ class Quest extends Equatable {
   final QuestStatus status;
   final QuestProgress progress;
   final String? prerequisiteQuestId;
-  // <<< THÊM DÒNG NÀY >>>
   final String? hintKey;
 
   const Quest({

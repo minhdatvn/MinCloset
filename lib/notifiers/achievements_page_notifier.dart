@@ -1,7 +1,7 @@
 // lib/notifiers/achievements_page_notifier.dart
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/models/achievement.dart'; // <<< THÊM IMPORT
+import 'package:mincloset/models/achievement.dart';
 import 'package:mincloset/models/badge.dart';
 import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/providers/repository_providers.dart';

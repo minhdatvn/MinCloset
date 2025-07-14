@@ -9,82 +9,84 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get settingsTitle => 'Settings';
+  String get language_english => 'English';
 
   @override
-  String get generalSettings => 'General Settings';
+  String get language_vietnamese => 'Vietnamese';
 
   @override
-  String get localizationTitle => 'Localization';
+  String get settings_title => 'Settings';
 
   @override
-  String get locationTitle => 'Location';
+  String get settings_general_sectionHeader => 'General Settings';
 
   @override
-  String get autoDetect => 'Auto-detect';
+  String get settings_localization_tile => 'Localization';
 
   @override
-  String get languageTitle => 'Language';
+  String get settings_location_tile => 'Location';
 
   @override
-  String get languageEnglish => 'English';
+  String get settings_autoDetect_label => 'Auto-detect';
 
   @override
-  String get languageVietnamese => 'Vietnamese';
+  String get settings_language_tile => 'Language';
 
   @override
-  String get currencyTitle => 'Currency';
+  String get settings_currency_tile => 'Currency';
 
   @override
-  String get decimalFormatTitle => 'Decimal format';
+  String get settings_decimalFormat_tile => 'Decimal format';
 
   @override
-  String get notificationsTitle => 'Notifications';
+  String get settings_notifications_tile => 'Notifications';
 
   @override
-  String get enableAllNotifications => 'Enable all notifications';
+  String get settings_enableAllNotifications_label =>
+      'Enable all notifications';
 
   @override
-  String get morningReminder => 'Morning reminder (7:00)';
+  String get settings_morningReminder_label => 'Morning reminder (7:00)';
 
   @override
-  String get morningReminderSubtitle =>
+  String get settings_morningReminder_subtitle =>
       'Get suggestions for your daily outfit plan.';
 
   @override
-  String get eveningReminder => 'Evening reminder (20:00)';
+  String get settings_eveningReminder_label => 'Evening reminder (20:00)';
 
   @override
-  String get eveningReminderSubtitle =>
+  String get settings_eveningReminder_subtitle =>
       'Remind to update your fashion journal.';
 
   @override
-  String get displayTitle => 'Display';
+  String get settings_display_tile => 'Display';
 
   @override
-  String get showWeatherBackground => 'Show weather background';
+  String get settings_showWeatherBg_label => 'Show weather background';
 
   @override
-  String get showWeatherBackgroundSubtitle => 'Display image based on weather';
+  String get settings_showWeatherBg_subtitle =>
+      'Display image based on weather';
 
   @override
-  String get showMascot => 'Show Mascot';
+  String get settings_showMascot_label => 'Show Mascot';
 
   @override
-  String get showMascotSubtitle => 'Display the assistant on screen';
+  String get settings_showMascot_subtitle => 'Display the assistant on screen';
 
   @override
-  String get aboutAndSupport => 'About & Support';
+  String get settings_aboutSupport_sectionHeader => 'About & Support';
 
   @override
-  String get aboutAndLegal => 'About & Legal';
+  String get settings_aboutLegal_tile => 'About & Legal';
 
   @override
-  String get sendFeedback => 'Send Feedback';
+  String get settings_sendFeedback_tile => 'Send Feedback';
 
   @override
-  String get sendFeedbackSubtitle => 'Help us improve MinCloset';
+  String get settings_sendFeedback_subtitle => 'Help us improve MinCloset';
 
   @override
-  String get rateOnAppStore => 'Rate on App Store';
+  String get settings_rateApp_tile => 'Rate on App Store';
 }

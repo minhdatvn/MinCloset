@@ -98,161 +98,161 @@ abstract class AppLocalizations {
     Locale('vi')
   ];
 
-  /// No description provided for @settingsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Settings'**
-  String get settingsTitle;
-
-  /// No description provided for @generalSettings.
-  ///
-  /// In en, this message translates to:
-  /// **'General Settings'**
-  String get generalSettings;
-
-  /// No description provided for @localizationTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Localization'**
-  String get localizationTitle;
-
-  /// No description provided for @locationTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Location'**
-  String get locationTitle;
-
-  /// No description provided for @autoDetect.
-  ///
-  /// In en, this message translates to:
-  /// **'Auto-detect'**
-  String get autoDetect;
-
-  /// No description provided for @languageTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Language'**
-  String get languageTitle;
-
-  /// No description provided for @languageEnglish.
+  /// The word for English language
   ///
   /// In en, this message translates to:
   /// **'English'**
-  String get languageEnglish;
+  String get language_english;
 
-  /// No description provided for @languageVietnamese.
+  /// The word for Vietnamese language
   ///
   /// In en, this message translates to:
   /// **'Vietnamese'**
-  String get languageVietnamese;
+  String get language_vietnamese;
 
-  /// No description provided for @currencyTitle.
+  /// SCREEN: Settings. The title in the AppBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings_title;
+
+  /// No description provided for @settings_general_sectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'General Settings'**
+  String get settings_general_sectionHeader;
+
+  /// No description provided for @settings_localization_tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Localization'**
+  String get settings_localization_tile;
+
+  /// No description provided for @settings_location_tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get settings_location_tile;
+
+  /// No description provided for @settings_autoDetect_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-detect'**
+  String get settings_autoDetect_label;
+
+  /// No description provided for @settings_language_tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settings_language_tile;
+
+  /// No description provided for @settings_currency_tile.
   ///
   /// In en, this message translates to:
   /// **'Currency'**
-  String get currencyTitle;
+  String get settings_currency_tile;
 
-  /// No description provided for @decimalFormatTitle.
+  /// No description provided for @settings_decimalFormat_tile.
   ///
   /// In en, this message translates to:
   /// **'Decimal format'**
-  String get decimalFormatTitle;
+  String get settings_decimalFormat_tile;
 
-  /// No description provided for @notificationsTitle.
+  /// No description provided for @settings_notifications_tile.
   ///
   /// In en, this message translates to:
   /// **'Notifications'**
-  String get notificationsTitle;
+  String get settings_notifications_tile;
 
-  /// No description provided for @enableAllNotifications.
+  /// No description provided for @settings_enableAllNotifications_label.
   ///
   /// In en, this message translates to:
   /// **'Enable all notifications'**
-  String get enableAllNotifications;
+  String get settings_enableAllNotifications_label;
 
-  /// No description provided for @morningReminder.
+  /// No description provided for @settings_morningReminder_label.
   ///
   /// In en, this message translates to:
   /// **'Morning reminder (7:00)'**
-  String get morningReminder;
+  String get settings_morningReminder_label;
 
-  /// No description provided for @morningReminderSubtitle.
+  /// No description provided for @settings_morningReminder_subtitle.
   ///
   /// In en, this message translates to:
   /// **'Get suggestions for your daily outfit plan.'**
-  String get morningReminderSubtitle;
+  String get settings_morningReminder_subtitle;
 
-  /// No description provided for @eveningReminder.
+  /// No description provided for @settings_eveningReminder_label.
   ///
   /// In en, this message translates to:
   /// **'Evening reminder (20:00)'**
-  String get eveningReminder;
+  String get settings_eveningReminder_label;
 
-  /// No description provided for @eveningReminderSubtitle.
+  /// No description provided for @settings_eveningReminder_subtitle.
   ///
   /// In en, this message translates to:
   /// **'Remind to update your fashion journal.'**
-  String get eveningReminderSubtitle;
+  String get settings_eveningReminder_subtitle;
 
-  /// No description provided for @displayTitle.
+  /// No description provided for @settings_display_tile.
   ///
   /// In en, this message translates to:
   /// **'Display'**
-  String get displayTitle;
+  String get settings_display_tile;
 
-  /// No description provided for @showWeatherBackground.
+  /// No description provided for @settings_showWeatherBg_label.
   ///
   /// In en, this message translates to:
   /// **'Show weather background'**
-  String get showWeatherBackground;
+  String get settings_showWeatherBg_label;
 
-  /// No description provided for @showWeatherBackgroundSubtitle.
+  /// No description provided for @settings_showWeatherBg_subtitle.
   ///
   /// In en, this message translates to:
   /// **'Display image based on weather'**
-  String get showWeatherBackgroundSubtitle;
+  String get settings_showWeatherBg_subtitle;
 
-  /// No description provided for @showMascot.
+  /// No description provided for @settings_showMascot_label.
   ///
   /// In en, this message translates to:
   /// **'Show Mascot'**
-  String get showMascot;
+  String get settings_showMascot_label;
 
-  /// No description provided for @showMascotSubtitle.
+  /// No description provided for @settings_showMascot_subtitle.
   ///
   /// In en, this message translates to:
   /// **'Display the assistant on screen'**
-  String get showMascotSubtitle;
+  String get settings_showMascot_subtitle;
 
-  /// No description provided for @aboutAndSupport.
+  /// No description provided for @settings_aboutSupport_sectionHeader.
   ///
   /// In en, this message translates to:
   /// **'About & Support'**
-  String get aboutAndSupport;
+  String get settings_aboutSupport_sectionHeader;
 
-  /// No description provided for @aboutAndLegal.
+  /// No description provided for @settings_aboutLegal_tile.
   ///
   /// In en, this message translates to:
   /// **'About & Legal'**
-  String get aboutAndLegal;
+  String get settings_aboutLegal_tile;
 
-  /// No description provided for @sendFeedback.
+  /// No description provided for @settings_sendFeedback_tile.
   ///
   /// In en, this message translates to:
   /// **'Send Feedback'**
-  String get sendFeedback;
+  String get settings_sendFeedback_tile;
 
-  /// No description provided for @sendFeedbackSubtitle.
+  /// No description provided for @settings_sendFeedback_subtitle.
   ///
   /// In en, this message translates to:
   /// **'Help us improve MinCloset'**
-  String get sendFeedbackSubtitle;
+  String get settings_sendFeedback_subtitle;
 
-  /// No description provided for @rateOnAppStore.
+  /// No description provided for @settings_rateApp_tile.
   ///
   /// In en, this message translates to:
   /// **'Rate on App Store'**
-  String get rateOnAppStore;
+  String get settings_rateApp_tile;
 }
 
 class _AppLocalizationsDelegate

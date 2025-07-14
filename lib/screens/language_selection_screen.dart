@@ -13,7 +13,7 @@ class LanguageSelectionScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return PageScaffold(
       appBar: AppBar(
-        title: Text(l10n.languageTitle),
+        title: Text(l10n.settings_language_tile),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),

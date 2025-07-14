@@ -9,83 +9,84 @@ class AppLocalizationsVi extends AppLocalizations {
   AppLocalizationsVi([String locale = 'vi']) : super(locale);
 
   @override
-  String get settingsTitle => 'Cài đặt';
+  String get language_english => 'English';
 
   @override
-  String get generalSettings => 'Cài đặt chung';
+  String get language_vietnamese => 'Tiếng Việt';
 
   @override
-  String get localizationTitle => 'Bản địa hóa';
+  String get settings_title => 'Cài đặt';
 
   @override
-  String get locationTitle => 'Vị trí';
+  String get settings_general_sectionHeader => 'Cài đặt chung';
 
   @override
-  String get autoDetect => 'Tự động phát hiện';
+  String get settings_localization_tile => 'Khu vực';
 
   @override
-  String get languageTitle => 'Ngôn ngữ';
+  String get settings_location_tile => 'Vị trí';
 
   @override
-  String get languageEnglish => 'English';
+  String get settings_autoDetect_label => 'Tự động phát hiện';
 
   @override
-  String get languageVietnamese => 'Tiếng Việt';
+  String get settings_language_tile => 'Ngôn ngữ';
 
   @override
-  String get currencyTitle => 'Tiền tệ';
+  String get settings_currency_tile => 'Tiền tệ';
 
   @override
-  String get decimalFormatTitle => 'Định dạng số';
+  String get settings_decimalFormat_tile => 'Định dạng số';
 
   @override
-  String get notificationsTitle => 'Thông báo';
+  String get settings_notifications_tile => 'Thông báo';
 
   @override
-  String get enableAllNotifications => 'Bật tất cả thông báo';
+  String get settings_enableAllNotifications_label => 'Bật tất cả thông báo';
 
   @override
-  String get morningReminder => 'Nhắc nhở buổi sáng (7:00)';
+  String get settings_morningReminder_label => 'Nhắc nhở buổi sáng (7:00)';
 
   @override
-  String get morningReminderSubtitle =>
+  String get settings_morningReminder_subtitle =>
       'Nhận gợi ý cho kế hoạch trang phục hàng ngày.';
 
   @override
-  String get eveningReminder => 'Nhắc nhở buổi tối (20:00)';
+  String get settings_eveningReminder_label => 'Nhắc nhở buổi tối (20:00)';
 
   @override
-  String get eveningReminderSubtitle =>
+  String get settings_eveningReminder_subtitle =>
       'Nhắc nhở cập nhật nhật ký thời trang của bạn.';
 
   @override
-  String get displayTitle => 'Hiển thị';
+  String get settings_display_tile => 'Hiển thị';
 
   @override
-  String get showWeatherBackground => 'Hiện ảnh nền thời tiết';
+  String get settings_showWeatherBg_label => 'Hiện ảnh nền thời tiết';
 
   @override
-  String get showWeatherBackgroundSubtitle =>
+  String get settings_showWeatherBg_subtitle =>
       'Hiển thị hình ảnh dựa trên thời tiết';
 
   @override
-  String get showMascot => 'Hiển thị Mascot';
+  String get settings_showMascot_label => 'Hiển thị Mascot';
 
   @override
-  String get showMascotSubtitle => 'Hiển thị trợ lý trên màn hình';
+  String get settings_showMascot_subtitle => 'Hiển thị trợ lý trên màn hình';
 
   @override
-  String get aboutAndSupport => 'Giới thiệu & Hỗ trợ';
+  String get settings_aboutSupport_sectionHeader => 'Giới thiệu & Hỗ trợ';
 
   @override
-  String get aboutAndLegal => 'Giới thiệu & Pháp lý';
+  String get settings_aboutLegal_tile => 'Giới thiệu & Pháp lý';
 
   @override
-  String get sendFeedback => 'Gửi phản hồi';
+  String get settings_sendFeedback_tile => 'Gửi phản hồi';
 
   @override
-  String get sendFeedbackSubtitle => 'Giúp chúng tôi cải thiện MinCloset';
+  String get settings_sendFeedback_subtitle =>
+      'Giúp chúng tôi cải thiện MinCloset';
 
   @override
-  String get rateOnAppStore => 'Đánh giá trên App Store';
+  String get settings_rateApp_tile => 'Đánh giá trên App Store';
 }

@@ -278,6 +278,102 @@ abstract class AppLocalizations {
   /// **'Rate on App Store'**
   String get settings_rateApp_tile;
 
+  /// No description provided for @editProfile_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get editProfile_title;
+
+  /// No description provided for @editProfile_saveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get editProfile_saveButton;
+
+  /// No description provided for @editProfile_basicInfo_sectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic info'**
+  String get editProfile_basicInfo_sectionHeader;
+
+  /// No description provided for @editProfile_fullName_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get editProfile_fullName_label;
+
+  /// No description provided for @editProfile_gender_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get editProfile_gender_label;
+
+  /// No description provided for @editProfile_birthday_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday'**
+  String get editProfile_birthday_label;
+
+  /// No description provided for @editProfile_notSelected_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Not selected'**
+  String get editProfile_notSelected_label;
+
+  /// No description provided for @editProfile_height_cm_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Height (cm)'**
+  String get editProfile_height_cm_label;
+
+  /// No description provided for @editProfile_height_ft_in_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get editProfile_height_ft_in_label;
+
+  /// No description provided for @editProfile_weight_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get editProfile_weight_label;
+
+  /// No description provided for @editProfile_interests_sectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Interests & Style'**
+  String get editProfile_interests_sectionHeader;
+
+  /// No description provided for @editProfile_personalStyle_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal style'**
+  String get editProfile_personalStyle_label;
+
+  /// No description provided for @editProfile_favoriteColors_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite colors'**
+  String get editProfile_favoriteColors_label;
+
+  /// No description provided for @gender_male.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get gender_male;
+
+  /// No description provided for @gender_female.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get gender_female;
+
+  /// No description provided for @gender_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get gender_other;
+
   /// No description provided for @quests_title.
   ///
   /// In en, this message translates to:

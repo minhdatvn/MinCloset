@@ -103,6 +103,54 @@ class AppLocalizationsVi extends AppLocalizations {
   String get settings_rateApp_tile => 'Đánh giá trên App Store';
 
   @override
+  String get editProfile_title => 'Chỉnh sửa hồ sơ';
+
+  @override
+  String get editProfile_saveButton => 'Lưu';
+
+  @override
+  String get editProfile_basicInfo_sectionHeader => 'Thông tin cơ bản';
+
+  @override
+  String get editProfile_fullName_label => 'Họ và tên';
+
+  @override
+  String get editProfile_gender_label => 'Giới tính';
+
+  @override
+  String get editProfile_birthday_label => 'Ngày sinh';
+
+  @override
+  String get editProfile_notSelected_label => 'Chưa chọn';
+
+  @override
+  String get editProfile_height_cm_label => 'Chiều cao (cm)';
+
+  @override
+  String get editProfile_height_ft_in_label => 'Chiều cao';
+
+  @override
+  String get editProfile_weight_label => 'Cân nặng';
+
+  @override
+  String get editProfile_interests_sectionHeader => 'Sở thích & Phong cách';
+
+  @override
+  String get editProfile_personalStyle_label => 'Phong cách cá nhân';
+
+  @override
+  String get editProfile_favoriteColors_label => 'Màu sắc yêu thích';
+
+  @override
+  String get gender_male => 'Nam';
+
+  @override
+  String get gender_female => 'Nữ';
+
+  @override
+  String get gender_other => 'Khác';
+
+  @override
   String get quests_title => 'Thành tích';
 
   @override

@@ -103,6 +103,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_rateApp_tile => 'Rate on App Store';
 
   @override
+  String get editProfile_title => 'Edit profile';
+
+  @override
+  String get editProfile_saveButton => 'Save';
+
+  @override
+  String get editProfile_basicInfo_sectionHeader => 'Basic info';
+
+  @override
+  String get editProfile_fullName_label => 'Full name';
+
+  @override
+  String get editProfile_gender_label => 'Gender';
+
+  @override
+  String get editProfile_birthday_label => 'Birthday';
+
+  @override
+  String get editProfile_notSelected_label => 'Not selected';
+
+  @override
+  String get editProfile_height_cm_label => 'Height (cm)';
+
+  @override
+  String get editProfile_height_ft_in_label => 'Height';
+
+  @override
+  String get editProfile_weight_label => 'Weight';
+
+  @override
+  String get editProfile_interests_sectionHeader => 'Interests & Style';
+
+  @override
+  String get editProfile_personalStyle_label => 'Personal style';
+
+  @override
+  String get editProfile_favoriteColors_label => 'Favorite colors';
+
+  @override
+  String get gender_male => 'Male';
+
+  @override
+  String get gender_female => 'Female';
+
+  @override
+  String get gender_other => 'Other';
+
+  @override
   String get quests_title => 'Achievements';
 
   @override

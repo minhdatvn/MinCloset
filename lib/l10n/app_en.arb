@@ -247,5 +247,29 @@
     "mainScreen_tutorial_introduce": "Let me introduce you to the first and most important feature!",
     "mainScreen_tutorial_showAddItem": "Let's start by adding your first item to the closet!",
     "mainScreen_hint_addItem": "Add Items",
-    "mainScreen_hint_addItem_description": "Tap here to digitize your clothes by taking a photo or choosing from your library."
+    "mainScreen_hint_addItem_description": "Tap here to digitize your clothes by taking a photo or choosing from your library.",
+
+    "suggestion_purposeHint": "Purpose? (e.g. coffee, date night...)",
+    "suggestion_purposeLength": "{current}/{max}",
+    "@suggestion_purposeLength": {
+        "placeholders": {
+            "current": {
+                "type": "int"
+            },
+            "max": {
+                "type": "int"
+            }
+        }
+    },
+    "suggestion_editAndSaveButton": "Edit & Save",
+    "suggestion_placeholder": "Describe your purpose and tap the send button to get suggestions!",
+    "suggestion_weatherUnavailable": "Weather data unavailable. This is a general suggestion.",
+    "suggestion_lastUpdated": "Last updated: {datetime}",
+    "@suggestion_lastUpdated": {
+        "placeholders": {
+            "datetime": {
+                "type": "String"
+            }
+        }
+    }
 }

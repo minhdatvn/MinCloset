@@ -1147,6 +1147,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Tap here to digitize your clothes by taking a photo or choosing from your library.'**
   String get mainScreen_hint_addItem_description;
+
+  /// No description provided for @suggestion_purposeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Purpose? (e.g. coffee, date night...)'**
+  String get suggestion_purposeHint;
+
+  /// No description provided for @suggestion_purposeLength.
+  ///
+  /// In en, this message translates to:
+  /// **'{current}/{max}'**
+  String suggestion_purposeLength(int current, int max);
+
+  /// No description provided for @suggestion_editAndSaveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit & Save'**
+  String get suggestion_editAndSaveButton;
+
+  /// No description provided for @suggestion_placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe your purpose and tap the send button to get suggestions!'**
+  String get suggestion_placeholder;
+
+  /// No description provided for @suggestion_weatherUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather data unavailable. This is a general suggestion.'**
+  String get suggestion_weatherUnavailable;
+
+  /// No description provided for @suggestion_lastUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated: {datetime}'**
+  String suggestion_lastUpdated(String datetime);
 }
 
 class _AppLocalizationsDelegate

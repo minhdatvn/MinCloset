@@ -597,4 +597,28 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mainScreen_hint_addItem_description =>
       'Tap here to digitize your clothes by taking a photo or choosing from your library.';
+
+  @override
+  String get suggestion_purposeHint => 'Purpose? (e.g. coffee, date night...)';
+
+  @override
+  String suggestion_purposeLength(int current, int max) {
+    return '$current/$max';
+  }
+
+  @override
+  String get suggestion_editAndSaveButton => 'Edit & Save';
+
+  @override
+  String get suggestion_placeholder =>
+      'Describe your purpose and tap the send button to get suggestions!';
+
+  @override
+  String get suggestion_weatherUnavailable =>
+      'Weather data unavailable. This is a general suggestion.';
+
+  @override
+  String suggestion_lastUpdated(String datetime) {
+    return 'Last updated: $datetime';
+  }
 }

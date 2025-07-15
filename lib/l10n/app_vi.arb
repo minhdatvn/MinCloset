@@ -237,5 +237,29 @@
     "mainScreen_tutorial_introduce": "Để tôi giới thiệu cho bạn tính năng đầu tiên và quan trọng nhất nhé!",
     "mainScreen_tutorial_showAddItem": "Hãy bắt đầu bằng cách thêm vật phẩm đầu tiên vào tủ đồ nào!",
     "mainScreen_hint_addItem": "Thêm Vật phẩm",
-    "mainScreen_hint_addItem_description": "Nhấn vào đây để số hoá quần áo của bạn bằng cách chụp ảnh hoặc chọn từ thư viện."
+    "mainScreen_hint_addItem_description": "Nhấn vào đây để số hoá quần áo của bạn bằng cách chụp ảnh hoặc chọn từ thư viện.",
+
+    "suggestion_purposeHint": "Mục đích? (vd: đi cà phê, hẹn hò...)",
+    "suggestion_purposeLength": "{current}/{max}",
+    "@suggestion_purposeLength": {
+        "placeholders": {
+            "current": {
+                "type": "int"
+            },
+            "max": {
+                "type": "int"
+            }
+        }
+    },
+    "suggestion_editAndSaveButton": "Sửa & Lưu",
+    "suggestion_placeholder": "Mô tả mục đích của bạn và nhấn nút gửi để nhận gợi ý!",
+    "suggestion_weatherUnavailable": "Không có dữ liệu thời tiết. Đây là một gợi ý chung.",
+    "suggestion_lastUpdated": "Cập nhật lần cuối: {datetime}",
+    "@suggestion_lastUpdated": {
+        "placeholders": {
+            "datetime": {
+                "type": "String"
+            }
+        }
+    }
 }

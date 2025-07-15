@@ -271,10 +271,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   final profileState = ref.watch(profileProvider);
   final unitConverter = ref.watch(unitConversionServiceProvider);
   final String backgroundImagePath = state.backgroundImagePath ?? 'assets/images/weather_backgrounds/default_1.webp';
+  final l10n = context.l10n;
   
   return Showcase(
       key: QuestHintKeys.getSuggestionHintKey,
-      title: 'AI Suggestions',
+      title: l10n.home_suggestionTitle,
       description: 'Describe your purpose for the day (e.g., "coffee with friends", "work meeting") and tap the send button to get a personalized outfit suggestion!',
       child: Card(
       elevation: 0,
@@ -410,7 +411,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   maxLength: 150,
                   maxLines: null, 
                   decoration: InputDecoration(
-                    hintText: 'Purpose? (e.g. coffee, date night...)',
+                    hintText: l10n.suggestion_purposeHint,
                     border: const UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.transparent),
                     ),
@@ -436,9 +437,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                 ),
                 // <<< BỘ ĐẾM MỚI CỦA CHÚNG TA >>>
                 Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
+                  padding: const EdgeInsets.only(right: 12.0),
                   child: Text(
-                    '$_currentPurposeLength/150',
+                    l10n.suggestion_purposeLength(_currentPurposeLength, 150),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurface.withValues(alpha:0.6),
                         ),
@@ -474,7 +475,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           icon: const Icon(Icons.edit_outlined),
-                          label: const Text('Edit & Save'),
+                          label: Text(l10n.suggestion_editAndSaveButton),
                           onPressed: () {
                             Navigator.pushNamed(context, AppRoutes.outfitBuilder, arguments: state.suggestionResult);
                           },
@@ -485,7 +486,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 : Center(
                     heightFactor: 5,
                     child: Text(
-                      state.errorMessage ?? 'Describe your purpose and tap the send button to get suggestions!',
+                      state.errorMessage ?? l10n.suggestion_placeholder,
                       textAlign: TextAlign.center,
                       style: const TextStyle(fontSize: 16, height: 1.5, color: Colors.black87),
                     ),
@@ -494,10 +495,10 @@ class _HomePageState extends ConsumerState<HomePage> {
             
             if (state.suggestionTimestamp != null && state.suggestionResult != null) ...[
               if (state.weather == null)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: Text(
-                    "Weather data unavailable. This is a general suggestion.",
+                    l10n.suggestion_weatherUnavailable,
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 12, color: Colors.grey, fontStyle: FontStyle.italic),
                   ),
@@ -507,7 +508,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    'Last updated: ${DateFormat('HH:mm, dd/MM/yyyy').format(state.suggestionTimestamp!)}',
+                    l10n.suggestion_lastUpdated(DateFormat('HH:mm, dd/MM/yyyy').format(state.suggestionTimestamp!)),
                     style: TextStyle(fontSize: 12, color: Colors.grey.shade700, fontStyle: FontStyle.italic),
                   ),
                 ),
@@ -519,13 +520,11 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  // Các hàm còn lại (_buildSuggestionPlaceholder, _getWeatherIcon) giữ nguyên
   Widget _buildSuggestionPlaceholder(SuggestionResult result) {
     Widget singlePlaceholder(ClothingItem? item, {double? width, double? height}) {
       if (item == null) {
         return DottedBorder(
           options: RoundedRectDottedBorderOptions(
-            // XÓA DÒNG BÁO LỖI "borderType: BorderType.RRect,"
             radius: const Radius.circular(8),
             color: Colors.grey.shade400,
             strokeWidth: 1.5,

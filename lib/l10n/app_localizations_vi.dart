@@ -570,4 +570,28 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get mainScreen_hint_addItem_description =>
       'Nhấn vào đây để số hoá quần áo của bạn bằng cách chụp ảnh hoặc chọn từ thư viện.';
+
+  @override
+  String get suggestion_purposeHint => 'Mục đích? (vd: đi cà phê, hẹn hò...)';
+
+  @override
+  String suggestion_purposeLength(int current, int max) {
+    return '$current/$max';
+  }
+
+  @override
+  String get suggestion_editAndSaveButton => 'Sửa & Lưu';
+
+  @override
+  String get suggestion_placeholder =>
+      'Mô tả mục đích của bạn và nhấn nút gửi để nhận gợi ý!';
+
+  @override
+  String get suggestion_weatherUnavailable =>
+      'Không có dữ liệu thời tiết. Đây là một gợi ý chung.';
+
+  @override
+  String suggestion_lastUpdated(String datetime) {
+    return 'Cập nhật lần cuối: $datetime';
+  }
 }

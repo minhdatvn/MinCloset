@@ -214,5 +214,15 @@
     "calendar_outfitLabel": "Trang phục",
     "calendar_formatMonth": "Tháng",
     "calendar_formatTwoWeeks": "2 Tuần",
-    "calendar_formatWeek": "1 Tuần"
+    "calendar_formatWeek": "1 Tuần",
+
+    "home_greeting": "Xin chào,",
+    "home_userNameDefault": "Bạn",
+    "home_actionAddItem": "Thêm\nVật phẩm",
+    "home_actionCreateCloset": "Tạo Tủ đồ",
+    "home_actionCreateOutfits": "Tạo Trang phục",
+    "home_actionSavedOutfits": "Đã lưu",
+    "home_weeklyJournalTitle": "Nhật ký Tuần",
+    "home_weeklyJournalViewMore": "Xem thêm",
+    "home_suggestionTitle": "Gợi ý trang phục"
 }

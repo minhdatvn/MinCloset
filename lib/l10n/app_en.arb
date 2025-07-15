@@ -224,5 +224,15 @@
     "calendar_outfitLabel": "Outfit",
     "calendar_formatMonth": "Month",
     "calendar_formatTwoWeeks": "2 Weeks",
-    "calendar_formatWeek": "Week"
+    "calendar_formatWeek": "Week",
+
+    "home_greeting": "Hello,",
+    "home_userNameDefault": "User",
+    "home_actionAddItem": "Add\nItem",
+    "home_actionCreateCloset": "Create Closet",
+    "home_actionCreateOutfits": "Create Outfits",
+    "home_actionSavedOutfits": "Saved Outfits",
+    "home_weeklyJournalTitle": "Week's Journal",
+    "home_weeklyJournalViewMore": "View more",
+    "home_suggestionTitle": "Outfit suggestion"
 }

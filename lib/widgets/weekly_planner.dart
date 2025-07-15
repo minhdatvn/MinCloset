@@ -2,13 +2,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:mincloset/notifiers/calendar_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/widgets/day_planner_card.dart';
 import 'package:mincloset/widgets/section_header.dart';
 
 class WeeklyPlanner extends ConsumerStatefulWidget {
-  const WeeklyPlanner({super.key});
+  final AppLocalizations l10n;
+  const WeeklyPlanner({super.key, required this.l10n});
 
   @override
   ConsumerState<WeeklyPlanner> createState() => _WeeklyPlannerState();
@@ -63,8 +65,8 @@ class _WeeklyPlannerState extends ConsumerState<WeeklyPlanner> {
         Padding(
           padding: const EdgeInsets.only(left: 16.0),
           child: SectionHeader(
-            title: "Week's Journal",
-            seeAllText: 'View more',
+            title: widget.l10n.home_weeklyJournalTitle,
+            seeAllText: widget.l10n.home_weeklyJournalViewMore,
             onSeeAll: () {
               Navigator.pushNamed(context, AppRoutes.calendar);
             },

@@ -1021,6 +1021,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Week'**
   String get calendar_formatWeek;
+
+  /// No description provided for @home_greeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello,'**
+  String get home_greeting;
+
+  /// No description provided for @home_userNameDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get home_userNameDefault;
+
+  /// No description provided for @home_actionAddItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Add\nItem'**
+  String get home_actionAddItem;
+
+  /// No description provided for @home_actionCreateCloset.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Closet'**
+  String get home_actionCreateCloset;
+
+  /// No description provided for @home_actionCreateOutfits.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Outfits'**
+  String get home_actionCreateOutfits;
+
+  /// No description provided for @home_actionSavedOutfits.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved Outfits'**
+  String get home_actionSavedOutfits;
+
+  /// No description provided for @home_weeklyJournalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Week\'s Journal'**
+  String get home_weeklyJournalTitle;
+
+  /// No description provided for @home_weeklyJournalViewMore.
+  ///
+  /// In en, this message translates to:
+  /// **'View more'**
+  String get home_weeklyJournalViewMore;
+
+  /// No description provided for @home_suggestionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Outfit suggestion'**
+  String get home_suggestionTitle;
 }
 
 class _AppLocalizationsDelegate

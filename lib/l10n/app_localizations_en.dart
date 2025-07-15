@@ -530,4 +530,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendar_formatWeek => 'Week';
+
+  @override
+  String get home_greeting => 'Hello,';
+
+  @override
+  String get home_userNameDefault => 'User';
+
+  @override
+  String get home_actionAddItem => 'Add\nItem';
+
+  @override
+  String get home_actionCreateCloset => 'Create Closet';
+
+  @override
+  String get home_actionCreateOutfits => 'Create Outfits';
+
+  @override
+  String get home_actionSavedOutfits => 'Saved Outfits';
+
+  @override
+  String get home_weeklyJournalTitle => 'Week\'s Journal';
+
+  @override
+  String get home_weeklyJournalViewMore => 'View more';
+
+  @override
+  String get home_suggestionTitle => 'Outfit suggestion';
 }

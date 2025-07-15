@@ -503,4 +503,31 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get calendar_formatWeek => '1 Tuần';
+
+  @override
+  String get home_greeting => 'Xin chào,';
+
+  @override
+  String get home_userNameDefault => 'Bạn';
+
+  @override
+  String get home_actionAddItem => 'Thêm\nVật phẩm';
+
+  @override
+  String get home_actionCreateCloset => 'Tạo Tủ đồ';
+
+  @override
+  String get home_actionCreateOutfits => 'Tạo Trang phục';
+
+  @override
+  String get home_actionSavedOutfits => 'Đã lưu';
+
+  @override
+  String get home_weeklyJournalTitle => 'Nhật ký Tuần';
+
+  @override
+  String get home_weeklyJournalViewMore => 'Xem thêm';
+
+  @override
+  String get home_suggestionTitle => 'Gợi ý trang phục';
 }

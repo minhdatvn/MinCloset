@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
+import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/home_page_notifier.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
@@ -19,6 +20,7 @@ import 'package:mincloset/states/home_page_state.dart';
 import 'package:mincloset/widgets/action_card.dart';
 import 'package:mincloset/widgets/section_header.dart';
 import 'package:mincloset/widgets/weekly_planner.dart';
+import 'package:mincloset/helpers/context_extensions.dart'; 
 import 'package:showcaseview/showcaseview.dart';
 
 final recentItemsProvider =
@@ -117,10 +119,11 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   Widget build(BuildContext context) {
   final homeState = ref.watch(homeProvider);
+  final l10n = context.l10n;
 
   return Scaffold(
     appBar: AppBar(
-      title: _buildHeader(context, ref),
+      title: _buildHeader(context, ref, l10n),
       toolbarHeight: 80,
     ),
     body: RefreshIndicator(
@@ -138,14 +141,14 @@ class _HomePageState extends ConsumerState<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildActionHub(context, ref),
+                  _buildActionHub(context, ref, l10n),
                 ],
               ),
             ),
             
             // *** THAY ĐỔI 3: Để `WeeklyPlanner` ra ngoài Padding ***
             const SizedBox(height: 32),
-            const WeeklyPlanner(),
+            WeeklyPlanner(l10n: l10n),
             const SizedBox(height: 32),
 
             // *** THAY ĐỔI 4: Thêm Padding cho các phần tử còn lại phía dưới ***
@@ -154,8 +157,8 @@ class _HomePageState extends ConsumerState<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SectionHeader(
-                    title: 'Outfit suggestion',
+                  SectionHeader(
+                    title: l10n.home_suggestionTitle,
                   ),
                   const SizedBox(height: 16),
                   _buildTodaysSuggestionCard(context, ref, homeState),
@@ -171,9 +174,9 @@ class _HomePageState extends ConsumerState<HomePage> {
 }
 
   // Các hàm build UI con không thay đổi, chỉ cần truyền ref nếu cần
-  Widget _buildHeader(BuildContext context, WidgetRef ref) {
-  final userName = ref.watch(profileProvider.select((state) => state.userName));
-  final avatarPath = ref.watch(profileProvider.select((state) => state.avatarPath));
+  Widget _buildHeader(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
+    final userName = ref.watch(profileProvider.select((state) => state.userName));
+    final avatarPath = ref.watch(profileProvider.select((state) => state.avatarPath));
 
   return Row(
     children: [
@@ -199,14 +202,14 @@ class _HomePageState extends ConsumerState<HomePage> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Hello,',
-            style: TextStyle(fontSize: 16, color: Colors.grey),
-          ),
           Text(
-            userName ?? 'User',
-            style: Theme.of(context).appBarTheme.titleTextStyle,
-          ),
+              l10n.home_greeting,
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+            Text(
+              userName ?? l10n.home_userNameDefault,
+              style: Theme.of(context).appBarTheme.titleTextStyle,
+            ),
         ],
       ),
 
@@ -219,7 +222,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   );
 }
 
-  Widget _buildActionHub(BuildContext context, WidgetRef ref) {
+  Widget _buildActionHub(BuildContext context, WidgetRef ref, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -228,13 +231,13 @@ class _HomePageState extends ConsumerState<HomePage> {
         Row(
           children: [
             ActionCard(
-              label: 'Add\nItem',
+              label: l10n.home_actionAddItem,
               icon: Icons.add_a_photo_outlined,
               onTap: () => _showAddItemSheet(context), // Gọi menu chọn ảnh
             ),
             const SizedBox(width: 6),
             ActionCard(
-              label: 'Create Closet',
+              label: l10n.home_actionCreateCloset,
               icon: Icons.create_new_folder_outlined,
               onTap: () {
                 Navigator.pushNamed(context, AppRoutes.editCloset);
@@ -242,7 +245,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
             const SizedBox(width: 6),
             ActionCard(
-              label: 'Create Outfits',
+              label: l10n.home_actionCreateOutfits,
               icon: Icons.design_services_outlined,
               onTap: () {
                 Navigator.pushNamed(context, AppRoutes.outfitBuilder);
@@ -250,7 +253,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             ),
             const SizedBox(width: 6),
             ActionCard(
-              label: 'Saved Outfits',
+              label: l10n.home_actionSavedOutfits,
               icon: Icons.collections_bookmark_outlined,
               onTap: () {
                 ref.read(mainScreenIndexProvider.notifier).state = 2;

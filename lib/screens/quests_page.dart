@@ -12,6 +12,7 @@ import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/routing/route_generator.dart';
 import 'package:mincloset/screens/badge_detail_page.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
+import 'package:mincloset/helpers/context_extensions.dart'; 
 
 class QuestsPage extends ConsumerWidget {
   const QuestsPage({super.key});
@@ -20,11 +21,10 @@ class QuestsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(achievementsPageProvider);
     final notifier = ref.read(achievementsPageProvider.notifier);
-    final l10n = AppLocalizations.of(context)!;
 
     return PageScaffold(
       appBar: AppBar(
-        title: Text(l10n.quests_title),
+        title: Text(context.l10n.quests_title),
       ),
       body: RefreshIndicator(
         onRefresh: notifier.loadData,
@@ -33,15 +33,15 @@ class QuestsPage extends ConsumerWidget {
             : ListView(
                 padding: const EdgeInsets.all(16.0),
                 children: [
-                  _buildSectionTitle(context, l10n.quests_yourBadges_sectionHeader),
+                  _buildSectionTitle(context, context.l10n.quests_yourBadges_sectionHeader),
                   const SizedBox(height: 8),
                   _buildBadgesGrid(context, state),
                   const SizedBox(height: 24),
-                  _buildSectionTitle(context, l10n.quests_inProgress_sectionHeader),
+                  _buildSectionTitle(context, context.l10n.quests_inProgress_sectionHeader),
                   if (state.inProgressQuests.isEmpty)
                     Center(child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 32.0),
-                      child: Text(l10n.quests_noActiveQuests_message),
+                      child: Text(context.l10n.quests_noActiveQuests_message),
                     ))
                   else
                     ...state.inProgressQuests.map((quest) {
@@ -162,7 +162,6 @@ class QuestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context)!;
     final isCompleted = quest.status == QuestStatus.completed;
     final cardColor = isCompleted ? Colors.green.withAlpha(20) : theme.colorScheme.surfaceContainerHighest;
     final borderColor = isCompleted ? Colors.green : Colors.grey.shade300;
@@ -184,20 +183,20 @@ class QuestCard extends StatelessWidget {
                 Icon(iconData, color: iconColor),
                 const SizedBox(width: 8),
                 // --- SỬA Ở ĐÂY ---
-                Expanded(child: Text(_getQuestTranslation(quest.titleKey, l10n), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold))),
+                Expanded(child: Text(_getQuestTranslation(quest.titleKey, context.l10n), style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold))),
                 if (quest.status == QuestStatus.inProgress && quest.hintKey != null)
                   const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey)
               ],
             ),
             const SizedBox(height: 8),
             // --- SỬA Ở ĐÂY ---
-            Text(_getQuestTranslation(quest.descriptionKey, l10n), style: theme.textTheme.bodyMedium),
+            Text(_getQuestTranslation(quest.descriptionKey, context.l10n), style: theme.textTheme.bodyMedium),
             if (quest.status == QuestStatus.inProgress) ...[
               const SizedBox(height: 16),
               ...quest.goal.requiredCounts.keys.map((event) {
                 final progressValue = (quest.progress.currentCounts[event] ?? 0) / (quest.goal.requiredCounts[event]!);
                 return _ProgressIndicator(
-                  label: '${_getEventLabel(event, l10n)}: ${quest.getProgressString(event)}',
+                  label: '${_getEventLabel(event, context.l10n)}: ${quest.getProgressString(event)}',
                   value: progressValue,
                 );
               }),

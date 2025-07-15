@@ -110,6 +110,18 @@ abstract class AppLocalizations {
   /// **'Vietnamese'**
   String get language_vietnamese;
 
+  /// No description provided for @banner_deleteSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted \"{itemName}\".'**
+  String banner_deleteSuccess(Object itemName);
+
+  /// No description provided for @banner_deleteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete. Please try again.'**
+  String get banner_deleteFailed;
+
   /// No description provided for @profile_title.
   ///
   /// In en, this message translates to:

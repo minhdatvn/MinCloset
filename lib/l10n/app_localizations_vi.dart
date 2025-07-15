@@ -15,6 +15,14 @@ class AppLocalizationsVi extends AppLocalizations {
   String get language_vietnamese => 'Tiếng Việt';
 
   @override
+  String banner_deleteSuccess(Object itemName) {
+    return 'Đã xoá \"$itemName\".';
+  }
+
+  @override
+  String get banner_deleteFailed => 'Xoá thất bại. Vui lòng thử lại.';
+
+  @override
   String get profile_title => 'Hồ sơ';
 
   @override

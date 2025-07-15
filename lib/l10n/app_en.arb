@@ -10,6 +10,9 @@
         "description": "The word for Vietnamese language"
     },
 
+    "banner_deleteSuccess": "Deleted \"{itemName}\".",
+    "banner_deleteFailed": "Failed to delete. Please try again.",
+
     "profile_title": "Profile",
     "profile_settings_tooltip": "Settings",
     "profile_editProfile_label": "Edit profile",

@@ -3,6 +3,9 @@
     "language_english": "English",
     "language_vietnamese": "Tiếng Việt",
 
+    "banner_deleteSuccess": "Đã xoá \"{itemName}\".",
+    "banner_deleteFailed": "Xoá thất bại. Vui lòng thử lại.",
+
     "profile_title": "Hồ sơ",
     "profile_settings_tooltip": "Cài đặt",
     "profile_editProfile_label": "Chỉnh sửa hồ sơ",

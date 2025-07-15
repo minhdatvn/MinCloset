@@ -15,6 +15,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language_vietnamese => 'Vietnamese';
 
   @override
+  String banner_deleteSuccess(Object itemName) {
+    return 'Deleted \"$itemName\".';
+  }
+
+  @override
+  String get banner_deleteFailed => 'Failed to delete. Please try again.';
+
+  @override
   String get profile_title => 'Profile';
 
   @override

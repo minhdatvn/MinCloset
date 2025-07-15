@@ -16,6 +16,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:mincloset/helpers/context_extensions.dart'; 
 
 class OutfitsHubPage extends ConsumerStatefulWidget {
   const OutfitsHubPage({super.key});
@@ -86,7 +87,11 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
                         const SizedBox(height: 4),
                         // Dòng này vẫn chính xác vì chúng ta đã cập nhật model Outfit
                         Text(
-                          'Last worn: ${outfit.lastWornDate != null ? DateFormat.yMMMd().format(outfit.lastWornDate!) : "Never"}',
+                          outfit.lastWornDate != null
+                            // Nếu có ngày, GỌI PHƯƠNG THỨC và truyền vào ngày đã được định dạng
+                            ? context.l10n.outfitsHub_lastWorn(DateFormat.yMMMd().format(outfit.lastWornDate!))
+                            // Nếu không có ngày, dùng chuỗi 'never' (đây là một getter)
+                            : context.l10n.outfitsHub_lastWorn_never,
                           style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                         ),
                       ],
@@ -99,7 +104,7 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
             // Các ListTile hành động (giữ nguyên như cũ)
             ListTile(
               leading: const Icon(Icons.edit_outlined),
-              title: const Text('Rename'),
+              title: Text(context.l10n.outfitsHub_rename_label),
               onTap: () {
                 Navigator.of(ctx).pop();
                 _showEditOutfitNameDialog(context, ref, outfit, notifier);
@@ -107,7 +112,7 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
             ),
             ListTile(
               leading: const Icon(Icons.share_outlined),
-              title: const Text('Share'),
+              title: Text(context.l10n.outfitsHub_share_label),
               onTap: () {
                 Navigator.of(ctx).pop(); // Đóng sheet
                 // Sử dụng API mới SharePlus.instance.share với ShareParams
@@ -121,7 +126,7 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
             ),
             ListTile(
               leading: const Icon(Icons.open_in_new),
-              title: const Text('View full details'),
+              title: Text(context.l10n.outfitsHub_viewDetails_label),
               onTap: () async {
                 Navigator.of(ctx).pop();
                 final bool? outfitWasChanged = await Navigator.pushNamed(
@@ -136,7 +141,7 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
             ),
             ListTile(
               leading: const Icon(Icons.delete_outline, color: Colors.red),
-              title: const Text('Delete', style: TextStyle(color: Colors.red)),
+              title: Text(context.l10n.outfitsHub_delete_label, style: const TextStyle(color: Colors.red)),
               onTap: () {
                 Navigator.of(ctx).pop();
                 _showDeleteConfirmationDialog(context, ref, outfit, notifier);
@@ -159,16 +164,16 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Rename outfit'),
+        title: Text(context.l10n.outfitsHub_rename_dialogTitle),
         content: TextField(
           controller: nameController,
           autofocus: true,
-          decoration: const InputDecoration(labelText: 'New name'),
+          decoration: InputDecoration(labelText: context.l10n.outfitsHub_newName_label),
         ),
         actions: [
           TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('Cancel')),
+              child: Text(context.l10n.outfitsHub_cancel_button)),
           ElevatedButton(
             onPressed: () async {
               final navigator = Navigator.of(ctx);
@@ -182,7 +187,7 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
               notifier.fetchInitialOutfits();
               navigator.pop();
             },
-            child: const Text('Save'),
+            child: Text(context.l10n.outfitsHub_save_button),
           ),
         ],
       ),
@@ -196,39 +201,47 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
     Outfit outfit,
     OutfitsHubNotifier notifier,
   ) async {
+    // 1. Lấy tất cả các chuỗi dịch cần thiết TRƯỚC khi gọi await.
+    final l10n = context.l10n;
+    final dialogTitle = l10n.outfitsHub_delete_dialogTitle;
+    final dialogContent = l10n.outfitsHub_delete_dialogContent(outfit.name);
+    final cancelButton = l10n.outfitsHub_cancel_button;
+    final deleteButton = l10n.outfitsHub_delete_label;
+    final successMessage = l10n.banner_deleteSuccess(outfit.name);
+    final failedMessage = l10n.banner_deleteFailed;
+
     final confirmed = await showAnimatedDialog<bool>(
       context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Confirm deletion'),
-        content: Text('Permanently delete outfit "${outfit.name}"?'),
+        title: Text(dialogTitle),       // Dùng biến
+        content: Text(dialogContent),  // Dùng biến
         actions: [
           TextButton(
               onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Cancel')),
+              child: Text(cancelButton)), // Dùng biến
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(deleteButton, style: const TextStyle(color: Colors.red)), // Dùng biến
           ),
         ],
       ),
     );
 
-    if (confirmed == true) {
-      // Gọi hàm xóa từ provider chi tiết
+    // 2. Thêm một kiểm tra `context.mounted` để đảm bảo an toàn tuyệt đối.
+    if (confirmed == true && context.mounted) {
       final success = await ref.read(outfitDetailProvider(outfit).notifier)
                               .deleteOutfit();
 
-      // Nếu xóa thành công, làm mới lại trang Hub
       if (success) {
         notifier.fetchInitialOutfits();
         ref.read(notificationServiceProvider).showBanner(
-                message: 'Deleted outfit "${outfit.name}".',
+                message: successMessage, // Dùng biến
                 type: NotificationType.success,
               );
       } else {
         ref.read(notificationServiceProvider).showBanner(
-                message: 'Failed to delete outfit. Please try again.',
+                message: failedMessage, // Dùng biến
               );
       }
     }
@@ -262,7 +275,7 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your Outfits'),
+        title: Text(context.l10n.outfitsHub_title),
       ),
       body: RefreshIndicator(
         onRefresh: notifier.fetchInitialOutfits,
@@ -294,8 +307,8 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
                 if (index == 0) {
                   return Showcase(
                     key: QuestHintKeys.createOutfitHintKey,
-                    title: 'Outfit Builder',
-                    description: 'Tap here to manually mix and match your items and create your own perfect outfits.',
+                    title: context.l10n.outfitsHub_create_hintTitle,
+                    description: context.l10n.outfitsHub_create_hintDescription,
                     child: _buildAddOutfitCard(context, ref),
                   );
                 }
@@ -390,8 +403,8 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
             children: [
               Icon(Icons.add_circle_outline, size: 40, color: Colors.grey.shade600),
               const SizedBox(height: 8),
-              const Text(
-                'Create outfits', // <<< SỬA LẠI CHUỖI TEXT Ở ĐÂY >>>
+              Text(
+                context.l10n.outfitsHub_create_cardLabel,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ],

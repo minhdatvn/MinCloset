@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/services/unit_conversion_service.dart';
@@ -19,7 +20,6 @@ class EditProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
-  // <<< THAY ĐỔI 1: THÊM CONTROLLER CHO FEET VÀ INCHES >>>
   final _nameController = TextEditingController();
   final _heightCmController = TextEditingController();
   final _heightFeetController = TextEditingController();
@@ -30,8 +30,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   DateTime? _selectedDOB;
   Set<String> _selectedStyles = {};
   Set<String> _selectedFavoriteColors = {};
-
-  final _genders = ['Male', 'Female', 'Other'];
 
   @override
   void initState() {
@@ -142,9 +140,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final profileState = ref.watch(profileProvider);
+    final l10n = AppLocalizations.of(context)!;
+    final genders = {
+      l10n.gender_male: 'Male',
+      l10n.gender_female: 'Female',
+      l10n.gender_other: 'Other'
+    };
     return PageScaffold(
       appBar: AppBar(
-        title: const Text('Edit profile'),
+        title: Text(l10n.editProfile_title),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
@@ -152,7 +156,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         actions: [
           TextButton(
             onPressed: _saveProfile,
-            child: const Text('Save', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(l10n.editProfile_saveButton, style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -161,28 +165,28 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildSectionTitle('Basic info'),
+            _buildSectionTitle(l10n.editProfile_basicInfo_sectionHeader),
             const SizedBox(height: 16),
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Full name'),
+              decoration: InputDecoration(labelText: l10n.editProfile_fullName_label),
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: _selectedGender,
-              items: _genders.map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
+              items: genders.keys.map((g) => DropdownMenuItem(value: genders[g], child: Text(g))).toList(),
               onChanged: (value) => setState(() => _selectedGender = value),
-              decoration: const InputDecoration(labelText: 'Gender'),
+              decoration: InputDecoration(labelText: l10n.editProfile_gender_label),
             ),
             const SizedBox(height: 16),
             InkWell(
               onTap: _selectDate,
               child: InputDecorator(
-                decoration: const InputDecoration(labelText: 'Birthday', contentPadding: EdgeInsets.zero),
+                decoration: InputDecoration(labelText: l10n.editProfile_birthday_label, contentPadding: EdgeInsets.zero),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Text(
-                    _selectedDOB == null ? 'Not selected' : DateFormat('dd/MM/yyyy').format(_selectedDOB!),
+                    _selectedDOB == null ? l10n.editProfile_notSelected_label : DateFormat('dd/MM/yyyy').format(_selectedDOB!),
                     style: const TextStyle(fontSize: 16),
                   ),
                 ),
@@ -193,15 +197,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             if (profileState.heightUnit == HeightUnit.cm)
               TextFormField(
                 controller: _heightCmController,
-                decoration: const InputDecoration(labelText: 'Height (cm)'),
+                decoration: InputDecoration(labelText: l10n.editProfile_height_cm_label),
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               )
             else
               // Bọc các ô nhập liệu ft/in trong một InputDecorator
               InputDecorator(
-                decoration: const InputDecoration(
-                  labelText: 'Height',
+                decoration: InputDecoration(
+                  labelText: l10n.editProfile_height_ft_in_label,
                   border: OutlineInputBorder(), // Thêm đường viền
                   contentPadding: EdgeInsets.symmetric(horizontal: 12.0),
                 ),
@@ -247,22 +251,22 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             TextFormField(
               controller: _weightController,
               decoration: InputDecoration(
-                labelText: 'Weight (${profileState.weightUnit == WeightUnit.kg ? "kg" : "lbs"})',
+                labelText: '${l10n.editProfile_weight_label} (${profileState.weightUnit == WeightUnit.kg ? "kg" : "lbs"})',
               ),
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             ),
             const Divider(height: 48),
-            _buildSectionTitle('Interests & Style'),
+            _buildSectionTitle(l10n.editProfile_interests_sectionHeader),
             const SizedBox(height: 8),
             MultiSelectChipField(
-              label: 'Personal style',
+              label: l10n.editProfile_personalStyle_label,
               allOptions: AppOptions.personalStyles,
               initialSelections: _selectedStyles,
               onSelectionChanged: (selections) => setState(() => _selectedStyles = selections),
             ),
             MultiSelectChipField(
-              label: 'Favorite colors',
+              label: l10n.editProfile_favoriteColors_label,
               allOptions: AppOptions.colors,
               initialSelections: _selectedFavoriteColors,
               onSelectionChanged: (selections) => setState(() => _selectedFavoriteColors = selections),

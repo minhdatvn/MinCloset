@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/constants/app_options.dart';
+import 'package:mincloset/helpers/l10n_helper.dart';
 
 class CategorySelector extends StatefulWidget {
   final String? initialCategory;
@@ -38,12 +39,20 @@ class _CategorySelectorState extends State<CategorySelector> {
   }
 
   void _updateCategoryFromWidget(String? categoryValue) {
-    if (categoryValue != null && categoryValue.contains(' > ')) {
-      final parts = categoryValue.split(' > ');
-      setState(() {
-        _selectedMainCategory = parts[0];
-        _selectedSubCategory = parts[1];
-      });
+    if (categoryValue != null && categoryValue.isNotEmpty) {
+      if (categoryValue.contains(' > ')) {
+        final parts = categoryValue.split(' > ');
+        setState(() {
+          _selectedMainCategory = parts[0];
+          _selectedSubCategory = parts[1];
+        });
+      } else {
+        // Trường hợp chỉ có 1 cấp (chính là 'Other')
+        setState(() {
+          _selectedMainCategory = categoryValue;
+          _selectedSubCategory = null; // Không có danh mục con
+        });
+      }
     } else {
       setState(() {
         _selectedMainCategory = null;
@@ -56,6 +65,10 @@ class _CategorySelectorState extends State<CategorySelector> {
     setState(() {
       _selectedMainCategory = category;
       _selectedSubCategory = null;
+
+      if (category == 'category_other' || (AppOptions.categories[category]?.isEmpty ?? true)) {
+        widget.onCategorySelected(category);
+      }
     });
   }
 
@@ -111,10 +124,10 @@ class _CategorySelectorState extends State<CategorySelector> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Flexible(child: Text(_selectedMainCategory!, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis)),
+        Flexible(child: Text(translateAppOption(_selectedMainCategory!, l10n), style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis)),
         if (_selectedSubCategory != null) ...[
           const Icon(Icons.arrow_right_alt_rounded, color: Colors.grey, size: 20),
-          Flexible(child: Text(_selectedSubCategory!, style: TextStyle(fontSize: 16, color: Colors.grey.shade700), overflow: TextOverflow.ellipsis)),
+          Flexible(child: Text(translateAppOption(_selectedSubCategory!, l10n), style: TextStyle(fontSize: 16, color: Colors.grey.shade700), overflow: TextOverflow.ellipsis)),
         ],
         const SizedBox(width: 4),
         Icon(_isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down, color: Colors.grey),
@@ -124,17 +137,18 @@ class _CategorySelectorState extends State<CategorySelector> {
 
   Widget _buildSelectionView() {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     if (_selectedMainCategory == null) {
       // Giao diện chọn danh mục chính
       return Wrap(
         spacing: 8.0,
         runSpacing: 4.0,
-        children: AppOptions.categories.keys.map((mainCategory) {
+        children: AppOptions.categories.keys.map((mainCategoryKey) {
           return ActionChip(
-            avatar: Icon(AppOptions.categoryIcons[mainCategory], size: 18),
-            label: Text(mainCategory),
-            onPressed: () => _selectMainCategory(mainCategory),
+            avatar: Icon(AppOptions.categoryIcons[mainCategoryKey], size: 18), // Icon vẫn dùng key cũ
+            label: Text(translateAppOption(mainCategoryKey, l10n)),
+            onPressed: () => _selectMainCategory(mainCategoryKey),
             backgroundColor: Colors.white,
             shape: StadiumBorder(
               side: BorderSide(color: theme.colorScheme.onSurface, width: 1),
@@ -144,12 +158,13 @@ class _CategorySelectorState extends State<CategorySelector> {
       );
     }
 
+    final subCategoryKeys = AppOptions.categories[_selectedMainCategory] ?? [];
     // Giao diện chọn danh mục con
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Chip(
-          label: Text(_selectedMainCategory!),
+          label: Text(translateAppOption(_selectedMainCategory!, l10n)),
           labelStyle: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -168,11 +183,12 @@ class _CategorySelectorState extends State<CategorySelector> {
         Wrap(
           spacing: 8.0,
           runSpacing: 4.0,
-          children: AppOptions.categories[_selectedMainCategory]!.map((subCategory) {
-            final isSelected = _selectedSubCategory == subCategory;
+          // Sử dụng danh sách đã được lấy một cách an toàn
+          children: subCategoryKeys.map((subCategoryKey) {
+            final isSelected = _selectedSubCategory == subCategoryKey;
             return FilterChip(
               label: Text(
-                subCategory,
+                translateAppOption(subCategoryKey, l10n),
                 style: TextStyle(
                   color: isSelected ? Colors.white : theme.colorScheme.onSurface,
                   fontWeight: FontWeight.w500,
@@ -181,7 +197,7 @@ class _CategorySelectorState extends State<CategorySelector> {
               selected: isSelected,
               onSelected: (selected) {
                 if (selected) {
-                  _selectSubCategory(subCategory);
+                  _selectSubCategory(subCategoryKey);
                 }
               },
               showCheckmark: false,

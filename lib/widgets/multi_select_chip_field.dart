@@ -1,6 +1,8 @@
 // lib/widgets/multi_select_chip_field.dart
 import 'package:flutter/material.dart';
 import 'package:mincloset/constants/app_options.dart';
+import 'package:mincloset/helpers/l10n_helper.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 
 class MultiSelectChipField extends StatefulWidget {
   final String label;
@@ -93,8 +95,9 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
   }
 
   Widget _buildSummaryView(bool isColorSelector) {
+    final l10n = context.l10n;
     if (_selectedOptions.isEmpty) {
-      return Text('Not yet', style: TextStyle(fontSize: 16, color: Colors.grey.shade600));
+      return Text(l10n.itemDetail_form_colorNotYet, style: TextStyle(fontSize: 16, color: Colors.grey.shade600));
     }
     if (isColorSelector && widget.allOptions is Map<String, Color>) {
       final colorMap = widget.allOptions as Map<String, Color>;
@@ -131,9 +134,11 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
         ],
       );
     }
+    final translatedOptions = _selectedOptions.map((key) => translateAppOption(key, l10n)).join(', ');
+
     return Flexible(
       child: Text(
-        _selectedOptions.join(', '),
+        translatedOptions, // Sử dụng chuỗi đã dịch
         style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
         textAlign: TextAlign.right,
         overflow: TextOverflow.ellipsis,
@@ -186,14 +191,16 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
 
   Widget _buildOtherOptionsWrap() {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Wrap(
       spacing: 8.0,
       runSpacing: 4.0,
       alignment: WrapAlignment.center,
       children: (widget.allOptions as Iterable).map((option) {
-        final String name = option is OptionWithImage ? option.name : option as String;
-        final isSelected = _selectedOptions.contains(name);
+        final String key = option is OptionWithImage ? option.name : option as String;
+        final isSelected = _selectedOptions.contains(key);
+        final String labelText = translateAppOption(key, l10n);
         
         final avatar = option is OptionWithImage
           ? CircleAvatar(
@@ -210,14 +217,14 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
         return FilterChip(
           avatar: avatar,
           label: Text(
-            name,
+            labelText,
             style: TextStyle(
               color: isSelected ? Colors.white : theme.colorScheme.onSurface,
               fontWeight: FontWeight.w500,
             ),
           ),
           selected: isSelected,
-          onSelected: (_) => _handleSelection(name),
+          onSelected: (_) => _handleSelection(key),
           showCheckmark: false,
           backgroundColor: Colors.white,
           selectedColor: theme.colorScheme.primary,

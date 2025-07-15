@@ -134,6 +134,720 @@ abstract class AppLocalizations {
   /// **'Today'**
   String get common_today;
 
+  /// No description provided for @category_tops.
+  ///
+  /// In en, this message translates to:
+  /// **'Tops'**
+  String get category_tops;
+
+  /// No description provided for @category_tops_tshirts.
+  ///
+  /// In en, this message translates to:
+  /// **'T-shirts'**
+  String get category_tops_tshirts;
+
+  /// No description provided for @category_tops_long_sleeve.
+  ///
+  /// In en, this message translates to:
+  /// **'Long Sleeve'**
+  String get category_tops_long_sleeve;
+
+  /// No description provided for @category_tops_sleeveless.
+  ///
+  /// In en, this message translates to:
+  /// **'Sleeveless'**
+  String get category_tops_sleeveless;
+
+  /// No description provided for @category_tops_polo_shirts.
+  ///
+  /// In en, this message translates to:
+  /// **'Polo Shirts'**
+  String get category_tops_polo_shirts;
+
+  /// No description provided for @category_tops_tanks_camis.
+  ///
+  /// In en, this message translates to:
+  /// **'Tanks & Camis'**
+  String get category_tops_tanks_camis;
+
+  /// No description provided for @category_tops_crop_tops.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop Tops'**
+  String get category_tops_crop_tops;
+
+  /// No description provided for @category_tops_blouses.
+  ///
+  /// In en, this message translates to:
+  /// **'Blouses'**
+  String get category_tops_blouses;
+
+  /// No description provided for @category_tops_shirts.
+  ///
+  /// In en, this message translates to:
+  /// **'Shirts'**
+  String get category_tops_shirts;
+
+  /// No description provided for @category_tops_sweatshirts.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweatshirts'**
+  String get category_tops_sweatshirts;
+
+  /// No description provided for @category_tops_hoodies.
+  ///
+  /// In en, this message translates to:
+  /// **'Hoodies'**
+  String get category_tops_hoodies;
+
+  /// No description provided for @category_tops_sweaters.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweaters'**
+  String get category_tops_sweaters;
+
+  /// No description provided for @category_bottoms.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottoms'**
+  String get category_bottoms;
+
+  /// No description provided for @category_bottoms_jeans.
+  ///
+  /// In en, this message translates to:
+  /// **'Jeans'**
+  String get category_bottoms_jeans;
+
+  /// No description provided for @category_bottoms_trousers.
+  ///
+  /// In en, this message translates to:
+  /// **'Trousers'**
+  String get category_bottoms_trousers;
+
+  /// No description provided for @category_bottoms_dress_pants.
+  ///
+  /// In en, this message translates to:
+  /// **'Dress Pants'**
+  String get category_bottoms_dress_pants;
+
+  /// No description provided for @category_bottoms_track_pants.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Pants'**
+  String get category_bottoms_track_pants;
+
+  /// No description provided for @category_bottoms_leggings.
+  ///
+  /// In en, this message translates to:
+  /// **'Leggings'**
+  String get category_bottoms_leggings;
+
+  /// No description provided for @category_bottoms_shorts.
+  ///
+  /// In en, this message translates to:
+  /// **'Shorts'**
+  String get category_bottoms_shorts;
+
+  /// No description provided for @category_dresses_jumpsuits.
+  ///
+  /// In en, this message translates to:
+  /// **'Dresses/Jumpsuits'**
+  String get category_dresses_jumpsuits;
+
+  /// No description provided for @category_dresses_jumpsuits_mini_skirts.
+  ///
+  /// In en, this message translates to:
+  /// **'Mini Skirts'**
+  String get category_dresses_jumpsuits_mini_skirts;
+
+  /// No description provided for @category_dresses_jumpsuits_midi_skirts.
+  ///
+  /// In en, this message translates to:
+  /// **'Midi Skirts'**
+  String get category_dresses_jumpsuits_midi_skirts;
+
+  /// No description provided for @category_dresses_jumpsuits_maxi_skirts.
+  ///
+  /// In en, this message translates to:
+  /// **'Maxi Skirts'**
+  String get category_dresses_jumpsuits_maxi_skirts;
+
+  /// No description provided for @category_dresses_jumpsuits_day_dresses.
+  ///
+  /// In en, this message translates to:
+  /// **'Day Dresses'**
+  String get category_dresses_jumpsuits_day_dresses;
+
+  /// No description provided for @category_dresses_jumpsuits_tshirt_dresses.
+  ///
+  /// In en, this message translates to:
+  /// **'T-shirt Dresses'**
+  String get category_dresses_jumpsuits_tshirt_dresses;
+
+  /// No description provided for @category_dresses_jumpsuits_shirt_dresses.
+  ///
+  /// In en, this message translates to:
+  /// **'Shirt Dresses'**
+  String get category_dresses_jumpsuits_shirt_dresses;
+
+  /// No description provided for @category_dresses_jumpsuits_sweatshirt_dresses.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweatshirt Dresses'**
+  String get category_dresses_jumpsuits_sweatshirt_dresses;
+
+  /// No description provided for @category_dresses_jumpsuits_sweater_dresses.
+  ///
+  /// In en, this message translates to:
+  /// **'Sweater Dresses'**
+  String get category_dresses_jumpsuits_sweater_dresses;
+
+  /// No description provided for @category_dresses_jumpsuits_jacket_dresses.
+  ///
+  /// In en, this message translates to:
+  /// **'Jacket Dresses'**
+  String get category_dresses_jumpsuits_jacket_dresses;
+
+  /// No description provided for @category_dresses_jumpsuits_suspender_dresses.
+  ///
+  /// In en, this message translates to:
+  /// **'Suspender Dresses'**
+  String get category_dresses_jumpsuits_suspender_dresses;
+
+  /// No description provided for @category_dresses_jumpsuits_jumpsuits.
+  ///
+  /// In en, this message translates to:
+  /// **'Jumpsuits'**
+  String get category_dresses_jumpsuits_jumpsuits;
+
+  /// No description provided for @category_dresses_jumpsuits_party_dresses.
+  ///
+  /// In en, this message translates to:
+  /// **'Party Dresses'**
+  String get category_dresses_jumpsuits_party_dresses;
+
+  /// No description provided for @category_outerwear.
+  ///
+  /// In en, this message translates to:
+  /// **'Outerwear'**
+  String get category_outerwear;
+
+  /// No description provided for @category_outerwear_coats.
+  ///
+  /// In en, this message translates to:
+  /// **'Coats'**
+  String get category_outerwear_coats;
+
+  /// No description provided for @category_outerwear_trench_coats.
+  ///
+  /// In en, this message translates to:
+  /// **'Trench Coats'**
+  String get category_outerwear_trench_coats;
+
+  /// No description provided for @category_outerwear_fur_coats.
+  ///
+  /// In en, this message translates to:
+  /// **'Fur Coats'**
+  String get category_outerwear_fur_coats;
+
+  /// No description provided for @category_outerwear_shearling_coats.
+  ///
+  /// In en, this message translates to:
+  /// **'Shearling Coats'**
+  String get category_outerwear_shearling_coats;
+
+  /// No description provided for @category_outerwear_blazers.
+  ///
+  /// In en, this message translates to:
+  /// **'Blazers'**
+  String get category_outerwear_blazers;
+
+  /// No description provided for @category_outerwear_jackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Jackets'**
+  String get category_outerwear_jackets;
+
+  /// No description provided for @category_outerwear_blousons.
+  ///
+  /// In en, this message translates to:
+  /// **'Blousons'**
+  String get category_outerwear_blousons;
+
+  /// No description provided for @category_outerwear_varsity_jackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Varsity Jackets'**
+  String get category_outerwear_varsity_jackets;
+
+  /// No description provided for @category_outerwear_trucker_jackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Trucker Jackets'**
+  String get category_outerwear_trucker_jackets;
+
+  /// No description provided for @category_outerwear_biker_jackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Biker Jackets'**
+  String get category_outerwear_biker_jackets;
+
+  /// No description provided for @category_outerwear_cardigans.
+  ///
+  /// In en, this message translates to:
+  /// **'Cardigans'**
+  String get category_outerwear_cardigans;
+
+  /// No description provided for @category_outerwear_zipup_hoodies.
+  ///
+  /// In en, this message translates to:
+  /// **'Zip-up Hoodies'**
+  String get category_outerwear_zipup_hoodies;
+
+  /// No description provided for @category_outerwear_field_jackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Field Jackets'**
+  String get category_outerwear_field_jackets;
+
+  /// No description provided for @category_outerwear_track_jackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Jackets'**
+  String get category_outerwear_track_jackets;
+
+  /// No description provided for @category_outerwear_fleece_jackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Fleece Jackets'**
+  String get category_outerwear_fleece_jackets;
+
+  /// No description provided for @category_outerwear_puffer_down_jackets.
+  ///
+  /// In en, this message translates to:
+  /// **'Puffer/Down Jackets'**
+  String get category_outerwear_puffer_down_jackets;
+
+  /// No description provided for @category_outerwear_vests.
+  ///
+  /// In en, this message translates to:
+  /// **'Vests'**
+  String get category_outerwear_vests;
+
+  /// No description provided for @category_footwear.
+  ///
+  /// In en, this message translates to:
+  /// **'Footwear'**
+  String get category_footwear;
+
+  /// No description provided for @category_footwear_sneakers.
+  ///
+  /// In en, this message translates to:
+  /// **'Sneakers'**
+  String get category_footwear_sneakers;
+
+  /// No description provided for @category_footwear_slipons.
+  ///
+  /// In en, this message translates to:
+  /// **'Slip-Ons'**
+  String get category_footwear_slipons;
+
+  /// No description provided for @category_footwear_sports_shoes.
+  ///
+  /// In en, this message translates to:
+  /// **'Sports Shoes'**
+  String get category_footwear_sports_shoes;
+
+  /// No description provided for @category_footwear_hiking_shoes.
+  ///
+  /// In en, this message translates to:
+  /// **'Hiking Shoes'**
+  String get category_footwear_hiking_shoes;
+
+  /// No description provided for @category_footwear_boots.
+  ///
+  /// In en, this message translates to:
+  /// **'Boots'**
+  String get category_footwear_boots;
+
+  /// No description provided for @category_footwear_combat_boots.
+  ///
+  /// In en, this message translates to:
+  /// **'Combat Boots'**
+  String get category_footwear_combat_boots;
+
+  /// No description provided for @category_footwear_ugg_boots.
+  ///
+  /// In en, this message translates to:
+  /// **'Ugg Boots'**
+  String get category_footwear_ugg_boots;
+
+  /// No description provided for @category_footwear_loafers_mules.
+  ///
+  /// In en, this message translates to:
+  /// **'Loafers & Mules'**
+  String get category_footwear_loafers_mules;
+
+  /// No description provided for @category_footwear_boat_shoes.
+  ///
+  /// In en, this message translates to:
+  /// **'Boat Shoes'**
+  String get category_footwear_boat_shoes;
+
+  /// No description provided for @category_footwear_flat_shoes.
+  ///
+  /// In en, this message translates to:
+  /// **'Flat Shoes'**
+  String get category_footwear_flat_shoes;
+
+  /// No description provided for @category_footwear_heels.
+  ///
+  /// In en, this message translates to:
+  /// **'Heels'**
+  String get category_footwear_heels;
+
+  /// No description provided for @category_footwear_sandals.
+  ///
+  /// In en, this message translates to:
+  /// **'Sandals'**
+  String get category_footwear_sandals;
+
+  /// No description provided for @category_footwear_heeled_sandals.
+  ///
+  /// In en, this message translates to:
+  /// **'Heeled Sandals'**
+  String get category_footwear_heeled_sandals;
+
+  /// No description provided for @category_footwear_slides.
+  ///
+  /// In en, this message translates to:
+  /// **'Slides'**
+  String get category_footwear_slides;
+
+  /// No description provided for @category_bags.
+  ///
+  /// In en, this message translates to:
+  /// **'Bags'**
+  String get category_bags;
+
+  /// No description provided for @category_bags_tote_bags.
+  ///
+  /// In en, this message translates to:
+  /// **'Tote Bags'**
+  String get category_bags_tote_bags;
+
+  /// No description provided for @category_bags_shoulder_bags.
+  ///
+  /// In en, this message translates to:
+  /// **'Shoulder Bags'**
+  String get category_bags_shoulder_bags;
+
+  /// No description provided for @category_bags_crossbody_bags.
+  ///
+  /// In en, this message translates to:
+  /// **'Crossbody Bags'**
+  String get category_bags_crossbody_bags;
+
+  /// No description provided for @category_bags_waist_bags.
+  ///
+  /// In en, this message translates to:
+  /// **'Waist Bags'**
+  String get category_bags_waist_bags;
+
+  /// No description provided for @category_bags_canvas_bags.
+  ///
+  /// In en, this message translates to:
+  /// **'Canvas Bags'**
+  String get category_bags_canvas_bags;
+
+  /// No description provided for @category_bags_backpacks.
+  ///
+  /// In en, this message translates to:
+  /// **'Backpacks'**
+  String get category_bags_backpacks;
+
+  /// No description provided for @category_bags_duffel_bags.
+  ///
+  /// In en, this message translates to:
+  /// **'Duffel Bags'**
+  String get category_bags_duffel_bags;
+
+  /// No description provided for @category_bags_clutches.
+  ///
+  /// In en, this message translates to:
+  /// **'Clutches'**
+  String get category_bags_clutches;
+
+  /// No description provided for @category_bags_briefcases.
+  ///
+  /// In en, this message translates to:
+  /// **'Briefcases'**
+  String get category_bags_briefcases;
+
+  /// No description provided for @category_bags_drawstring_bags.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawstring Bags'**
+  String get category_bags_drawstring_bags;
+
+  /// No description provided for @category_bags_suitcases.
+  ///
+  /// In en, this message translates to:
+  /// **'Suitcases'**
+  String get category_bags_suitcases;
+
+  /// No description provided for @category_hats.
+  ///
+  /// In en, this message translates to:
+  /// **'Hats'**
+  String get category_hats;
+
+  /// No description provided for @category_hats_caps.
+  ///
+  /// In en, this message translates to:
+  /// **'Caps'**
+  String get category_hats_caps;
+
+  /// No description provided for @category_hats_hats.
+  ///
+  /// In en, this message translates to:
+  /// **'Hats'**
+  String get category_hats_hats;
+
+  /// No description provided for @category_hats_beanies.
+  ///
+  /// In en, this message translates to:
+  /// **'Beanies'**
+  String get category_hats_beanies;
+
+  /// No description provided for @category_hats_berets.
+  ///
+  /// In en, this message translates to:
+  /// **'Berets'**
+  String get category_hats_berets;
+
+  /// No description provided for @category_hats_fedoras.
+  ///
+  /// In en, this message translates to:
+  /// **'Fedoras'**
+  String get category_hats_fedoras;
+
+  /// No description provided for @category_hats_sun_hats.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun Hats'**
+  String get category_hats_sun_hats;
+
+  /// No description provided for @category_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get category_other;
+
+  /// No description provided for @season_spring.
+  ///
+  /// In en, this message translates to:
+  /// **'Spring'**
+  String get season_spring;
+
+  /// No description provided for @season_summer.
+  ///
+  /// In en, this message translates to:
+  /// **'Summer'**
+  String get season_summer;
+
+  /// No description provided for @season_autumn.
+  ///
+  /// In en, this message translates to:
+  /// **'Autumn'**
+  String get season_autumn;
+
+  /// No description provided for @season_winter.
+  ///
+  /// In en, this message translates to:
+  /// **'Winter'**
+  String get season_winter;
+
+  /// No description provided for @occasion_everyday.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyday'**
+  String get occasion_everyday;
+
+  /// No description provided for @occasion_work.
+  ///
+  /// In en, this message translates to:
+  /// **'Work'**
+  String get occasion_work;
+
+  /// No description provided for @occasion_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get occasion_date;
+
+  /// No description provided for @occasion_formal.
+  ///
+  /// In en, this message translates to:
+  /// **'Formal'**
+  String get occasion_formal;
+
+  /// No description provided for @occasion_travel.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get occasion_travel;
+
+  /// No description provided for @occasion_home.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get occasion_home;
+
+  /// No description provided for @occasion_party.
+  ///
+  /// In en, this message translates to:
+  /// **'Party'**
+  String get occasion_party;
+
+  /// No description provided for @occasion_sport.
+  ///
+  /// In en, this message translates to:
+  /// **'Sport'**
+  String get occasion_sport;
+
+  /// No description provided for @occasion_special.
+  ///
+  /// In en, this message translates to:
+  /// **'Special'**
+  String get occasion_special;
+
+  /// No description provided for @occasion_school.
+  ///
+  /// In en, this message translates to:
+  /// **'School'**
+  String get occasion_school;
+
+  /// No description provided for @occasion_beach.
+  ///
+  /// In en, this message translates to:
+  /// **'Beach'**
+  String get occasion_beach;
+
+  /// No description provided for @occasion_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get occasion_other;
+
+  /// No description provided for @material_cotton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cotton'**
+  String get material_cotton;
+
+  /// No description provided for @material_linen.
+  ///
+  /// In en, this message translates to:
+  /// **'Linen'**
+  String get material_linen;
+
+  /// No description provided for @material_wool.
+  ///
+  /// In en, this message translates to:
+  /// **'Wool'**
+  String get material_wool;
+
+  /// No description provided for @material_silk.
+  ///
+  /// In en, this message translates to:
+  /// **'Silk'**
+  String get material_silk;
+
+  /// No description provided for @material_polyester.
+  ///
+  /// In en, this message translates to:
+  /// **'Polyester'**
+  String get material_polyester;
+
+  /// No description provided for @material_nylon.
+  ///
+  /// In en, this message translates to:
+  /// **'Nylon'**
+  String get material_nylon;
+
+  /// No description provided for @material_denim.
+  ///
+  /// In en, this message translates to:
+  /// **'Denim'**
+  String get material_denim;
+
+  /// No description provided for @material_leather.
+  ///
+  /// In en, this message translates to:
+  /// **'Leather'**
+  String get material_leather;
+
+  /// No description provided for @material_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get material_other;
+
+  /// No description provided for @pattern_solid.
+  ///
+  /// In en, this message translates to:
+  /// **'Solid'**
+  String get pattern_solid;
+
+  /// No description provided for @pattern_striped.
+  ///
+  /// In en, this message translates to:
+  /// **'Striped'**
+  String get pattern_striped;
+
+  /// No description provided for @pattern_plaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Plaid'**
+  String get pattern_plaid;
+
+  /// No description provided for @pattern_dotted.
+  ///
+  /// In en, this message translates to:
+  /// **'Dotted'**
+  String get pattern_dotted;
+
+  /// No description provided for @pattern_chevron.
+  ///
+  /// In en, this message translates to:
+  /// **'Chevron'**
+  String get pattern_chevron;
+
+  /// No description provided for @pattern_animal.
+  ///
+  /// In en, this message translates to:
+  /// **'Animal'**
+  String get pattern_animal;
+
+  /// No description provided for @pattern_floral.
+  ///
+  /// In en, this message translates to:
+  /// **'Floral'**
+  String get pattern_floral;
+
+  /// No description provided for @pattern_typography.
+  ///
+  /// In en, this message translates to:
+  /// **'Typography'**
+  String get pattern_typography;
+
+  /// No description provided for @pattern_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get pattern_other;
+
   /// No description provided for @profile_title.
   ///
   /// In en, this message translates to:

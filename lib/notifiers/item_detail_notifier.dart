@@ -79,25 +79,30 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
     resultEither.fold(
       (failure) {
         state = state.copyWith(
-          isAnalyzing: false, 
-          errorMessage: "Pre-filling information failed.\nReason: ${failure.message}"
+          isAnalyzing: false,
+          errorMessage:
+              "Pre-filling information failed.\nReason: ${failure.message}",
         );
       },
       (result) {
         final category = _normalizeCategory(result['category'] as String?);
         final colors = _normalizeColors(result['colors'] as List<dynamic>?);
-        final materials = _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList());
-        final patterns = _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList());
-        
+        final materials = _normalizeMultiSelect(result['material'], 'material',
+            AppOptions.materials.map((e) => e.name).toList());
+        final patterns = _normalizeMultiSelect(result['pattern'], 'pattern',
+            AppOptions.patterns.map((e) => e.name).toList());
+
         state = state.copyWith(
-          isAnalyzing: false, 
-          name: result['name'] as String? ?? state.name, 
-          selectedCategoryValue: category, 
-          selectedColors: colors, 
-          selectedMaterials: materials.isNotEmpty ? materials : state.selectedMaterials, 
-          selectedPatterns: patterns.isNotEmpty ? patterns : state.selectedPatterns
+          isAnalyzing: false,
+          name: result['name'] as String? ?? state.name,
+          selectedCategoryValue: category,
+          selectedColors: colors,
+          selectedMaterials:
+              materials.isNotEmpty ? materials : state.selectedMaterials,
+          selectedPatterns:
+              patterns.isNotEmpty ? patterns : state.selectedPatterns,
         );
-      }
+      },
     );
   }
   
@@ -244,28 +249,89 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
     }
     return selections;
   }
-  String _normalizeCategory(String? rawCategory) {
-    if (rawCategory == null || rawCategory.trim().isEmpty) { return 'Other > Other'; }
-    if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) { return '$rawCategory > Other'; }
-    final parts = rawCategory.split(' > ');
-    if (!AppOptions.categories.containsKey(parts.first)) { return 'Other > Other'; }
-    return rawCategory;
+
+  String _createLocalizationKey(String base, String value) {
+    return '${base}_${value.toLowerCase().replaceAll(' ', '_').replaceAll('/', '_')}';
   }
-  Set<String> _normalizeMultiSelect(dynamic rawValue, List<String> validOptions) {
-    final selections = <String>{};
-    if (rawValue == null) { return selections; }
-    final validOptionsSet = validOptions.toSet();
-    bool hasUnknowns = false;
-    List<String> valuesToProcess = [];
-    if (rawValue is String) { valuesToProcess = [rawValue]; } 
-    else if (rawValue is List) { valuesToProcess = rawValue.map((e) => e.toString()).toList(); }
-    for (final value in valuesToProcess) {
-      if (validOptionsSet.contains(value)) { selections.add(value); } 
-      else { hasUnknowns = true; }
+
+  String _normalizeCategory(String? rawCategory) {
+    if (rawCategory == null || rawCategory.trim().isEmpty) {
+      // Trả về key duy nhất cho Other
+      return 'category_other';
     }
-    if (hasUnknowns && validOptionsSet.contains('Other')) { selections.add('Other'); }
+
+    final parts = rawCategory.split(' > ').map((p) => p.trim()).toList();
+    final mainCategory = parts.first;
+
+    // Sửa lỗi: Nếu là 'Other' hoặc 'Khác', trả về key duy nhất và kết thúc
+    if (mainCategory.toLowerCase() == 'other' || mainCategory.toLowerCase() == 'khác') {
+      return 'category_other';
+    }
+
+    final mainCategoryKey = _createLocalizationKey('category', mainCategory);
+
+    if (!AppOptions.categories.containsKey(mainCategoryKey)) {
+      return 'category_other';
+    }
+
+    // Nếu không có danh mục con, hoặc danh mục con là 'Other'/'Khác'
+    if (parts.length == 1 || parts[1].toLowerCase() == 'other' || parts[1].toLowerCase() == 'khác') {
+      // Tìm key của danh mục con "Other" trong danh sách
+      final otherSubCategoryKey = AppOptions.categories[mainCategoryKey]
+          ?.firstWhere((key) => key.endsWith('_other'), orElse: () => 'category_other');
+      return '$mainCategoryKey > $otherSubCategoryKey';
+    }
+
+    final subCategory = parts[1];
+    final subCategoryKey = _createLocalizationKey(mainCategoryKey, subCategory);
+
+    if (AppOptions.categories[mainCategoryKey]?.contains(subCategoryKey) ?? false) {
+      return '$mainCategoryKey > $subCategoryKey';
+    }
+
+    // Trường hợp dự phòng, tìm key 'other' của danh mục chính
+    final otherSubCategoryKey = AppOptions.categories[mainCategoryKey]
+        ?.firstWhere((key) => key.endsWith('_other'), orElse: () => 'category_other');
+    return '$mainCategoryKey > $otherSubCategoryKey';
+  }
+
+  Set<String> _normalizeMultiSelect(
+      dynamic rawValue, String baseKey, List<String> validOptionKeys) {
+    final selections = <String>{};
+    if (rawValue == null) return selections;
+
+    final validOptionsSet = validOptionKeys.toSet();
+    List<String> valuesToProcess = [];
+
+    if (rawValue is String) {
+      valuesToProcess = [rawValue];
+    } else if (rawValue is List) {
+      valuesToProcess = rawValue.map((e) => e.toString()).toList();
+    }
+
+    for (final value in valuesToProcess) {
+      // Sửa lỗi: Nhận diện cả 'Other' và 'Khác'
+      if (value.toLowerCase() == 'other' || value.toLowerCase() == 'khác') {
+        selections.add('${baseKey}_other');
+        continue;
+      }
+
+      final optionKey = _createLocalizationKey(baseKey, value);
+      if (validOptionsSet.contains(optionKey)) {
+        selections.add(optionKey);
+      }
+    }
+
+    if (selections.isEmpty && valuesToProcess.isNotEmpty) {
+      final otherKey = '${baseKey}_other';
+      if (validOptionsSet.contains(otherKey)) {
+        selections.add(otherKey);
+      }
+    }
+
     return selections;
   }
+
   void onNameChanged(String name) => state = state.copyWith(name: name);
   void onClosetChanged(String? closetId) => state = state.copyWith(selectedClosetId: closetId);
   void onCategoryChanged(String category) => state = state.copyWith(selectedCategoryValue: category);

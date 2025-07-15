@@ -29,6 +29,363 @@ class AppLocalizationsVi extends AppLocalizations {
   String get common_today => 'Hôm nay';
 
   @override
+  String get category_tops => 'Áo';
+
+  @override
+  String get category_tops_tshirts => 'Áo thun';
+
+  @override
+  String get category_tops_long_sleeve => 'Áo dài tay';
+
+  @override
+  String get category_tops_sleeveless => 'Áo không tay';
+
+  @override
+  String get category_tops_polo_shirts => 'Áo Polo';
+
+  @override
+  String get category_tops_tanks_camis => 'Áo hai dây';
+
+  @override
+  String get category_tops_crop_tops => 'Áo crop-top';
+
+  @override
+  String get category_tops_blouses => 'Áo kiểu';
+
+  @override
+  String get category_tops_shirts => 'Áo sơ mi';
+
+  @override
+  String get category_tops_sweatshirts => 'Áo nỉ';
+
+  @override
+  String get category_tops_hoodies => 'Áo hoodie';
+
+  @override
+  String get category_tops_sweaters => 'Áo len';
+
+  @override
+  String get category_bottoms => 'Quần/Váy';
+
+  @override
+  String get category_bottoms_jeans => 'Quần jeans';
+
+  @override
+  String get category_bottoms_trousers => 'Quần dài';
+
+  @override
+  String get category_bottoms_dress_pants => 'Quần tây';
+
+  @override
+  String get category_bottoms_track_pants => 'Quần thể thao dài';
+
+  @override
+  String get category_bottoms_leggings => 'Quần legging';
+
+  @override
+  String get category_bottoms_shorts => 'Quần short';
+
+  @override
+  String get category_dresses_jumpsuits => 'Đầm/Jumpsuit';
+
+  @override
+  String get category_dresses_jumpsuits_mini_skirts => 'Váy ngắn';
+
+  @override
+  String get category_dresses_jumpsuits_midi_skirts => 'Váy lửng';
+
+  @override
+  String get category_dresses_jumpsuits_maxi_skirts => 'Váy dài';
+
+  @override
+  String get category_dresses_jumpsuits_day_dresses => 'Đầm ngày';
+
+  @override
+  String get category_dresses_jumpsuits_tshirt_dresses => 'Đầm thun';
+
+  @override
+  String get category_dresses_jumpsuits_shirt_dresses => 'Đầm sơ mi';
+
+  @override
+  String get category_dresses_jumpsuits_sweatshirt_dresses => 'Đầm nỉ';
+
+  @override
+  String get category_dresses_jumpsuits_sweater_dresses => 'Đầm len';
+
+  @override
+  String get category_dresses_jumpsuits_jacket_dresses => 'Đầm khoác';
+
+  @override
+  String get category_dresses_jumpsuits_suspender_dresses => 'Đầm yếm';
+
+  @override
+  String get category_dresses_jumpsuits_jumpsuits => 'Jumpsuit';
+
+  @override
+  String get category_dresses_jumpsuits_party_dresses => 'Đầm tiệc';
+
+  @override
+  String get category_outerwear => 'Áo khoác ngoài';
+
+  @override
+  String get category_outerwear_coats => 'Áo khoác';
+
+  @override
+  String get category_outerwear_trench_coats => 'Áo măng tô';
+
+  @override
+  String get category_outerwear_fur_coats => 'Áo lông';
+
+  @override
+  String get category_outerwear_shearling_coats => 'Áo da cừu';
+
+  @override
+  String get category_outerwear_blazers => 'Áo blazer';
+
+  @override
+  String get category_outerwear_jackets => 'Áo jacket';
+
+  @override
+  String get category_outerwear_blousons => 'Áo blouson';
+
+  @override
+  String get category_outerwear_varsity_jackets => 'Áo varsity';
+
+  @override
+  String get category_outerwear_trucker_jackets => 'Áo trucker';
+
+  @override
+  String get category_outerwear_biker_jackets => 'Áo biker';
+
+  @override
+  String get category_outerwear_cardigans => 'Áo cardigan';
+
+  @override
+  String get category_outerwear_zipup_hoodies => 'Áo hoodie kéo khoá';
+
+  @override
+  String get category_outerwear_field_jackets => 'Áo khoác野 chiến';
+
+  @override
+  String get category_outerwear_track_jackets => 'Áo khoác thể thao';
+
+  @override
+  String get category_outerwear_fleece_jackets => 'Áo khoác nỉ';
+
+  @override
+  String get category_outerwear_puffer_down_jackets => 'Áo phao';
+
+  @override
+  String get category_outerwear_vests => 'Áo gile';
+
+  @override
+  String get category_footwear => 'Giày dép';
+
+  @override
+  String get category_footwear_sneakers => 'Giày thể thao';
+
+  @override
+  String get category_footwear_slipons => 'Giày lười';
+
+  @override
+  String get category_footwear_sports_shoes => 'Giày chuyên dụng';
+
+  @override
+  String get category_footwear_hiking_shoes => 'Giày đi bộ';
+
+  @override
+  String get category_footwear_boots => 'Bốt';
+
+  @override
+  String get category_footwear_combat_boots => 'Bốt chiến binh';
+
+  @override
+  String get category_footwear_ugg_boots => 'Bốt Ugg';
+
+  @override
+  String get category_footwear_loafers_mules => 'Giày Loafer & Mule';
+
+  @override
+  String get category_footwear_boat_shoes => 'Giày thuyền';
+
+  @override
+  String get category_footwear_flat_shoes => 'Giày bệt';
+
+  @override
+  String get category_footwear_heels => 'Giày cao gót';
+
+  @override
+  String get category_footwear_sandals => 'Sandal';
+
+  @override
+  String get category_footwear_heeled_sandals => 'Sandal cao gót';
+
+  @override
+  String get category_footwear_slides => 'Dép lê';
+
+  @override
+  String get category_bags => 'Túi xách';
+
+  @override
+  String get category_bags_tote_bags => 'Túi tote';
+
+  @override
+  String get category_bags_shoulder_bags => 'Túi đeo vai';
+
+  @override
+  String get category_bags_crossbody_bags => 'Túi đeo chéo';
+
+  @override
+  String get category_bags_waist_bags => 'Túi bao tử';
+
+  @override
+  String get category_bags_canvas_bags => 'Túi vải';
+
+  @override
+  String get category_bags_backpacks => 'Ba lô';
+
+  @override
+  String get category_bags_duffel_bags => 'Túi trống';
+
+  @override
+  String get category_bags_clutches => 'Ví cầm tay';
+
+  @override
+  String get category_bags_briefcases => 'Cặp xách';
+
+  @override
+  String get category_bags_drawstring_bags => 'Túi rút';
+
+  @override
+  String get category_bags_suitcases => 'Va li';
+
+  @override
+  String get category_hats => 'Mũ';
+
+  @override
+  String get category_hats_caps => 'Mũ lưỡi trai';
+
+  @override
+  String get category_hats_hats => 'Mũ rộng vành';
+
+  @override
+  String get category_hats_beanies => 'Mũ len';
+
+  @override
+  String get category_hats_berets => 'Mũ nồi';
+
+  @override
+  String get category_hats_fedoras => 'Mũ phớt';
+
+  @override
+  String get category_hats_sun_hats => 'Mũ chống nắng';
+
+  @override
+  String get category_other => 'Khác';
+
+  @override
+  String get season_spring => 'Xuân';
+
+  @override
+  String get season_summer => 'Hè';
+
+  @override
+  String get season_autumn => 'Thu';
+
+  @override
+  String get season_winter => 'Đông';
+
+  @override
+  String get occasion_everyday => 'Hàng ngày';
+
+  @override
+  String get occasion_work => 'Công sở';
+
+  @override
+  String get occasion_date => 'Hẹn hò';
+
+  @override
+  String get occasion_formal => 'Trang trọng';
+
+  @override
+  String get occasion_travel => 'Du lịch';
+
+  @override
+  String get occasion_home => 'Ở nhà';
+
+  @override
+  String get occasion_party => 'Tiệc tùng';
+
+  @override
+  String get occasion_sport => 'Thể thao';
+
+  @override
+  String get occasion_special => 'Dịp đặc biệt';
+
+  @override
+  String get occasion_school => 'Đi học';
+
+  @override
+  String get occasion_beach => 'Đi biển';
+
+  @override
+  String get occasion_other => 'Khác';
+
+  @override
+  String get material_cotton => 'Cotton';
+
+  @override
+  String get material_linen => 'Vải lanh';
+
+  @override
+  String get material_wool => 'Len';
+
+  @override
+  String get material_silk => 'Lụa';
+
+  @override
+  String get material_polyester => 'Polyester';
+
+  @override
+  String get material_nylon => 'Nylon';
+
+  @override
+  String get material_denim => 'Vải bò (Denim)';
+
+  @override
+  String get material_leather => 'Da';
+
+  @override
+  String get material_other => 'Khác';
+
+  @override
+  String get pattern_solid => 'Trơn';
+
+  @override
+  String get pattern_striped => 'Kẻ sọc';
+
+  @override
+  String get pattern_plaid => 'Kẻ caro';
+
+  @override
+  String get pattern_dotted => 'Chấm bi';
+
+  @override
+  String get pattern_chevron => 'Chữ V';
+
+  @override
+  String get pattern_animal => 'Da thú';
+
+  @override
+  String get pattern_floral => 'Hoa lá';
+
+  @override
+  String get pattern_typography => 'Chữ';
+
+  @override
+  String get pattern_other => 'Khác';
+
+  @override
   String get profile_title => 'Hồ sơ';
 
   @override

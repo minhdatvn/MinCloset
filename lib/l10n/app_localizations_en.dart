@@ -29,6 +29,365 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_today => 'Today';
 
   @override
+  String get category_tops => 'Tops';
+
+  @override
+  String get category_tops_tshirts => 'T-shirts';
+
+  @override
+  String get category_tops_long_sleeve => 'Long Sleeve';
+
+  @override
+  String get category_tops_sleeveless => 'Sleeveless';
+
+  @override
+  String get category_tops_polo_shirts => 'Polo Shirts';
+
+  @override
+  String get category_tops_tanks_camis => 'Tanks & Camis';
+
+  @override
+  String get category_tops_crop_tops => 'Crop Tops';
+
+  @override
+  String get category_tops_blouses => 'Blouses';
+
+  @override
+  String get category_tops_shirts => 'Shirts';
+
+  @override
+  String get category_tops_sweatshirts => 'Sweatshirts';
+
+  @override
+  String get category_tops_hoodies => 'Hoodies';
+
+  @override
+  String get category_tops_sweaters => 'Sweaters';
+
+  @override
+  String get category_bottoms => 'Bottoms';
+
+  @override
+  String get category_bottoms_jeans => 'Jeans';
+
+  @override
+  String get category_bottoms_trousers => 'Trousers';
+
+  @override
+  String get category_bottoms_dress_pants => 'Dress Pants';
+
+  @override
+  String get category_bottoms_track_pants => 'Track Pants';
+
+  @override
+  String get category_bottoms_leggings => 'Leggings';
+
+  @override
+  String get category_bottoms_shorts => 'Shorts';
+
+  @override
+  String get category_dresses_jumpsuits => 'Dresses/Jumpsuits';
+
+  @override
+  String get category_dresses_jumpsuits_mini_skirts => 'Mini Skirts';
+
+  @override
+  String get category_dresses_jumpsuits_midi_skirts => 'Midi Skirts';
+
+  @override
+  String get category_dresses_jumpsuits_maxi_skirts => 'Maxi Skirts';
+
+  @override
+  String get category_dresses_jumpsuits_day_dresses => 'Day Dresses';
+
+  @override
+  String get category_dresses_jumpsuits_tshirt_dresses => 'T-shirt Dresses';
+
+  @override
+  String get category_dresses_jumpsuits_shirt_dresses => 'Shirt Dresses';
+
+  @override
+  String get category_dresses_jumpsuits_sweatshirt_dresses =>
+      'Sweatshirt Dresses';
+
+  @override
+  String get category_dresses_jumpsuits_sweater_dresses => 'Sweater Dresses';
+
+  @override
+  String get category_dresses_jumpsuits_jacket_dresses => 'Jacket Dresses';
+
+  @override
+  String get category_dresses_jumpsuits_suspender_dresses =>
+      'Suspender Dresses';
+
+  @override
+  String get category_dresses_jumpsuits_jumpsuits => 'Jumpsuits';
+
+  @override
+  String get category_dresses_jumpsuits_party_dresses => 'Party Dresses';
+
+  @override
+  String get category_outerwear => 'Outerwear';
+
+  @override
+  String get category_outerwear_coats => 'Coats';
+
+  @override
+  String get category_outerwear_trench_coats => 'Trench Coats';
+
+  @override
+  String get category_outerwear_fur_coats => 'Fur Coats';
+
+  @override
+  String get category_outerwear_shearling_coats => 'Shearling Coats';
+
+  @override
+  String get category_outerwear_blazers => 'Blazers';
+
+  @override
+  String get category_outerwear_jackets => 'Jackets';
+
+  @override
+  String get category_outerwear_blousons => 'Blousons';
+
+  @override
+  String get category_outerwear_varsity_jackets => 'Varsity Jackets';
+
+  @override
+  String get category_outerwear_trucker_jackets => 'Trucker Jackets';
+
+  @override
+  String get category_outerwear_biker_jackets => 'Biker Jackets';
+
+  @override
+  String get category_outerwear_cardigans => 'Cardigans';
+
+  @override
+  String get category_outerwear_zipup_hoodies => 'Zip-up Hoodies';
+
+  @override
+  String get category_outerwear_field_jackets => 'Field Jackets';
+
+  @override
+  String get category_outerwear_track_jackets => 'Track Jackets';
+
+  @override
+  String get category_outerwear_fleece_jackets => 'Fleece Jackets';
+
+  @override
+  String get category_outerwear_puffer_down_jackets => 'Puffer/Down Jackets';
+
+  @override
+  String get category_outerwear_vests => 'Vests';
+
+  @override
+  String get category_footwear => 'Footwear';
+
+  @override
+  String get category_footwear_sneakers => 'Sneakers';
+
+  @override
+  String get category_footwear_slipons => 'Slip-Ons';
+
+  @override
+  String get category_footwear_sports_shoes => 'Sports Shoes';
+
+  @override
+  String get category_footwear_hiking_shoes => 'Hiking Shoes';
+
+  @override
+  String get category_footwear_boots => 'Boots';
+
+  @override
+  String get category_footwear_combat_boots => 'Combat Boots';
+
+  @override
+  String get category_footwear_ugg_boots => 'Ugg Boots';
+
+  @override
+  String get category_footwear_loafers_mules => 'Loafers & Mules';
+
+  @override
+  String get category_footwear_boat_shoes => 'Boat Shoes';
+
+  @override
+  String get category_footwear_flat_shoes => 'Flat Shoes';
+
+  @override
+  String get category_footwear_heels => 'Heels';
+
+  @override
+  String get category_footwear_sandals => 'Sandals';
+
+  @override
+  String get category_footwear_heeled_sandals => 'Heeled Sandals';
+
+  @override
+  String get category_footwear_slides => 'Slides';
+
+  @override
+  String get category_bags => 'Bags';
+
+  @override
+  String get category_bags_tote_bags => 'Tote Bags';
+
+  @override
+  String get category_bags_shoulder_bags => 'Shoulder Bags';
+
+  @override
+  String get category_bags_crossbody_bags => 'Crossbody Bags';
+
+  @override
+  String get category_bags_waist_bags => 'Waist Bags';
+
+  @override
+  String get category_bags_canvas_bags => 'Canvas Bags';
+
+  @override
+  String get category_bags_backpacks => 'Backpacks';
+
+  @override
+  String get category_bags_duffel_bags => 'Duffel Bags';
+
+  @override
+  String get category_bags_clutches => 'Clutches';
+
+  @override
+  String get category_bags_briefcases => 'Briefcases';
+
+  @override
+  String get category_bags_drawstring_bags => 'Drawstring Bags';
+
+  @override
+  String get category_bags_suitcases => 'Suitcases';
+
+  @override
+  String get category_hats => 'Hats';
+
+  @override
+  String get category_hats_caps => 'Caps';
+
+  @override
+  String get category_hats_hats => 'Hats';
+
+  @override
+  String get category_hats_beanies => 'Beanies';
+
+  @override
+  String get category_hats_berets => 'Berets';
+
+  @override
+  String get category_hats_fedoras => 'Fedoras';
+
+  @override
+  String get category_hats_sun_hats => 'Sun Hats';
+
+  @override
+  String get category_other => 'Other';
+
+  @override
+  String get season_spring => 'Spring';
+
+  @override
+  String get season_summer => 'Summer';
+
+  @override
+  String get season_autumn => 'Autumn';
+
+  @override
+  String get season_winter => 'Winter';
+
+  @override
+  String get occasion_everyday => 'Everyday';
+
+  @override
+  String get occasion_work => 'Work';
+
+  @override
+  String get occasion_date => 'Date';
+
+  @override
+  String get occasion_formal => 'Formal';
+
+  @override
+  String get occasion_travel => 'Travel';
+
+  @override
+  String get occasion_home => 'Home';
+
+  @override
+  String get occasion_party => 'Party';
+
+  @override
+  String get occasion_sport => 'Sport';
+
+  @override
+  String get occasion_special => 'Special';
+
+  @override
+  String get occasion_school => 'School';
+
+  @override
+  String get occasion_beach => 'Beach';
+
+  @override
+  String get occasion_other => 'Other';
+
+  @override
+  String get material_cotton => 'Cotton';
+
+  @override
+  String get material_linen => 'Linen';
+
+  @override
+  String get material_wool => 'Wool';
+
+  @override
+  String get material_silk => 'Silk';
+
+  @override
+  String get material_polyester => 'Polyester';
+
+  @override
+  String get material_nylon => 'Nylon';
+
+  @override
+  String get material_denim => 'Denim';
+
+  @override
+  String get material_leather => 'Leather';
+
+  @override
+  String get material_other => 'Other';
+
+  @override
+  String get pattern_solid => 'Solid';
+
+  @override
+  String get pattern_striped => 'Striped';
+
+  @override
+  String get pattern_plaid => 'Plaid';
+
+  @override
+  String get pattern_dotted => 'Dotted';
+
+  @override
+  String get pattern_chevron => 'Chevron';
+
+  @override
+  String get pattern_animal => 'Animal';
+
+  @override
+  String get pattern_floral => 'Floral';
+
+  @override
+  String get pattern_typography => 'Typography';
+
+  @override
+  String get pattern_other => 'Other';
+
+  @override
   String get profile_title => 'Profile';
 
   @override

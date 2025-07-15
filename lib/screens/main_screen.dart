@@ -18,6 +18,7 @@ import 'package:mincloset/widgets/speech_bubble.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
@@ -111,6 +112,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
   OverlayEntry _buildMenuOverlay() {
     final theme = Theme.of(context);
     final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final l10n = context.l10n;
     
     void performAction(ImageSource source) {
       _closeMenu();
@@ -157,13 +159,13 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
                                   children: [
                                     ListTile(
                                       leading: const Icon(Icons.photo_camera_outlined),
-                                      title: const Text('Take photo'),
+                                      title: Text(l10n.mainScreen_addItem_takePhoto),
                                       onTap: () => performAction(ImageSource.camera),
                                     ),
                                     const Divider(height: 1),
                                     ListTile(
                                       leading: const Icon(Icons.photo_library_outlined),
-                                      title: const Text('From album (up to 10)'),
+                                      title: Text(l10n.mainScreen_addItem_fromAlbum),
                                       onTap: () => performAction(ImageSource.gallery),
                                     ),
                                   ],
@@ -234,16 +236,17 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
   }
   
   Widget _buildMascotContainer(BuildContext context, {required TutorialStep forStep}) {
+    final l10n = context.l10n;
     String bubbleText;
     switch (forStep) {
       case TutorialStep.welcome:
-        bubbleText = "Welcome to MinCloset! I'm your personal fashion assistant.";
+        bubbleText = l10n.mainScreen_tutorial_welcome;
         break;
       case TutorialStep.introduce:
-        bubbleText = "Let me introduce you to the first and most important feature!";
+        bubbleText = l10n.mainScreen_tutorial_introduce;
         break;
       case TutorialStep.showAddItem:
-        bubbleText = "Let's start by adding your first item to the closet!";
+        bubbleText = l10n.mainScreen_tutorial_showAddItem;
         break;
       default:
         return const SizedBox.shrink();
@@ -287,6 +290,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     });
 
     final selectedPageIndex = ref.watch(mainScreenIndexProvider);
+    final l10n = context.l10n;
 
     int destinationIndex = selectedPageIndex >= 2 ? selectedPageIndex + 1 : selectedPageIndex;
     if (_isMenuOpen) destinationIndex = 2;
@@ -345,18 +349,18 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
             selectedIndex: destinationIndex,
             onDestinationSelected: _onItemTapped,
             destinations: [
-              const NavigationDestination(
-                  icon: Icon(Icons.home_outlined),
-                  selectedIcon: Icon(Icons.home),
-                  label: 'Home'),
-              const NavigationDestination(
-                  icon: Icon(Icons.door_sliding_outlined),
-                  selectedIcon: Icon(Icons.door_sliding),
-                  label: 'Closets'),
+              NavigationDestination(
+                  icon: const Icon(Icons.home_outlined),
+                  selectedIcon: const Icon(Icons.home),
+                  label: l10n.mainScreen_bottomNav_home),
+              NavigationDestination(
+                  icon: const Icon(Icons.door_sliding_outlined),
+                  selectedIcon: const Icon(Icons.door_sliding),
+                  label: l10n.mainScreen_bottomNav_closets),
               Showcase(
                 key: QuestHintKeys.addItemHintKey,
-                title: 'Add Items',
-                description: 'Tap here to digitize your clothes by taking a photo or choosing from your library.',
+                title: l10n.mainScreen_hint_addItem,
+                description: l10n.mainScreen_hint_addItem_description,
                 child: Showcase.withWidget(
                   key: _addKey,
                   height: 250,
@@ -368,7 +372,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
                       onTap: _toggleMenu,
                       behavior: HitTestBehavior.opaque,
                       child: Tooltip(
-                        message: "Add item",
+                        message: l10n.mainScreen_bottomNav_addItems,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -390,7 +394,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
                                       color: iconColor,
                                     ),
                             ),
-                            Text('Add items', style: labelStyle),
+                            Text(l10n.mainScreen_bottomNav_addItems, style: labelStyle),
                           ],
                         ),
                       ),
@@ -398,14 +402,14 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
                   ),
                 ),
               ),
-              const NavigationDestination(
+              NavigationDestination(
                   icon: Icon(Icons.collections_bookmark_outlined),
                   selectedIcon: Icon(Icons.collections_bookmark),
-                  label: 'Outfits'),
-              const NavigationDestination(
+                  label: l10n.mainScreen_bottomNav_outfits),
+              NavigationDestination(
                   icon: Icon(Icons.person_outline),
                   selectedIcon: Icon(Icons.person),
-                  label: 'Profile'),
+                  label: l10n.mainScreen_bottomNav_profile),
             ],
           ),
         ),

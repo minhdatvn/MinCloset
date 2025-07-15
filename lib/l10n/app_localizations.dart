@@ -1075,6 +1075,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Outfit suggestion'**
   String get home_suggestionTitle;
+
+  /// No description provided for @mainScreen_bottomNav_home.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get mainScreen_bottomNav_home;
+
+  /// No description provided for @mainScreen_bottomNav_closets.
+  ///
+  /// In en, this message translates to:
+  /// **'Closets'**
+  String get mainScreen_bottomNav_closets;
+
+  /// No description provided for @mainScreen_bottomNav_addItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Add items'**
+  String get mainScreen_bottomNav_addItems;
+
+  /// No description provided for @mainScreen_bottomNav_outfits.
+  ///
+  /// In en, this message translates to:
+  /// **'Outfits'**
+  String get mainScreen_bottomNav_outfits;
+
+  /// No description provided for @mainScreen_bottomNav_profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get mainScreen_bottomNav_profile;
+
+  /// No description provided for @mainScreen_addItem_takePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take photo'**
+  String get mainScreen_addItem_takePhoto;
+
+  /// No description provided for @mainScreen_addItem_fromAlbum.
+  ///
+  /// In en, this message translates to:
+  /// **'From album (up to 10)'**
+  String get mainScreen_addItem_fromAlbum;
+
+  /// No description provided for @mainScreen_tutorial_welcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to MinCloset! I\'m your personal fashion assistant.'**
+  String get mainScreen_tutorial_welcome;
+
+  /// No description provided for @mainScreen_tutorial_introduce.
+  ///
+  /// In en, this message translates to:
+  /// **'Let me introduce you to the first and most important feature!'**
+  String get mainScreen_tutorial_introduce;
+
+  /// No description provided for @mainScreen_tutorial_showAddItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s start by adding your first item to the closet!'**
+  String get mainScreen_tutorial_showAddItem;
+
+  /// No description provided for @mainScreen_hint_addItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Items'**
+  String get mainScreen_hint_addItem;
+
+  /// No description provided for @mainScreen_hint_addItem_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap here to digitize your clothes by taking a photo or choosing from your library.'**
+  String get mainScreen_hint_addItem_description;
 }
 
 class _AppLocalizationsDelegate

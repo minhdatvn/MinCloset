@@ -557,4 +557,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get home_suggestionTitle => 'Outfit suggestion';
+
+  @override
+  String get mainScreen_bottomNav_home => 'Home';
+
+  @override
+  String get mainScreen_bottomNav_closets => 'Closets';
+
+  @override
+  String get mainScreen_bottomNav_addItems => 'Add items';
+
+  @override
+  String get mainScreen_bottomNav_outfits => 'Outfits';
+
+  @override
+  String get mainScreen_bottomNav_profile => 'Profile';
+
+  @override
+  String get mainScreen_addItem_takePhoto => 'Take photo';
+
+  @override
+  String get mainScreen_addItem_fromAlbum => 'From album (up to 10)';
+
+  @override
+  String get mainScreen_tutorial_welcome =>
+      'Welcome to MinCloset! I\'m your personal fashion assistant.';
+
+  @override
+  String get mainScreen_tutorial_introduce =>
+      'Let me introduce you to the first and most important feature!';
+
+  @override
+  String get mainScreen_tutorial_showAddItem =>
+      'Let\'s start by adding your first item to the closet!';
+
+  @override
+  String get mainScreen_hint_addItem => 'Add Items';
+
+  @override
+  String get mainScreen_hint_addItem_description =>
+      'Tap here to digitize your clothes by taking a photo or choosing from your library.';
 }

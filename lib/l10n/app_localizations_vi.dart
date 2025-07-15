@@ -530,4 +530,44 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get home_suggestionTitle => 'Gợi ý trang phục';
+
+  @override
+  String get mainScreen_bottomNav_home => 'Trang chủ';
+
+  @override
+  String get mainScreen_bottomNav_closets => 'Tủ đồ';
+
+  @override
+  String get mainScreen_bottomNav_addItems => 'Thêm đồ';
+
+  @override
+  String get mainScreen_bottomNav_outfits => 'Trang phục';
+
+  @override
+  String get mainScreen_bottomNav_profile => 'Hồ sơ';
+
+  @override
+  String get mainScreen_addItem_takePhoto => 'Chụp ảnh';
+
+  @override
+  String get mainScreen_addItem_fromAlbum => 'Từ album (tối đa 10)';
+
+  @override
+  String get mainScreen_tutorial_welcome =>
+      'Chào mừng đến với MinCloset! Tôi là trợ lý thời trang cá nhân của bạn.';
+
+  @override
+  String get mainScreen_tutorial_introduce =>
+      'Để tôi giới thiệu cho bạn tính năng đầu tiên và quan trọng nhất nhé!';
+
+  @override
+  String get mainScreen_tutorial_showAddItem =>
+      'Hãy bắt đầu bằng cách thêm vật phẩm đầu tiên vào tủ đồ nào!';
+
+  @override
+  String get mainScreen_hint_addItem => 'Thêm Vật phẩm';
+
+  @override
+  String get mainScreen_hint_addItem_description =>
+      'Nhấn vào đây để số hoá quần áo của bạn bằng cách chụp ảnh hoặc chọn từ thư viện.';
 }

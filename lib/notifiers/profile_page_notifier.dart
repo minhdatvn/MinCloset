@@ -60,8 +60,14 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       final dob = dobString != null ? DateTime.tryParse(dobString) : null;
       final height = profileData[SettingsRepository.heightKey] as int?;
       final weight = profileData[SettingsRepository.weightKey] as int?;
-      final personalStyles = (profileData[SettingsRepository.personalStylesKey] as List<String>?)?.toSet() ?? {};
-      final favoriteColors = (profileData[SettingsRepository.favoriteColorsKey] as List<String>?)?.toSet() ?? {};
+      final personalStyles = (profileData[SettingsRepository.personalStylesKey] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toSet() ??
+          {};
+      final favoriteColors = (profileData[SettingsRepository.favoriteColorsKey] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toSet() ??
+          {};
       final cityModeString = profileData[SettingsRepository.cityModeKey] as String? ?? 'auto';
       final cityMode = CityMode.values.byName(cityModeString);
       final manualCity = profileData[SettingsRepository.manualCityKey] as String? ?? 'Ha Noi, VN';
@@ -243,16 +249,19 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   }
   
   Future<void> updateProfileInfo(Map<String, dynamic> data) async {
+    // Logic chuyển đổi đã được thực hiện bên trong EditProfileScreen.
+    // Vì vậy, ở đây chúng ta có thể lưu và cập nhật state trực tiếp.
     await _settingsRepo.saveUserProfile({
       SettingsRepository.userNameKey: data['name'],
       SettingsRepository.genderKey: data['gender'],
       SettingsRepository.dobKey: (data['dob'] as DateTime?)?.toIso8601String(),
-      SettingsRepository.heightKey: data['height'],
-      SettingsRepository.weightKey: data['weight'],
+      SettingsRepository.heightKey: data['height'], // Đã là cm
+      SettingsRepository.weightKey: data['weight'], // Đã là kg
       SettingsRepository.personalStylesKey: (data['personalStyles'] as Set<String>?)?.toList(),
       SettingsRepository.favoriteColorsKey: (data['favoriteColors'] as Set<String>?)?.toList(),
     });
 
+    // Cập nhật state với dữ liệu đã được chuẩn hóa.
     state = state.copyWith(
       userName: data['name'],
       gender: data['gender'],
@@ -334,21 +343,21 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     if (dataToSave.isNotEmpty) {
       await _settingsRepo.saveUserProfile(dataToSave);
     }
-    
+    // Cập nhật state ngay lập tức để UI thay đổi
     state = state.copyWith(
       heightUnit: height ?? state.heightUnit,
       weightUnit: weight ?? state.weightUnit,
       tempUnit: temp ?? state.tempUnit,
     );
+    // Báo cho các provider khác biết rằng có sự thay đổi để có thể tự làm mới
+    _ref.read(profileChangedTriggerProvider.notifier).state++;
   }
 }
 
-final profileProvider =
-    StateNotifierProvider<ProfilePageNotifier, ProfilePageState>((ref) {
+final profileProvider = StateNotifierProvider<ProfilePageNotifier, ProfilePageState>((ref) {
   final closetRepo = ref.watch(closetRepositoryProvider);
   final itemRepo = ref.watch(clothingItemRepositoryProvider);
   final outfitRepo = ref.watch(outfitRepositoryProvider);
   final settingsRepo = ref.watch(settingsRepositoryProvider); 
-  
   return ProfilePageNotifier(ref, closetRepo, itemRepo, outfitRepo, settingsRepo);
 });

@@ -14,6 +14,7 @@ import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
+import 'package:mincloset/services/unit_conversion_service.dart';
 import 'package:mincloset/states/home_page_state.dart';
 import 'package:mincloset/widgets/action_card.dart';
 import 'package:mincloset/widgets/section_header.dart';
@@ -265,6 +266,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   Widget _buildTodaysSuggestionCard(BuildContext context, WidgetRef ref, HomePageState state) {
   final theme = Theme.of(context);
   final profileState = ref.watch(profileProvider);
+  final unitConverter = ref.watch(unitConversionServiceProvider);
   final String backgroundImagePath = state.backgroundImagePath ?? 'assets/images/weather_backgrounds/default_1.webp';
   
   return Showcase(
@@ -375,13 +377,16 @@ class _HomePageState extends ConsumerState<HomePage> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                '${(state.weather!['main']['temp'] as num).toStringAsFixed(0)}°C',
-                                style: const TextStyle(
-                                  color: Colors.black87, // << Đổi lại màu chữ
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
+                                  unitConverter.formatTemperature(
+                                    state.weather!['main']['temp'].toDouble(),
+                                    profileState.tempUnit,
+                                  ),
+                                  style: const TextStyle(
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
                         ),

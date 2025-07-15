@@ -139,9 +139,9 @@ flutter_native_splash:
   color: "#1ABC9C"
 
   # Đường dẫn đến file ảnh bạn muốn hiển thị.
-  image: assets/icon/icon.png
+  image: assets/icon/icon640.png
 
   # Cấu hình cho Android 12+
   android_12:
     color: "#1ABC9C"
-    image: assets/icon/icon.png
+    image: assets/icon/icon640.png

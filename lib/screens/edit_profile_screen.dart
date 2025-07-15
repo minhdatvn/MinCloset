@@ -25,6 +25,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _heightFeetController = TextEditingController();
   final _heightInchesController = TextEditingController();
   final _weightController = TextEditingController();
+  
 
   String? _selectedGender;
   DateTime? _selectedDOB;
@@ -106,15 +107,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 
   void _selectDate() {
+    final l10n = AppLocalizations.of(context)!;
     DateTime tempDate = _selectedDOB ?? DateTime.now().subtract(const Duration(days: 365 * 20));
     showModalBottomSheet(
       context: context,
       builder: (BuildContext builder) {
-        return SizedBox(
-          height: 250,
+        return SafeArea( // 1. Bọc bằng SafeArea
           child: Column(
+            mainAxisSize: MainAxisSize.min, // 2. Để Column tự co giãn
             children: [
-              Expanded(
+              SizedBox( // 3. Đặt chiều cao cố định cho DatePicker
+                height: 200,
                 child: CupertinoDatePicker(
                   mode: CupertinoDatePickerMode.date,
                   onDateTimeChanged: (newDate) { tempDate = newDate; },
@@ -124,7 +127,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 ),
               ),
               CupertinoButton(
-                child: const Text('Save', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                child: Text(l10n.editProfile_saveButton, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 onPressed: () {
                   setState(() => _selectedDOB = tempDate);
                   Navigator.of(context).pop();

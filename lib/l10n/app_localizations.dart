@@ -110,6 +110,108 @@ abstract class AppLocalizations {
   /// **'Vietnamese'**
   String get language_vietnamese;
 
+  /// No description provided for @profile_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile_title;
+
+  /// No description provided for @profile_settings_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get profile_settings_tooltip;
+
+  /// No description provided for @profile_editProfile_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get profile_editProfile_label;
+
+  /// No description provided for @profile_unnamed_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Unnamed'**
+  String get profile_unnamed_label;
+
+  /// No description provided for @profile_achievements_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get profile_achievements_label;
+
+  /// No description provided for @profile_closetsOverview_sectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Closets overview'**
+  String get profile_closetsOverview_sectionHeader;
+
+  /// No description provided for @profile_insights_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Insights'**
+  String get profile_insights_button;
+
+  /// No description provided for @profile_statistics_sectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get profile_statistics_sectionHeader;
+
+  /// No description provided for @profile_noData_message.
+  ///
+  /// In en, this message translates to:
+  /// **'No data for statistics'**
+  String get profile_noData_message;
+
+  /// No description provided for @profile_statPage_category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get profile_statPage_category;
+
+  /// No description provided for @profile_statPage_color.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get profile_statPage_color;
+
+  /// No description provided for @profile_statPage_season.
+  ///
+  /// In en, this message translates to:
+  /// **'Season'**
+  String get profile_statPage_season;
+
+  /// No description provided for @profile_statPage_occasion.
+  ///
+  /// In en, this message translates to:
+  /// **'Occasion'**
+  String get profile_statPage_occasion;
+
+  /// No description provided for @profile_statPage_material.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get profile_statPage_material;
+
+  /// No description provided for @profile_statPage_pattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern'**
+  String get profile_statPage_pattern;
+
+  /// No description provided for @profile_takePhoto_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo'**
+  String get profile_takePhoto_label;
+
+  /// No description provided for @profile_fromAlbum_label.
+  ///
+  /// In en, this message translates to:
+  /// **'From Album'**
+  String get profile_fromAlbum_label;
+
   /// SCREEN: Settings. The title in the AppBar.
   ///
   /// In en, this message translates to:
@@ -493,6 +595,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Log an item or an outfit to your Journey to keep track of what you wear.'**
   String get quest_firstLog_description;
+
+  /// No description provided for @outfitsHub_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Outfits'**
+  String get outfitsHub_title;
+
+  /// No description provided for @outfitsHub_lastWorn.
+  ///
+  /// In en, this message translates to:
+  /// **'Last worn: {date}'**
+  String outfitsHub_lastWorn(Object date);
+
+  /// No description provided for @outfitsHub_lastWorn_never.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get outfitsHub_lastWorn_never;
+
+  /// No description provided for @outfitsHub_rename_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get outfitsHub_rename_label;
+
+  /// No description provided for @outfitsHub_share_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get outfitsHub_share_label;
+
+  /// No description provided for @outfitsHub_viewDetails_label.
+  ///
+  /// In en, this message translates to:
+  /// **'View full details'**
+  String get outfitsHub_viewDetails_label;
+
+  /// No description provided for @outfitsHub_delete_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get outfitsHub_delete_label;
+
+  /// No description provided for @outfitsHub_rename_dialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename outfit'**
+  String get outfitsHub_rename_dialogTitle;
+
+  /// No description provided for @outfitsHub_newName_label.
+  ///
+  /// In en, this message translates to:
+  /// **'New name'**
+  String get outfitsHub_newName_label;
+
+  /// No description provided for @outfitsHub_cancel_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get outfitsHub_cancel_button;
+
+  /// No description provided for @outfitsHub_save_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get outfitsHub_save_button;
+
+  /// No description provided for @outfitsHub_delete_dialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm deletion'**
+  String get outfitsHub_delete_dialogTitle;
+
+  /// No description provided for @outfitsHub_delete_dialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete outfit \"{outfitName}\"?'**
+  String outfitsHub_delete_dialogContent(Object outfitName);
+
+  /// No description provided for @outfitsHub_create_cardLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Create outfits'**
+  String get outfitsHub_create_cardLabel;
+
+  /// No description provided for @outfitsHub_create_hintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Outfit Builder'**
+  String get outfitsHub_create_hintTitle;
+
+  /// No description provided for @outfitsHub_create_hintDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap here to manually mix and match your items and create your own perfect outfits.'**
+  String get outfitsHub_create_hintDescription;
+
+  /// No description provided for @outfitBuilder_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Outfit studio'**
+  String get outfitBuilder_title;
+
+  /// No description provided for @outfitBuilder_changeBg_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Change background'**
+  String get outfitBuilder_changeBg_button;
+
+  /// No description provided for @outfitBuilder_undo_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get outfitBuilder_undo_tooltip;
+
+  /// No description provided for @outfitBuilder_redo_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo'**
+  String get outfitBuilder_redo_tooltip;
+
+  /// No description provided for @outfitBuilder_save_dialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Save outfit'**
+  String get outfitBuilder_save_dialogTitle;
+
+  /// No description provided for @outfitBuilder_save_nameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Example: Weekend coffee meet-up'**
+  String get outfitBuilder_save_nameHint;
+
+  /// No description provided for @outfitBuilder_save_nameValidator.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter an outfit name'**
+  String get outfitBuilder_save_nameValidator;
+
+  /// No description provided for @outfitBuilder_save_isFixedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed outfit'**
+  String get outfitBuilder_save_isFixedLabel;
+
+  /// No description provided for @outfitBuilder_save_isFixedSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Items in this outfit are always worn together. Each item can only belong to one fixed outfit.'**
+  String get outfitBuilder_save_isFixedSubtitle;
+
+  /// No description provided for @outfitBuilder_stickers_placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Stickers will be available soon.'**
+  String get outfitBuilder_stickers_placeholder;
 }
 
 class _AppLocalizationsDelegate

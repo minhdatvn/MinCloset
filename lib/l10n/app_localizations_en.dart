@@ -15,6 +15,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language_vietnamese => 'Vietnamese';
 
   @override
+  String get profile_title => 'Profile';
+
+  @override
+  String get profile_settings_tooltip => 'Settings';
+
+  @override
+  String get profile_editProfile_label => 'Edit profile';
+
+  @override
+  String get profile_unnamed_label => 'Unnamed';
+
+  @override
+  String get profile_achievements_label => 'Achievements';
+
+  @override
+  String get profile_closetsOverview_sectionHeader => 'Closets overview';
+
+  @override
+  String get profile_insights_button => 'Insights';
+
+  @override
+  String get profile_statistics_sectionHeader => 'Statistics';
+
+  @override
+  String get profile_noData_message => 'No data for statistics';
+
+  @override
+  String get profile_statPage_category => 'Category';
+
+  @override
+  String get profile_statPage_color => 'Color';
+
+  @override
+  String get profile_statPage_season => 'Season';
+
+  @override
+  String get profile_statPage_occasion => 'Occasion';
+
+  @override
+  String get profile_statPage_material => 'Material';
+
+  @override
+  String get profile_statPage_pattern => 'Pattern';
+
+  @override
+  String get profile_takePhoto_label => 'Take Photo';
+
+  @override
+  String get profile_fromAlbum_label => 'From Album';
+
+  @override
   String get settings_title => 'Settings';
 
   @override
@@ -214,4 +265,89 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get quest_firstLog_description =>
       'Log an item or an outfit to your Journey to keep track of what you wear.';
+
+  @override
+  String get outfitsHub_title => 'Your Outfits';
+
+  @override
+  String outfitsHub_lastWorn(Object date) {
+    return 'Last worn: $date';
+  }
+
+  @override
+  String get outfitsHub_lastWorn_never => 'Never';
+
+  @override
+  String get outfitsHub_rename_label => 'Rename';
+
+  @override
+  String get outfitsHub_share_label => 'Share';
+
+  @override
+  String get outfitsHub_viewDetails_label => 'View full details';
+
+  @override
+  String get outfitsHub_delete_label => 'Delete';
+
+  @override
+  String get outfitsHub_rename_dialogTitle => 'Rename outfit';
+
+  @override
+  String get outfitsHub_newName_label => 'New name';
+
+  @override
+  String get outfitsHub_cancel_button => 'Cancel';
+
+  @override
+  String get outfitsHub_save_button => 'Save';
+
+  @override
+  String get outfitsHub_delete_dialogTitle => 'Confirm deletion';
+
+  @override
+  String outfitsHub_delete_dialogContent(Object outfitName) {
+    return 'Permanently delete outfit \"$outfitName\"?';
+  }
+
+  @override
+  String get outfitsHub_create_cardLabel => 'Create outfits';
+
+  @override
+  String get outfitsHub_create_hintTitle => 'Outfit Builder';
+
+  @override
+  String get outfitsHub_create_hintDescription =>
+      'Tap here to manually mix and match your items and create your own perfect outfits.';
+
+  @override
+  String get outfitBuilder_title => 'Outfit studio';
+
+  @override
+  String get outfitBuilder_changeBg_button => 'Change background';
+
+  @override
+  String get outfitBuilder_undo_tooltip => 'Undo';
+
+  @override
+  String get outfitBuilder_redo_tooltip => 'Redo';
+
+  @override
+  String get outfitBuilder_save_dialogTitle => 'Save outfit';
+
+  @override
+  String get outfitBuilder_save_nameHint => 'Example: Weekend coffee meet-up';
+
+  @override
+  String get outfitBuilder_save_nameValidator => 'Please enter an outfit name';
+
+  @override
+  String get outfitBuilder_save_isFixedLabel => 'Fixed outfit';
+
+  @override
+  String get outfitBuilder_save_isFixedSubtitle =>
+      'Items in this outfit are always worn together. Each item can only belong to one fixed outfit.';
+
+  @override
+  String get outfitBuilder_stickers_placeholder =>
+      'Stickers will be available soon.';
 }

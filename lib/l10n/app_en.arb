@@ -10,11 +10,28 @@
         "description": "The word for Vietnamese language"
     },
 
+    "profile_title": "Profile",
+    "profile_settings_tooltip": "Settings",
+    "profile_editProfile_label": "Edit profile",
+    "profile_unnamed_label": "Unnamed",
+    "profile_achievements_label": "Achievements",
+    "profile_closetsOverview_sectionHeader": "Closets overview",
+    "profile_insights_button": "Insights",
+    "profile_statistics_sectionHeader": "Statistics",
+    "profile_noData_message": "No data for statistics",
+    "profile_statPage_category": "Category",
+    "profile_statPage_color": "Color",
+    "profile_statPage_season": "Season",
+    "profile_statPage_occasion": "Occasion",
+    "profile_statPage_material": "Material",
+    "profile_statPage_pattern": "Pattern",
+    "profile_takePhoto_label": "Take Photo",
+    "profile_fromAlbum_label": "From Album",
+
     "settings_title": "Settings",
     "@settings_title": {
         "description": "SCREEN: Settings. The title in the AppBar."
-    },
-    
+    },    
     "settings_general_sectionHeader": "General Settings",
     "settings_localization_tile": "Localization",
     "settings_location_tile": "Location",
@@ -79,5 +96,33 @@
     "quest_organizeCloset_title": "Get Organized",
     "quest_organizeCloset_description": "Create a new closet to better organize your clothing items (e.g., for work, for sports).",
     "quest_firstLog_title": "Track Your Style Journey",
-    "quest_firstLog_description": "Log an item or an outfit to your Journey to keep track of what you wear."
+    "quest_firstLog_description": "Log an item or an outfit to your Journey to keep track of what you wear.",
+
+    "outfitsHub_title": "Your Outfits",
+    "outfitsHub_lastWorn": "Last worn: {date}",
+    "outfitsHub_lastWorn_never": "Never",
+    "outfitsHub_rename_label": "Rename",
+    "outfitsHub_share_label": "Share",
+    "outfitsHub_viewDetails_label": "View full details",
+    "outfitsHub_delete_label": "Delete",
+    "outfitsHub_rename_dialogTitle": "Rename outfit",
+    "outfitsHub_newName_label": "New name",
+    "outfitsHub_cancel_button": "Cancel",
+    "outfitsHub_save_button": "Save",
+    "outfitsHub_delete_dialogTitle": "Confirm deletion",
+    "outfitsHub_delete_dialogContent": "Permanently delete outfit \"{outfitName}\"?",
+    "outfitsHub_create_cardLabel": "Create outfits",
+    "outfitsHub_create_hintTitle": "Outfit Builder",
+    "outfitsHub_create_hintDescription": "Tap here to manually mix and match your items and create your own perfect outfits.",
+
+    "outfitBuilder_title": "Outfit studio",
+    "outfitBuilder_changeBg_button": "Change background",
+    "outfitBuilder_undo_tooltip": "Undo",
+    "outfitBuilder_redo_tooltip": "Redo",
+    "outfitBuilder_save_dialogTitle": "Save outfit",
+    "outfitBuilder_save_nameHint": "Example: Weekend coffee meet-up",
+    "outfitBuilder_save_nameValidator": "Please enter an outfit name",
+    "outfitBuilder_save_isFixedLabel": "Fixed outfit",
+    "outfitBuilder_save_isFixedSubtitle": "Items in this outfit are always worn together. Each item can only belong to one fixed outfit.",
+    "outfitBuilder_stickers_placeholder": "Stickers will be available soon."
 }

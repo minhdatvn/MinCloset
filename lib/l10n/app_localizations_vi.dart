@@ -15,6 +15,57 @@ class AppLocalizationsVi extends AppLocalizations {
   String get language_vietnamese => 'Tiếng Việt';
 
   @override
+  String get profile_title => 'Hồ sơ';
+
+  @override
+  String get profile_settings_tooltip => 'Cài đặt';
+
+  @override
+  String get profile_editProfile_label => 'Chỉnh sửa hồ sơ';
+
+  @override
+  String get profile_unnamed_label => 'Chưa đặt tên';
+
+  @override
+  String get profile_achievements_label => 'Thành tích';
+
+  @override
+  String get profile_closetsOverview_sectionHeader => 'Tổng quan tủ đồ';
+
+  @override
+  String get profile_insights_button => 'Thống kê chi tiết';
+
+  @override
+  String get profile_statistics_sectionHeader => 'Thống kê';
+
+  @override
+  String get profile_noData_message => 'Không có dữ liệu thống kê';
+
+  @override
+  String get profile_statPage_category => 'Danh mục';
+
+  @override
+  String get profile_statPage_color => 'Màu sắc';
+
+  @override
+  String get profile_statPage_season => 'Mùa';
+
+  @override
+  String get profile_statPage_occasion => 'Dịp';
+
+  @override
+  String get profile_statPage_material => 'Chất liệu';
+
+  @override
+  String get profile_statPage_pattern => 'Hoạ tiết';
+
+  @override
+  String get profile_takePhoto_label => 'Chụp ảnh';
+
+  @override
+  String get profile_fromAlbum_label => 'Từ Album';
+
+  @override
   String get settings_title => 'Cài đặt';
 
   @override
@@ -214,4 +265,88 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get quest_firstLog_description =>
       'Ghi lại một món đồ hoặc một bộ trang phục vào Nhật ký để theo dõi những gì bạn mặc.';
+
+  @override
+  String get outfitsHub_title => 'Trang phục của bạn';
+
+  @override
+  String outfitsHub_lastWorn(Object date) {
+    return 'Mặc lần cuối: $date';
+  }
+
+  @override
+  String get outfitsHub_lastWorn_never => 'Chưa mặc';
+
+  @override
+  String get outfitsHub_rename_label => 'Đổi tên';
+
+  @override
+  String get outfitsHub_share_label => 'Chia sẻ';
+
+  @override
+  String get outfitsHub_viewDetails_label => 'Xem chi tiết';
+
+  @override
+  String get outfitsHub_delete_label => 'Xoá';
+
+  @override
+  String get outfitsHub_rename_dialogTitle => 'Đổi tên trang phục';
+
+  @override
+  String get outfitsHub_newName_label => 'Tên mới';
+
+  @override
+  String get outfitsHub_cancel_button => 'Huỷ';
+
+  @override
+  String get outfitsHub_save_button => 'Lưu';
+
+  @override
+  String get outfitsHub_delete_dialogTitle => 'Xác nhận xoá';
+
+  @override
+  String outfitsHub_delete_dialogContent(Object outfitName) {
+    return 'Xoá vĩnh viễn trang phục \"$outfitName\"?';
+  }
+
+  @override
+  String get outfitsHub_create_cardLabel => 'Tạo trang phục';
+
+  @override
+  String get outfitsHub_create_hintTitle => 'Xưởng phối đồ';
+
+  @override
+  String get outfitsHub_create_hintDescription =>
+      'Nhấn vào đây để phối các vật phẩm và tạo ra những bộ đồ độc đáo của riêng bạn.';
+
+  @override
+  String get outfitBuilder_title => 'Xưởng phối đồ';
+
+  @override
+  String get outfitBuilder_changeBg_button => 'Đổi ảnh nền';
+
+  @override
+  String get outfitBuilder_undo_tooltip => 'Hoàn tác';
+
+  @override
+  String get outfitBuilder_redo_tooltip => 'Làm lại';
+
+  @override
+  String get outfitBuilder_save_dialogTitle => 'Lưu trang phục';
+
+  @override
+  String get outfitBuilder_save_nameHint => 'Ví dụ: Cà phê cuối tuần';
+
+  @override
+  String get outfitBuilder_save_nameValidator => 'Vui lòng nhập tên trang phục';
+
+  @override
+  String get outfitBuilder_save_isFixedLabel => 'Bộ đồ cố định';
+
+  @override
+  String get outfitBuilder_save_isFixedSubtitle =>
+      'Các món trong bộ này luôn được mặc cùng nhau. Mỗi món chỉ có thể thuộc về một bộ đồ cố định.';
+
+  @override
+  String get outfitBuilder_stickers_placeholder => 'Nhãn dán sẽ sớm ra mắt.';
 }

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/constants/app_options.dart';
+import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/profile_page_state.dart';
@@ -29,9 +30,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     _pageController.dispose();
     super.dispose();
   }
-  
-  // <<< LOGIC UI ĐƯỢC CHUYỂN VỀ ĐÂY >>>
-  Future<void> _handleAvatarTap() async {
+
+  Future<void> _handleAvatarTap(AppLocalizations l10n) async {
     final navigator = Navigator.of(context);
 
     // 1. Hiển thị menu chọn nguồn ảnh
@@ -43,12 +43,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           children: <Widget>[
             ListTile(
               leading: const Icon(Icons.photo_camera_outlined),
-              title: const Text('Take Photo'),
+              title: Text(l10n.profile_takePhoto_label), // Dùng l10n
               onTap: () => Navigator.of(ctx).pop(ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('From Album'),
+              title: Text(l10n.profile_fromAlbum_label), // Dùng l10n
               onTap: () => Navigator.of(ctx).pop(ImageSource.gallery),
             ),
           ],
@@ -77,7 +77,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
   }
 
-  Widget _buildProfileHeader(ProfilePageState state) {
+  Widget _buildProfileHeader(ProfilePageState state, AppLocalizations l10n) {
     return Row(
       children: [
         Stack(
@@ -85,7 +85,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           children: [
             // <<< GỌI HÀM _handleAvatarTap KHI NHẤN >>>
             GestureDetector(
-              onTap: _handleAvatarTap,
+              onTap: () => _handleAvatarTap(l10n),
               child: CircleAvatar(
                 radius: 40,
                 backgroundColor: Colors.grey.shade200,
@@ -99,7 +99,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               bottom: -2,
               right: -2,
               child: GestureDetector(
-                onTap: _handleAvatarTap, // <<< GỌI HÀM _handleAvatarTap KHI NHẤN >>>
+                onTap: () => _handleAvatarTap(l10n),
                 child: Container(
                   padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
@@ -131,7 +131,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            state.userName ?? 'Unnamed',
+                            state.userName ?? l10n.profile_unnamed_label,
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineSmall
@@ -140,7 +140,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           Text(
-                            'Edit profile',
+                            l10n.profile_editProfile_label,
                             style: TextStyle(color: Colors.grey.shade600),
                           ),
                         ],
@@ -161,22 +161,24 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget build(BuildContext context) {
     final state = ref.watch(profileProvider);
     final notifier = ref.read(profileProvider.notifier);
+    final l10n = AppLocalizations.of(context)!; // Lấy l10n
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text(l10n.profile_title),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             onPressed: () => Navigator.pushNamed(context, AppRoutes.settings),
-            tooltip: 'Settings',
+            tooltip: l10n.profile_settings_tooltip,
           )
         ],
       ),
-      body: _buildBody(context, state, notifier),
+      body: _buildBody(context, state, notifier, l10n),
     );
   }
 
-  Widget _buildBody(BuildContext context, ProfilePageState state, ProfilePageNotifier notifier) {
+  Widget _buildBody(BuildContext context, ProfilePageState state, ProfilePageNotifier notifier, AppLocalizations l10n) {
     if (state.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -187,7 +189,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     final List<Widget> statPages = [];
     if (state.categoryDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage('Category', state.categoryDistribution));
+      statPages.add(_buildStatPage(l10n.profile_statPage_category, state.categoryDistribution));
     }
     if (state.colorDistribution.isNotEmpty) {
       final sortedColorEntries = state.colorDistribution.entries.toList()
@@ -196,37 +198,35 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           .map((entry) => AppOptions.colors[entry.key] ?? Colors.grey)
           .toList();
       final sortedColorMap = Map.fromEntries(sortedColorEntries);
-      statPages.add(_buildStatPage('Color', sortedColorMap, specificColors: dynamicColors));
+      statPages.add(_buildStatPage(l10n.profile_statPage_color, sortedColorMap, specificColors: dynamicColors));
     }
     if (state.seasonDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage('Season', state.seasonDistribution));
+      statPages.add(_buildStatPage(l10n.profile_statPage_season, state.seasonDistribution));
     }
     if (state.occasionDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage('Occasion', state.occasionDistribution));
+      statPages.add(_buildStatPage(l10n.profile_statPage_occasion, state.occasionDistribution));
     }
     if (state.materialDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage('Material', state.materialDistribution));
+      statPages.add(_buildStatPage(l10n.profile_statPage_material, state.materialDistribution));
     }
     if (state.patternDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage('Pattern', state.patternDistribution));
+      statPages.add(_buildStatPage(l10n.profile_statPage_pattern, state.patternDistribution));
     }
 
     return RefreshIndicator(
       onRefresh: notifier.loadInitialData,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
-        // *** THAY ĐỔI 1: Xóa bỏ `padding` ở đây
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // *** THAY ĐỔI 2: Thêm `Padding` để bọc các phần tử cần giữ padding
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const SizedBox(height: 16), // Thêm khoảng đệm trên cùng
-                  _buildProfileHeader(state),
+                  const SizedBox(height: 16),
+                  _buildProfileHeader(state, l10n),
                   const Divider(height: 32),
                   Card(
                     elevation: 0,
@@ -235,7 +235,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     child: ListTile(
                       leading: Icon(Icons.flag_outlined, color: Theme.of(context).colorScheme.primary),
-                      title: const Text("Achievements", style: TextStyle(fontWeight: FontWeight.bold)),
+                      title: Text(l10n.profile_achievements_label, style: const TextStyle(fontWeight: FontWeight.bold)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () {
                         Navigator.pushNamed(context, AppRoutes.quests);
@@ -248,7 +248,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        'Closets overview',
+                        l10n.profile_closetsOverview_sectionHeader,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       TextButton(
@@ -259,7 +259,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Insights',
+                              l10n.profile_insights_button,
                               style: TextStyle(color: Theme.of(context).colorScheme.primary),
                             ),
                             const SizedBox(width: 4),
@@ -280,19 +280,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     totalOutfits: state.totalOutfits,
                   ),
                   const SizedBox(height: 24),
-                  // Di chuyển tiêu đề "Statistics" vào trong Padding này
-                  Text('Statistics', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(l10n.profile_statistics_sectionHeader, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
             
-            // *** THAY ĐỔI 3: Phần thống kê bây giờ nằm ngoài Padding chính ***
             const SizedBox(height: 16),
             if (statPages.isEmpty)
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 32.0),
-                  child: Text('No data for statistics'),
+                  padding: const EdgeInsets.symmetric(vertical: 32.0),
+                  child: Text(l10n.profile_noData_message),
                 ),
               )
             else
@@ -308,7 +306,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       },
                       itemBuilder: (context, index) {
                         return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4.0), // Chỉ cần padding nhỏ giữa các card
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
                           child: statPages[index],
                         );
                       },
@@ -334,7 +332,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   ),
                 ],
               ),
-            const SizedBox(height: 16.0), // Thêm padding dưới cùng
+            const SizedBox(height: 16.0),
           ],
         ),
       ),

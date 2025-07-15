@@ -52,6 +52,28 @@ class _WeeklyPlannerState extends ConsumerState<WeeklyPlanner> {
     super.dispose();
   }
 
+  String _getVietnameseDayLabel(DateTime day) {
+    // weekday trả về giá trị từ 1 (Thứ 2) đến 7 (Chủ nhật)
+    switch (day.weekday) {
+      case DateTime.monday:
+        return 'Thứ 2';
+      case DateTime.tuesday:
+        return 'Thứ 3';
+      case DateTime.wednesday:
+        return 'Thứ 4';
+      case DateTime.thursday:
+        return 'Thứ 5';
+      case DateTime.friday:
+        return 'Thứ 6';
+      case DateTime.saturday:
+        return 'Thứ 7';
+      case DateTime.sunday:
+        return 'Chủ nhật';
+      default:
+        return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final calendarState = ref.watch(calendarProvider);
@@ -82,9 +104,16 @@ class _WeeklyPlannerState extends ConsumerState<WeeklyPlanner> {
             itemBuilder: (ctx, index) {
               final day = days[index];
               final isToday = index == 3;
-              String dayLabel = isToday ? 'Today' : DateFormat('E').format(day);
-
-              // <<< BẮT ĐẦU THAY ĐỔI TẠI ĐÂY >>>
+              String dayLabel;
+              if (isToday) {
+                dayLabel = widget.l10n.common_today;
+              } else if (widget.l10n.localeName == 'vi') {
+                // Nếu là tiếng Việt, gọi hàm helper mới
+                dayLabel = _getVietnameseDayLabel(day);
+              } else {
+                // Nếu là ngôn ngữ khác, dùng DateFormat như cũ
+                dayLabel = DateFormat('E', widget.l10n.localeName).format(day);
+              }
 
               // 1. Lấy danh sách các WornGroup cho ngày hiện tại
               final dayGroups = events[DateTime(day.year, day.month, day.day)] ?? [];

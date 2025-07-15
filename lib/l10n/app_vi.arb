@@ -6,7 +6,7 @@
     "banner_deleteSuccess": "Đã xoá \"{itemName}\".",
     "banner_deleteFailed": "Xoá thất bại. Vui lòng thử lại.",
     "common_cancel": "Huỷ",
-
+    "common_today": "Hôm nay",
 
     "profile_title": "Hồ sơ",
     "profile_settings_tooltip": "Cài đặt",

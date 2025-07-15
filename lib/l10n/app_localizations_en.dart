@@ -26,6 +26,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_cancel => 'Cancel';
 
   @override
+  String get common_today => 'Today';
+
+  @override
   String get profile_title => 'Profile';
 
   @override

@@ -26,6 +26,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get common_cancel => 'Huỷ';
 
   @override
+  String get common_today => 'Hôm nay';
+
+  @override
   String get profile_title => 'Hồ sơ';
 
   @override

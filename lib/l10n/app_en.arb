@@ -13,6 +13,7 @@
     "banner_deleteSuccess": "Deleted \"{itemName}\".",
     "banner_deleteFailed": "Failed to delete. Please try again.",
     "common_cancel": "Cancel",
+    "common_today": "Today",
 
     "profile_title": "Profile",
     "profile_settings_tooltip": "Settings",

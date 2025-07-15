@@ -117,5 +117,58 @@
     "outfitBuilder_save_nameValidator": "Vui lòng nhập tên trang phục",
     "outfitBuilder_save_isFixedLabel": "Bộ đồ cố định",
     "outfitBuilder_save_isFixedSubtitle": "Các món trong bộ này luôn được mặc cùng nhau. Mỗi món chỉ có thể thuộc về một bộ đồ cố định.",
-    "outfitBuilder_stickers_placeholder": "Nhãn dán sẽ sớm ra mắt."
+    "outfitBuilder_stickers_placeholder": "Nhãn dán sẽ sớm ra mắt.",
+
+    "closets_title": "Tủ đồ của bạn",
+    "closets_itemsSelected": "Đã chọn {count}",
+    "@closets_itemsSelected": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "closets_tabAllItems": "Tất cả",
+    "closets_tabByCloset": "Theo Tủ đồ",
+
+    "allItems_searchHint": "Tìm kiếm vật phẩm...",
+    "allItems_filterTooltip": "Lọc",
+    "allItems_emptyCloset": "Tủ đồ của bạn đang trống.",
+    "allItems_noItemsFound": "Không tìm thấy vật phẩm nào phù hợp.",
+    "allItems_delete": "Xoá",
+    "allItems_createOutfit": "Tạo Trang phục",
+    "allItems_deleteDialogTitle": "Xác nhận Xoá",
+    "allItems_deleteDialogContent": "Bạn có chắc chắn muốn xoá vĩnh viễn {count} vật phẩm đã chọn không?",
+    "@allItems_deleteDialogContent": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "common_cancel": "Huỷ",
+
+    "byCloset_addClosetHintTitle": "Tạo Tủ đồ Mới",
+    "byCloset_addClosetHintDescription": "Nhấn vào đây để tạo một tủ đồ mới, giúp bạn sắp xếp quần áo cho các mục đích khác nhau như 'Công sở' hoặc 'Tập gym'.",
+    "byCloset_addNewCloset": "Thêm tủ đồ mới",
+    "byCloset_itemCount": "{count} vật phẩm",
+    "@byCloset_itemCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "byCloset_itemCountError": "Lỗi",
+    "byCloset_itemCountLoading": "...",
+    "byCloset_deleteDialogTitle": "Xác nhận Xoá",
+    "byCloset_deleteDialogContent": "Bạn có chắc chắn muốn xoá tủ đồ \"{closetName}\" không?",
+    "@byCloset_deleteDialogContent": {
+        "placeholders": {
+            "closetName": {
+                "type": "String"
+            }
+        }
+    },
+    "byCloset_limitReached": "Đã đạt giới hạn tủ đồ (10)."
 }

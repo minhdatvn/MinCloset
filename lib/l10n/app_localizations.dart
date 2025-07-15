@@ -763,6 +763,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stickers will be available soon.'**
   String get outfitBuilder_stickers_placeholder;
+
+  /// No description provided for @closets_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Closet'**
+  String get closets_title;
+
+  /// No description provided for @closets_itemsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count,plural, =1{1 selected} other{{count} selected}}'**
+  String closets_itemsSelected(int count);
+
+  /// No description provided for @closets_tabAllItems.
+  ///
+  /// In en, this message translates to:
+  /// **'All Items'**
+  String get closets_tabAllItems;
+
+  /// No description provided for @closets_tabByCloset.
+  ///
+  /// In en, this message translates to:
+  /// **'By Closet'**
+  String get closets_tabByCloset;
+
+  /// No description provided for @allItems_searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search items...'**
+  String get allItems_searchHint;
+
+  /// No description provided for @allItems_filterTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get allItems_filterTooltip;
+
+  /// No description provided for @allItems_emptyCloset.
+  ///
+  /// In en, this message translates to:
+  /// **'Your closet is empty.'**
+  String get allItems_emptyCloset;
+
+  /// No description provided for @allItems_noItemsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No items found for your search or filter.'**
+  String get allItems_noItemsFound;
+
+  /// No description provided for @allItems_delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get allItems_delete;
+
+  /// No description provided for @allItems_createOutfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Outfit'**
+  String get allItems_createOutfit;
+
+  /// No description provided for @allItems_deleteDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Deletion'**
+  String get allItems_deleteDialogTitle;
+
+  /// No description provided for @allItems_deleteDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'{count,plural, =1{Are you sure you want to permanently delete 1 selected item?} other{Are you sure you want to permanently delete {count} selected items?}}'**
+  String allItems_deleteDialogContent(int count);
+
+  /// No description provided for @common_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get common_cancel;
+
+  /// No description provided for @byCloset_addClosetHintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a New Closet'**
+  String get byCloset_addClosetHintTitle;
+
+  /// No description provided for @byCloset_addClosetHintDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap here to create a new closet, helping you organize your clothes for different purposes like \'Work\' or \'Gym\'.'**
+  String get byCloset_addClosetHintDescription;
+
+  /// No description provided for @byCloset_addNewCloset.
+  ///
+  /// In en, this message translates to:
+  /// **'Add new closet'**
+  String get byCloset_addNewCloset;
+
+  /// No description provided for @byCloset_itemCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count,plural, =0{0 items} =1{1 item} other{{count} items}}'**
+  String byCloset_itemCount(int count);
+
+  /// No description provided for @byCloset_itemCountError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get byCloset_itemCountError;
+
+  /// No description provided for @byCloset_itemCountLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'...'**
+  String get byCloset_itemCountLoading;
+
+  /// No description provided for @byCloset_deleteDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Deletion'**
+  String get byCloset_deleteDialogTitle;
+
+  /// No description provided for @byCloset_deleteDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete the \"{closetName}\" closet?'**
+  String byCloset_deleteDialogContent(String closetName);
+
+  /// No description provided for @byCloset_limitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Closet limit (10) reached.'**
+  String get byCloset_limitReached;
 }
 
 class _AppLocalizationsDelegate

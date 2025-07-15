@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/notification_type.dart';
@@ -65,7 +66,8 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     const allItemsProviderId = 'closetsPage';
-    final allItemsState = ref.watch(itemFilterProvider(allItemsProviderId));  
+    final allItemsState = ref.watch(itemFilterProvider(allItemsProviderId));
+    final l10n = context.l10n;  
 
     return PageScaffold(
       appBar: AppBar(
@@ -81,17 +83,16 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
         // Thay đổi tiêu đề một cách linh động
         title: Text(
           allItemsState.isMultiSelectMode
-              ? '${allItemsState.selectedItemIds.length} selected'
-              : 'Your Closet',
+              ? l10n.closets_itemsSelected(allItemsState.selectedItemIds.length)
+              : l10n.closets_title,
         ),
-        // Giữ nguyên TabBar, nhưng ẩn nó đi khi đang chọn nhiều
-        bottom: allItemsState.isMultiSelectMode
+        bottom: allItemsState.isMultiSelectMode // Giữ nguyên TabBar, nhưng ẩn nó đi khi đang chọn nhiều
             ? null // Ẩn TabBar
             : TabBar(
                 controller: _tabController,
-                tabs: const [
-                  Tab(text: 'All Items'),
-                  Tab(text: 'By Closet'),
+                tabs: [
+                  Tab(text: l10n.closets_tabAllItems),
+                  Tab(text: l10n.closets_tabByCloset),
                 ],
                 onTap: (index) {
                   ref.read(closetsSubTabIndexProvider.notifier).state = index;
@@ -151,6 +152,7 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
     final provider = itemFilterProvider(providerId);
     final notifier = ref.read(provider.notifier);
     final state = ref.watch(provider);
+    final l10n = context.l10n;
 
     return Scaffold(
       body: RefreshIndicator(
@@ -173,7 +175,9 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
                 SliverFillRemaining(
                   child: Center(
                     child: Text(
-                      state.searchQuery.isNotEmpty || state.activeFilters.isApplied ? 'No items found.' : 'Your closet is empty.',
+                      state.searchQuery.isNotEmpty || state.activeFilters.isApplied 
+                        ? l10n.allItems_noItemsFound 
+                        : l10n.allItems_emptyCloset,
                       textAlign: TextAlign.center,
                       style: const TextStyle(fontSize: 18, color: Colors.grey),
                     ),
@@ -207,20 +211,20 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
                   _buildBottomBarButton(
                     context: context,
                     icon: Icons.delete_outline,
-                    label: 'Delete',
+                    label: l10n.allItems_delete,
                     color: Colors.red,
                     onPressed: () async {
                       final confirmed = await showAnimatedDialog<bool>(
                         context,
                         builder: (ctx) => AlertDialog(
-                          title: const Text('Confirm Deletion'),
-                          content: Text('Are you sure you want to permanently delete ${state.selectedItemIds.length} selected item(s)?'),
+                          title: Text(l10n.allItems_deleteDialogTitle),
+                          content: Text(l10n.allItems_deleteDialogContent(state.selectedItemIds.length)), 
                           actions: [
-                            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+                            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.common_cancel)), 
                             TextButton(
                               onPressed: () => Navigator.of(ctx).pop(true),
                               style: TextButton.styleFrom(foregroundColor: Colors.red),
-                              child: const Text('Delete'),
+                              child: Text(l10n.allItems_delete), 
                             ),
                           ],
                         ),
@@ -233,7 +237,7 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
                   _buildBottomBarButton(
                     context: context,
                     icon: Icons.add_to_photos_outlined,
-                    label: 'Create Outfit',
+                    label: l10n.allItems_createOutfit,
                     onPressed: () {
                       final selectedItems = state.items.where((item) => state.selectedItemIds.contains(item.id)).toList();
                       notifier.clearSelectionAndExitMode();
@@ -397,6 +401,8 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
 
     final closetsAsyncValue = ref.watch(closetsProvider);
     final theme = Theme.of(context);
+    final l10n = context.l10n;
+
     return closetsAsyncValue.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (error, stack) => Center(child: Text('Error: $error')),
@@ -411,9 +417,9 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                 return Container(
                   padding: const EdgeInsets.all(16.0),
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  child: const Center(
+                  child: Center(
                     child: Text(
-                      'Closet limit (10) reached.',
+                      l10n.byCloset_limitReached,
                       style: TextStyle(fontStyle: FontStyle.italic),
                     ),
                   ),
@@ -423,8 +429,8 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                 height: 90, // 1. Đặt chiều cao cố định là 90
                 child: Showcase(
                   key: QuestHintKeys.createClosetHintKey,
-                  title: 'Create a New Closet',
-                  description: 'Tap here to create a new closet, helping you organize your clothes for different purposes like "Work" or "Gym".',
+                  title: l10n.byCloset_addClosetHintTitle,
+                  description: l10n.byCloset_addClosetHintDescription,
                   child: Card(
                     margin: EdgeInsets.zero, // 2. Đặt margin và elevation để khớp với thẻ closet
                     elevation: 0,
@@ -442,7 +448,7 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                       child: Center(
                         child: ListTile(
                           leading: Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),
-                          title: Text('Add new closet', style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
+                          title: Text(l10n.byCloset_addNewCloset, style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold)),
                         ),
                       ),
                     ),
@@ -482,14 +488,14 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                       final confirmed = await showAnimatedDialog<bool>(
                         context,
                         builder: (dialogCtx) => AlertDialog(
-                          title: const Text('Confirm Deletion'),
-                          content: Text('Are you sure you want to delete the "${closet.name}" closet?'),
+                          title: Text(l10n.byCloset_deleteDialogTitle),
+                          content: Text(l10n.byCloset_deleteDialogContent(closet.name)),
                           actions: [
-                            TextButton(onPressed: () => Navigator.of(dialogCtx).pop(false), child: const Text('Cancel')),
+                            TextButton(onPressed: () => Navigator.of(dialogCtx).pop(false), child: Text(l10n.common_cancel)),
                             TextButton(
                               style: TextButton.styleFrom(foregroundColor: Colors.red),
                               onPressed: () => Navigator.of(dialogCtx).pop(true),
-                              child: const Text('Delete'),
+                              child: Text(l10n.allItems_delete),
                             ),
                           ],
                         ),
@@ -545,12 +551,9 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                               builder: (context, ref, child) {
                                 final itemsCountAsync = ref.watch(itemsInClosetProvider(closet.id));
                                 return itemsCountAsync.when(
-                                  data: (items) {
-                                    final itemText = items.length == 1 ? 'item' : 'items';
-                                    return Text('${items.length} $itemText');
-                                  },
-                                  loading: () => const Text('...'),
-                                  error: (err, stack) => const Text('Error'),
+                                  data: (items) => Text(l10n.byCloset_itemCount(items.length)),
+                                  loading: () => Text(l10n.byCloset_itemCountLoading),
+                                  error: (err, stack) => Text(l10n.byCloset_itemCountError),
                                 );
                               },
                             ),

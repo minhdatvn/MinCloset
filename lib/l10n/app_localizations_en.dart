@@ -358,4 +358,100 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get outfitBuilder_stickers_placeholder =>
       'Stickers will be available soon.';
+
+  @override
+  String get closets_title => 'Your Closet';
+
+  @override
+  String closets_itemsSelected(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected',
+      one: '1 selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get closets_tabAllItems => 'All Items';
+
+  @override
+  String get closets_tabByCloset => 'By Closet';
+
+  @override
+  String get allItems_searchHint => 'Search items...';
+
+  @override
+  String get allItems_filterTooltip => 'Filter';
+
+  @override
+  String get allItems_emptyCloset => 'Your closet is empty.';
+
+  @override
+  String get allItems_noItemsFound =>
+      'No items found for your search or filter.';
+
+  @override
+  String get allItems_delete => 'Delete';
+
+  @override
+  String get allItems_createOutfit => 'Create Outfit';
+
+  @override
+  String get allItems_deleteDialogTitle => 'Confirm Deletion';
+
+  @override
+  String allItems_deleteDialogContent(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Are you sure you want to permanently delete $count selected items?',
+      one: 'Are you sure you want to permanently delete 1 selected item?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get common_cancel => 'Cancel';
+
+  @override
+  String get byCloset_addClosetHintTitle => 'Create a New Closet';
+
+  @override
+  String get byCloset_addClosetHintDescription =>
+      'Tap here to create a new closet, helping you organize your clothes for different purposes like \'Work\' or \'Gym\'.';
+
+  @override
+  String get byCloset_addNewCloset => 'Add new closet';
+
+  @override
+  String byCloset_itemCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+      zero: '0 items',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get byCloset_itemCountError => 'Error';
+
+  @override
+  String get byCloset_itemCountLoading => '...';
+
+  @override
+  String get byCloset_deleteDialogTitle => 'Confirm Deletion';
+
+  @override
+  String byCloset_deleteDialogContent(String closetName) {
+    return 'Are you sure you want to delete the \"$closetName\" closet?';
+  }
+
+  @override
+  String get byCloset_limitReached => 'Closet limit (10) reached.';
 }

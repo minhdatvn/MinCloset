@@ -357,4 +357,79 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get outfitBuilder_stickers_placeholder => 'Nhãn dán sẽ sớm ra mắt.';
+
+  @override
+  String get closets_title => 'Tủ đồ của bạn';
+
+  @override
+  String closets_itemsSelected(int count) {
+    return 'Đã chọn $count';
+  }
+
+  @override
+  String get closets_tabAllItems => 'Tất cả';
+
+  @override
+  String get closets_tabByCloset => 'Theo Tủ đồ';
+
+  @override
+  String get allItems_searchHint => 'Tìm kiếm vật phẩm...';
+
+  @override
+  String get allItems_filterTooltip => 'Lọc';
+
+  @override
+  String get allItems_emptyCloset => 'Tủ đồ của bạn đang trống.';
+
+  @override
+  String get allItems_noItemsFound => 'Không tìm thấy vật phẩm nào phù hợp.';
+
+  @override
+  String get allItems_delete => 'Xoá';
+
+  @override
+  String get allItems_createOutfit => 'Tạo Trang phục';
+
+  @override
+  String get allItems_deleteDialogTitle => 'Xác nhận Xoá';
+
+  @override
+  String allItems_deleteDialogContent(int count) {
+    return 'Bạn có chắc chắn muốn xoá vĩnh viễn $count vật phẩm đã chọn không?';
+  }
+
+  @override
+  String get common_cancel => 'Huỷ';
+
+  @override
+  String get byCloset_addClosetHintTitle => 'Tạo Tủ đồ Mới';
+
+  @override
+  String get byCloset_addClosetHintDescription =>
+      'Nhấn vào đây để tạo một tủ đồ mới, giúp bạn sắp xếp quần áo cho các mục đích khác nhau như \'Công sở\' hoặc \'Tập gym\'.';
+
+  @override
+  String get byCloset_addNewCloset => 'Thêm tủ đồ mới';
+
+  @override
+  String byCloset_itemCount(int count) {
+    return '$count vật phẩm';
+  }
+
+  @override
+  String get byCloset_itemCountError => 'Lỗi';
+
+  @override
+  String get byCloset_itemCountLoading => '...';
+
+  @override
+  String get byCloset_deleteDialogTitle => 'Xác nhận Xoá';
+
+  @override
+  String byCloset_deleteDialogContent(String closetName) {
+    return 'Bạn có chắc chắn muốn xoá tủ đồ \"$closetName\" không?';
+  }
+
+  @override
+  String get byCloset_limitReached => 'Đã đạt giới hạn tủ đồ (10).';
 }

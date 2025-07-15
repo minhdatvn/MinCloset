@@ -5,6 +5,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/widgets/filter_bottom_sheet.dart';
+import 'package:mincloset/helpers/context_extensions.dart'; 
+import 'package:mincloset/notifiers/item_filter_notifier.dart';
 
 class ItemSearchFilterBar extends HookConsumerWidget {
   final String providerId;
@@ -22,7 +24,7 @@ class ItemSearchFilterBar extends HookConsumerWidget {
     final state = ref.watch(itemFilterProvider(providerId));
     final notifier = ref.read(itemFilterProvider(providerId).notifier);
     final closetsAsync = ref.watch(closetsProvider);
-
+    final l10n = context.l10n;
     // Đồng bộ text trong controller với state (hữu ích khi xóa filter)
     useEffect(() {
       if (searchController.text != state.searchQuery) {
@@ -39,7 +41,7 @@ class ItemSearchFilterBar extends HookConsumerWidget {
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
-                hintText: 'Search items...',
+                hintText: l10n.allItems_searchHint,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -59,7 +61,7 @@ class ItemSearchFilterBar extends HookConsumerWidget {
               isLabelVisible: state.activeFilters.isApplied,
               child: const Icon(Icons.filter_list),
             ),
-            tooltip: 'Filter',
+            tooltip: l10n.allItems_filterTooltip,
             onPressed: () {
               // Chỉ mở bottom sheet khi đã tải xong danh sách tủ đồ
               closetsAsync.whenData((closets) {

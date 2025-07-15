@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/notification_type.dart';
@@ -164,14 +165,14 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
           children: [
             TextButton.icon(
               icon: const Icon(Icons.photo_library_outlined, size: 18),
-              label: const Text('Change background'),
+              label: Text(context.l10n.outfitBuilder_changeBg_button),
               onPressed: _pickBackgroundImage,
               style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.onSurface),
             ),
             Row(
               children: [
-                IconButton(icon: const Icon(Icons.undo), tooltip: 'Undo', onPressed: () => _editorKey.currentState?.undoAction()),
-                IconButton(icon: const Icon(Icons.redo), tooltip: 'Redo', onPressed: () => _editorKey.currentState?.redoAction()),
+                IconButton(icon: const Icon(Icons.undo), tooltip: context.l10n.outfitBuilder_undo_tooltip, onPressed: () => _editorKey.currentState?.undoAction()),
+                IconButton(icon: const Icon(Icons.redo), tooltip: context.l10n.outfitBuilder_redo_tooltip, onPressed: () => _editorKey.currentState?.redoAction()),
               ],
             ),
           ],
@@ -254,7 +255,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
 
     return PageScaffold(
       appBar: AppBar(
-        title: const Text('Outfit studio'),
+        title: Text(context.l10n.outfitBuilder_title),
         leading: IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.of(context).pop(false)),
         actions: [
           Consumer(
@@ -286,7 +287,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                         );
                   }
                 },
-                child: Text('Save', style: Theme.of(context).appBarTheme.titleTextStyle),
+                child: Text(context.l10n.outfitsHub_save_button, style: Theme.of(context).appBarTheme.titleTextStyle),
               );
             },
           ),
@@ -333,7 +334,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                             ),
                             stickerEditor: StickerEditorConfigs(
                               enabled: true,
-                              builder: (setLayer, scrollController) => const Center(child: Text('Stickers will be available soon.')),
+                              builder: (setLayer, scrollController) => Center(child: Text(context.l10n.outfitBuilder_stickers_placeholder)),
                             ),
                             cropRotateEditor: const CropRotateEditorConfigs(enabled: false),
                             filterEditor: const FilterEditorConfigs(enabled: false),
@@ -378,28 +379,29 @@ class _SaveOutfitDialogState extends State<_SaveOutfitDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Form(
       key: _formKey,
       child: AlertDialog(
-        title: const Text('Save outfit'),
+        title: Text(l10n.outfitBuilder_save_dialogTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(hintText: 'Example: Weekend coffee meet-up'),
+              decoration: InputDecoration(hintText: l10n.outfitBuilder_save_nameHint),
               autofocus: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter an outfit name';
+                  return l10n.outfitBuilder_save_nameValidator;
                 }
                 return null;
               },
             ),
             const SizedBox(height: 16),
             SwitchListTile(
-              title: const Text('Fixed outfit', style: TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: const Text('Items in this outfit are always worn together. Each item can only belong to one fixed outfit.', style: TextStyle(fontSize: 12)),
+              title: Text(l10n.outfitBuilder_save_isFixedLabel, style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(l10n.outfitBuilder_save_isFixedSubtitle, style: const TextStyle(fontSize: 12)),
               value: _isFixed,
               onChanged: (newValue) => setState(() => _isFixed = newValue),
               contentPadding: EdgeInsets.zero,
@@ -407,7 +409,7 @@ class _SaveOutfitDialogState extends State<_SaveOutfitDialog> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(l10n.outfitsHub_cancel_button)),
           ElevatedButton(
             onPressed: () {
               if (_formKey.currentState?.validate() ?? false) {
@@ -417,7 +419,7 @@ class _SaveOutfitDialogState extends State<_SaveOutfitDialog> {
                 });
               }
             },
-            child: const Text('Save'),
+            child: Text(l10n.outfitsHub_save_button),
           ),
         ],
       ),

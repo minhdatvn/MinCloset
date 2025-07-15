@@ -895,6 +895,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Closet limit (10) reached.'**
   String get byCloset_limitReached;
+
+  /// No description provided for @closetForm_titleEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Closet'**
+  String get closetForm_titleEdit;
+
+  /// No description provided for @closetForm_titleAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Closet'**
+  String get closetForm_titleAdd;
+
+  /// No description provided for @closetForm_saveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get closetForm_saveButton;
+
+  /// No description provided for @closetForm_nameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Closet Name'**
+  String get closetForm_nameLabel;
+
+  /// No description provided for @closetForm_iconLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Icon'**
+  String get closetForm_iconLabel;
+
+  /// No description provided for @closetForm_colorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Card Color'**
+  String get closetForm_colorLabel;
 }
 
 class _AppLocalizationsDelegate

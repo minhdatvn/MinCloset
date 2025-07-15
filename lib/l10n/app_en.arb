@@ -180,5 +180,12 @@
             }
         }
     },
-    "byCloset_limitReached": "Closet limit (10) reached."
+    "byCloset_limitReached": "Closet limit (10) reached.",
+
+    "closetForm_titleEdit": "Edit Closet",
+    "closetForm_titleAdd": "Add New Closet",
+    "closetForm_saveButton": "Save",
+    "closetForm_nameLabel": "Closet Name",
+    "closetForm_iconLabel": "Choose Icon",
+    "closetForm_colorLabel": "Choose Card Color"
 }

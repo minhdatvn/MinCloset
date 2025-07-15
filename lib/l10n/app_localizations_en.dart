@@ -454,4 +454,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get byCloset_limitReached => 'Closet limit (10) reached.';
+
+  @override
+  String get closetForm_titleEdit => 'Edit Closet';
+
+  @override
+  String get closetForm_titleAdd => 'Add New Closet';
+
+  @override
+  String get closetForm_saveButton => 'Save';
+
+  @override
+  String get closetForm_nameLabel => 'Closet Name';
+
+  @override
+  String get closetForm_iconLabel => 'Choose Icon';
+
+  @override
+  String get closetForm_colorLabel => 'Choose Card Color';
 }

@@ -170,5 +170,12 @@
             }
         }
     },
-    "byCloset_limitReached": "Đã đạt giới hạn tủ đồ (10)."
+    "byCloset_limitReached": "Đã đạt giới hạn tủ đồ (10).",
+
+    "closetForm_titleEdit": "Sửa Tủ đồ",
+    "closetForm_titleAdd": "Thêm Tủ đồ Mới",
+    "closetForm_saveButton": "Lưu",
+    "closetForm_nameLabel": "Tên Tủ đồ",
+    "closetForm_iconLabel": "Chọn Biểu tượng",
+    "closetForm_colorLabel": "Chọn Màu thẻ"
 }

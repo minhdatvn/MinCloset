@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/notifiers/closets_page_notifier.dart';
 import 'package:mincloset/providers/ui_providers.dart';
+import 'package:mincloset/helpers/context_extensions.dart'; 
 
 // --- THAY ĐỔI 1: Tách các Icon và Màu sắc ra khỏi widget để dễ quản lý ---
 const Map<String, IconData> _availableIcons = {
@@ -102,10 +103,11 @@ class _ClosetFormScreenState extends ConsumerState<ClosetFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Scaffold(
       appBar: AppBar(
-        // --- THAY ĐỔI 3: Tiêu đề động ---
-        title: Text(_isEditing ? 'Edit Closet' : 'Add New Closet'),
+        title: Text(_isEditing ? l10n.closetForm_titleEdit : l10n.closetForm_titleAdd),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(),
@@ -113,24 +115,23 @@ class _ClosetFormScreenState extends ConsumerState<ClosetFormScreen> {
         actions: [
           TextButton(
             onPressed: _saveChanges,
-            child: const Text('Save', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(l10n.closetForm_saveButton, style: const TextStyle(fontWeight: FontWeight.bold)),
           )
         ],
       ),
-      // --- Phần body giữ nguyên, không thay đổi ---
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           TextFormField(
             controller: _nameController,
-            decoration: const InputDecoration(
-              labelText: 'Closet Name',
+            decoration: InputDecoration(
+              labelText: l10n.closetForm_nameLabel,
               border: OutlineInputBorder(),
             ),
             maxLength: 30,
           ),
           const SizedBox(height: 24),
-          const Text('Choose Icon', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(l10n.closetForm_iconLabel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           GridView.builder(
             shrinkWrap: true,
@@ -164,7 +165,7 @@ class _ClosetFormScreenState extends ConsumerState<ClosetFormScreen> {
             },
           ),
           const SizedBox(height: 24),
-          const Text('Choose Card Color', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Text(l10n.closetForm_colorLabel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           GridView.builder(
             shrinkWrap: true,

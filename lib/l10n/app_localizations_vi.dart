@@ -432,4 +432,22 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get byCloset_limitReached => 'Đã đạt giới hạn tủ đồ (10).';
+
+  @override
+  String get closetForm_titleEdit => 'Sửa Tủ đồ';
+
+  @override
+  String get closetForm_titleAdd => 'Thêm Tủ đồ Mới';
+
+  @override
+  String get closetForm_saveButton => 'Lưu';
+
+  @override
+  String get closetForm_nameLabel => 'Tên Tủ đồ';
+
+  @override
+  String get closetForm_iconLabel => 'Chọn Biểu tượng';
+
+  @override
+  String get closetForm_colorLabel => 'Chọn Màu thẻ';
 }

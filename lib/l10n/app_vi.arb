@@ -5,6 +5,8 @@
 
     "banner_deleteSuccess": "Đã xoá \"{itemName}\".",
     "banner_deleteFailed": "Xoá thất bại. Vui lòng thử lại.",
+    "common_cancel": "Huỷ",
+
 
     "profile_title": "Hồ sơ",
     "profile_settings_tooltip": "Cài đặt",
@@ -146,7 +148,6 @@
             }
         }
     },
-    "common_cancel": "Huỷ",
 
     "byCloset_addClosetHintTitle": "Tạo Tủ đồ Mới",
     "byCloset_addClosetHintDescription": "Nhấn vào đây để tạo một tủ đồ mới, giúp bạn sắp xếp quần áo cho các mục đích khác nhau như 'Công sở' hoặc 'Tập gym'.",
@@ -218,10 +219,10 @@
 
     "home_greeting": "Xin chào,",
     "home_userNameDefault": "Bạn",
-    "home_actionAddItem": "Thêm\nVật phẩm",
-    "home_actionCreateCloset": "Tạo Tủ đồ",
-    "home_actionCreateOutfits": "Tạo Trang phục",
-    "home_actionSavedOutfits": "Đã lưu",
+    "home_actionAddItem": "Thêm mới\nvật phẩm",
+    "home_actionCreateCloset": "Tạo mới\ntủ đồ",
+    "home_actionCreateOutfits": "Tạo mới\ntrang phục",
+    "home_actionSavedOutfits": "Trang phục\nđã có",
     "home_weeklyJournalTitle": "Nhật ký Tuần",
     "home_weeklyJournalViewMore": "Xem thêm",
     "home_suggestionTitle": "Gợi ý trang phục",
@@ -261,5 +262,49 @@
                 "type": "String"
             }
         }
-    }
+    },
+
+    "itemDetail_titleEdit": "Sửa vật phẩm",
+    "itemDetail_titleAdd": "Thêm vật phẩm",
+    "itemDetail_favoriteTooltip_add": "Thêm vào yêu thích",
+    "itemDetail_favoriteTooltip_remove": "Bỏ yêu thích",
+    "itemDetail_deleteTooltip": "Xoá vật phẩm",
+    "itemDetail_deleteDialogTitle": "Xác nhận xoá",
+    "itemDetail_deleteDialogContent": "Bạn có chắc muốn xoá vĩnh viễn vật phẩm \"{itemName}\" không?",
+    "@itemDetail_deleteDialogContent": {
+        "placeholders": {
+            "itemName": {
+                "type": "String"
+            }
+        }
+    },
+    "itemDetail_saveButton": "Lưu",
+    "itemDetail_form_imageError": "Vui lòng thêm ảnh cho vật phẩm.",
+    "itemDetail_form_editButton": "Sửa",
+    "itemDetail_form_removeBgButton": "Tách nền",
+    "itemDetail_form_removeBgDialogTitle": "Ảnh có thể đã được xử lý",
+    "itemDetail_form_removeBgDialogContent": "Ảnh này có thể đã có nền trong suốt. Thực hiện lại có thể gây ra lỗi. Bạn có muốn tiếp tục không?",
+    "itemDetail_form_removeBgDialogContinue": "Tiếp tục",
+    "itemDetail_form_errorReadingImage": "Lỗi đọc định dạng ảnh.",
+    "itemDetail_form_timeoutError": "Thao tác đã hết hạn sau 45 giây.",
+    "itemDetail_form_unexpectedError": "Đã xảy ra lỗi không mong muốn: {error}",
+    "@itemDetail_form_unexpectedError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "itemDetail_form_nameLabel": "Tên vật phẩm *",
+    "itemDetail_form_closetLabel": "Chọn tủ đồ *",
+    "itemDetail_form_categoryLabel": "Danh mục *",
+    "itemDetail_form_categoryNoneSelected": "Chưa chọn",
+    "itemDetail_form_colorLabel": "Màu sắc",
+    "itemDetail_form_colorNotYet": "Chưa có",
+    "itemDetail_form_seasonLabel": "Mùa",
+    "itemDetail_form_occasionLabel": "Dịp",
+    "itemDetail_form_materialLabel": "Chất liệu",
+    "itemDetail_form_patternLabel": "Hoạ tiết",
+    "itemDetail_form_priceLabel": "Giá tiền",
+    "itemDetail_form_notesLabel": "Ghi chú"
 }

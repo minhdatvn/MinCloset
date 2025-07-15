@@ -23,6 +23,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get banner_deleteFailed => 'Xoá thất bại. Vui lòng thử lại.';
 
   @override
+  String get common_cancel => 'Huỷ';
+
+  @override
   String get profile_title => 'Hồ sơ';
 
   @override
@@ -399,9 +402,6 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get common_cancel => 'Huỷ';
-
-  @override
   String get byCloset_addClosetHintTitle => 'Tạo Tủ đồ Mới';
 
   @override
@@ -511,16 +511,16 @@ class AppLocalizationsVi extends AppLocalizations {
   String get home_userNameDefault => 'Bạn';
 
   @override
-  String get home_actionAddItem => 'Thêm\nVật phẩm';
+  String get home_actionAddItem => 'Thêm mới\nvật phẩm';
 
   @override
-  String get home_actionCreateCloset => 'Tạo Tủ đồ';
+  String get home_actionCreateCloset => 'Tạo mới\ntủ đồ';
 
   @override
-  String get home_actionCreateOutfits => 'Tạo Trang phục';
+  String get home_actionCreateOutfits => 'Tạo mới\ntrang phục';
 
   @override
-  String get home_actionSavedOutfits => 'Đã lưu';
+  String get home_actionSavedOutfits => 'Trang phục\nđã có';
 
   @override
   String get home_weeklyJournalTitle => 'Nhật ký Tuần';
@@ -594,4 +594,96 @@ class AppLocalizationsVi extends AppLocalizations {
   String suggestion_lastUpdated(String datetime) {
     return 'Cập nhật lần cuối: $datetime';
   }
+
+  @override
+  String get itemDetail_titleEdit => 'Sửa vật phẩm';
+
+  @override
+  String get itemDetail_titleAdd => 'Thêm vật phẩm';
+
+  @override
+  String get itemDetail_favoriteTooltip_add => 'Thêm vào yêu thích';
+
+  @override
+  String get itemDetail_favoriteTooltip_remove => 'Bỏ yêu thích';
+
+  @override
+  String get itemDetail_deleteTooltip => 'Xoá vật phẩm';
+
+  @override
+  String get itemDetail_deleteDialogTitle => 'Xác nhận xoá';
+
+  @override
+  String itemDetail_deleteDialogContent(String itemName) {
+    return 'Bạn có chắc muốn xoá vĩnh viễn vật phẩm \"$itemName\" không?';
+  }
+
+  @override
+  String get itemDetail_saveButton => 'Lưu';
+
+  @override
+  String get itemDetail_form_imageError => 'Vui lòng thêm ảnh cho vật phẩm.';
+
+  @override
+  String get itemDetail_form_editButton => 'Sửa';
+
+  @override
+  String get itemDetail_form_removeBgButton => 'Tách nền';
+
+  @override
+  String get itemDetail_form_removeBgDialogTitle => 'Ảnh có thể đã được xử lý';
+
+  @override
+  String get itemDetail_form_removeBgDialogContent =>
+      'Ảnh này có thể đã có nền trong suốt. Thực hiện lại có thể gây ra lỗi. Bạn có muốn tiếp tục không?';
+
+  @override
+  String get itemDetail_form_removeBgDialogContinue => 'Tiếp tục';
+
+  @override
+  String get itemDetail_form_errorReadingImage => 'Lỗi đọc định dạng ảnh.';
+
+  @override
+  String get itemDetail_form_timeoutError => 'Thao tác đã hết hạn sau 45 giây.';
+
+  @override
+  String itemDetail_form_unexpectedError(String error) {
+    return 'Đã xảy ra lỗi không mong muốn: $error';
+  }
+
+  @override
+  String get itemDetail_form_nameLabel => 'Tên vật phẩm *';
+
+  @override
+  String get itemDetail_form_closetLabel => 'Chọn tủ đồ *';
+
+  @override
+  String get itemDetail_form_categoryLabel => 'Danh mục *';
+
+  @override
+  String get itemDetail_form_categoryNoneSelected => 'Chưa chọn';
+
+  @override
+  String get itemDetail_form_colorLabel => 'Màu sắc';
+
+  @override
+  String get itemDetail_form_colorNotYet => 'Chưa có';
+
+  @override
+  String get itemDetail_form_seasonLabel => 'Mùa';
+
+  @override
+  String get itemDetail_form_occasionLabel => 'Dịp';
+
+  @override
+  String get itemDetail_form_materialLabel => 'Chất liệu';
+
+  @override
+  String get itemDetail_form_patternLabel => 'Hoạ tiết';
+
+  @override
+  String get itemDetail_form_priceLabel => 'Giá tiền';
+
+  @override
+  String get itemDetail_form_notesLabel => 'Ghi chú';
 }

@@ -122,6 +122,12 @@ abstract class AppLocalizations {
   /// **'Failed to delete. Please try again.'**
   String get banner_deleteFailed;
 
+  /// No description provided for @common_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get common_cancel;
+
   /// No description provided for @profile_title.
   ///
   /// In en, this message translates to:
@@ -836,12 +842,6 @@ abstract class AppLocalizations {
   /// **'{count,plural, =1{Are you sure you want to permanently delete 1 selected item?} other{Are you sure you want to permanently delete {count} selected items?}}'**
   String allItems_deleteDialogContent(int count);
 
-  /// No description provided for @common_cancel.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get common_cancel;
-
   /// No description provided for @byCloset_addClosetHintTitle.
   ///
   /// In en, this message translates to:
@@ -1183,6 +1183,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last updated: {datetime}'**
   String suggestion_lastUpdated(String datetime);
+
+  /// No description provided for @itemDetail_titleEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit item'**
+  String get itemDetail_titleEdit;
+
+  /// No description provided for @itemDetail_titleAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add item'**
+  String get itemDetail_titleAdd;
+
+  /// No description provided for @itemDetail_favoriteTooltip_add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get itemDetail_favoriteTooltip_add;
+
+  /// No description provided for @itemDetail_favoriteTooltip_remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get itemDetail_favoriteTooltip_remove;
+
+  /// No description provided for @itemDetail_deleteTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete item'**
+  String get itemDetail_deleteTooltip;
+
+  /// No description provided for @itemDetail_deleteDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm deletion'**
+  String get itemDetail_deleteDialogTitle;
+
+  /// No description provided for @itemDetail_deleteDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure to permanently delete item \"{itemName}\"?'**
+  String itemDetail_deleteDialogContent(String itemName);
+
+  /// No description provided for @itemDetail_saveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get itemDetail_saveButton;
+
+  /// No description provided for @itemDetail_form_imageError.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add a photo for the item.'**
+  String get itemDetail_form_imageError;
+
+  /// No description provided for @itemDetail_form_editButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get itemDetail_form_editButton;
+
+  /// No description provided for @itemDetail_form_removeBgButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove BG'**
+  String get itemDetail_form_removeBgButton;
+
+  /// No description provided for @itemDetail_form_removeBgDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Image May Have Been Processed'**
+  String get itemDetail_form_removeBgDialogTitle;
+
+  /// No description provided for @itemDetail_form_removeBgDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'This image might already have a transparent background. Proceeding again may cause errors. Do you want to continue?'**
+  String get itemDetail_form_removeBgDialogContent;
+
+  /// No description provided for @itemDetail_form_removeBgDialogContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get itemDetail_form_removeBgDialogContinue;
+
+  /// No description provided for @itemDetail_form_errorReadingImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Error reading image format.'**
+  String get itemDetail_form_errorReadingImage;
+
+  /// No description provided for @itemDetail_form_timeoutError.
+  ///
+  /// In en, this message translates to:
+  /// **'Operation timed out after 45 seconds.'**
+  String get itemDetail_form_timeoutError;
+
+  /// No description provided for @itemDetail_form_unexpectedError.
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred: {error}'**
+  String itemDetail_form_unexpectedError(String error);
+
+  /// No description provided for @itemDetail_form_nameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Item name *'**
+  String get itemDetail_form_nameLabel;
+
+  /// No description provided for @itemDetail_form_closetLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Select closet *'**
+  String get itemDetail_form_closetLabel;
+
+  /// No description provided for @itemDetail_form_categoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category *'**
+  String get itemDetail_form_categoryLabel;
+
+  /// No description provided for @itemDetail_form_categoryNoneSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'None selected'**
+  String get itemDetail_form_categoryNoneSelected;
+
+  /// No description provided for @itemDetail_form_colorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get itemDetail_form_colorLabel;
+
+  /// No description provided for @itemDetail_form_colorNotYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet'**
+  String get itemDetail_form_colorNotYet;
+
+  /// No description provided for @itemDetail_form_seasonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Season'**
+  String get itemDetail_form_seasonLabel;
+
+  /// No description provided for @itemDetail_form_occasionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Occasion'**
+  String get itemDetail_form_occasionLabel;
+
+  /// No description provided for @itemDetail_form_materialLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get itemDetail_form_materialLabel;
+
+  /// No description provided for @itemDetail_form_patternLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern'**
+  String get itemDetail_form_patternLabel;
+
+  /// No description provided for @itemDetail_form_priceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get itemDetail_form_priceLabel;
+
+  /// No description provided for @itemDetail_form_notesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get itemDetail_form_notesLabel;
 }
 
 class _AppLocalizationsDelegate

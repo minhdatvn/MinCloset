@@ -12,6 +12,7 @@
 
     "banner_deleteSuccess": "Deleted \"{itemName}\".",
     "banner_deleteFailed": "Failed to delete. Please try again.",
+    "common_cancel": "Cancel",
 
     "profile_title": "Profile",
     "profile_settings_tooltip": "Settings",
@@ -156,7 +157,6 @@
             }
         }
     },
-    "common_cancel": "Cancel",
 
     "byCloset_addClosetHintTitle": "Create a New Closet",
     "byCloset_addClosetHintDescription": "Tap here to create a new closet, helping you organize your clothes for different purposes like 'Work' or 'Gym'.",
@@ -271,5 +271,49 @@
                 "type": "String"
             }
         }
-    }
+    },
+
+    "itemDetail_titleEdit": "Edit item",
+    "itemDetail_titleAdd": "Add item",
+    "itemDetail_favoriteTooltip_add": "Add to favorites",
+    "itemDetail_favoriteTooltip_remove": "Remove from favorites",
+    "itemDetail_deleteTooltip": "Delete item",
+    "itemDetail_deleteDialogTitle": "Confirm deletion",
+    "itemDetail_deleteDialogContent": "Are you sure to permanently delete item \"{itemName}\"?",
+    "@itemDetail_deleteDialogContent": {
+        "placeholders": {
+            "itemName": {
+                "type": "String"
+            }
+        }
+    },
+    "itemDetail_saveButton": "Save",
+    "itemDetail_form_imageError": "Please add a photo for the item.",
+    "itemDetail_form_editButton": "Edit",
+    "itemDetail_form_removeBgButton": "Remove BG",
+    "itemDetail_form_removeBgDialogTitle": "Image May Have Been Processed",
+    "itemDetail_form_removeBgDialogContent": "This image might already have a transparent background. Proceeding again may cause errors. Do you want to continue?",
+    "itemDetail_form_removeBgDialogContinue": "Continue",
+    "itemDetail_form_errorReadingImage": "Error reading image format.",
+    "itemDetail_form_timeoutError": "Operation timed out after 45 seconds.",
+    "itemDetail_form_unexpectedError": "An unexpected error occurred: {error}",
+    "@itemDetail_form_unexpectedError": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "itemDetail_form_nameLabel": "Item name *",
+    "itemDetail_form_closetLabel": "Select closet *",
+    "itemDetail_form_categoryLabel": "Category *",
+    "itemDetail_form_categoryNoneSelected": "None selected",
+    "itemDetail_form_colorLabel": "Color",
+    "itemDetail_form_colorNotYet": "Not yet",
+    "itemDetail_form_seasonLabel": "Season",
+    "itemDetail_form_occasionLabel": "Occasion",
+    "itemDetail_form_materialLabel": "Material",
+    "itemDetail_form_patternLabel": "Pattern",
+    "itemDetail_form_priceLabel": "Price",
+    "itemDetail_form_notesLabel": "Notes"
 }

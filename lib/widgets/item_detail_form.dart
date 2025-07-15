@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/constants/app_options.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/helpers/currency_input_formatter.dart';
 import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
@@ -95,6 +96,7 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
   Widget build(BuildContext context) {
     final closetsAsync = ref.watch(closetsProvider);
     final settings = ref.watch(profileProvider);
+    final l10n = context.l10n;
 
     String getCurrencySymbol(String currencyCode) { // hàm helper nhỏ để lấy ký hiệu tiền tệ
       switch (currencyCode) {
@@ -153,7 +155,7 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                       FilledButton.icon(
                         onPressed: widget.onEditImagePressed,
                         icon: const Icon(Icons.edit_outlined, size: 18),
-                        label: const Text('Edit'),
+                        label: Text(l10n.itemDetail_form_editButton),
                         style: FilledButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           backgroundColor: Colors.black.withValues(alpha:0.6),
@@ -187,15 +189,13 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                               final confirm = await showAnimatedDialog<bool>(
                                 context,
                                 builder: (ctx) => AlertDialog(
-                                  title: const Text(
-                                      'Image May Have Been Processed'),
-                                  content: const Text(
-                                      'This image might already have a transparent background. Proceeding again may cause errors. Do you want to continue?'),
+                                  title: Text(l10n.itemDetail_form_removeBgDialogTitle),
+                                  content: Text(l10n.itemDetail_form_removeBgDialogContent),
                                   actions: [
                                     TextButton(
                                       onPressed: () =>
                                           Navigator.of(ctx).pop(false),
-                                      child: const Text('Cancel'),
+                                      child: Text(l10n.common_cancel),
                                     ),
                                     TextButton(
                                       onPressed: () =>
@@ -204,7 +204,7 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                                           foregroundColor: Theme.of(context)
                                               .colorScheme
                                               .error),
-                                      child: const Text('Continue'),
+                                      child: Text(l10n.itemDetail_form_removeBgDialogContinue),
                                     ),
                                   ],
                                 ),
@@ -215,8 +215,7 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                             shouldProceed = false;
                             ref
                                 .read(notificationServiceProvider)
-                                .showBanner(
-                                    message: 'Error reading image format.');
+                                .showBanner(message: l10n.itemDetail_form_errorReadingImage);
                           }
 
                           if (shouldProceed && context.mounted) {
@@ -232,24 +231,18 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                               }
                             } on TimeoutException {
                               if (context.mounted) {
-                                ref.read(notificationServiceProvider).showBanner(
-                                      message:
-                                          'Operation timed out after 45 seconds.',
-                                    );
+                                ref.read(notificationServiceProvider).showBanner(message: l10n.itemDetail_form_timeoutError);
                               }
                             } catch (e) {
                               if (context.mounted) {
-                                ref.read(notificationServiceProvider).showBanner(
-                                      message:
-                                          'An unexpected error occurred: $e',
-                                    );
+                                ref.read(notificationServiceProvider).showBanner(message: l10n.itemDetail_form_unexpectedError(e.toString()));
                               }
                             }
                           }
                         },
                         icon: const Icon(Icons.auto_fix_high_outlined,
                             size: 18),
-                        label: const Text('Remove BG'),
+                        label: Text(l10n.itemDetail_form_removeBgButton),
                         style: FilledButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
                           backgroundColor: Colors.black.withValues(alpha:0.6),
@@ -277,8 +270,8 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
           // <<< SỬ DỤNG CONTROLLER TỪ STATE >>>
           TextFormField(
             controller: _nameController,
-            decoration: const InputDecoration(
-              labelText: 'Item name *',
+            decoration: InputDecoration(
+              labelText: l10n.itemDetail_form_nameLabel,
               border: OutlineInputBorder(),
             ),
             maxLength: 30,
@@ -292,8 +285,8 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
                 value: widget.itemState.selectedClosetId,
                 items: closets.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))).toList(),
                 onChanged: widget.onClosetChanged,
-                decoration: const InputDecoration(
-                  labelText: 'Select closet *',
+                decoration: InputDecoration(
+                  labelText: l10n.itemDetail_form_closetLabel,
                   border: OutlineInputBorder(),
                 ),
               );
@@ -307,31 +300,31 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
             onCategorySelected: widget.onCategoryChanged,
           ),
           MultiSelectChipField(
-            label: 'Color',
+            label: l10n.itemDetail_form_colorLabel,
             allOptions: AppOptions.colors,
             initialSelections: widget.itemState.selectedColors,
             onSelectionChanged: widget.onColorsChanged,
           ),
           MultiSelectChipField(
-            label: 'Season',
+            label: l10n.itemDetail_form_seasonLabel,
             allOptions: AppOptions.seasons,
             initialSelections: widget.itemState.selectedSeasons,
             onSelectionChanged: widget.onSeasonsChanged,
           ),
           MultiSelectChipField(
-            label: 'Occasion',
+            label: l10n.itemDetail_form_occasionLabel,
             allOptions: AppOptions.occasions,
             initialSelections: widget.itemState.selectedOccasions,
             onSelectionChanged: widget.onOccasionsChanged,
           ),
           MultiSelectChipField(
-            label: 'Material',
+            label: l10n.itemDetail_form_materialLabel,
             allOptions: AppOptions.materials,
             initialSelections: widget.itemState.selectedMaterials,
             onSelectionChanged: widget.onMaterialsChanged,
           ),
           MultiSelectChipField(
-            label: 'Pattern',
+            label: l10n.itemDetail_form_patternLabel,
             allOptions: AppOptions.patterns,
             initialSelections: widget.itemState.selectedPatterns,
             onSelectionChanged: widget.onPatternsChanged,
@@ -341,7 +334,7 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
           TextFormField(
             controller: _priceController,
             decoration: InputDecoration(
-              labelText: 'Price',
+              labelText: l10n.itemDetail_form_priceLabel,
               border: const OutlineInputBorder(),
               // Sử dụng 'suffix' thay vì 'suffixIcon'
               suffix: Padding(
@@ -367,8 +360,8 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
           const SizedBox(height: 16),
           TextFormField(
             controller: _notesController,
-            decoration: const InputDecoration(
-              labelText: 'Notes',
+            decoration: InputDecoration(
+              labelText: l10n.itemDetail_form_notesLabel,
               border: OutlineInputBorder(),
               alignLabelWithHint: true,
             ),

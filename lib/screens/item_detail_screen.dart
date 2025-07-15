@@ -15,6 +15,7 @@ import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/item_detail_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:uuid/uuid.dart';
 
 class ItemDetailScreen extends ConsumerStatefulWidget {
@@ -48,18 +49,19 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
 
   Future<void> _showDeleteConfirmationDialog(BuildContext context) async {
     if (widget.itemToEdit == null) return;
+    final l10n = context.l10n;
 
     final confirmed = await showAnimatedDialog<bool>(
       context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Confirm deletion'),
-        content: Text('Are you sure to permanently delete item "${widget.itemToEdit!.name}" ?'),
+        title: Text(l10n.itemDetail_deleteDialogTitle),
+        content: Text(l10n.itemDetail_deleteDialogContent(widget.itemToEdit!.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.common_cancel)),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(l10n.allItems_delete),
           ),
         ],
       ),
@@ -76,6 +78,7 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
     final provider = itemDetailProvider(_providerArgs);
     final state = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
+    final l10n = context.l10n;
 
     // <<< KHỐI LISTEN ĐỂ XỬ LÝ THÔNG BÁO VÀ ĐIỀU HƯỚNG >>>
     ref.listen<ItemDetailState>(provider, (previous, next) {
@@ -110,7 +113,7 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
 
     return PageScaffold(
       appBar: AppBar(
-        title: Text(state.isEditing ? 'Edit item' : 'Add item'),
+        title: Text(state.isEditing ? l10n.itemDetail_titleEdit : l10n.itemDetail_titleAdd),
         actions: [
           if (state.isEditing)
             IconButton(
@@ -122,14 +125,14 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
                 ref.read(itemDetailProvider(_providerArgs).notifier).toggleFavorite();
                 ref.read(itemChangedTriggerProvider.notifier).state++;
               },
-              tooltip: state.isFavorite ? 'Remove from favorites' : 'Add to favorites',
+              tooltip: state.isFavorite ? l10n.itemDetail_favoriteTooltip_remove : l10n.itemDetail_favoriteTooltip_add,
             ),
           
           if (state.isEditing)
             IconButton(
               icon: const Icon(Icons.delete_outline, color: Colors.red),
               onPressed: () => _showDeleteConfirmationDialog(context),
-              tooltip: 'Delete item',
+              tooltip: l10n.itemDetail_deleteTooltip,
             ),
         ],
       ),
@@ -182,7 +185,7 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
           icon: state.isLoading ? const SizedBox.shrink() : const Icon(Icons.save),
           label: state.isLoading 
               ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3,)) 
-              : const Text('Save'),
+              : Text(l10n.itemDetail_saveButton),
         ),
       ),
     );

@@ -1,6 +1,7 @@
 // lib/widgets/category_selector.dart
 
 import 'package:flutter/material.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/constants/app_options.dart';
 
 class CategorySelector extends StatefulWidget {
@@ -67,6 +68,7 @@ class _CategorySelectorState extends State<CategorySelector> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       children: [
         InkWell(
@@ -76,7 +78,7 @@ class _CategorySelectorState extends State<CategorySelector> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Category *', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,)),
+                Text(l10n.itemDetail_form_categoryLabel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold,)),
                 Expanded(
                   child: _buildSummaryView(),
                 ),
@@ -95,11 +97,12 @@ class _CategorySelectorState extends State<CategorySelector> {
   }
 
   Widget _buildSummaryView() {
+    final l10n = context.l10n;
     if (_selectedMainCategory == null) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Text('None selected', style: TextStyle(fontSize: 16, color: Colors.grey.shade600)),
+          Text(l10n.itemDetail_form_categoryNoneSelected, style: TextStyle(fontSize: 16, color: Colors.grey.shade600)),
           const SizedBox(width: 4),
           Icon(_isExpanded ? Icons.arrow_drop_up : Icons.arrow_drop_down, color: Colors.grey),
         ],

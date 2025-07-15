@@ -23,6 +23,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get banner_deleteFailed => 'Failed to delete. Please try again.';
 
   @override
+  String get common_cancel => 'Cancel';
+
+  @override
   String get profile_title => 'Profile';
 
   @override
@@ -414,9 +417,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get common_cancel => 'Cancel';
-
-  @override
   String get byCloset_addClosetHintTitle => 'Create a New Closet';
 
   @override
@@ -621,4 +621,98 @@ class AppLocalizationsEn extends AppLocalizations {
   String suggestion_lastUpdated(String datetime) {
     return 'Last updated: $datetime';
   }
+
+  @override
+  String get itemDetail_titleEdit => 'Edit item';
+
+  @override
+  String get itemDetail_titleAdd => 'Add item';
+
+  @override
+  String get itemDetail_favoriteTooltip_add => 'Add to favorites';
+
+  @override
+  String get itemDetail_favoriteTooltip_remove => 'Remove from favorites';
+
+  @override
+  String get itemDetail_deleteTooltip => 'Delete item';
+
+  @override
+  String get itemDetail_deleteDialogTitle => 'Confirm deletion';
+
+  @override
+  String itemDetail_deleteDialogContent(String itemName) {
+    return 'Are you sure to permanently delete item \"$itemName\"?';
+  }
+
+  @override
+  String get itemDetail_saveButton => 'Save';
+
+  @override
+  String get itemDetail_form_imageError => 'Please add a photo for the item.';
+
+  @override
+  String get itemDetail_form_editButton => 'Edit';
+
+  @override
+  String get itemDetail_form_removeBgButton => 'Remove BG';
+
+  @override
+  String get itemDetail_form_removeBgDialogTitle =>
+      'Image May Have Been Processed';
+
+  @override
+  String get itemDetail_form_removeBgDialogContent =>
+      'This image might already have a transparent background. Proceeding again may cause errors. Do you want to continue?';
+
+  @override
+  String get itemDetail_form_removeBgDialogContinue => 'Continue';
+
+  @override
+  String get itemDetail_form_errorReadingImage => 'Error reading image format.';
+
+  @override
+  String get itemDetail_form_timeoutError =>
+      'Operation timed out after 45 seconds.';
+
+  @override
+  String itemDetail_form_unexpectedError(String error) {
+    return 'An unexpected error occurred: $error';
+  }
+
+  @override
+  String get itemDetail_form_nameLabel => 'Item name *';
+
+  @override
+  String get itemDetail_form_closetLabel => 'Select closet *';
+
+  @override
+  String get itemDetail_form_categoryLabel => 'Category *';
+
+  @override
+  String get itemDetail_form_categoryNoneSelected => 'None selected';
+
+  @override
+  String get itemDetail_form_colorLabel => 'Color';
+
+  @override
+  String get itemDetail_form_colorNotYet => 'Not yet';
+
+  @override
+  String get itemDetail_form_seasonLabel => 'Season';
+
+  @override
+  String get itemDetail_form_occasionLabel => 'Occasion';
+
+  @override
+  String get itemDetail_form_materialLabel => 'Material';
+
+  @override
+  String get itemDetail_form_patternLabel => 'Pattern';
+
+  @override
+  String get itemDetail_form_priceLabel => 'Price';
+
+  @override
+  String get itemDetail_form_notesLabel => 'Notes';
 }

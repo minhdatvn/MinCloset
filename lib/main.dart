@@ -58,10 +58,16 @@ Future<void> main() async {
     appRunner: () => runApp(
       ProviderScope(
         overrides: [
-          // Ghi đè giá trị ban đầu cho các provider
+          // THÊM DÒNG NÀY VÀO
+          // Cung cấp giá trị SharedPreferences đã được tải sẵn cho provider
+          sharedPreferencesProvider.overrideWithValue(prefs),
+
+          // Các override cũ giữ nguyên
           initialScreenProvider.overrideWithValue(initialScreen),
-          onboardingCompletedProvider.overrideWith((ref) => StateController(hasCompletedOnboarding)),
-          permissionsSeenProvider.overrideWith((ref) => StateController(hasSeenPermissionsScreen)),
+          onboardingCompletedProvider
+              .overrideWith((ref) => StateController(hasCompletedOnboarding)),
+          permissionsSeenProvider
+              .overrideWith((ref) => StateController(hasSeenPermissionsScreen)),
         ],
         child: const MinClosetApp(),
       ),

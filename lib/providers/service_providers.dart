@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/services/achievement_service.dart';
 import 'package:mincloset/services/notification_service.dart';
 import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/services/quest_service.dart';
@@ -10,7 +11,6 @@ import 'package:mincloset/services/suggestion_service.dart';
 import 'package:mincloset/services/weather_image_service.dart';
 import 'package:mincloset/services/weather_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mincloset/services/achievement_service.dart';
 
 final weatherServiceProvider = Provider<WeatherService>((ref) {
   // <<< THAY ĐỔI: Đọc key ở đây và truyền vào service >>>
@@ -46,27 +46,23 @@ final numberFormattingServiceProvider = Provider<NumberFormattingService>((ref) 
 
 // <<< PROVIDER CHO QUEST SERVICE >>>
 final questServiceProvider = Provider<QuestService>((ref) {
-  final prefs = ref.watch(sharedPreferencesProvider).value;
-  // Lấy ra achievementRepo
-  final achievementRepo = ref.watch(achievementRepositoryProvider); 
-  
-  if (prefs == null) {
-    throw Exception("SharedPreferences not initialized for QuestService");
-  }
-  
-  // Truyền các dependency vào constructor
+  // Giờ đây chúng ta có thể đọc trực tiếp và an toàn
+  final prefs = ref.watch(sharedPreferencesProvider);
+  final achievementRepo = ref.watch(achievementRepositoryProvider);
+
+  // Không cần kiểm tra null nữa
   return QuestService(prefs, achievementRepo, ref);
 });
 
-final sharedPreferencesProvider = FutureProvider<SharedPreferences>((ref) {
-  return SharedPreferences.getInstance();
+final sharedPreferencesProvider = Provider<SharedPreferences>((ref) {
+  // Provider này sẽ luôn được ghi đè trong main.dart,
+  // việc throw lỗi ở đây để đảm bảo chúng ta không quên.
+  throw UnimplementedError();
 });
 
 final achievementServiceProvider = Provider<AchievementService>((ref) {
-  final prefs = ref.watch(sharedPreferencesProvider).value;
-  if (prefs == null) {
-    throw Exception("SharedPreferences not initialized for AchievementService");
-  }
+  // Tương tự, cập nhật ở đây
+  final prefs = ref.watch(sharedPreferencesProvider);
   return AchievementService(prefs);
 });
 

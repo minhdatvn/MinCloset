@@ -15,12 +15,7 @@ final localNotificationServiceProvider = Provider<LocalNotificationService>((ref
 // 2. Provider cho Repository
 final notificationSettingsRepositoryProvider =
     Provider<INotificationSettingsRepository>((ref) {
-  // Lấy SharedPreferences từ một provider chung đã có
-  final prefs = ref.watch(sharedPreferencesProvider).value;
-  if (prefs == null) {
-    // Trường hợp này hiếm khi xảy ra nếu app được khởi tạo đúng cách
-    throw Exception("SharedPreferences not initialized for NotificationSettingsRepository");
-  }
+  final prefs = ref.watch(sharedPreferencesProvider);
   return NotificationSettingsRepositoryImpl(prefs);
 });
 

@@ -50,13 +50,7 @@ final wearLogRepositoryProvider = Provider<WearLogRepository>((ref) {
 });
 
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
-  // Lấy giá trị SharedPreferences từ provider tương ứng
-  final prefs = ref.watch(sharedPreferencesProvider).value;
-  // Kiểm tra xem SharedPreferences đã sẵn sàng chưa
-  if (prefs == null) {
-    throw Exception("SharedPreferences not initialized for SettingsRepository");
-  }
-  // Truyền đối tượng SharedPreferences vào constructor
+  final prefs = ref.watch(sharedPreferencesProvider);
   return SettingsRepository(prefs);
 });
 

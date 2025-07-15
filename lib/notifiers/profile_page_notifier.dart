@@ -289,7 +289,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
   }
 
   Future<Map<String, dynamic>?> getManualCityDetails() async {
-    final prefs = await _ref.read(sharedPreferencesProvider.future);
+    final prefs = _ref.read(sharedPreferencesProvider);
     final lat = prefs.getDouble(SettingsRepository.manualCityLatKey);
     final lon = prefs.getDouble(SettingsRepository.manualCityLonKey);
     final name = prefs.getString('manualCity');

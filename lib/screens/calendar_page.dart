@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit.dart';
@@ -13,8 +14,8 @@ import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/log_wear_state.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
-import 'package:table_calendar/table_calendar.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class CalendarPage extends ConsumerStatefulWidget {
   final DateTime? initialDate;
@@ -46,6 +47,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
   }
 
   void _showLogWearActionSheet(BuildContext context) {
+    final l10n = context.l10n;
     showModalBottomSheet(
       context: context,
       builder: (ctx) {
@@ -54,7 +56,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
             children: <Widget>[
               ListTile(
                 leading: const Icon(Icons.checkroom_outlined),
-                title: const Text('Select Outfits'),
+                title: Text(l10n.calendar_selectOutfits),
                 onTap: () async {
                   Navigator.of(ctx).pop();
                   final selectedIds = await Navigator.pushNamed<Set<String>>(
@@ -70,7 +72,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
               ),
               ListTile(
                 leading: const Icon(Icons.style_outlined),
-                title: const Text('Select Items'),
+                title: Text(l10n.calendar_selectItems),
                 onTap: () async {
                   Navigator.of(ctx).pop();
                   final selectedIds = await Navigator.pushNamed<Set<String>>(
@@ -103,6 +105,12 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     final selectedGroupCount = eventsForDay.where((group) {
       return calendarState.selectedLogIds.containsAll(group.logIds);
     }).length;
+    final l10n = context.l10n;
+    final Map<CalendarFormat, String> localizedHeaderFormats = {
+      CalendarFormat.month: l10n.calendar_formatMonth,
+      CalendarFormat.twoWeeks: l10n.calendar_formatTwoWeeks,
+      CalendarFormat.week: l10n.calendar_formatWeek,
+    };
 
     return PageScaffold(
       appBar: calendarState.isMultiSelectMode
@@ -112,7 +120,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                 onPressed: notifier.clearMultiSelectMode,
               ),
               // Hiển thị số nhóm đã chọn
-              title: Text('$selectedGroupCount selected'),
+              title: Text(l10n.closets_itemsSelected(selectedGroupCount)),
               actions: [
                 IconButton(
                   // <<< THAY ĐỔI 1: Đổi màu icon thùng rác >>>
@@ -121,15 +129,14 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                     final confirmed = await showAnimatedDialog<bool>(
                       context,
                       builder: (ctx) => AlertDialog(
-                        title: const Text('Confirm Deletion'),
-                        // Dùng số nhóm đã chọn trong thông báo
-                        content: Text('Are you sure you want to remove $selectedGroupCount selection(s) from this day?'),
+                        title: Text(l10n.calendar_deleteDialogTitle),
+                        content: Text(l10n.calendar_deleteDialogContent(selectedGroupCount)),
                         actions: [
-                          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+                          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.common_cancel)),
                           TextButton(
                             onPressed: () => Navigator.of(ctx).pop(true),
                             style: TextButton.styleFrom(foregroundColor: Colors.red),
-                            child: const Text('Delete'),
+                            child: Text(l10n.allItems_delete),
                           ),
                         ],
                       ),
@@ -143,12 +150,12 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
             )
           // AppBar mặc định
           : AppBar(
-              title: const Text('Style Journal'),
+              title: Text(l10n.calendar_title),
               actions: [
                 Showcase(
                   key: QuestHintKeys.logWearHintKey,
-                  title: 'Log Your Wear',
-                  description: 'Select a day and tap here to log what you wore.',
+                  title: l10n.calendar_logWearHintTitle,
+                  description: l10n.calendar_logWearHintDescription,
                   child: Padding(
                     padding: const EdgeInsets.only(right: 8.0),
                     child: TextButton.icon(
@@ -156,7 +163,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                           ? null
                           : () => _showLogWearActionSheet(context),
                       icon: const Icon(Icons.add_task_outlined),
-                      label: const Text('Add'),
+                      label: Text(l10n.calendar_addLogButton),
                     ),
                   ),
                 ),
@@ -165,9 +172,13 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
       body: Column(
         children: [
           TableCalendar<WornGroup>(
+            locale: Localizations.localeOf(context).toString(),
             headerStyle: const HeaderStyle(
               formatButtonShowsNext: false,
             ),
+            
+            availableCalendarFormats: localizedHeaderFormats,
+            
             firstDay: DateTime.utc(2020, 1, 1),
             lastDay: DateTime.utc(2030, 12, 31),
             focusedDay: _focusedDay,
@@ -248,8 +259,9 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
   // <<< BẮT ĐẦU CẬP NHẬT TỪ ĐÂY >>>
 
   Widget _buildEventList(List<WornGroup> groups, CalendarState calendarState, CalendarNotifier notifier) {
+    final l10n = context.l10n;
     if (groups.isEmpty) {
-      return const Center(child: Text("No items logged for this day."));
+      return Center(child: Text(l10n.calendar_noItemsLogged));
     }
     groups.sort((a, b) => (a.outfit == null ? 1 : 0).compareTo(b.outfit == null ? 1 : 0));
 
@@ -330,16 +342,16 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                   return await showAnimatedDialog<bool>(
                     context,
                     builder: (ctx) => AlertDialog(
-                      title: const Text('Confirm Deletion'),
+                      title: Text(l10n.calendar_deleteDialogTitle),
                       content: Text(isOutfit
-                          ? "Are you sure you want to remove the outfit '${group.outfit!.name}' from this day's journal?"
-                          : "Are you sure you want to remove the item '${group.items.first.name}' from this day's journal?"),
+                          ? l10n.calendar_deleteDialogContentOutfit(group.outfit!.name)
+                          : l10n.calendar_deleteDialogContentItem(group.items.first.name)),
                       actions: [
-                        TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+                        TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.common_cancel)),
                         TextButton(
                           onPressed: () => Navigator.of(ctx).pop(true),
                           style: TextButton.styleFrom(foregroundColor: Colors.red),
-                          child: const Text('Delete'),
+                          child: Text(l10n.allItems_delete),
                         ),
                       ],
                     ),
@@ -360,6 +372,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
 
   // Widget để hiển thị một hàng Outfit
   Widget _buildOutfitRow(Outfit outfit) {
+    final l10n = context.l10n;
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.all(8.0),
@@ -391,7 +404,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
               children: [
                 Text(outfit.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 const SizedBox(height: 4),
-                Text("Outfit", style: Theme.of(context).textTheme.bodySmall),
+                Text(l10n.calendar_outfitLabel, style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
           ),

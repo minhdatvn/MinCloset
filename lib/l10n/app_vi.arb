@@ -177,5 +177,42 @@
     "closetForm_saveButton": "Lưu",
     "closetForm_nameLabel": "Tên Tủ đồ",
     "closetForm_iconLabel": "Chọn Biểu tượng",
-    "closetForm_colorLabel": "Chọn Màu thẻ"
+    "closetForm_colorLabel": "Chọn Màu thẻ",
+
+    "calendar_title": "Nhật ký Phong cách",
+    "calendar_addLogButton": "Thêm",
+    "calendar_logWearHintTitle": "Ghi lại Trang phục",
+    "calendar_logWearHintDescription": "Chọn một ngày và nhấn vào đây để ghi lại những gì bạn đã mặc.",
+    "calendar_selectOutfits": "Chọn Trang phục",
+    "calendar_selectItems": "Chọn Vật phẩm",
+    "calendar_deleteDialogTitle": "Xác nhận Xoá",
+    "calendar_deleteDialogContent": "Bạn có chắc muốn xoá {count} lựa chọn khỏi ngày này không?",
+    "@calendar_deleteDialogContent": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "calendar_deleteDialogContentOutfit": "Bạn có chắc muốn xoá trang phục '{outfitName}' khỏi nhật ký của ngày này không?",
+    "@calendar_deleteDialogContentOutfit": {
+        "placeholders": {
+            "outfitName": {
+                "type": "String"
+            }
+        }
+    },
+    "calendar_deleteDialogContentItem": "Bạn có chắc muốn xoá vật phẩm '{itemName}' khỏi nhật ký của ngày này không?",
+    "@calendar_deleteDialogContentItem": {
+        "placeholders": {
+            "itemName": {
+                "type": "String"
+            }
+        }
+    },
+    "calendar_noItemsLogged": "Không có vật phẩm nào được ghi lại cho ngày này.",
+    "calendar_outfitLabel": "Trang phục",
+    "calendar_formatMonth": "Tháng",
+    "calendar_formatTwoWeeks": "2 Tuần",
+    "calendar_formatWeek": "1 Tuần"
 }

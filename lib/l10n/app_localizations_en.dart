@@ -472,4 +472,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get closetForm_colorLabel => 'Choose Card Color';
+
+  @override
+  String get calendar_title => 'Style Journal';
+
+  @override
+  String get calendar_addLogButton => 'Add';
+
+  @override
+  String get calendar_logWearHintTitle => 'Log Your Wear';
+
+  @override
+  String get calendar_logWearHintDescription =>
+      'Select a day and tap here to log what you wore.';
+
+  @override
+  String get calendar_selectOutfits => 'Select Outfits';
+
+  @override
+  String get calendar_selectItems => 'Select Items';
+
+  @override
+  String get calendar_deleteDialogTitle => 'Confirm Deletion';
+
+  @override
+  String calendar_deleteDialogContent(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selections',
+      one: '1 selection',
+    );
+    return 'Are you sure you want to remove $_temp0 from this day?';
+  }
+
+  @override
+  String calendar_deleteDialogContentOutfit(String outfitName) {
+    return 'Are you sure you want to remove the outfit \'$outfitName\' from this day\'s journal?';
+  }
+
+  @override
+  String calendar_deleteDialogContentItem(String itemName) {
+    return 'Are you sure you want to remove the item \'$itemName\' from this day\'s journal?';
+  }
+
+  @override
+  String get calendar_noItemsLogged => 'No items logged for this day.';
+
+  @override
+  String get calendar_outfitLabel => 'Outfit';
+
+  @override
+  String get calendar_formatMonth => 'Month';
+
+  @override
+  String get calendar_formatTwoWeeks => '2 Weeks';
+
+  @override
+  String get calendar_formatWeek => 'Week';
 }

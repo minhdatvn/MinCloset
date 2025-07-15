@@ -931,6 +931,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose Card Color'**
   String get closetForm_colorLabel;
+
+  /// No description provided for @calendar_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Style Journal'**
+  String get calendar_title;
+
+  /// No description provided for @calendar_addLogButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get calendar_addLogButton;
+
+  /// No description provided for @calendar_logWearHintTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Your Wear'**
+  String get calendar_logWearHintTitle;
+
+  /// No description provided for @calendar_logWearHintDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a day and tap here to log what you wore.'**
+  String get calendar_logWearHintDescription;
+
+  /// No description provided for @calendar_selectOutfits.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Outfits'**
+  String get calendar_selectOutfits;
+
+  /// No description provided for @calendar_selectItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Items'**
+  String get calendar_selectItems;
+
+  /// No description provided for @calendar_deleteDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Deletion'**
+  String get calendar_deleteDialogTitle;
+
+  /// No description provided for @calendar_deleteDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove {count,plural, =1{1 selection} other{{count} selections}} from this day?'**
+  String calendar_deleteDialogContent(int count);
+
+  /// No description provided for @calendar_deleteDialogContentOutfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove the outfit \'{outfitName}\' from this day\'s journal?'**
+  String calendar_deleteDialogContentOutfit(String outfitName);
+
+  /// No description provided for @calendar_deleteDialogContentItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove the item \'{itemName}\' from this day\'s journal?'**
+  String calendar_deleteDialogContentItem(String itemName);
+
+  /// No description provided for @calendar_noItemsLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'No items logged for this day.'**
+  String get calendar_noItemsLogged;
+
+  /// No description provided for @calendar_outfitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Outfit'**
+  String get calendar_outfitLabel;
+
+  /// No description provided for @calendar_formatMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get calendar_formatMonth;
+
+  /// No description provided for @calendar_formatTwoWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'2 Weeks'**
+  String get calendar_formatTwoWeeks;
+
+  /// No description provided for @calendar_formatWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get calendar_formatWeek;
 }
 
 class _AppLocalizationsDelegate

@@ -450,4 +450,57 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get closetForm_colorLabel => 'Chọn Màu thẻ';
+
+  @override
+  String get calendar_title => 'Nhật ký Phong cách';
+
+  @override
+  String get calendar_addLogButton => 'Thêm';
+
+  @override
+  String get calendar_logWearHintTitle => 'Ghi lại Trang phục';
+
+  @override
+  String get calendar_logWearHintDescription =>
+      'Chọn một ngày và nhấn vào đây để ghi lại những gì bạn đã mặc.';
+
+  @override
+  String get calendar_selectOutfits => 'Chọn Trang phục';
+
+  @override
+  String get calendar_selectItems => 'Chọn Vật phẩm';
+
+  @override
+  String get calendar_deleteDialogTitle => 'Xác nhận Xoá';
+
+  @override
+  String calendar_deleteDialogContent(int count) {
+    return 'Bạn có chắc muốn xoá $count lựa chọn khỏi ngày này không?';
+  }
+
+  @override
+  String calendar_deleteDialogContentOutfit(String outfitName) {
+    return 'Bạn có chắc muốn xoá trang phục \'$outfitName\' khỏi nhật ký của ngày này không?';
+  }
+
+  @override
+  String calendar_deleteDialogContentItem(String itemName) {
+    return 'Bạn có chắc muốn xoá vật phẩm \'$itemName\' khỏi nhật ký của ngày này không?';
+  }
+
+  @override
+  String get calendar_noItemsLogged =>
+      'Không có vật phẩm nào được ghi lại cho ngày này.';
+
+  @override
+  String get calendar_outfitLabel => 'Trang phục';
+
+  @override
+  String get calendar_formatMonth => 'Tháng';
+
+  @override
+  String get calendar_formatTwoWeeks => '2 Tuần';
+
+  @override
+  String get calendar_formatWeek => '1 Tuần';
 }

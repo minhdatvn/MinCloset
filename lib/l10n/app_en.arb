@@ -187,5 +187,42 @@
     "closetForm_saveButton": "Save",
     "closetForm_nameLabel": "Closet Name",
     "closetForm_iconLabel": "Choose Icon",
-    "closetForm_colorLabel": "Choose Card Color"
+    "closetForm_colorLabel": "Choose Card Color",
+
+    "calendar_title": "Style Journal",
+    "calendar_addLogButton": "Add",
+    "calendar_logWearHintTitle": "Log Your Wear",
+    "calendar_logWearHintDescription": "Select a day and tap here to log what you wore.",
+    "calendar_selectOutfits": "Select Outfits",
+    "calendar_selectItems": "Select Items",
+    "calendar_deleteDialogTitle": "Confirm Deletion",
+    "calendar_deleteDialogContent": "Are you sure you want to remove {count,plural, =1{1 selection} other{{count} selections}} from this day?",
+    "@calendar_deleteDialogContent": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "calendar_deleteDialogContentOutfit": "Are you sure you want to remove the outfit '{outfitName}' from this day's journal?",
+    "@calendar_deleteDialogContentOutfit": {
+        "placeholders": {
+            "outfitName": {
+                "type": "String"
+            }
+        }
+    },
+    "calendar_deleteDialogContentItem": "Are you sure you want to remove the item '{itemName}' from this day's journal?",
+    "@calendar_deleteDialogContentItem": {
+        "placeholders": {
+            "itemName": {
+                "type": "String"
+            }
+        }
+    },
+    "calendar_noItemsLogged": "No items logged for this day.",
+    "calendar_outfitLabel": "Outfit",
+    "calendar_formatMonth": "Month",
+    "calendar_formatTwoWeeks": "2 Weeks",
+    "calendar_formatWeek": "Week"
 }

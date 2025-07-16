@@ -80,6 +80,7 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
 
   // Hàm _startAnalysis giờ đã đơn giản hơn
   Future<void> _startAnalysis(List<XFile> files) async {
+    final l10n = context.l10n;
     List<XFile> filesToProcess = files;
     if (files.length > 10) {
       filesToProcess = files.take(10).toList();
@@ -96,7 +97,7 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
     await Future.delayed(const Duration(milliseconds: 100));
     
     if (mounted) {
-      ref.read(batchAddScreenProvider.notifier).analyzeAllImages(filesToProcess);
+      ref.read(batchAddScreenProvider.notifier).analyzeAllImages(filesToProcess, l10n: l10n);
     }
   }
 

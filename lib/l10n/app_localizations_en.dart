@@ -1362,6 +1362,42 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get filter_title => 'Filter';
+
+  @override
+  String get filter_closet => 'Closet';
+
+  @override
+  String get filter_allClosets => 'All closets';
+
+  @override
+  String get filter_category => 'Category';
+
+  @override
+  String get filter_allCategories => 'All categories';
+
+  @override
+  String get filter_color => 'Color';
+
+  @override
+  String get filter_season => 'Season';
+
+  @override
+  String get filter_occasion => 'Occasion';
+
+  @override
+  String get filter_material => 'Material';
+
+  @override
+  String get filter_pattern => 'Pattern';
+
+  @override
+  String get filter_clear => 'Clear filters';
+
+  @override
+  String get filter_apply => 'Apply';
+
+  @override
   String batchAdd_title_page(Object current, Object total) {
     return 'Add item ($current/$total)';
   }

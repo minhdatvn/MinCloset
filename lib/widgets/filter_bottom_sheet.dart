@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/constants/app_options.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
+import 'package:mincloset/helpers/l10n_helper.dart';
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/outfit_filter.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
@@ -33,7 +35,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    // <<< THAY ĐỔI 1: Bọc toàn bộ widget trong Container để có nền trắng và góc bo
+    final l10n = context.l10n;
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor, // Dùng màu nền của card theme
@@ -47,15 +49,15 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Filter', style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
+              Text(l10n.filter_title, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
               const SizedBox(height: 16),
 
               // BỘ LỌC TỦ ĐỒ (GIỮ NGUYÊN)
               DropdownButtonFormField<String?>(
                 value: _temporaryFilter.closetId,
-                decoration: const InputDecoration(labelText: 'Closet'),
+                decoration: InputDecoration(labelText: l10n.filter_closet),
                 items: [
-                  const DropdownMenuItem(value: null, child: Text('All closets')),
+                  DropdownMenuItem(value: null, child: Text(l10n.filter_allClosets)),
                   ...widget.closets.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))),
                 ],
                 onChanged: (value) {
@@ -69,10 +71,10 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
               // <<< THÊM MỚI: BỘ LỌC DANH MỤC
               DropdownButtonFormField<String?>(
                 value: _temporaryFilter.category,
-                decoration: const InputDecoration(labelText: 'Category'),
+                decoration: InputDecoration(labelText: l10n.filter_category),
                 items: [
-                  const DropdownMenuItem(value: null, child: Text('All categories')),
-                  ...AppOptions.categories.keys.map((c) => DropdownMenuItem(value: c, child: Text(c))),
+                  DropdownMenuItem(value: null, child: Text(l10n.filter_allCategories)),
+                  ...AppOptions.categories.keys.map((c) => DropdownMenuItem(value: c, child: Text(translateAppOption(c, l10n)))),
                 ],
                 onChanged: (value) {
                   setState(() {
@@ -84,7 +86,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
 
               // CÁC BỘ LỌC CHỌN NHIỀU
               MultiSelectChipField(
-                label: 'Color',
+                label: l10n.filter_color,
                 allOptions: AppOptions.colors,
                 initialSelections: _temporaryFilter.colors,
                 onSelectionChanged: (newSelections) {
@@ -94,7 +96,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
                 },
               ),
               MultiSelectChipField(
-                label: 'Season',
+                label: l10n.filter_season,
                 allOptions: AppOptions.seasons,
                 initialSelections: _temporaryFilter.seasons,
                 onSelectionChanged: (newSelections) {
@@ -104,7 +106,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
                 },
               ),
               MultiSelectChipField(
-                label: 'Occasion',
+                label: l10n.filter_occasion,
                 allOptions: AppOptions.occasions,
                 initialSelections: _temporaryFilter.occasions,
                 onSelectionChanged: (newSelections) {
@@ -114,7 +116,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
                 },
               ),
               MultiSelectChipField(
-                label: 'Material',
+                label: l10n.filter_material,
                 allOptions: AppOptions.materials,
                 initialSelections: _temporaryFilter.materials,
                 onSelectionChanged: (newSelections) {
@@ -124,7 +126,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
                 },
               ),
               MultiSelectChipField(
-                label: 'Pattern',
+                label: l10n.filter_pattern,
                 allOptions: AppOptions.patterns,
                 initialSelections: _temporaryFilter.patterns,
                 onSelectionChanged: (newSelections) {
@@ -143,7 +145,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
                         widget.onApplyFilter(const OutfitFilter());
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Clear filters'),
+                      child: Text(l10n.filter_clear),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -153,7 +155,7 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
                         widget.onApplyFilter(_temporaryFilter);
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Apply'),
+                      child: Text(l10n.filter_apply),
                     ),
                   ),
                 ],

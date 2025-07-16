@@ -1321,6 +1321,42 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String get filter_title => 'Bộ lọc';
+
+  @override
+  String get filter_closet => 'Tủ đồ';
+
+  @override
+  String get filter_allClosets => 'Tất cả tủ đồ';
+
+  @override
+  String get filter_category => 'Danh mục';
+
+  @override
+  String get filter_allCategories => 'Tất cả danh mục';
+
+  @override
+  String get filter_color => 'Màu sắc';
+
+  @override
+  String get filter_season => 'Mùa';
+
+  @override
+  String get filter_occasion => 'Dịp';
+
+  @override
+  String get filter_material => 'Chất liệu';
+
+  @override
+  String get filter_pattern => 'Hoạ tiết';
+
+  @override
+  String get filter_clear => 'Xoá bộ lọc';
+
+  @override
+  String get filter_apply => 'Áp dụng';
+
+  @override
   String batchAdd_title_page(Object current, Object total) {
     return 'Thêm vật phẩm ($current/$total)';
   }

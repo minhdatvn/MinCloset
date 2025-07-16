@@ -2498,6 +2498,78 @@ abstract class AppLocalizations {
   /// **'Could not update image: {error}'**
   String itemNotifier_error_updateImage(Object error);
 
+  /// No description provided for @filter_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get filter_title;
+
+  /// No description provided for @filter_closet.
+  ///
+  /// In en, this message translates to:
+  /// **'Closet'**
+  String get filter_closet;
+
+  /// No description provided for @filter_allClosets.
+  ///
+  /// In en, this message translates to:
+  /// **'All closets'**
+  String get filter_allClosets;
+
+  /// No description provided for @filter_category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get filter_category;
+
+  /// No description provided for @filter_allCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get filter_allCategories;
+
+  /// No description provided for @filter_color.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get filter_color;
+
+  /// No description provided for @filter_season.
+  ///
+  /// In en, this message translates to:
+  /// **'Season'**
+  String get filter_season;
+
+  /// No description provided for @filter_occasion.
+  ///
+  /// In en, this message translates to:
+  /// **'Occasion'**
+  String get filter_occasion;
+
+  /// No description provided for @filter_material.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get filter_material;
+
+  /// No description provided for @filter_pattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern'**
+  String get filter_pattern;
+
+  /// No description provided for @filter_clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get filter_clear;
+
+  /// No description provided for @filter_apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get filter_apply;
+
   /// No description provided for @batchAdd_title_page.
   ///
   /// In en, this message translates to:

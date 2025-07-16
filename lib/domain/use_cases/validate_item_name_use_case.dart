@@ -29,7 +29,9 @@ class ValidateItemNameUseCase {
 
         if (existingNames.contains(trimmedNewName)) {
           return Right(ValidationResult.failure(
-            '"${name.trim()}" is already taken. Please use a different name. You can add numbers to distinguish items (e.g., Shirt 1, Shirt 2...).',
+            null, // Không cần chuỗi lỗi nữa
+            errorCode: 'nameTakenSingle', // <-- Trả về MÃ LỖI
+            data: { 'itemName': name.trim() }, // <-- Trả về DỮ LIỆU
           ));
         }
         return Right(ValidationResult.success());

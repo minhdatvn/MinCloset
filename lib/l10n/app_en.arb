@@ -511,6 +511,8 @@
     "itemNotifier_delete_success": "Successfully deleted item \"{itemName}\".",
     "itemNotifier_error_updateImage": "Could not update image: {error}",
 
+    "validation_nameTakenSingle": "\"{itemName}\" is already taken. Please use a different name. You can add numbers to distinguish items (e.g., Shirt 1, Shirt 2...).",
+
     "filter_title": "Filter",
     "filter_closet": "Closet",
     "filter_allClosets": "All closets",

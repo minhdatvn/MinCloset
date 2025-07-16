@@ -501,6 +501,8 @@
     "itemNotifier_delete_success": "Đã xoá thành công vật phẩm \"{itemName}\".",
     "itemNotifier_error_updateImage": "Không thể cập nhật hình ảnh: {error}",
 
+    "validation_nameTakenSingle": "Tên \"{itemName}\" đã tồn tại. Vui lòng sử dụng tên khác. Bạn có thể thêm số để phân biệt các vật phẩm (VD: Áo 1, Áo 2...).",
+
     "filter_title": "Bộ lọc",
     "filter_closet": "Tủ đồ",
     "filter_allClosets": "Tất cả tủ đồ",

@@ -1321,6 +1321,11 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String validation_nameTakenSingle(Object itemName) {
+    return 'Tên \"$itemName\" đã tồn tại. Vui lòng sử dụng tên khác. Bạn có thể thêm số để phân biệt các vật phẩm (VD: Áo 1, Áo 2...).';
+  }
+
+  @override
   String get filter_title => 'Bộ lọc';
 
   @override

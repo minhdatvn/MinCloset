@@ -2498,6 +2498,12 @@ abstract class AppLocalizations {
   /// **'Could not update image: {error}'**
   String itemNotifier_error_updateImage(Object error);
 
+  /// No description provided for @validation_nameTakenSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{itemName}\" is already taken. Please use a different name. You can add numbers to distinguish items (e.g., Shirt 1, Shirt 2...).'**
+  String validation_nameTakenSingle(Object itemName);
+
   /// No description provided for @filter_title.
   ///
   /// In en, this message translates to:

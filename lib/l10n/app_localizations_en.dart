@@ -1362,6 +1362,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String validation_nameTakenSingle(Object itemName) {
+    return '\"$itemName\" is already taken. Please use a different name. You can add numbers to distinguish items (e.g., Shirt 1, Shirt 2...).';
+  }
+
+  @override
   String get filter_title => 'Filter';
 
   @override

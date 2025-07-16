@@ -128,9 +128,27 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
                   name: state.name,
                   existingId: state.isEditing ? state.id : null,
                 ))
-        .flatMap((validationResult) => validationResult.success
-            ? TaskEither.right(unit)
-            : TaskEither.left(GenericFailure(validationResult.errorMessage!)))
+        .flatMap((validationResult) {
+          if (!validationResult.success) {
+            // Nếu validation thất bại, xử lý lỗi tại đây
+            String translatedErrorMessage = 'An unknown validation error occurred.'; // Lỗi mặc định
+            final data = validationResult.data;
+
+            // Kiểm tra mã lỗi và tạo thông báo đã dịch
+            if (validationResult.errorCode == 'nameTakenSingle' && data != null) {
+              translatedErrorMessage = l10n.validation_nameTakenSingle(data['itemName']);
+            }
+            // (Trong tương lai có thể thêm các case 'else if' cho các mã lỗi khác)
+
+            // Gửi thông báo lỗi đã dịch đến UI thông qua provider riêng
+            _ref.read(itemDetailErrorProvider.notifier).state = translatedErrorMessage;
+            
+            // Dừng chuỗi TaskEither bằng cách trả về Left
+            return TaskEither.left(GenericFailure('Validation failed: ${validationResult.errorCode}'));
+          }
+          // Nếu validation thành công, tiếp tục chuỗi
+          return TaskEither.right(unit);
+        })
         .flatMap((_) => TaskEither.tryCatch(
               () => state.image != null
                   ? _imageHelper.createThumbnail(sourceImagePath)

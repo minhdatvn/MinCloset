@@ -181,10 +181,7 @@
     "settings_temp_label": "Temperature",
     "settings_notifications_tile": "Notifications",
     "settings_enableAllNotifications_label": "Enable all notifications",
-    "settings_morningReminder_label": "Morning reminder (7:00)",
-    "settings_morningReminder_subtitle": "Get suggestions for your daily outfit plan.",
-    "settings_eveningReminder_label": "Evening reminder (20:00)",
-    "settings_eveningReminder_subtitle": "Remind to update your fashion journal.",
+    "settings_dailyReminderDescription": "Receive a daily reminder to log your outfit.",
     "settings_display_tile": "Display",
     "settings_showWeatherBg_label": "Show weather background",
     "settings_showWeatherBg_subtitle": "Display image based on weather",
@@ -451,5 +448,28 @@
 
     "analysis_preparingImages": "Preparing images...",
     "analysis_prefillingInfo": "Pre-filling information...\nThis may take a moment to complete.",
-    "analysis_maxPhotosWarning": "Maximum of 10 photos selected. Extra photos were skipped."
+    "analysis_maxPhotosWarning": "Maximum of 10 photos selected. Extra photos were skipped.",
+
+    "onboarding_page1_title": "A closet full of clothes...",
+    "onboarding_page1_subtitle": "...but nothing to wear?",
+    "onboarding_page1_description": "Do you often spend time wondering what to wear? Do you forget what amazing items you already own?",
+    
+    "onboarding_page1_title": "A closet full of clothes...",
+    "onboarding_page1_subtitle": "...but nothing to wear?",
+    "onboarding_page1_description": "Do you often spend time wondering what to wear? Do you forget what amazing items you already own?",
+
+    "onboarding_page2_title": "MinCloset\nYour Smart Closet Assistant",
+    "onboarding_page2_feature1_title": "Digitize Your Closet",
+    "onboarding_page2_feature1_desc": "Snap a photo and let AI automatically categorize your clothes.",
+    "onboarding_page2_feature2_title": "AI Outfit Suggestions",
+    "onboarding_page2_feature2_desc": "Get personalized outfit ideas based on your items and the weather.",
+    "onboarding_page2_feature3_title": "Creative Outfit Studio",
+    "onboarding_page2_feature3_desc": "Freely mix and match items to create unique looks.",
+    "onboarding_page2_feature4_title": "Track Your Style Journey",
+    "onboarding_page2_feature4_desc": "Log what you wear and discover your habits.",
+
+    "onboarding_page3_title": "Let's get to know each other!",
+    "onboarding_page3_subtitle": "Tell us your name so we can get more personal.",
+    "onboarding_page3_nameHint": "Enter your name...",
+    "onboarding_page3_nameValidator": "Please tell me your name"
 }

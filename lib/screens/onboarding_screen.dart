@@ -2,8 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/flow_providers.dart';
+import 'package:mincloset/providers/locale_provider.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:shared_preferences/shared_preferences.dart'; 
 
@@ -45,24 +47,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     // We will pass the index to _buildPage to know which page it is
     final pages = [
       _buildPage(
         context,
         index: 0, // Page 1
         imagePath: 'assets/images/onboarding/onboarding_p1.webp',
-        title: "A closet full of clothes...",
-        subtitle: "...but nothing to wear?",
-        description:
-            "Do you often spend time wondering what to wear? Do you forget what amazing items you already own?",
+        title: l10n.onboarding_page1_title,
+        subtitle: l10n.onboarding_page1_subtitle,
+        description: l10n.onboarding_page1_description,
       ),
       _buildPage(
         context,
         index: 1, // Page 2
         imagePath: 'assets/images/onboarding/onboarding_p2.webp',
-        title: "MinCloset\nYour Smart Closet Assistant",
-        description:
-            "We help you digitize your closet, get AI-powered outfit suggestions, creatively build your own outfits, and track your style journey.",
+        title: l10n.onboarding_page2_title,
+        description: '', // Mô tả không cần nữa vì đã có isFeatureList
         isFeatureList: true,
       ),
       _buildNamePage(context),
@@ -215,12 +216,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         children: [
           Image.asset('assets/images/mascot.webp', height: 150),
           const SizedBox(height: 24),
-          Text("Let's get to know each other!",
+          Text(context.l10n.onboarding_page3_title,
               textAlign: TextAlign.center,
               style: theme.textTheme.headlineSmall
                   ?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
-          Text("Tell your name so we can get more personal.",
+          Text(context.l10n.onboarding_page3_subtitle,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyLarge?.copyWith(height: 1.5)),
           const SizedBox(height: 32),
@@ -230,13 +231,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               controller: _nameController,
               textAlign: TextAlign.center,
               style: theme.textTheme.headlineSmall,
-              decoration: const InputDecoration(
-                hintText: "Enter your name...",
+              decoration: InputDecoration(
+                hintText: context.l10n.onboarding_page3_nameHint,
                 border: InputBorder.none,
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please tell me your name';
+                  return context.l10n.onboarding_page3_nameValidator;
                 }
                 return null;
               },
@@ -250,11 +251,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   // Page indicator dots and buttons
   Widget _buildBottomControls(BuildContext context, int pageCount) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 20), // Increased bottom padding
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 20), 
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Dots indicator
+          // 1. Cụm chỉ báo trang (giữ nguyên)
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: List.generate(
@@ -274,7 +275,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ),
           ),
 
-          // Button
+          // 2. Thêm widget chọn ngôn ngữ vào đây
+          _buildLanguageSelector(context),
+
+          // 3. Nút bấm Next/Done (giữ nguyên)
           ElevatedButton(
             onPressed: () {
               if (_currentPage < pageCount - 1) {
@@ -300,23 +304,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Widget _buildFeatureList(BuildContext context) {
+    final l10n = context.l10n;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _featureItem(context, Icons.camera_alt_outlined, "Digitize Your Closet",
-            "Snap a photo and let AI automatically categorize your clothes."),
+        _featureItem(context, Icons.camera_alt_outlined, l10n.onboarding_page2_feature1_title, l10n.onboarding_page2_feature1_desc),
         const SizedBox(height: 16),
-        _featureItem(context, Icons.lightbulb_outline, "AI Outfit Suggestions",
-            "Get personalized outfit ideas based on your items and the weather."),
+        _featureItem(context, Icons.lightbulb_outline, l10n.onboarding_page2_feature2_title, l10n.onboarding_page2_feature2_desc),
         const SizedBox(height: 16),
-        _featureItem(
-            context,
-            Icons.brush_outlined,
-            "Creative Outfit Studio",
-            "Freely mix and match items to create unique looks."),
+        _featureItem(context, Icons.brush_outlined, l10n.onboarding_page2_feature3_title, l10n.onboarding_page2_feature3_desc),
         const SizedBox(height: 16),
-        _featureItem(context, Icons.calendar_today_outlined,
-            "Track Your Style Journey", "Log what you wear and discover your habits."),
+        _featureItem(context, Icons.calendar_today_outlined, l10n.onboarding_page2_feature4_title, l10n.onboarding_page2_feature4_desc),
       ],
     );
   }
@@ -338,6 +336,46 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
         )
       ],
+    );
+  }
+
+  Widget _buildLanguageSelector(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final currentLocale = ref.watch(localeProvider);
+
+        return PopupMenuButton<Locale>(
+          onSelected: (Locale newLocale) {
+            ref.read(localeProvider.notifier).setLocale(newLocale.languageCode);
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  currentLocale.languageCode == 'en' ? 'English' : 'Tiếng Việt',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.primary
+                  ),
+                ),
+                const Icon(Icons.arrow_drop_down, size: 20.0),
+              ],
+            ),
+          ),
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<Locale>>[
+            const PopupMenuItem<Locale>(
+              value: Locale('en'),
+              child: Text('English'),
+            ),
+            const PopupMenuItem<Locale>(
+              value: Locale('vi'),
+              child: Text('Tiếng Việt'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

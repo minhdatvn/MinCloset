@@ -163,8 +163,8 @@ class SettingsPage extends ConsumerWidget {
               children: [
                 SwitchListTile(
                   title: Text(context.l10n.settings_enableAllNotifications_label),
-                  subtitle: const Text(
-                      'Receive a daily reminder to log your outfit.'), // Thêm mô tả mới
+                  subtitle: Text(
+                      context.l10n.settings_dailyReminderDescription,),
                   // Lấy giá trị từ model state mới
                   value: notificationSettings.isEnabled,
                   onChanged: (bool value) {

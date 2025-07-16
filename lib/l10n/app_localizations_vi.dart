@@ -500,18 +500,8 @@ class AppLocalizationsVi extends AppLocalizations {
   String get settings_enableAllNotifications_label => 'Bật tất cả thông báo';
 
   @override
-  String get settings_morningReminder_label => 'Nhắc nhở buổi sáng (7:00)';
-
-  @override
-  String get settings_morningReminder_subtitle =>
-      'Nhận gợi ý cho kế hoạch trang phục hàng ngày.';
-
-  @override
-  String get settings_eveningReminder_label => 'Nhắc nhở buổi tối (20:00)';
-
-  @override
-  String get settings_eveningReminder_subtitle =>
-      'Nhắc nhở cập nhật nhật ký thời trang của bạn.';
+  String get settings_dailyReminderDescription =>
+      'Nhận lời nhắc hàng ngày để ghi lại trang phục của bạn.';
 
   @override
   String get settings_display_tile => 'Hiển thị';
@@ -1078,4 +1068,60 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get analysis_maxPhotosWarning =>
       'Đã chọn tối đa 10 ảnh. Các ảnh thừa đã được bỏ qua.';
+
+  @override
+  String get onboarding_page1_title => 'Một tủ đầy quần áo...';
+
+  @override
+  String get onboarding_page1_subtitle => '...nhưng không có gì để mặc?';
+
+  @override
+  String get onboarding_page1_description =>
+      'Bạn có thường băn khoăn không biết nên mặc gì? Bạn có quên mất những món đồ tuyệt vời mà mình đã sở hữu không?';
+
+  @override
+  String get onboarding_page2_title => 'MinCloset\nTrợ lý tủ đồ thông minh';
+
+  @override
+  String get onboarding_page2_feature1_title => 'Số hoá tủ đồ';
+
+  @override
+  String get onboarding_page2_feature1_desc =>
+      'Chụp ảnh và để AI tự động phân loại quần áo của bạn.';
+
+  @override
+  String get onboarding_page2_feature2_title => 'Gợi ý trang phục từ AI';
+
+  @override
+  String get onboarding_page2_feature2_desc =>
+      'Nhận ý tưởng phối đồ cá nhân hóa dựa trên vật phẩm và thời tiết.';
+
+  @override
+  String get onboarding_page2_feature3_title => 'Xưởng phối đồ sáng tạo';
+
+  @override
+  String get onboarding_page2_feature3_desc =>
+      'Tự do kết hợp các vật phẩm để tạo ra những bộ trang phục độc đáo.';
+
+  @override
+  String get onboarding_page2_feature4_title =>
+      'Theo dõi hành trình phong cách';
+
+  @override
+  String get onboarding_page2_feature4_desc =>
+      'Ghi lại những gì bạn mặc và khám phá thói quen của mình.';
+
+  @override
+  String get onboarding_page3_title => 'Hãy làm quen với nhau nhé!';
+
+  @override
+  String get onboarding_page3_subtitle =>
+      'Cho chúng tôi biết tên của bạn để có những trải nghiệm cá nhân hơn.';
+
+  @override
+  String get onboarding_page3_nameHint => 'Nhập tên của bạn...';
+
+  @override
+  String get onboarding_page3_nameValidator =>
+      'Vui lòng cho tôi biết tên của bạn';
 }

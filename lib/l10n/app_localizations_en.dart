@@ -503,18 +503,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enable all notifications';
 
   @override
-  String get settings_morningReminder_label => 'Morning reminder (7:00)';
-
-  @override
-  String get settings_morningReminder_subtitle =>
-      'Get suggestions for your daily outfit plan.';
-
-  @override
-  String get settings_eveningReminder_label => 'Evening reminder (20:00)';
-
-  @override
-  String get settings_eveningReminder_subtitle =>
-      'Remind to update your fashion journal.';
+  String get settings_dailyReminderDescription =>
+      'Receive a daily reminder to log your outfit.';
 
   @override
   String get settings_display_tile => 'Display';
@@ -1109,4 +1099,58 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get analysis_maxPhotosWarning =>
       'Maximum of 10 photos selected. Extra photos were skipped.';
+
+  @override
+  String get onboarding_page1_title => 'A closet full of clothes...';
+
+  @override
+  String get onboarding_page1_subtitle => '...but nothing to wear?';
+
+  @override
+  String get onboarding_page1_description =>
+      'Do you often spend time wondering what to wear? Do you forget what amazing items you already own?';
+
+  @override
+  String get onboarding_page2_title => 'MinCloset\nYour Smart Closet Assistant';
+
+  @override
+  String get onboarding_page2_feature1_title => 'Digitize Your Closet';
+
+  @override
+  String get onboarding_page2_feature1_desc =>
+      'Snap a photo and let AI automatically categorize your clothes.';
+
+  @override
+  String get onboarding_page2_feature2_title => 'AI Outfit Suggestions';
+
+  @override
+  String get onboarding_page2_feature2_desc =>
+      'Get personalized outfit ideas based on your items and the weather.';
+
+  @override
+  String get onboarding_page2_feature3_title => 'Creative Outfit Studio';
+
+  @override
+  String get onboarding_page2_feature3_desc =>
+      'Freely mix and match items to create unique looks.';
+
+  @override
+  String get onboarding_page2_feature4_title => 'Track Your Style Journey';
+
+  @override
+  String get onboarding_page2_feature4_desc =>
+      'Log what you wear and discover your habits.';
+
+  @override
+  String get onboarding_page3_title => 'Let\'s get to know each other!';
+
+  @override
+  String get onboarding_page3_subtitle =>
+      'Tell us your name so we can get more personal.';
+
+  @override
+  String get onboarding_page3_nameHint => 'Enter your name...';
+
+  @override
+  String get onboarding_page3_nameValidator => 'Please tell me your name';
 }

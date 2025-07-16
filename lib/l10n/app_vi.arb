@@ -171,10 +171,7 @@
     "settings_temp_label": "Nhiệt độ",
     "settings_notifications_tile": "Thông báo",
     "settings_enableAllNotifications_label": "Bật tất cả thông báo",
-    "settings_morningReminder_label": "Nhắc nhở buổi sáng (7:00)",
-    "settings_morningReminder_subtitle": "Nhận gợi ý cho kế hoạch trang phục hàng ngày.",
-    "settings_eveningReminder_label": "Nhắc nhở buổi tối (20:00)",
-    "settings_eveningReminder_subtitle": "Nhắc nhở cập nhật nhật ký thời trang của bạn.",
+    "settings_dailyReminderDescription": "Nhận lời nhắc hàng ngày để ghi lại trang phục của bạn.",
     "settings_display_tile": "Hiển thị",
     "settings_showWeatherBg_label": "Hiện ảnh nền thời tiết",
     "settings_showWeatherBg_subtitle": "Hiển thị hình ảnh dựa trên thời tiết",
@@ -441,5 +438,28 @@
 
     "analysis_preparingImages": "Đang chuẩn bị hình ảnh...",
     "analysis_prefillingInfo": "Đang điền trước thông tin...\nQuá trình này có thể mất một chút thời gian.",
-    "analysis_maxPhotosWarning": "Đã chọn tối đa 10 ảnh. Các ảnh thừa đã được bỏ qua."
+    "analysis_maxPhotosWarning": "Đã chọn tối đa 10 ảnh. Các ảnh thừa đã được bỏ qua.",
+
+    "onboarding_page1_title": "Một tủ đầy quần áo...",
+    "onboarding_page1_subtitle": "...nhưng không có gì để mặc?",
+    "onboarding_page1_description": "Bạn có thường băn khoăn không biết nên mặc gì? Bạn có quên mất những món đồ tuyệt vời mà mình đã sở hữu không?",
+
+    "onboarding_page1_title": "Một tủ đầy quần áo...",
+    "onboarding_page1_subtitle": "...nhưng không có gì để mặc?",
+    "onboarding_page1_description": "Bạn có thường băn khoăn không biết nên mặc gì? Bạn có quên mất những món đồ tuyệt vời mà mình đã sở hữu không?",
+
+    "onboarding_page2_title": "MinCloset\nTrợ lý tủ đồ thông minh",
+    "onboarding_page2_feature1_title": "Số hoá tủ đồ",
+    "onboarding_page2_feature1_desc": "Chụp ảnh và để AI tự động phân loại quần áo của bạn.",
+    "onboarding_page2_feature2_title": "Gợi ý trang phục từ AI",
+    "onboarding_page2_feature2_desc": "Nhận ý tưởng phối đồ cá nhân hóa dựa trên vật phẩm và thời tiết.",
+    "onboarding_page2_feature3_title": "Xưởng phối đồ sáng tạo",
+    "onboarding_page2_feature3_desc": "Tự do kết hợp các vật phẩm để tạo ra những bộ trang phục độc đáo.",
+    "onboarding_page2_feature4_title": "Theo dõi hành trình phong cách",
+    "onboarding_page2_feature4_desc": "Ghi lại những gì bạn mặc và khám phá thói quen của mình.",
+    
+    "onboarding_page3_title": "Hãy làm quen với nhau nhé!",
+    "onboarding_page3_subtitle": "Cho chúng tôi biết tên của bạn để có những trải nghiệm cá nhân hơn.",
+    "onboarding_page3_nameHint": "Nhập tên của bạn...",
+    "onboarding_page3_nameValidator": "Vui lòng cho tôi biết tên của bạn"
 }

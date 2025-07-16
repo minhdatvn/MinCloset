@@ -1076,29 +1076,11 @@ abstract class AppLocalizations {
   /// **'Enable all notifications'**
   String get settings_enableAllNotifications_label;
 
-  /// No description provided for @settings_morningReminder_label.
+  /// No description provided for @settings_dailyReminderDescription.
   ///
   /// In en, this message translates to:
-  /// **'Morning reminder (7:00)'**
-  String get settings_morningReminder_label;
-
-  /// No description provided for @settings_morningReminder_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Get suggestions for your daily outfit plan.'**
-  String get settings_morningReminder_subtitle;
-
-  /// No description provided for @settings_eveningReminder_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Evening reminder (20:00)'**
-  String get settings_eveningReminder_label;
-
-  /// No description provided for @settings_eveningReminder_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Remind to update your fashion journal.'**
-  String get settings_eveningReminder_subtitle;
+  /// **'Receive a daily reminder to log your outfit.'**
+  String get settings_dailyReminderDescription;
 
   /// No description provided for @settings_display_tile.
   ///
@@ -2137,6 +2119,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Maximum of 10 photos selected. Extra photos were skipped.'**
   String get analysis_maxPhotosWarning;
+
+  /// No description provided for @onboarding_page1_title.
+  ///
+  /// In en, this message translates to:
+  /// **'A closet full of clothes...'**
+  String get onboarding_page1_title;
+
+  /// No description provided for @onboarding_page1_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'...but nothing to wear?'**
+  String get onboarding_page1_subtitle;
+
+  /// No description provided for @onboarding_page1_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you often spend time wondering what to wear? Do you forget what amazing items you already own?'**
+  String get onboarding_page1_description;
+
+  /// No description provided for @onboarding_page2_title.
+  ///
+  /// In en, this message translates to:
+  /// **'MinCloset\nYour Smart Closet Assistant'**
+  String get onboarding_page2_title;
+
+  /// No description provided for @onboarding_page2_feature1_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Digitize Your Closet'**
+  String get onboarding_page2_feature1_title;
+
+  /// No description provided for @onboarding_page2_feature1_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Snap a photo and let AI automatically categorize your clothes.'**
+  String get onboarding_page2_feature1_desc;
+
+  /// No description provided for @onboarding_page2_feature2_title.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Outfit Suggestions'**
+  String get onboarding_page2_feature2_title;
+
+  /// No description provided for @onboarding_page2_feature2_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Get personalized outfit ideas based on your items and the weather.'**
+  String get onboarding_page2_feature2_desc;
+
+  /// No description provided for @onboarding_page2_feature3_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Creative Outfit Studio'**
+  String get onboarding_page2_feature3_title;
+
+  /// No description provided for @onboarding_page2_feature3_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Freely mix and match items to create unique looks.'**
+  String get onboarding_page2_feature3_desc;
+
+  /// No description provided for @onboarding_page2_feature4_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Your Style Journey'**
+  String get onboarding_page2_feature4_title;
+
+  /// No description provided for @onboarding_page2_feature4_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Log what you wear and discover your habits.'**
+  String get onboarding_page2_feature4_desc;
+
+  /// No description provided for @onboarding_page3_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s get to know each other!'**
+  String get onboarding_page3_title;
+
+  /// No description provided for @onboarding_page3_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell us your name so we can get more personal.'**
+  String get onboarding_page3_subtitle;
+
+  /// No description provided for @onboarding_page3_nameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name...'**
+  String get onboarding_page3_nameHint;
+
+  /// No description provided for @onboarding_page3_nameValidator.
+  ///
+  /// In en, this message translates to:
+  /// **'Please tell me your name'**
+  String get onboarding_page3_nameValidator;
 }
 
 class _AppLocalizationsDelegate

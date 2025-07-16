@@ -19,6 +19,7 @@ import 'package:mincloset/screens/badge_detail_page.dart';
 import 'package:mincloset/screens/batch_add_item_screen.dart';
 import 'package:mincloset/screens/calendar_page.dart';
 import 'package:mincloset/screens/city_selection_screen.dart';
+import 'package:mincloset/screens/closet_form_screen.dart';
 import 'package:mincloset/screens/closet_insights_screen.dart';
 import 'package:mincloset/screens/edit_profile_screen.dart';
 import 'package:mincloset/screens/image_editor_screen.dart';
@@ -30,12 +31,11 @@ import 'package:mincloset/screens/onboarding_screen.dart';
 import 'package:mincloset/screens/outfit_detail_page.dart';
 import 'package:mincloset/screens/pages/closet_detail_page.dart';
 import 'package:mincloset/screens/pages/outfit_builder_page.dart';
+import 'package:mincloset/screens/permissions_screen.dart';
 import 'package:mincloset/screens/quests_page.dart';
 import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/screens/webview_page.dart';
-import 'package:mincloset/screens/permissions_screen.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'package:mincloset/screens/closet_form_screen.dart';
 
 class CalendarPageArgs {
   final bool showHint;
@@ -55,10 +55,12 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => _mainScreen, settings: settings);
 
       case AppRoutes.analysisLoading:
-          final images = args as List<XFile>?;
+          // Bây giờ `args` sẽ là ImageSource
+          final source = args as ImageSource;
           return PageRouteBuilder(
             opaque: false,
-            pageBuilder: (_, __, ___) => AnalysisLoadingScreen(images: images),
+            // Truyền `source` vào constructor của màn hình
+            pageBuilder: (_, __, ___) => AnalysisLoadingScreen(source: source),
             settings: settings,
           );
 

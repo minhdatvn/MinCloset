@@ -12,8 +12,9 @@ import 'package:mincloset/utils/logger.dart';
 import 'package:mincloset/helpers/context_extensions.dart';
 
 class AnalysisLoadingScreen extends ConsumerStatefulWidget {
-  final List<XFile>? images; 
-  const AnalysisLoadingScreen({super.key, this.images});
+  // --- THAY ĐỔI 1: Thay đổi constructor để nhận ImageSource ---
+  final ImageSource source; 
+  const AnalysisLoadingScreen({super.key, required this.source});
 
   @override
   ConsumerState<AnalysisLoadingScreen> createState() => _AnalysisLoadingScreenState();
@@ -26,53 +27,74 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        if (widget.images != null && widget.images!.isNotEmpty) {
-          _startAnalysis(widget.images!);
-        } else {
-          _startImagePickingAndAnalysis();
-        }
+        // --- THAY ĐỔI 2: Gọi hàm mới để bắt đầu quy trình ---
+        _triggerImagePickingAndAnalysis();
       }
     });
   }
 
-  Future<void> _startImagePickingAndAnalysis() async {
+  // --- THAY ĐỔI 3: Tạo hàm mới xử lý việc chọn ảnh ---
+  Future<void> _triggerImagePickingAndAnalysis() async {
     final imagePicker = ImagePicker();
-    final pickedFiles = await imagePicker.pickMultiImage(
-      maxWidth: 1024,
-      imageQuality: 85,
-    );
+    List<XFile> pickedFiles = [];
+
+    try {
+      if (widget.source == ImageSource.gallery) {
+          pickedFiles = await imagePicker.pickMultiImage(
+            maxWidth: 1024,
+            imageQuality: 85,
+          );
+      } else {
+          final singleFile = await imagePicker.pickImage(
+              source: ImageSource.camera, 
+              maxWidth: 1024, 
+              imageQuality: 85
+          );
+          if (singleFile != null) {
+              pickedFiles.add(singleFile);
+          }
+      }
+    } catch (e) {
+      logger.e("Lỗi khi chọn ảnh", error: e);
+      if(mounted) {
+        Navigator.of(context).pop();
+      }
+      return;
+    }
+
 
     if (!mounted) return;
 
     if (pickedFiles.isEmpty) {
-      logger.i("Image picking cancelled by user.");
+      logger.i("Người dùng đã hủy chọn ảnh.");
       Navigator.of(context).pop();
       return; 
     }
     
+    // Nếu có ảnh, bắt đầu phân tích
     _startAnalysis(pickedFiles);
   }
 
+  // --- THAY ĐỔI 4: Xóa hàm _startImagePickingAndAnalysis cũ ---
+  // Future<void> _startImagePickingAndAnalysis() async { ... } // XÓA HÀM NÀY
+
+  // Hàm _startAnalysis giờ đã đơn giản hơn
   Future<void> _startAnalysis(List<XFile> files) async {
     List<XFile> filesToProcess = files;
     if (files.length > 10) {
       filesToProcess = files.take(10).toList();
-      // Thêm kiểm tra 'mounted' để đảm bảo an toàn
       if (mounted) {
         ref.read(notificationServiceProvider).showBanner(
               message: context.l10n.analysis_maxPhotosWarning,
-              type: NotificationType.warning, // Dùng loại "cảnh báo" sẽ phù hợp hơn
+              type: NotificationType.warning,
             );
       }
     }
 
-    // 1. Gọi hàm chuẩn bị trước
+    // Luồng này bây giờ là an toàn vì màn hình đã hiển thị
     ref.read(batchAddScreenProvider.notifier).prepareForAnalysis(filesToProcess.length);
-
-    // 2. Đợi một khoảng thời gian rất nhỏ để UI kịp cập nhật
-    await Future.delayed(const Duration(milliseconds: 50));
-
-    // 3. Gọi hàm phân tích sau khi UI đã hiển thị
+    await Future.delayed(const Duration(milliseconds: 100));
+    
     if (mounted) {
       ref.read(batchAddScreenProvider.notifier).analyzeAllImages(filesToProcess);
     }
@@ -80,12 +102,14 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Phần build giữ nguyên vì nó chỉ phụ thuộc vào state của notifier
+    // ...
     final stage = ref.watch(batchAddScreenProvider.select((s) => s.stage));
-    // Lấy chuỗi văn bản động dựa trên trạng thái
     final loadingMessage = stage == AnalysisStage.preparing 
         ? context.l10n.analysis_preparingImages 
         : context.l10n.analysis_prefillingInfo;
-    // Lắng nghe để điều hướng khi phân tích xong
+    
+    // Lắng nghe điều hướng (giữ nguyên)
     ref.listen<BatchItemDetailState>(batchAddScreenProvider, (previous, next) {
       if (!mounted) return;
       if (next.analysisSuccess && previous?.analysisSuccess == false) {
@@ -116,8 +140,6 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // --- THAY ĐỔI CHÍNH NẰM Ở ĐÂY ---
-              // Luôn hiển thị vòng xoay vô định thay vì thanh tiến trình
               const CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),

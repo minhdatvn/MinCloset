@@ -1,11 +1,9 @@
 // lib/screens/main_screen.dart
 
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/notifiers/quest_mascot_notifier.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
@@ -15,10 +13,8 @@ import 'package:mincloset/screens/pages/outfits_hub_page.dart';
 import 'package:mincloset/screens/pages/profile_page.dart';
 import 'package:mincloset/states/tutorial_state.dart';
 import 'package:mincloset/widgets/speech_bubble.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'package:mincloset/helpers/context_extensions.dart';
 
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
@@ -106,7 +102,10 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     void performAction(ImageSource source) {
       _closeMenu();
       Future.delayed(const Duration(milliseconds: 100), () {
-        _pickAndAnalyzeImages(source);
+        if (mounted) {
+          Navigator.pushNamed(context, AppRoutes.analysisLoading,
+              arguments: source);
+        }
       });
     }
 
@@ -196,38 +195,6 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
       pageIndex = index - 1; // Giảm đi 1 để bỏ qua vị trí của nút Add items ảo
     }
     ref.read(mainScreenIndexProvider.notifier).state = pageIndex;
-  }
-
-  Future<void> _pickAndAnalyzeImages(ImageSource source) async {
-    final navigator = Navigator.of(context);
-    final imagePicker = ImagePicker();
-
-    if (source == ImageSource.gallery) {
-      final pickedFiles = await imagePicker.pickMultiImage(maxWidth: 1024, imageQuality: 85);
-      if (pickedFiles.isNotEmpty && mounted) {
-        navigator.pushNamed(AppRoutes.analysisLoading, arguments: pickedFiles);
-      }
-      return;
-    }
-
-    final pickedFile = await imagePicker.pickImage(source: ImageSource.camera, maxWidth: 1024, imageQuality: 85);
-
-    if (pickedFile == null) return;
-    final imageBytes = await pickedFile.readAsBytes();
-    if (!mounted) return;
-
-    final editedBytes = await navigator.pushNamed<Uint8List?>(AppRoutes.imageEditor, arguments: imageBytes);
-
-    if (editedBytes != null && mounted) {
-      final tempDir = await getTemporaryDirectory();
-      final tempPath = '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final tempFile = await File(tempPath).writeAsBytes(editedBytes);
-      final editedXFile = XFile(tempFile.path);
-
-      if (mounted) {
-        navigator.pushNamed(AppRoutes.analysisLoading, arguments: [editedXFile]);
-      }
-    }
   }
 
   Widget _buildMascotContainer(BuildContext context, {required TutorialStep forStep}) {

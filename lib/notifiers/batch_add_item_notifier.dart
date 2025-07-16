@@ -16,6 +16,7 @@ import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/states/item_detail_state.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
+import 'package:mincloset/utils/logger.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mincloset/repositories/quest_repository.dart';
 
@@ -75,6 +76,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
 
   // HÀM MỚI: Chỉ để thiết lập trạng thái chuẩn bị
   void prepareForAnalysis(int total) {
+      logger.d("🚀 [1] `prepareForAnalysis` called. Setting stage to preparing.");
       state = state.copyWith(
           isLoading: true,
           clearAnalysisError: true,
@@ -87,6 +89,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
 
   Future<void> analyzeAllImages(List<XFile> images) async {
     // Cập nhật trạng thái sang analyzing KHI bắt đầu công việc nặng
+    logger.d("⏳ [3] `analyzeAllImages` called. Setting stage to analyzing.");
     state = state.copyWith(stage: AnalysisStage.analyzing);
 
     // 1. Tạo một danh sách các Future, mỗi Future là một yêu cầu phân tích ảnh

@@ -270,14 +270,18 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
               return TextButton(
                 onPressed: () async {
                   final Uint8List? bytes = await _editorKey.currentState?.captureEditorImage();
+                  
+                  // Thêm kiểm tra `mounted` ngay sau await đầu tiên
                   if (bytes == null || !mounted) return;
 
                   final result = await showAnimatedDialog<Map<String, dynamic>>(
+                    // ignore: use_build_context_synchronously
                     context,
                     barrierDismissible: false,
                     builder: (ctx) => _SaveOutfitDialog(),
                   );
-
+                  
+                  // Thêm kiểm tra `mounted` một lần nữa sau await thứ hai
                   if (result != null && mounted) {
                     ref.read(outfitBuilderProvider.notifier).saveOutfit(
                           name: result['name'] as String,

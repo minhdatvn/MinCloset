@@ -269,6 +269,21 @@
     "outfitBuilder_save_isFixedSubtitle": "Các món trong bộ này luôn được mặc cùng nhau. Mỗi món chỉ có thể thuộc về một bộ đồ cố định.",
     "outfitBuilder_stickers_placeholder": "Nhãn dán sẽ sớm ra mắt.",
 
+    "outfitDetail_fixedOutfit_title": "Bộ đồ cố định",
+    "outfitDetail_fixedOutfit_description": "Các món trong bộ này luôn được mặc cùng nhau. Mỗi món chỉ có thể thuộc về một bộ đồ cố định.",
+
+    "outfitMenu_rename": "Đổi tên",
+    "outfitMenu_share": "Chia sẻ",
+    "outfitMenu_delete": "Xoá",
+    "outfitMenu_rename_dialogTitle": "Đổi tên trang phục",
+    "outfitMenu_rename_dialogLabel": "Tên mới",
+    "outfitMenu_rename_success": "Đã cập nhật tên trang phục.",
+    "outfitMenu_share_error": "Không thể chia sẻ: {error}",
+    "outfitMenu_delete_dialogTitle": "Xác nhận xoá",
+    "outfitMenu_delete_dialogContent": "Xoá vĩnh viễn trang phục \"{outfitName}\"?",
+    "outfitMenu_delete_success": "Đã xoá trang phục \"{outfitName}\".",
+    "outfitMenu_delete_error": "Xoá trang phục thất bại. Vui lòng thử lại.",
+
     "closets_title": "Tủ đồ của bạn",
     "closets_itemsSelected": "Đã chọn {count}",
     "closets_tabAllItems": "Tất cả",

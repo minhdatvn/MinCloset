@@ -8,6 +8,7 @@ import 'package:mincloset/notifiers/outfit_detail_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/widgets/outfit_actions_menu.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 
 class OutfitDetailPage extends ConsumerStatefulWidget {
   final Outfit outfit;
@@ -24,6 +25,7 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
     final provider = outfitDetailProvider(widget.outfit);
     final currentOutfit = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
+    final l10n = context.l10n; 
     
     return PageScaffold(
       backgroundColor: Colors.white,
@@ -32,8 +34,6 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
         actions: [
           OutfitActionsMenu(
             outfit: currentOutfit,
-            // onUpdate không còn cần thiết vì chúng ta không quản lý `_didChange` ở đây nữa
-            // onUpdate: () => setState(() => _didChange = true), 
           ),
         ],
       ),
@@ -52,8 +52,8 @@ class _OutfitDetailPageState extends ConsumerState<OutfitDetailPage> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4.0),
               child: SwitchListTile(
-                title: const Text('Fixed outfit', style: TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: const Text('Items in this outfit are always worn together. Each item can only belong to one fixed outfit.'),
+                title: Text(l10n.outfitDetail_fixedOutfit_title, style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: Text(l10n.outfitDetail_fixedOutfit_description),
                 value: currentOutfit.isFixed,
                 onChanged: (newValue) async {
                   final errorMessage = await notifier.toggleIsFixed(newValue);

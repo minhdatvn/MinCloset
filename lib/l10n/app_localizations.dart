@@ -1628,6 +1628,84 @@ abstract class AppLocalizations {
   /// **'Stickers will be available soon.'**
   String get outfitBuilder_stickers_placeholder;
 
+  /// No description provided for @outfitDetail_fixedOutfit_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed outfit'**
+  String get outfitDetail_fixedOutfit_title;
+
+  /// No description provided for @outfitDetail_fixedOutfit_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Items in this outfit are always worn together. Each item can only belong to one fixed outfit.'**
+  String get outfitDetail_fixedOutfit_description;
+
+  /// No description provided for @outfitMenu_rename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get outfitMenu_rename;
+
+  /// No description provided for @outfitMenu_share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get outfitMenu_share;
+
+  /// No description provided for @outfitMenu_delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get outfitMenu_delete;
+
+  /// No description provided for @outfitMenu_rename_dialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename outfit'**
+  String get outfitMenu_rename_dialogTitle;
+
+  /// No description provided for @outfitMenu_rename_dialogLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New name'**
+  String get outfitMenu_rename_dialogLabel;
+
+  /// No description provided for @outfitMenu_rename_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Outfit name updated.'**
+  String get outfitMenu_rename_success;
+
+  /// No description provided for @outfitMenu_share_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not share: {error}'**
+  String outfitMenu_share_error(Object error);
+
+  /// No description provided for @outfitMenu_delete_dialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm deletion'**
+  String get outfitMenu_delete_dialogTitle;
+
+  /// No description provided for @outfitMenu_delete_dialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete outfit \"{outfitName}\"?'**
+  String outfitMenu_delete_dialogContent(Object outfitName);
+
+  /// No description provided for @outfitMenu_delete_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted outfit \"{outfitName}\".'**
+  String outfitMenu_delete_success(Object outfitName);
+
+  /// No description provided for @outfitMenu_delete_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete outfit. Please try again.'**
+  String get outfitMenu_delete_error;
+
   /// No description provided for @closets_title.
   ///
   /// In en, this message translates to:

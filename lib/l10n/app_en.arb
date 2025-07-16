@@ -279,6 +279,21 @@
     "outfitBuilder_save_isFixedSubtitle": "Items in this outfit are always worn together. Each item can only belong to one fixed outfit.",
     "outfitBuilder_stickers_placeholder": "Stickers will be available soon.",
 
+    "outfitDetail_fixedOutfit_title": "Fixed outfit",
+    "outfitDetail_fixedOutfit_description": "Items in this outfit are always worn together. Each item can only belong to one fixed outfit.",
+
+    "outfitMenu_rename": "Rename",
+    "outfitMenu_share": "Share",
+    "outfitMenu_delete": "Delete",
+    "outfitMenu_rename_dialogTitle": "Rename outfit",
+    "outfitMenu_rename_dialogLabel": "New name",
+    "outfitMenu_rename_success": "Outfit name updated.",
+    "outfitMenu_share_error": "Could not share: {error}",
+    "outfitMenu_delete_dialogTitle": "Confirm deletion",
+    "outfitMenu_delete_dialogContent": "Permanently delete outfit \"{outfitName}\"?",
+    "outfitMenu_delete_success": "Deleted outfit \"{outfitName}\".",
+    "outfitMenu_delete_error": "Failed to delete outfit. Please try again.",
+
     "closets_title": "Your Closet",
     "closets_itemsSelected": "{count,plural, =1{1 selected} other{{count} selected}}",
     "closets_tabAllItems": "All Items",

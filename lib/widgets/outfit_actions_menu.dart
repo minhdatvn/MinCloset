@@ -6,6 +6,7 @@ import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/outfit_detail_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:share_plus/share_plus.dart';
 
 class OutfitActionsMenu extends ConsumerWidget {
@@ -20,6 +21,7 @@ class OutfitActionsMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     return PopupMenuButton<String>(
       icon: const Icon(Icons.more_vert, color: Colors.grey),
       onSelected: (value) {
@@ -32,23 +34,26 @@ class OutfitActionsMenu extends ConsumerWidget {
         }
       },
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'edit',
           child: ListTile(
             leading: Icon(Icons.edit_outlined),
-            title: Text('Rename'),
+            title: Text(l10n.outfitMenu_rename),
           ),
         ),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'share',
-          child: ListTile(leading: Icon(Icons.share_outlined), title: Text('Share')),
+          child: ListTile(
+            leading: const Icon(Icons.share_outlined),
+            title: Text(l10n.outfitMenu_share),
+          ),
         ),
         const PopupMenuDivider(),
-        const PopupMenuItem<String>(
+        PopupMenuItem<String>(
           value: 'delete',
           child: ListTile(
             leading: Icon(Icons.delete_outline, color: Colors.red),
-            title: Text('Delete', style: TextStyle(color: Colors.red)),
+            title: Text(l10n.outfitMenu_delete, style: const TextStyle(color: Colors.red)),
           ),
         ),
       ],
@@ -56,14 +61,22 @@ class OutfitActionsMenu extends ConsumerWidget {
   }
 
   void _showEditOutfitNameDialog(BuildContext context, WidgetRef ref, Outfit currentOutfit, VoidCallback? onUpdateCallback) {
+    final l10n = context.l10n;
     final nameController = TextEditingController(text: currentOutfit.name);
     showAnimatedDialog(
       context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Rename outfit'),
-        content: TextField(controller: nameController, autofocus: true, decoration: const InputDecoration(labelText: 'New name')),
+        title: Text(l10n.outfitMenu_rename_dialogTitle),
+        content: TextField(
+        controller: nameController,
+        autofocus: true,
+        decoration: InputDecoration(labelText: l10n.outfitMenu_rename_dialogLabel),
+      ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(l10n.common_cancel),
+          ),
           ElevatedButton(
             onPressed: () async {
               final navigator = Navigator.of(ctx);
@@ -77,7 +90,7 @@ class OutfitActionsMenu extends ConsumerWidget {
               // 2. Nếu thành công, hiển thị banner và gọi callback
               if (success) {
                 ref.read(notificationServiceProvider).showBanner(
-                      message: 'Outfit name updated.',
+                      message: l10n.outfitMenu_rename_success,
                       type: NotificationType.success,
                     );
                 onUpdateCallback?.call();
@@ -86,7 +99,7 @@ class OutfitActionsMenu extends ConsumerWidget {
 
               navigator.pop();
             },
-            child: const Text('Save'),
+            child: Text(l10n.common_save),
           ),
         ],
       ),
@@ -94,6 +107,7 @@ class OutfitActionsMenu extends ConsumerWidget {
   }
 
   Future<void> _shareOutfit(BuildContext context, WidgetRef ref, Outfit outfit) async {
+    final l10n = context.l10n;
     try {
       await SharePlus.instance.share(
         ShareParams(
@@ -102,25 +116,29 @@ class OutfitActionsMenu extends ConsumerWidget {
         ),
       );
     } catch (e) {
-      ref.read(notificationServiceProvider).showBanner(message: 'Could not share: $e');
+      ref.read(notificationServiceProvider).showBanner(message: l10n.outfitMenu_share_error(e.toString()));
     }
   }
 
   Future<void> _deleteOutfit(BuildContext context, WidgetRef ref, Outfit outfit, VoidCallback? onUpdateCallback) async {
+    final l10n = context.l10n;
     final navigator = Navigator.of(context);
     final notificationService = ref.read(notificationServiceProvider); // Lấy service ra trước
 
     final confirmed = await showAnimatedDialog<bool>(
       context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Confirm deletion'),
-        content: Text('Permanently delete outfit "${outfit.name}"?'),
+        title: Text(l10n.outfitMenu_delete_dialogTitle),
+        content: Text(l10n.outfitMenu_delete_dialogContent(outfit.name)),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(l10n.common_cancel),
+          ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(l10n.outfitMenu_delete),
           ),
         ],
       )
@@ -133,7 +151,7 @@ class OutfitActionsMenu extends ConsumerWidget {
       if (success) {
         onUpdateCallback?.call();
         notificationService.showBanner(
-              message: 'Deleted outfit "${outfit.name}".',
+              message: l10n.outfitMenu_delete_success(outfit.name),
               type: NotificationType.success,
             );
         if (navigator.canPop()) {
@@ -141,7 +159,7 @@ class OutfitActionsMenu extends ConsumerWidget {
         }
       } else {
         notificationService.showBanner(
-              message: 'Failed to delete outfit. Please try again.',
+              message: l10n.outfitMenu_delete_error,
             );
       }
     }

@@ -803,6 +803,53 @@ class AppLocalizationsVi extends AppLocalizations {
   String get outfitBuilder_stickers_placeholder => 'Nhãn dán sẽ sớm ra mắt.';
 
   @override
+  String get outfitDetail_fixedOutfit_title => 'Bộ đồ cố định';
+
+  @override
+  String get outfitDetail_fixedOutfit_description =>
+      'Các món trong bộ này luôn được mặc cùng nhau. Mỗi món chỉ có thể thuộc về một bộ đồ cố định.';
+
+  @override
+  String get outfitMenu_rename => 'Đổi tên';
+
+  @override
+  String get outfitMenu_share => 'Chia sẻ';
+
+  @override
+  String get outfitMenu_delete => 'Xoá';
+
+  @override
+  String get outfitMenu_rename_dialogTitle => 'Đổi tên trang phục';
+
+  @override
+  String get outfitMenu_rename_dialogLabel => 'Tên mới';
+
+  @override
+  String get outfitMenu_rename_success => 'Đã cập nhật tên trang phục.';
+
+  @override
+  String outfitMenu_share_error(Object error) {
+    return 'Không thể chia sẻ: $error';
+  }
+
+  @override
+  String get outfitMenu_delete_dialogTitle => 'Xác nhận xoá';
+
+  @override
+  String outfitMenu_delete_dialogContent(Object outfitName) {
+    return 'Xoá vĩnh viễn trang phục \"$outfitName\"?';
+  }
+
+  @override
+  String outfitMenu_delete_success(Object outfitName) {
+    return 'Đã xoá trang phục \"$outfitName\".';
+  }
+
+  @override
+  String get outfitMenu_delete_error =>
+      'Xoá trang phục thất bại. Vui lòng thử lại.';
+
+  @override
   String get closets_title => 'Tủ đồ của bạn';
 
   @override

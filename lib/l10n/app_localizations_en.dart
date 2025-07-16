@@ -810,6 +810,53 @@ class AppLocalizationsEn extends AppLocalizations {
       'Stickers will be available soon.';
 
   @override
+  String get outfitDetail_fixedOutfit_title => 'Fixed outfit';
+
+  @override
+  String get outfitDetail_fixedOutfit_description =>
+      'Items in this outfit are always worn together. Each item can only belong to one fixed outfit.';
+
+  @override
+  String get outfitMenu_rename => 'Rename';
+
+  @override
+  String get outfitMenu_share => 'Share';
+
+  @override
+  String get outfitMenu_delete => 'Delete';
+
+  @override
+  String get outfitMenu_rename_dialogTitle => 'Rename outfit';
+
+  @override
+  String get outfitMenu_rename_dialogLabel => 'New name';
+
+  @override
+  String get outfitMenu_rename_success => 'Outfit name updated.';
+
+  @override
+  String outfitMenu_share_error(Object error) {
+    return 'Could not share: $error';
+  }
+
+  @override
+  String get outfitMenu_delete_dialogTitle => 'Confirm deletion';
+
+  @override
+  String outfitMenu_delete_dialogContent(Object outfitName) {
+    return 'Permanently delete outfit \"$outfitName\"?';
+  }
+
+  @override
+  String outfitMenu_delete_success(Object outfitName) {
+    return 'Deleted outfit \"$outfitName\".';
+  }
+
+  @override
+  String get outfitMenu_delete_error =>
+      'Failed to delete outfit. Please try again.';
+
+  @override
   String get closets_title => 'Your Closet';
 
   @override

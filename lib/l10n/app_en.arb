@@ -503,6 +503,14 @@
     "itemDetail_form_priceLabel": "Price",
     "itemDetail_form_notesLabel": "Notes",
 
+    "itemNotifier_analysis_error": "Pre-filling information failed.\\nReason: {error}",
+    "itemNotifier_error_noPhoto": "Please add a photo for the item.",
+    "itemNotifier_error_createThumbnail": "Error creating thumbnail: {error}",
+    "itemNotifier_save_success_updated": "Item successfully updated.",
+    "itemNotifier_save_success_created": "Item successfully saved.",
+    "itemNotifier_delete_success": "Successfully deleted item \"{itemName}\".",
+    "itemNotifier_error_updateImage": "Could not update image: {error}",
+
     "analysis_preparingImages": "Preparing images...",
     "analysis_prefillingInfo": "Pre-filling information...\nThis may take a moment to complete.",
     "analysis_maxPhotosWarning": "Maximum of 10 photos selected. Extra photos were skipped.",

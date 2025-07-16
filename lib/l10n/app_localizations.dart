@@ -2456,6 +2456,48 @@ abstract class AppLocalizations {
   /// **'Notes'**
   String get itemDetail_form_notesLabel;
 
+  /// No description provided for @itemNotifier_analysis_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-filling information failed.\\nReason: {error}'**
+  String itemNotifier_analysis_error(Object error);
+
+  /// No description provided for @itemNotifier_error_noPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add a photo for the item.'**
+  String get itemNotifier_error_noPhoto;
+
+  /// No description provided for @itemNotifier_error_createThumbnail.
+  ///
+  /// In en, this message translates to:
+  /// **'Error creating thumbnail: {error}'**
+  String itemNotifier_error_createThumbnail(Object error);
+
+  /// No description provided for @itemNotifier_save_success_updated.
+  ///
+  /// In en, this message translates to:
+  /// **'Item successfully updated.'**
+  String get itemNotifier_save_success_updated;
+
+  /// No description provided for @itemNotifier_save_success_created.
+  ///
+  /// In en, this message translates to:
+  /// **'Item successfully saved.'**
+  String get itemNotifier_save_success_created;
+
+  /// No description provided for @itemNotifier_delete_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Successfully deleted item \"{itemName}\".'**
+  String itemNotifier_delete_success(Object itemName);
+
+  /// No description provided for @itemNotifier_error_updateImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update image: {error}'**
+  String itemNotifier_error_updateImage(Object error);
+
   /// No description provided for @analysis_preparingImages.
   ///
   /// In en, this message translates to:

@@ -1333,6 +1333,35 @@ class AppLocalizationsEn extends AppLocalizations {
   String get itemDetail_form_notesLabel => 'Notes';
 
   @override
+  String itemNotifier_analysis_error(Object error) {
+    return 'Pre-filling information failed.\\nReason: $error';
+  }
+
+  @override
+  String get itemNotifier_error_noPhoto => 'Please add a photo for the item.';
+
+  @override
+  String itemNotifier_error_createThumbnail(Object error) {
+    return 'Error creating thumbnail: $error';
+  }
+
+  @override
+  String get itemNotifier_save_success_updated => 'Item successfully updated.';
+
+  @override
+  String get itemNotifier_save_success_created => 'Item successfully saved.';
+
+  @override
+  String itemNotifier_delete_success(Object itemName) {
+    return 'Successfully deleted item \"$itemName\".';
+  }
+
+  @override
+  String itemNotifier_error_updateImage(Object error) {
+    return 'Could not update image: $error';
+  }
+
+  @override
   String get analysis_preparingImages => 'Preparing images...';
 
   @override

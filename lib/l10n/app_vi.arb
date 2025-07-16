@@ -493,6 +493,14 @@
     "itemDetail_form_priceLabel": "Giá tiền",
     "itemDetail_form_notesLabel": "Ghi chú",
 
+    "itemNotifier_analysis_error": "Điền trước thông tin thất bại.\\nLý do: {error}",
+    "itemNotifier_error_noPhoto": "Vui lòng thêm ảnh cho vật phẩm.",
+    "itemNotifier_error_createThumbnail": "Lỗi tạo ảnh thu nhỏ: {error}",
+    "itemNotifier_save_success_updated": "Cập nhật vật phẩm thành công.",
+    "itemNotifier_save_success_created": "Lưu vật phẩm thành công.",
+    "itemNotifier_delete_success": "Đã xoá thành công vật phẩm \"{itemName}\".",
+    "itemNotifier_error_updateImage": "Không thể cập nhật hình ảnh: {error}",
+
     "analysis_preparingImages": "Đang chuẩn bị hình ảnh...",
     "analysis_prefillingInfo": "Đang điền trước thông tin...\nQuá trình này có thể mất một chút thời gian.",
     "analysis_maxPhotosWarning": "Đã chọn tối đa 10 ảnh. Các ảnh thừa đã được bỏ qua.",

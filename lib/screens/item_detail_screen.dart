@@ -69,7 +69,7 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
 
     if (confirmed == true) {
       // Logic đã được đơn giản hóa, chỉ cần gọi notifier
-      await ref.read(itemDetailProvider(_providerArgs).notifier).deleteItem();
+      await ref.read(itemDetailProvider(_providerArgs).notifier).deleteItem(l10n: l10n);
     }
   }
 
@@ -149,7 +149,7 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
         onPriceChanged: notifier.onPriceChanged,
         onNotesChanged: notifier.onNotesChanged,
         onImageUpdated: (newBytes) {
-          notifier.updateImageWithBytes(newBytes);
+          notifier.updateImageWithBytes(newBytes, l10n: l10n);
         },
         onEditImagePressed: () async {
           final navigator = Navigator.of(context);
@@ -169,7 +169,7 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
           );
 
           if (editedBytes != null && mounted) {
-            notifier.updateImageWithBytes(editedBytes);
+            notifier.updateImageWithBytes(editedBytes, l10n: l10n);
           }
         },
       ),
@@ -180,7 +180,7 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
               ? null
               : () async {
                   // Chỉ cần gọi notifier để lưu
-                  await notifier.saveItem();
+                  await notifier.saveItem(l10n: context.l10n);
                 },
           icon: state.isLoading ? const SizedBox.shrink() : const Icon(Icons.save),
           label: state.isLoading 

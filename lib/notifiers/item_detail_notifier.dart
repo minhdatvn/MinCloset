@@ -23,6 +23,7 @@ import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
 import 'package:mincloset/repositories/quest_repository.dart';
 import 'package:mincloset/states/item_detail_state.dart';
+import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
@@ -70,7 +71,7 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
     state = state.copyWith(errorMessage: null, successMessage: null);
   }
 
-  Future<void> analyzeImage(XFile image) async {
+  Future<void> analyzeImage(XFile image, {required AppLocalizations l10n}) async {
     state = state.copyWith(isAnalyzing: true);
     final resultEither = await _analyzeItemUseCase.execute(image);
 
@@ -80,8 +81,7 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
       (failure) {
         state = state.copyWith(
           isAnalyzing: false,
-          errorMessage:
-              "Pre-filling information failed.\nReason: ${failure.message}",
+          errorMessage: l10n.itemNotifier_analysis_error(failure.message),
         );
       },
       (result) {
@@ -106,11 +106,11 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
     );
   }
   
-  Future<void> saveItem() async {
+  Future<void> saveItem({required AppLocalizations l10n}) async {
     // 1. Vẫn kiểm tra ảnh và các trường bắt buộc như cũ
     final sourceImagePath = state.image?.path ?? state.imagePath;
     if (sourceImagePath == null) {
-      _ref.read(itemDetailErrorProvider.notifier).state = 'Please add a photo for the item.';
+      _ref.read(itemDetailErrorProvider.notifier).state = l10n.itemNotifier_error_noPhoto;
       return;
     }
     
@@ -136,7 +136,7 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
                   ? _imageHelper.createThumbnail(sourceImagePath)
                   : Future.value(state.thumbnailPath),
               (error, stackTrace) =>
-                  GenericFailure('Error creating thumbnail: $error'),
+                  GenericFailure(l10n.itemNotifier_error_createThumbnail(error.toString())),
             ))
         .flatMap((thumbnailPath) {
       final item = ClothingItem(
@@ -194,13 +194,13 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
         state = state.copyWith(
           isLoading: false, 
           isSuccess: true,
-          successMessage: state.isEditing ? 'Item successfully updated.' : 'Item successfully saved.'
+          successMessage: state.isEditing ? l10n.itemNotifier_save_success_updated : l10n.itemNotifier_save_success_created
         );
       },
     );
   }
 
-  Future<void> deleteItem() async {
+  Future<void> deleteItem({required AppLocalizations l10n}) async {
     if (!state.isEditing) return;
     state = state.copyWith(isLoading: true, errorMessage: null, successMessage: null);
     
@@ -222,13 +222,13 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
         state = state.copyWith(
           isLoading: false, 
           isSuccess: true,
-          successMessage: 'Successfully deleted item "${state.name}".'
+          successMessage: l10n.itemNotifier_delete_success(state.name)
         );
       },
     );
   }
 
-  Future<void> updateImageWithBytes(Uint8List imageBytes) async {
+  Future<void> updateImageWithBytes(Uint8List imageBytes, {required AppLocalizations l10n}) async {
     try {
       final tempDir = await getTemporaryDirectory();
       final tempFile = File('${tempDir.path}/${const Uuid().v4()}.png');
@@ -236,7 +236,7 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
 
       state = state.copyWith(image: tempFile);
     } catch (e) {
-      state = state.copyWith(errorMessage: 'Could not update image: $e');
+      state = state.copyWith(errorMessage: l10n.itemNotifier_error_updateImage(e.toString()));
     }
   }
   
@@ -358,12 +358,13 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
   }
 
   void onNotesChanged(String value) {state = state.copyWith(notes: value);}
-  Future<void> pickImage(ImageSource source) async {
+
+  Future<void> pickImage(ImageSource source, {required AppLocalizations l10n}) async {
     final imagePicker = ImagePicker();
     final pickedFile = await imagePicker.pickImage(source: source, maxWidth: 1024, imageQuality: 85);
     if (pickedFile != null) {
       state = state.copyWith(image: File(pickedFile.path), selectedCategoryValue: '', selectedColors: {}, selectedMaterials: {}, selectedPatterns: {});
-      analyzeImage(pickedFile);
+    analyzeImage(pickedFile, l10n: l10n);
     }
   }
   void toggleFavorite() {

@@ -1291,6 +1291,36 @@ class AppLocalizationsVi extends AppLocalizations {
   String get itemDetail_form_notesLabel => 'Ghi chú';
 
   @override
+  String itemNotifier_analysis_error(Object error) {
+    return 'Điền trước thông tin thất bại.\\nLý do: $error';
+  }
+
+  @override
+  String get itemNotifier_error_noPhoto => 'Vui lòng thêm ảnh cho vật phẩm.';
+
+  @override
+  String itemNotifier_error_createThumbnail(Object error) {
+    return 'Lỗi tạo ảnh thu nhỏ: $error';
+  }
+
+  @override
+  String get itemNotifier_save_success_updated =>
+      'Cập nhật vật phẩm thành công.';
+
+  @override
+  String get itemNotifier_save_success_created => 'Lưu vật phẩm thành công.';
+
+  @override
+  String itemNotifier_delete_success(Object itemName) {
+    return 'Đã xoá thành công vật phẩm \"$itemName\".';
+  }
+
+  @override
+  String itemNotifier_error_updateImage(Object error) {
+    return 'Không thể cập nhật hình ảnh: $error';
+  }
+
+  @override
   String get analysis_preparingImages => 'Đang chuẩn bị hình ảnh...';
 
   @override

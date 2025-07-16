@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
 import 'package:mincloset/notifiers/item_detail_notifier.dart';
+import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
@@ -40,27 +41,33 @@ class _BatchItemDetailScreenState extends ConsumerState<BatchItemDetailScreen> {
     final notifier = ref.read(batchAddScreenProvider.notifier);
     final itemArgsList = state.itemArgsList;
 
-    // <<< THAY ĐỔI LOGIC LISTENER ĐỂ MẠNH MẼ HƠN >>>
+    // Lắng nghe kênh báo lỗi nhập liệu
+    ref.listen<String?>(batchItemDetailErrorProvider, (previous, next) {
+      if (next != null) {
+        ref.read(notificationServiceProvider).showBanner(message: next);
+        // Reset kênh ngay lập tức để sẵn sàng cho lỗi tiếp theo
+        ref.read(batchItemDetailErrorProvider.notifier).state = null;
+      }
+    });
+
+    // Lắng nghe state chính để xử lý thành công, lỗi hệ thống và điều hướng
     ref.listen<BatchItemDetailState>(batchAddScreenProvider, (previous, next) {
-      // 1. Xử lý thành công
+      if (!mounted) return;
+
+      // Xử lý thành công
       if (next.saveSuccess && previous?.saveSuccess == false) {
-        // Chuyển MainScreen đến trang Closets (index = 1)
         ref.read(mainScreenIndexProvider.notifier).state = 1;
-
-        // **DÒNG LỆNH MỚI: Chỉ định cho ClosetsPage hiển thị tab "All Items"**
         ref.read(closetsSubTabIndexProvider.notifier).state = 0;
-
-        // Điều hướng về màn hình chính
-        Navigator.of(context).pop(); 
-        return; // Kết thúc để tránh xử lý các điều kiện khác
+        Navigator.of(context).pop();
+        return;
       }
       
-      // 2. Xử lý hiển thị lỗi
+      // Xử lý lỗi hệ thống (không phải lỗi nhập liệu)
       if (next.saveErrorMessage != null && next.saveErrorMessage != previous?.saveErrorMessage) {
         ref.read(notificationServiceProvider).showBanner(message: next.saveErrorMessage!);
       }
 
-      // 3. Xử lý đồng bộ PageController (luôn chạy khi index thay đổi)
+      // Xử lý đồng bộ PageController
       if (previous != null && next.currentIndex != previous.currentIndex) {
         if (_pageController.hasClients && _pageController.page?.round() != next.currentIndex) {
           _pageController.animateToPage(

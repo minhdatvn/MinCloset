@@ -21,3 +21,6 @@ final beginnerAchievementProvider = StateProvider<Achievement?>((ref) => null);
 /// Provider này hoạt động như một kênh để gửi các sự kiện lỗi từ Notifier đến UI
 /// một cách tức thời mà không cần lưu vào state chính.
 final itemDetailErrorProvider = StateProvider<String?>((ref) => null);
+
+/// Provider kênh báo lỗi dành riêng cho màn hình thêm hàng loạt.
+final batchItemDetailErrorProvider = StateProvider<String?>((ref) => null);

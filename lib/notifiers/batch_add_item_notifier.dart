@@ -145,9 +145,8 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
 
   void nextPage() {
     final currentItemArgs = state.itemArgsList[state.currentIndex];
-    final currentItemState = _ref.read(batchItemFormProvider(currentItemArgs)); // Vẫn cần _ref
+    final currentItemState = _ref.read(batchItemFormProvider(currentItemArgs));
     
-    // <<< THAY ĐỔI 4: Sử dụng trực tiếp UseCase đã được inject >>>
     final validationResult = _validateRequiredUseCase.executeForSingle(currentItemState);
 
     if (validationResult.success) {
@@ -158,7 +157,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
         );
       }
     } else {
-      state = state.copyWith(saveErrorMessage: validationResult.errorMessage);
+      _ref.read(batchItemDetailErrorProvider.notifier).state = validationResult.errorMessage;
     }
   }
 
@@ -173,29 +172,33 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
 
   Future<void> saveAll() async {
     state = state.copyWith(isSaving: true, clearSaveError: true);
-    final itemStates = state.itemArgsList.map((args) => _ref.read(batchItemFormProvider(args))).toList(); // Vẫn cần _ref
+    final itemStates = state.itemArgsList.map((args) => _ref.read(batchItemFormProvider(args))).toList();
     
-    // <<< THAY ĐỔI 5: Sử dụng trực tiếp UseCase đã được inject >>>
+    // Kiểm tra các trường bắt buộc
     final requiredResult = _validateRequiredUseCase.executeForBatch(itemStates);
     if (!requiredResult.success) {
-      state = state.copyWith(isSaving: false, saveErrorMessage: requiredResult.errorMessage, currentIndex: requiredResult.errorIndex);
+      _ref.read(batchItemDetailErrorProvider.notifier).state = requiredResult.errorMessage;
+      state = state.copyWith(isSaving: false, currentIndex: requiredResult.errorIndex);
       return;
     }
     
-    // <<< THAY ĐỔI 6: Sử dụng trực tiếp UseCase đã được inject >>>
+    // Kiểm tra tên trùng lặp
     final nameValidationEither = await _validateNameUseCase.forBatch(itemStates);
 
     if (!mounted) return;
 
     nameValidationEither.fold(
       (failure) {
+        // Lỗi hệ thống vẫn cập nhật vào state chính
         state = state.copyWith(isSaving: false, saveErrorMessage: failure.message);
       },
       (nameValidationResult) {
         if (!nameValidationResult.success) {
-          state = state.copyWith(isSaving: false, saveErrorMessage: nameValidationResult.errorMessage, currentIndex: nameValidationResult.errorIndex);
+          _ref.read(batchItemDetailErrorProvider.notifier).state = nameValidationResult.errorMessage;
+          state = state.copyWith(isSaving: false, currentIndex: nameValidationResult.errorIndex);
           return;
         }
+        // Nếu không có lỗi, thực hiện lưu
         _performSave(itemStates);
       },
     );

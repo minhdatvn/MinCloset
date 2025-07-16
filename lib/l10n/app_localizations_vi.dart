@@ -649,6 +649,73 @@ class AppLocalizationsVi extends AppLocalizations {
       'Ghi lại một món đồ hoặc một bộ trang phục vào Nhật ký để theo dõi những gì bạn mặc.';
 
   @override
+  String get insights_title => 'Thống kê Tủ đồ';
+
+  @override
+  String get insights_exclusive => 'MINCLOSET ĐỘC QUYỀN';
+
+  @override
+  String insights_journeyTitle(Object userName) {
+    return 'Hành trình Phong cách của $userName';
+  }
+
+  @override
+  String get insights_mostLoved => 'Những món đồ được yêu thích nhất';
+
+  @override
+  String get insights_smartestInvestments =>
+      'Những khoản đầu tư thông minh nhất';
+
+  @override
+  String get insights_rediscoverCloset => 'Khám phá lại Tủ đồ của bạn';
+
+  @override
+  String get insights_investmentFocus => 'Trọng tâm Đầu tư';
+
+  @override
+  String get insights_noData => 'Chưa có dữ liệu thống kê.';
+
+  @override
+  String get insights_error_noLogs =>
+      'Vui lòng thêm vật phẩm hoặc trang phục vào Nhật ký Phong cách trước!';
+
+  @override
+  String get insights_goToJournal => 'Đến Nhật ký Phong cách';
+
+  @override
+  String get insights_mostWorn_noData =>
+      'Bạn chưa ghi lại vật phẩm đã mặc nào. Hãy bắt đầu nhật ký phong cách của bạn ngay hôm nay!';
+
+  @override
+  String get insights_bestValue_noData =>
+      'Hãy mặc những vật phẩm bạn đã thêm giá và các khoản đầu tư thông minh nhất sẽ xuất hiện ở đây!';
+
+  @override
+  String get insights_addPrices => 'Thêm giá cho vật phẩm';
+
+  @override
+  String insights_wears(num count) {
+    return '$count lần mặc';
+  }
+
+  @override
+  String insights_costPerWear(Object price) {
+    return '$price/lần mặc';
+  }
+
+  @override
+  String get insights_forgottenItem_subtitle =>
+      'Chưa mặc lần nào. Hãy thử ngay!';
+
+  @override
+  String get insights_wearToday => 'Mặc hôm nay';
+
+  @override
+  String insights_wearToday_success(Object itemName) {
+    return 'Đã thêm \"$itemName\" vào nhật ký hôm nay!';
+  }
+
+  @override
   String get outfitsHub_title => 'Trang phục của bạn';
 
   @override

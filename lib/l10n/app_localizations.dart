@@ -1358,6 +1358,114 @@ abstract class AppLocalizations {
   /// **'Log an item or an outfit to your Journey to keep track of what you wear.'**
   String get quest_firstLog_description;
 
+  /// No description provided for @insights_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Closet Insights'**
+  String get insights_title;
+
+  /// No description provided for @insights_exclusive.
+  ///
+  /// In en, this message translates to:
+  /// **'MINCLOSET EXCLUSIVE'**
+  String get insights_exclusive;
+
+  /// No description provided for @insights_journeyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Inside {userName}\'s Style Journey'**
+  String insights_journeyTitle(Object userName);
+
+  /// No description provided for @insights_mostLoved.
+  ///
+  /// In en, this message translates to:
+  /// **'The Most-Loved Pieces'**
+  String get insights_mostLoved;
+
+  /// No description provided for @insights_smartestInvestments.
+  ///
+  /// In en, this message translates to:
+  /// **'Smartest Investments'**
+  String get insights_smartestInvestments;
+
+  /// No description provided for @insights_rediscoverCloset.
+  ///
+  /// In en, this message translates to:
+  /// **'Rediscover Your Closet'**
+  String get insights_rediscoverCloset;
+
+  /// No description provided for @insights_investmentFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Investment Focus'**
+  String get insights_investmentFocus;
+
+  /// No description provided for @insights_noData.
+  ///
+  /// In en, this message translates to:
+  /// **'No insights available.'**
+  String get insights_noData;
+
+  /// No description provided for @insights_error_noLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add items or outfits to Style journal first!'**
+  String get insights_error_noLogs;
+
+  /// No description provided for @insights_goToJournal.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Style Journal'**
+  String get insights_goToJournal;
+
+  /// No description provided for @insights_mostWorn_noData.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t logged any worn items yet. Start your style journal today!'**
+  String get insights_mostWorn_noData;
+
+  /// No description provided for @insights_bestValue_noData.
+  ///
+  /// In en, this message translates to:
+  /// **'Wear items you\'ve added a price to and your smartest investments will appear here!'**
+  String get insights_bestValue_noData;
+
+  /// No description provided for @insights_addPrices.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Prices to Items'**
+  String get insights_addPrices;
+
+  /// No description provided for @insights_wears.
+  ///
+  /// In en, this message translates to:
+  /// **'{count,plural, =1{1 wear} other{{count} wears}}'**
+  String insights_wears(num count);
+
+  /// No description provided for @insights_costPerWear.
+  ///
+  /// In en, this message translates to:
+  /// **'{price}/wear'**
+  String insights_costPerWear(Object price);
+
+  /// No description provided for @insights_forgottenItem_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not worn yet. Give it a try!'**
+  String get insights_forgottenItem_subtitle;
+
+  /// No description provided for @insights_wearToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wear Today'**
+  String get insights_wearToday;
+
+  /// No description provided for @insights_wearToday_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Added \"{itemName}\" to today\'s journal!'**
+  String insights_wearToday_success(Object itemName);
+
   /// No description provided for @outfitsHub_title.
   ///
   /// In en, this message translates to:

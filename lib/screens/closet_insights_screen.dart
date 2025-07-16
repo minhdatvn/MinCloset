@@ -14,6 +14,7 @@ import 'package:mincloset/providers/ui_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/log_wear_state.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 
 // --- MÀN HÌNH CHÍNH ---
 class ClosetInsightsScreen extends ConsumerWidget {
@@ -23,8 +24,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(closetInsightsProvider);
     final notifier = ref.read(closetInsightsProvider.notifier);
-    final userName =
-        ref.watch(profileProvider.select((s) => s.userName)) ?? 'You';
+    final userName = ref.watch(profileProvider.select((s) => s.userName)) ?? context.l10n.home_userNameDefault;
 
     return PageScaffold(
       body: RefreshIndicator(
@@ -34,8 +34,8 @@ class ClosetInsightsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildBody(BuildContext context, WidgetRef ref,
-      ClosetInsightsState state, String userName) {
+  Widget _buildBody(BuildContext context, WidgetRef ref, ClosetInsightsState state, String userName) {
+    final l10n = context.l10n;
     if (state.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -56,8 +56,9 @@ class ClosetInsightsScreen extends ConsumerWidget {
                   onPressed: () {
                     Navigator.of(context).popAndPushNamed(AppRoutes.calendar);
                   },
-                  child: const Text(
-                    "Go to Style Journal",
+                  child: 
+                    Text(
+                    l10n.insights_goToJournal,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -70,21 +71,21 @@ class ClosetInsightsScreen extends ConsumerWidget {
         );
       }
     if (state.insights == null) {
-      return const Center(child: Text('No insights available.'));
+      return Center(child: Text(l10n.insights_noData));
     }
 
     return CustomScrollView(
       slivers: [
         _buildMagazineCover(context, userName, state.insights!),
-        _buildSectionHeader(context, "The Most-Loved Pieces"),
+        _buildSectionHeader(context, l10n.insights_mostLoved),
         _buildMostWornList(context, state.insights!.mostWornItems),
-        _buildSectionHeader(context, "Smartest Investments"),
+        _buildSectionHeader(context, l10n.insights_smartestInvestments),
         _buildBestValueList(context, ref, state.insights!.bestValueItems),
-        _buildSectionHeader(context, "Rediscover Your Closet"),
+        _buildSectionHeader(context, l10n.insights_rediscoverCloset),
         _buildForgottenItemsStack(context, state.insights!.forgottenItems),
         _buildSectionHeader(
           context,
-          "Investment Focus",
+          l10n.insights_investmentFocus,
           totalValue: state.insights!.totalValue,
         ),
         _buildCategoryAnalysis(context, state.insights!),
@@ -98,6 +99,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
   Widget _buildMagazineCover(
       BuildContext context, String userName, ClosetInsights insights) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return SliverAppBar(
       expandedHeight: 250.0,
@@ -114,7 +116,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
           return AnimatedOpacity(
             duration: const Duration(milliseconds: 200),
             opacity: showTitle ? 1.0 : 0.0,
-            child: const Text('Closet Insights'),
+            child: Text(l10n.insights_title),
           );
         },
       ),
@@ -149,7 +151,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "MINCLOSET EXCLUSIVE",
+                    l10n.insights_exclusive,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.primary,
                         fontWeight: FontWeight.bold,
@@ -157,7 +159,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Inside $userName's Style Journey",
+                    l10n.insights_journeyTitle(userName),
                     style: Theme.of(context)
                         .textTheme
                         .headlineSmall
@@ -211,8 +213,8 @@ class ClosetInsightsScreen extends ConsumerWidget {
   }
 
   // THAY ĐỔI 1: Hàm cho "Most-Loved Pieces" giờ là ListView cuộn ngang
-  Widget _buildMostWornList(
-      BuildContext context, List<ItemInsight> insights) {
+  Widget _buildMostWornList(BuildContext context, List<ItemInsight> insights) {
+    final l10n = context.l10n;
     final mostWornItems =
         insights.where((insight) => insight.wearCount > 0).toList();
 
@@ -227,8 +229,8 @@ class ClosetInsightsScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  const Text(
-                    "You haven't logged any worn items yet. Start your style journal today!",
+                  Text(
+                    l10n.insights_mostWorn_noData,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
@@ -241,7 +243,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                     ),
                     icon: const Icon(Icons.calendar_month_outlined),
-                    label: const Text('Go to Journal'),
+                    label: Text(l10n.insights_goToJournal),
                   ),
                 ],
               ),
@@ -265,8 +267,8 @@ class ClosetInsightsScreen extends ConsumerWidget {
               width: 160, // Chiều rộng của mỗi thẻ
               child: _InsightItemCard(
                 insight: insight,
-                subtitle: Text(
-                  '${insight.wearCount} wears',
+                subtitle: 
+                  Text(l10n.insights_wears(insight.wearCount),
                   style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w600,
@@ -280,9 +282,10 @@ class ClosetInsightsScreen extends ConsumerWidget {
     );
   }
 
-  // THAY ĐỔI 2: Hàm cho "Smartest Investments" cũng là ListView cuộn ngang
   Widget _buildBestValueList(
       BuildContext context, WidgetRef ref, List<ItemInsight> insights) {
+    final l10n = context.l10n; // Lấy l10n một lần
+
     if (insights.isEmpty) {
       return SliverToBoxAdapter(
         child: Padding(
@@ -294,8 +297,8 @@ class ClosetInsightsScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  const Text(
-                    "Wear items you've added a price to and your smartest investments will appear here!",
+                  Text(
+                    l10n.insights_bestValue_noData, // Sử dụng l10n
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
@@ -309,7 +312,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                     ),
                     icon: const Icon(Icons.edit_note_outlined),
-                    label: const Text('Add Prices to Items'),
+                    label: Text(l10n.insights_addPrices), // Sử dụng l10n
                   ),
                 ],
               ),
@@ -321,7 +324,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
 
     return SliverToBoxAdapter(
       child: SizedBox(
-        height: 230, // Chiều cao của khu vực cuộn ngang
+        height: 230,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -330,18 +333,23 @@ class ClosetInsightsScreen extends ConsumerWidget {
           itemBuilder: (context, index) {
             final insight = insights[index];
             return SizedBox(
-              width: 160, // Chiều rộng của mỗi thẻ
+              width: 160,
               child: Consumer(builder: (context, ref, child) {
                 final settings = ref.watch(profileProvider);
                 final formatter = ref.read(numberFormattingServiceProvider);
+                
+                // 1. Tính toán và định dạng giá tiền trước
+                final formattedPrice = formatter.formatPrice(
+                  price: insight.costPerWear,
+                  currency: settings.currency,
+                  formatType: settings.numberFormat,
+                );
+
+                // 2. Truyền giá trị đã định dạng vào hàm l10n
                 return _InsightItemCard(
                   insight: insight,
                   subtitle: Text(
-                    '${formatter.formatPrice(
-                      price: insight.costPerWear,
-                      currency: settings.currency,
-                      formatType: settings.numberFormat,
-                    )}/wear',
+                    l10n.insights_costPerWear(formattedPrice),
                     style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.w600,
@@ -356,8 +364,8 @@ class ClosetInsightsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildForgottenItemsStack(
-      BuildContext context, List<ItemInsight> insights) {
+  Widget _buildForgottenItemsStack(BuildContext context, List<ItemInsight> insights) {
+    final l10n = context.l10n;
     if (insights.isEmpty) {
       return const SliverToBoxAdapter(child: SizedBox.shrink());
     }
@@ -379,7 +387,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
                     fit: BoxFit.contain),
               ),
               title: Text(insight.item.name),
-              subtitle: const Text('Not worn yet. Give it a try!'),
+              subtitle: Text(l10n.insights_forgottenItem_subtitle),
               trailing: TextButton(
                 onPressed: () async {
                   final success =
@@ -393,8 +401,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
 
                   if (success) {
                     ref.read(notificationServiceProvider).showBanner(
-                          message:
-                              'Added "${insight.item.name}" to today\'s journal!',
+                          message: l10n.insights_wearToday_success(insight.item.name),
                           type: NotificationType.success,
                         );
                     ref.read(closetInsightsProvider.notifier).fetchInsights();
@@ -409,7 +416,7 @@ class ClosetInsightsScreen extends ConsumerWidget {
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
-                child: const Text('Wear Today',
+                child: Text(l10n.insights_wearToday,
                     style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             );

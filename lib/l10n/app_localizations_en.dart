@@ -651,6 +651,77 @@ class AppLocalizationsEn extends AppLocalizations {
       'Log an item or an outfit to your Journey to keep track of what you wear.';
 
   @override
+  String get insights_title => 'Closet Insights';
+
+  @override
+  String get insights_exclusive => 'MINCLOSET EXCLUSIVE';
+
+  @override
+  String insights_journeyTitle(Object userName) {
+    return 'Inside $userName\'s Style Journey';
+  }
+
+  @override
+  String get insights_mostLoved => 'The Most-Loved Pieces';
+
+  @override
+  String get insights_smartestInvestments => 'Smartest Investments';
+
+  @override
+  String get insights_rediscoverCloset => 'Rediscover Your Closet';
+
+  @override
+  String get insights_investmentFocus => 'Investment Focus';
+
+  @override
+  String get insights_noData => 'No insights available.';
+
+  @override
+  String get insights_error_noLogs =>
+      'Please add items or outfits to Style journal first!';
+
+  @override
+  String get insights_goToJournal => 'Go to Style Journal';
+
+  @override
+  String get insights_mostWorn_noData =>
+      'You haven\'t logged any worn items yet. Start your style journal today!';
+
+  @override
+  String get insights_bestValue_noData =>
+      'Wear items you\'ve added a price to and your smartest investments will appear here!';
+
+  @override
+  String get insights_addPrices => 'Add Prices to Items';
+
+  @override
+  String insights_wears(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wears',
+      one: '1 wear',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String insights_costPerWear(Object price) {
+    return '$price/wear';
+  }
+
+  @override
+  String get insights_forgottenItem_subtitle => 'Not worn yet. Give it a try!';
+
+  @override
+  String get insights_wearToday => 'Wear Today';
+
+  @override
+  String insights_wearToday_success(Object itemName) {
+    return 'Added \"$itemName\" to today\'s journal!';
+  }
+
+  @override
   String get outfitsHub_title => 'Your Outfits';
 
   @override

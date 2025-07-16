@@ -254,45 +254,44 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
     return '${base}_${value.toLowerCase().replaceAll(' ', '_').replaceAll('/', '_')}';
   }
 
+  // --- HÀM ĐƯỢC CẬP NHẬT ---
   String _normalizeCategory(String? rawCategory) {
     if (rawCategory == null || rawCategory.trim().isEmpty) {
-      // Trả về key duy nhất cho Other
       return 'category_other';
     }
 
     final parts = rawCategory.split(' > ').map((p) => p.trim()).toList();
-    final mainCategory = parts.first;
+    final mainCategoryText = parts.first;
 
-    // Sửa lỗi: Nếu là 'Other' hoặc 'Khác', trả về key duy nhất và kết thúc
-    if (mainCategory.toLowerCase() == 'other' || mainCategory.toLowerCase() == 'khác') {
+    // Nếu danh mục chính là "Other" hoặc "Khác" (bất kể có danh mục con hay không)
+    // thì coi đó là danh mục "Khác" cấp 1
+    if (mainCategoryText.toLowerCase() == 'other' || mainCategoryText.toLowerCase() == 'khác') {
       return 'category_other';
     }
 
-    final mainCategoryKey = _createLocalizationKey('category', mainCategory);
+    final mainCategoryKey = _createLocalizationKey('category', mainCategoryText);
 
+    // Nếu không nhận dạng được danh mục chính
     if (!AppOptions.categories.containsKey(mainCategoryKey)) {
       return 'category_other';
     }
 
-    // Nếu không có danh mục con, hoặc danh mục con là 'Other'/'Khác'
+    // Nếu chỉ có 1 phần tử, hoặc phần tử thứ 2 là "Other"/"Khác"
     if (parts.length == 1 || parts[1].toLowerCase() == 'other' || parts[1].toLowerCase() == 'khác') {
-      // Tìm key của danh mục con "Other" trong danh sách
-      final otherSubCategoryKey = AppOptions.categories[mainCategoryKey]
-          ?.firstWhere((key) => key.endsWith('_other'), orElse: () => 'category_other');
-      return '$mainCategoryKey > $otherSubCategoryKey';
+      // Trả về dạng "danh_muc_chinh > danh_muc_chinh_other"
+      return '$mainCategoryKey > ${mainCategoryKey}_other';
     }
 
-    final subCategory = parts[1];
-    final subCategoryKey = _createLocalizationKey(mainCategoryKey, subCategory);
+    // Xử lý trường hợp "danh mục chính > danh mục con" thông thường
+    final subCategoryText = parts[1];
+    final subCategoryKey = _createLocalizationKey(mainCategoryKey, subCategoryText);
 
     if (AppOptions.categories[mainCategoryKey]?.contains(subCategoryKey) ?? false) {
       return '$mainCategoryKey > $subCategoryKey';
     }
 
-    // Trường hợp dự phòng, tìm key 'other' của danh mục chính
-    final otherSubCategoryKey = AppOptions.categories[mainCategoryKey]
-        ?.firstWhere((key) => key.endsWith('_other'), orElse: () => 'category_other');
-    return '$mainCategoryKey > $otherSubCategoryKey';
+    // Nếu không tìm thấy, trả về danh mục chính với con là "other"
+    return '$mainCategoryKey > ${mainCategoryKey}_other';
   }
 
   Set<String> _normalizeMultiSelect(

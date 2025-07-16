@@ -65,6 +65,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get category_tops_sweaters => 'Áo len';
 
   @override
+  String get category_tops_other => 'Khác';
+
+  @override
   String get category_bottoms => 'Quần/Váy';
 
   @override
@@ -84,6 +87,9 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get category_bottoms_shorts => 'Quần short';
+
+  @override
+  String get category_bottoms_other => 'Khác';
 
   @override
   String get category_dresses_jumpsuits => 'Đầm/Jumpsuit';
@@ -123,6 +129,9 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get category_dresses_jumpsuits_party_dresses => 'Đầm tiệc';
+
+  @override
+  String get category_dresses_jumpsuits_other => 'Khác';
 
   @override
   String get category_outerwear => 'Áo khoác ngoài';
@@ -179,6 +188,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get category_outerwear_vests => 'Áo gile';
 
   @override
+  String get category_outerwear_other => 'Khác';
+
+  @override
   String get category_footwear => 'Giày dép';
 
   @override
@@ -224,6 +236,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get category_footwear_slides => 'Dép lê';
 
   @override
+  String get category_footwear_other => 'Khác';
+
+  @override
   String get category_bags => 'Túi xách';
 
   @override
@@ -260,6 +275,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get category_bags_suitcases => 'Va li';
 
   @override
+  String get category_bags_other => 'Khác';
+
+  @override
   String get category_hats => 'Mũ';
 
   @override
@@ -279,6 +297,9 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get category_hats_sun_hats => 'Mũ chống nắng';
+
+  @override
+  String get category_hats_other => 'Khác';
 
   @override
   String get category_other => 'Khác';

@@ -206,6 +206,12 @@ abstract class AppLocalizations {
   /// **'Sweaters'**
   String get category_tops_sweaters;
 
+  /// No description provided for @category_tops_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get category_tops_other;
+
   /// No description provided for @category_bottoms.
   ///
   /// In en, this message translates to:
@@ -247,6 +253,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Shorts'**
   String get category_bottoms_shorts;
+
+  /// No description provided for @category_bottoms_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get category_bottoms_other;
 
   /// No description provided for @category_dresses_jumpsuits.
   ///
@@ -325,6 +337,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Party Dresses'**
   String get category_dresses_jumpsuits_party_dresses;
+
+  /// No description provided for @category_dresses_jumpsuits_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get category_dresses_jumpsuits_other;
 
   /// No description provided for @category_outerwear.
   ///
@@ -434,6 +452,12 @@ abstract class AppLocalizations {
   /// **'Vests'**
   String get category_outerwear_vests;
 
+  /// No description provided for @category_outerwear_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get category_outerwear_other;
+
   /// No description provided for @category_footwear.
   ///
   /// In en, this message translates to:
@@ -524,6 +548,12 @@ abstract class AppLocalizations {
   /// **'Slides'**
   String get category_footwear_slides;
 
+  /// No description provided for @category_footwear_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get category_footwear_other;
+
   /// No description provided for @category_bags.
   ///
   /// In en, this message translates to:
@@ -596,6 +626,12 @@ abstract class AppLocalizations {
   /// **'Suitcases'**
   String get category_bags_suitcases;
 
+  /// No description provided for @category_bags_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get category_bags_other;
+
   /// No description provided for @category_hats.
   ///
   /// In en, this message translates to:
@@ -637,6 +673,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sun Hats'**
   String get category_hats_sun_hats;
+
+  /// No description provided for @category_hats_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get category_hats_other;
 
   /// No description provided for @category_other.
   ///

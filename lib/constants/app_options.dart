@@ -13,32 +13,32 @@ class AppOptions {
   static const Map<String, List<String>> categories = {
     'category_tops': [
       'category_tops_tshirts', 'category_tops_long_sleeve', 'category_tops_sleeveless', 'category_tops_polo_shirts', 'category_tops_tanks_camis',
-      'category_tops_crop_tops', 'category_tops_blouses', 'category_tops_shirts', 'category_tops_sweatshirts', 'category_tops_hoodies', 'category_tops_sweaters', 'category_other',
+      'category_tops_crop_tops', 'category_tops_blouses', 'category_tops_shirts', 'category_tops_sweatshirts', 'category_tops_hoodies', 'category_tops_sweaters', 'category_tops_other', 
     ],
     'category_bottoms': [
-      'category_bottoms_jeans', 'category_bottoms_trousers', 'category_bottoms_dress_pants', 'category_bottoms_track_pants', 'category_bottoms_leggings', 'category_bottoms_shorts', 'category_other',
+      'category_bottoms_jeans', 'category_bottoms_trousers', 'category_bottoms_dress_pants', 'category_bottoms_track_pants', 'category_bottoms_leggings', 'category_bottoms_shorts', 'category_bottoms_other', 
     ],
     'category_dresses_jumpsuits': [
       'category_dresses_jumpsuits_mini_skirts', 'category_dresses_jumpsuits_midi_skirts', 'category_dresses_jumpsuits_maxi_skirts', 'category_dresses_jumpsuits_day_dresses', 'category_dresses_jumpsuits_tshirt_dresses',
       'category_dresses_jumpsuits_shirt_dresses', 'category_dresses_jumpsuits_sweatshirt_dresses', 'category_dresses_jumpsuits_sweater_dresses', 'category_dresses_jumpsuits_jacket_dresses',
-      'category_dresses_jumpsuits_suspender_dresses', 'category_dresses_jumpsuits_jumpsuits', 'category_dresses_jumpsuits_party_dresses', 'category_other',
+      'category_dresses_jumpsuits_suspender_dresses', 'category_dresses_jumpsuits_jumpsuits', 'category_dresses_jumpsuits_party_dresses', 'category_dresses_jumpsuits_other', 
     ],
     'category_outerwear': [
       'category_outerwear_coats', 'category_outerwear_trench_coats', 'category_outerwear_fur_coats', 'category_outerwear_shearling_coats', 'category_outerwear_blazers', 'category_outerwear_jackets',
       'category_outerwear_blousons', 'category_outerwear_varsity_jackets', 'category_outerwear_trucker_jackets', 'category_outerwear_biker_jackets', 'category_outerwear_cardigans',
-      'category_outerwear_zipup_hoodies', 'category_outerwear_field_jackets', 'category_outerwear_track_jackets', 'category_outerwear_fleece_jackets', 'category_outerwear_puffer_down_jackets', 'category_outerwear_vests', 'category_other',
+      'category_outerwear_zipup_hoodies', 'category_outerwear_field_jackets', 'category_outerwear_track_jackets', 'category_outerwear_fleece_jackets', 'category_outerwear_puffer_down_jackets', 'category_outerwear_vests', 'category_outerwear_other',
     ],
     'category_footwear': [
       'category_footwear_sneakers', 'category_footwear_slipons', 'category_footwear_sports_shoes', 'category_footwear_hiking_shoes', 'category_footwear_boots',
       'category_footwear_combat_boots', 'category_footwear_ugg_boots', 'category_footwear_loafers_mules', 'category_footwear_boat_shoes',
-      'category_footwear_flat_shoes', 'category_footwear_heels', 'category_footwear_sandals', 'category_footwear_heeled_sandals', 'category_footwear_slides', 'category_other',
+      'category_footwear_flat_shoes', 'category_footwear_heels', 'category_footwear_sandals', 'category_footwear_heeled_sandals', 'category_footwear_slides', 'category_footwear_other',
     ],
     'category_bags': [
       'category_bags_tote_bags', 'category_bags_shoulder_bags', 'category_bags_crossbody_bags', 'category_bags_waist_bags', 'category_bags_canvas_bags',
-      'category_bags_backpacks', 'category_bags_duffel_bags', 'category_bags_clutches', 'category_bags_briefcases', 'category_bags_drawstring_bags', 'category_bags_suitcases', 'category_other',
+      'category_bags_backpacks', 'category_bags_duffel_bags', 'category_bags_clutches', 'category_bags_briefcases', 'category_bags_drawstring_bags', 'category_bags_suitcases', 'category_bags_other', 
     ],
     'category_hats': [
-      'category_hats_caps', 'category_hats_hats', 'category_hats_beanies', 'category_hats_berets', 'category_hats_fedoras', 'category_hats_sun_hats', 'category_other',
+      'category_hats_caps', 'category_hats_hats', 'category_hats_beanies', 'category_hats_berets', 'category_hats_fedoras', 'category_hats_sun_hats', 'category_hats_other',
     ],
     'category_other': [],
   };

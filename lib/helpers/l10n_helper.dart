@@ -16,6 +16,7 @@ String translateAppOption(String key, AppLocalizations l10n) {
     case 'category_tops_sweatshirts': return l10n.category_tops_sweatshirts;
     case 'category_tops_hoodies': return l10n.category_tops_hoodies;
     case 'category_tops_sweaters': return l10n.category_tops_sweaters;
+    case 'category_tops_other': return l10n.category_tops_other;
     case 'category_bottoms': return l10n.category_bottoms;
     case 'category_bottoms_jeans': return l10n.category_bottoms_jeans;
     case 'category_bottoms_trousers': return l10n.category_bottoms_trousers;
@@ -23,6 +24,7 @@ String translateAppOption(String key, AppLocalizations l10n) {
     case 'category_bottoms_track_pants': return l10n.category_bottoms_track_pants;
     case 'category_bottoms_leggings': return l10n.category_bottoms_leggings;
     case 'category_bottoms_shorts': return l10n.category_bottoms_shorts;
+    case 'category_bottoms_other': return l10n.category_bottoms_other;
     case 'category_dresses_jumpsuits': return l10n.category_dresses_jumpsuits;
     case 'category_dresses_jumpsuits_mini_skirts': return l10n.category_dresses_jumpsuits_mini_skirts;
     case 'category_dresses_jumpsuits_midi_skirts': return l10n.category_dresses_jumpsuits_midi_skirts;
@@ -36,6 +38,7 @@ String translateAppOption(String key, AppLocalizations l10n) {
     case 'category_dresses_jumpsuits_suspender_dresses': return l10n.category_dresses_jumpsuits_suspender_dresses;
     case 'category_dresses_jumpsuits_jumpsuits': return l10n.category_dresses_jumpsuits_jumpsuits;
     case 'category_dresses_jumpsuits_party_dresses': return l10n.category_dresses_jumpsuits_party_dresses;
+    case 'category_dresses_jumpsuits_other': return l10n.category_dresses_jumpsuits_other;
     case 'category_outerwear': return l10n.category_outerwear;
     case 'category_outerwear_coats': return l10n.category_outerwear_coats;
     case 'category_outerwear_trench_coats': return l10n.category_outerwear_trench_coats;
@@ -54,6 +57,7 @@ String translateAppOption(String key, AppLocalizations l10n) {
     case 'category_outerwear_fleece_jackets': return l10n.category_outerwear_fleece_jackets;
     case 'category_outerwear_puffer_down_jackets': return l10n.category_outerwear_puffer_down_jackets;
     case 'category_outerwear_vests': return l10n.category_outerwear_vests;
+    case 'category_outerwear_other': return l10n.category_outerwear_other;
     case 'category_footwear': return l10n.category_footwear;
     case 'category_footwear_sneakers': return l10n.category_footwear_sneakers;
     case 'category_footwear_slipons': return l10n.category_footwear_slipons;
@@ -69,6 +73,7 @@ String translateAppOption(String key, AppLocalizations l10n) {
     case 'category_footwear_sandals': return l10n.category_footwear_sandals;
     case 'category_footwear_heeled_sandals': return l10n.category_footwear_heeled_sandals;
     case 'category_footwear_slides': return l10n.category_footwear_slides;
+    case 'category_footwear_other': return l10n.category_footwear_other;
     case 'category_bags': return l10n.category_bags;
     case 'category_bags_tote_bags': return l10n.category_bags_tote_bags;
     case 'category_bags_shoulder_bags': return l10n.category_bags_shoulder_bags;
@@ -81,6 +86,7 @@ String translateAppOption(String key, AppLocalizations l10n) {
     case 'category_bags_briefcases': return l10n.category_bags_briefcases;
     case 'category_bags_drawstring_bags': return l10n.category_bags_drawstring_bags;
     case 'category_bags_suitcases': return l10n.category_bags_suitcases;
+    case 'category_bags_other': return l10n.category_bags_other;
     case 'category_hats': return l10n.category_hats;
     case 'category_hats_caps': return l10n.category_hats_caps;
     case 'category_hats_hats': return l10n.category_hats_hats;
@@ -88,6 +94,7 @@ String translateAppOption(String key, AppLocalizations l10n) {
     case 'category_hats_berets': return l10n.category_hats_berets;
     case 'category_hats_fedoras': return l10n.category_hats_fedoras;
     case 'category_hats_sun_hats': return l10n.category_hats_sun_hats;
+    case 'category_hats_other': return l10n.category_hats_other;
     case 'category_other': return l10n.category_other;
     
     // Seasons

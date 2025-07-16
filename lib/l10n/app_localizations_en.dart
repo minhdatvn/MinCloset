@@ -65,6 +65,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get category_tops_sweaters => 'Sweaters';
 
   @override
+  String get category_tops_other => 'Other';
+
+  @override
   String get category_bottoms => 'Bottoms';
 
   @override
@@ -84,6 +87,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get category_bottoms_shorts => 'Shorts';
+
+  @override
+  String get category_bottoms_other => 'Other';
 
   @override
   String get category_dresses_jumpsuits => 'Dresses/Jumpsuits';
@@ -125,6 +131,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get category_dresses_jumpsuits_party_dresses => 'Party Dresses';
+
+  @override
+  String get category_dresses_jumpsuits_other => 'Other';
 
   @override
   String get category_outerwear => 'Outerwear';
@@ -181,6 +190,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get category_outerwear_vests => 'Vests';
 
   @override
+  String get category_outerwear_other => 'Other';
+
+  @override
   String get category_footwear => 'Footwear';
 
   @override
@@ -226,6 +238,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get category_footwear_slides => 'Slides';
 
   @override
+  String get category_footwear_other => 'Other';
+
+  @override
   String get category_bags => 'Bags';
 
   @override
@@ -262,6 +277,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get category_bags_suitcases => 'Suitcases';
 
   @override
+  String get category_bags_other => 'Other';
+
+  @override
   String get category_hats => 'Hats';
 
   @override
@@ -281,6 +299,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get category_hats_sun_hats => 'Sun Hats';
+
+  @override
+  String get category_hats_other => 'Other';
 
   @override
   String get category_other => 'Other';

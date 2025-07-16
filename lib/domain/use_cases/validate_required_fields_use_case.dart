@@ -7,13 +7,13 @@ class ValidateRequiredFieldsUseCase {
   /// Xác thực các trường bắt buộc cho một món đồ duy nhất.
   ValidationResult executeForSingle(ItemDetailState itemState) {
     if (itemState.name.trim().isEmpty) {
-      return ValidationResult.failure("Please enter item name");
+      return ValidationResult.failure(null, errorCode: 'name_required');
     }
     if (itemState.selectedClosetId == null) {
-      return ValidationResult.failure("Please select a closet");
+      return ValidationResult.failure(null, errorCode: 'closet_required');
     }
     if (itemState.selectedCategoryValue.isEmpty) {
-      return ValidationResult.failure("Please select a category");
+      return ValidationResult.failure(null, errorCode: 'category_required');
     }
     return ValidationResult.success();
   }
@@ -24,20 +24,26 @@ class ValidateRequiredFieldsUseCase {
       final itemState = itemStates[i];
       if (itemState.name.trim().isEmpty) {
         return ValidationResult.failure(
-          "Please enter a name for Item ${i + 1}",
+          null,
           errorIndex: i,
+          errorCode: 'batch_name_required',
+          data: {'itemNumber': i + 1},
         );
       }
       if (itemState.selectedClosetId == null) {
         return ValidationResult.failure(
-          "Please select a closet for Item ${i + 1}",
+          null,
           errorIndex: i,
+          errorCode: 'batch_closet_required',
+          data: {'itemNumber': i + 1},
         );
       }
       if (itemState.selectedCategoryValue.isEmpty) {
         return ValidationResult.failure(
-          "Please select a category for Item ${i + 1}",
+          null,
           errorIndex: i,
+          errorCode: 'batch_category_required',
+          data: {'itemNumber': i + 1},
         );
       }
     }

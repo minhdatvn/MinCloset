@@ -116,7 +116,19 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
     
     final requiredFieldsResult = _validateRequiredUseCase.executeForSingle(state);
     if (!requiredFieldsResult.success) {
-      _ref.read(itemDetailErrorProvider.notifier).state = requiredFieldsResult.errorMessage;
+      String errorMessage = 'Unknown required field error';
+      switch (requiredFieldsResult.errorCode) {
+        case 'name_required':
+          errorMessage = l10n.validation_error_name_required;
+          break;
+        case 'closet_required':
+          errorMessage = l10n.validation_error_closet_required;
+          break;
+        case 'category_required':
+          errorMessage = l10n.validation_error_category_required;
+          break;
+      }
+      _ref.read(itemDetailErrorProvider.notifier).state = errorMessage;
       return;
     }
 

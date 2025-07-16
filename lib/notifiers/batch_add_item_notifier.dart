@@ -189,7 +189,22 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
     // Kiểm tra các trường bắt buộc
     final requiredResult = _validateRequiredUseCase.executeForBatch(itemStates);
     if (!requiredResult.success) {
-      _ref.read(batchItemDetailErrorProvider.notifier).state = requiredResult.errorMessage;
+      String errorMessage = 'Unknown required field error';
+      final data = requiredResult.data;
+      final itemNumber = data != null ? data['itemNumber'].toString() : '';
+
+      switch (requiredResult.errorCode) {
+        case 'batch_name_required':
+          errorMessage = l10n.validation_error_batch_name_required(itemNumber);
+          break;
+        case 'batch_closet_required':
+          errorMessage = l10n.validation_error_batch_closet_required(itemNumber);
+          break;
+        case 'batch_category_required':
+          errorMessage = l10n.validation_error_batch_category_required(itemNumber);
+          break;
+      }
+      _ref.read(batchItemDetailErrorProvider.notifier).state = errorMessage;
       state = state.copyWith(isSaving: false, currentIndex: requiredResult.errorIndex);
       return;
     }

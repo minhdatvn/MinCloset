@@ -563,5 +563,12 @@
     "permissions_camera_desc": "Để chụp ảnh và thêm vật phẩm mới vào tủ đồ của bạn.",
     "permissions_location_title": "Vị trí",
     "permissions_location_desc": "Để cung cấp gợi ý trang phục phù hợp với thời tiết.",
-    "permissions_continue_button": "Tiếp tục"
+    "permissions_continue_button": "Tiếp tục",
+
+    "validation_error_name_required": "Vui lòng nhập tên vật phẩm",
+    "validation_error_closet_required": "Vui lòng chọn một tủ đồ",
+    "validation_error_category_required": "Vui lòng chọn một danh mục",
+    "validation_error_batch_name_required": "Vui lòng nhập tên cho Vật phẩm số {itemNumber}",
+    "validation_error_batch_closet_required": "Vui lòng chọn tủ đồ cho Vật phẩm số {itemNumber}",
+    "validation_error_batch_category_required": "Vui lòng chọn danh mục cho Vật phẩm số {itemNumber}"
 }

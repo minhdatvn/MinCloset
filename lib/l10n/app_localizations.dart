@@ -2792,6 +2792,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue'**
   String get permissions_continue_button;
+
+  /// No description provided for @validation_error_name_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter item name'**
+  String get validation_error_name_required;
+
+  /// No description provided for @validation_error_closet_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a closet'**
+  String get validation_error_closet_required;
+
+  /// No description provided for @validation_error_category_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a category'**
+  String get validation_error_category_required;
+
+  /// No description provided for @validation_error_batch_name_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a name for Item {itemNumber}'**
+  String validation_error_batch_name_required(Object itemNumber);
+
+  /// No description provided for @validation_error_batch_closet_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a closet for Item {itemNumber}'**
+  String validation_error_batch_closet_required(Object itemNumber);
+
+  /// No description provided for @validation_error_batch_category_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a category for Item {itemNumber}'**
+  String validation_error_batch_category_required(Object itemNumber);
 }
 
 class _AppLocalizationsDelegate

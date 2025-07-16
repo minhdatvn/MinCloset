@@ -1531,4 +1531,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get permissions_continue_button => 'Continue';
+
+  @override
+  String get validation_error_name_required => 'Please enter item name';
+
+  @override
+  String get validation_error_closet_required => 'Please select a closet';
+
+  @override
+  String get validation_error_category_required => 'Please select a category';
+
+  @override
+  String validation_error_batch_name_required(Object itemNumber) {
+    return 'Please enter a name for Item $itemNumber';
+  }
+
+  @override
+  String validation_error_batch_closet_required(Object itemNumber) {
+    return 'Please select a closet for Item $itemNumber';
+  }
+
+  @override
+  String validation_error_batch_category_required(Object itemNumber) {
+    return 'Please select a category for Item $itemNumber';
+  }
 }

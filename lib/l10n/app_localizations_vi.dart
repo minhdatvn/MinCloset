@@ -1492,4 +1492,28 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get permissions_continue_button => 'Tiếp tục';
+
+  @override
+  String get validation_error_name_required => 'Vui lòng nhập tên vật phẩm';
+
+  @override
+  String get validation_error_closet_required => 'Vui lòng chọn một tủ đồ';
+
+  @override
+  String get validation_error_category_required => 'Vui lòng chọn một danh mục';
+
+  @override
+  String validation_error_batch_name_required(Object itemNumber) {
+    return 'Vui lòng nhập tên cho Vật phẩm số $itemNumber';
+  }
+
+  @override
+  String validation_error_batch_closet_required(Object itemNumber) {
+    return 'Vui lòng chọn tủ đồ cho Vật phẩm số $itemNumber';
+  }
+
+  @override
+  String validation_error_batch_category_required(Object itemNumber) {
+    return 'Vui lòng chọn danh mục cho Vật phẩm số $itemNumber';
+  }
 }

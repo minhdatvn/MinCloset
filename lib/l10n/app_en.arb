@@ -573,5 +573,12 @@
     "permissions_camera_desc": "To take photos and add new items to your closet.",
     "permissions_location_title": "Location",
     "permissions_location_desc": "To provide outfit suggestions that match the weather.",
-    "permissions_continue_button": "Continue"
+    "permissions_continue_button": "Continue",
+
+    "validation_error_name_required": "Please enter item name",
+    "validation_error_closet_required": "Please select a closet",
+    "validation_error_category_required": "Please select a category",
+    "validation_error_batch_name_required": "Please enter a name for Item {itemNumber}",
+    "validation_error_batch_closet_required": "Please select a closet for Item {itemNumber}",
+    "validation_error_batch_category_required": "Please select a category for Item {itemNumber}"
 }

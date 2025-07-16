@@ -2119,6 +2119,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notes'**
   String get itemDetail_form_notesLabel;
+
+  /// No description provided for @analysis_preparingImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing images...'**
+  String get analysis_preparingImages;
+
+  /// No description provided for @analysis_prefillingInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-filling information...\nThis may take a moment to complete.'**
+  String get analysis_prefillingInfo;
+
+  /// No description provided for @analysis_maxPhotosWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum of 10 photos selected. Extra photos were skipped.'**
+  String get analysis_maxPhotosWarning;
 }
 
 class _AppLocalizationsDelegate

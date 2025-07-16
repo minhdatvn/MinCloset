@@ -447,5 +447,9 @@
     "itemDetail_form_materialLabel": "Material",
     "itemDetail_form_patternLabel": "Pattern",
     "itemDetail_form_priceLabel": "Price",
-    "itemDetail_form_notesLabel": "Notes"
+    "itemDetail_form_notesLabel": "Notes",
+
+    "analysis_preparingImages": "Preparing images...",
+    "analysis_prefillingInfo": "Pre-filling information...\nThis may take a moment to complete.",
+    "analysis_maxPhotosWarning": "Maximum of 10 photos selected. Extra photos were skipped."
 }

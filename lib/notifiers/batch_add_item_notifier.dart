@@ -73,14 +73,21 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
     return selections;
   }
 
+  // HÀM MỚI: Chỉ để thiết lập trạng thái chuẩn bị
+  void prepareForAnalysis(int total) {
+      state = state.copyWith(
+          isLoading: true,
+          clearAnalysisError: true,
+          stage: AnalysisStage.preparing, // <-- Chỉ set là preparing
+          totalItemsToProcess: total,
+          itemsProcessed: 0,
+          analysisSuccess: false // Reset lại cờ thành công
+      );
+  }
+
   Future<void> analyzeAllImages(List<XFile> images) async {
-    state = state.copyWith(
-      isLoading: true,
-      clearAnalysisError: true,
-      stage: AnalysisStage.analyzing, // <-- Giữ nguyên để UI biết đang trong giai đoạn phân tích
-      totalItemsToProcess: images.length,
-      itemsProcessed: 0,
-    );
+    // Cập nhật trạng thái sang analyzing KHI bắt đầu công việc nặng
+    state = state.copyWith(stage: AnalysisStage.analyzing);
 
     // 1. Tạo một danh sách các Future, mỗi Future là một yêu cầu phân tích ảnh
     final analysisFutures = images.map((image) {

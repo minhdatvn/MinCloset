@@ -437,5 +437,9 @@
     "itemDetail_form_materialLabel": "Chất liệu",
     "itemDetail_form_patternLabel": "Hoạ tiết",
     "itemDetail_form_priceLabel": "Giá tiền",
-    "itemDetail_form_notesLabel": "Ghi chú"
+    "itemDetail_form_notesLabel": "Ghi chú",
+
+    "analysis_preparingImages": "Đang chuẩn bị hình ảnh...",
+    "analysis_prefillingInfo": "Đang điền trước thông tin...\nQuá trình này có thể mất một chút thời gian.",
+    "analysis_maxPhotosWarning": "Đã chọn tối đa 10 ảnh. Các ảnh thừa đã được bỏ qua."
 }

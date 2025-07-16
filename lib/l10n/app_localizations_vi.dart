@@ -1067,4 +1067,15 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get itemDetail_form_notesLabel => 'Ghi chú';
+
+  @override
+  String get analysis_preparingImages => 'Đang chuẩn bị hình ảnh...';
+
+  @override
+  String get analysis_prefillingInfo =>
+      'Đang điền trước thông tin...\nQuá trình này có thể mất một chút thời gian.';
+
+  @override
+  String get analysis_maxPhotosWarning =>
+      'Đã chọn tối đa 10 ảnh. Các ảnh thừa đã được bỏ qua.';
 }

@@ -2,11 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/notifiers/batch_add_item_notifier.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
 import 'package:mincloset/utils/logger.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 
 class AnalysisLoadingScreen extends ConsumerStatefulWidget {
   final List<XFile>? images; 
@@ -17,7 +20,6 @@ class AnalysisLoadingScreen extends ConsumerStatefulWidget {
 }
 
 class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
-  String _loadingMessage = "Preparing images...";
 
   @override
   void initState() {
@@ -51,24 +53,38 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
     _startAnalysis(pickedFiles);
   }
 
-  void _startAnalysis(List<XFile> files) {
-    setState(() {
-      _loadingMessage = "Pre-filling information...\nThis may take a moment to complete.";
-    });
-
+  Future<void> _startAnalysis(List<XFile> files) async {
     List<XFile> filesToProcess = files;
     if (files.length > 10) {
       filesToProcess = files.take(10).toList();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Maximum of 10 photos selected. Extra photos were skipped.')),
-      );
+      // Thêm kiểm tra 'mounted' để đảm bảo an toàn
+      if (mounted) {
+        ref.read(notificationServiceProvider).showBanner(
+              message: context.l10n.analysis_maxPhotosWarning,
+              type: NotificationType.warning, // Dùng loại "cảnh báo" sẽ phù hợp hơn
+            );
+      }
     }
-    
-    ref.read(batchAddScreenProvider.notifier).analyzeAllImages(filesToProcess);
+
+    // 1. Gọi hàm chuẩn bị trước
+    ref.read(batchAddScreenProvider.notifier).prepareForAnalysis(filesToProcess.length);
+
+    // 2. Đợi một khoảng thời gian rất nhỏ để UI kịp cập nhật
+    await Future.delayed(const Duration(milliseconds: 50));
+
+    // 3. Gọi hàm phân tích sau khi UI đã hiển thị
+    if (mounted) {
+      ref.read(batchAddScreenProvider.notifier).analyzeAllImages(filesToProcess);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final stage = ref.watch(batchAddScreenProvider.select((s) => s.stage));
+    // Lấy chuỗi văn bản động dựa trên trạng thái
+    final loadingMessage = stage == AnalysisStage.preparing 
+        ? context.l10n.analysis_preparingImages 
+        : context.l10n.analysis_prefillingInfo;
     // Lắng nghe để điều hướng khi phân tích xong
     ref.listen<BatchItemDetailState>(batchAddScreenProvider, (previous, next) {
       if (!mounted) return;
@@ -107,7 +123,7 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                _loadingMessage,
+                loadingMessage,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white, height: 1.5),
               ),

@@ -1098,4 +1098,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get itemDetail_form_notesLabel => 'Notes';
+
+  @override
+  String get analysis_preparingImages => 'Preparing images...';
+
+  @override
+  String get analysis_prefillingInfo =>
+      'Pre-filling information...\nThis may take a moment to complete.';
+
+  @override
+  String get analysis_maxPhotosWarning =>
+      'Maximum of 10 photos selected. Extra photos were skipped.';
 }

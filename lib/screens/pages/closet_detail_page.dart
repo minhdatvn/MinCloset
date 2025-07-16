@@ -61,9 +61,9 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
     if (!mounted) return;
     if (availableClosets.isEmpty) {
         ref.read(notificationServiceProvider).showBanner(
-        message: l10n.closetDetail_moveErrorNoClosets,
-        type: NotificationType.warning,
-      );
+          message: l10n.closetDetail_moveErrorNoClosets,
+          type: NotificationType.warning,
+        );
       return;
     }
 

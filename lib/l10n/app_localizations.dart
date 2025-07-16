@@ -1754,6 +1754,60 @@ abstract class AppLocalizations {
   /// **'Closet name'**
   String get closetDialog_createLabel;
 
+  /// No description provided for @closet_error_emptyName.
+  ///
+  /// In en, this message translates to:
+  /// **'Closet name cannot be empty.'**
+  String get closet_error_emptyName;
+
+  /// No description provided for @closet_error_maxLength.
+  ///
+  /// In en, this message translates to:
+  /// **'Closet name cannot exceed 30 characters.'**
+  String get closet_error_maxLength;
+
+  /// No description provided for @closet_error_limitReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum number of closets (10) reached.'**
+  String get closet_error_limitReached;
+
+  /// No description provided for @closet_error_duplicateName.
+  ///
+  /// In en, this message translates to:
+  /// **'A closet with this name already exists.'**
+  String get closet_error_duplicateName;
+
+  /// No description provided for @closet_error_notEmptyOnDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Closet is not empty. Move or delete items first.'**
+  String get closet_error_notEmptyOnDelete;
+
+  /// No description provided for @closet_success_created.
+  ///
+  /// In en, this message translates to:
+  /// **'Successfully created \"{closetName}\" closet.'**
+  String closet_success_created(Object closetName);
+
+  /// No description provided for @closet_success_updated.
+  ///
+  /// In en, this message translates to:
+  /// **'Closet updated successfully.'**
+  String get closet_success_updated;
+
+  /// No description provided for @closet_success_deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Closet deleted successfully.'**
+  String get closet_success_deleted;
+
+  /// No description provided for @closet_moveErrorNoClosets.
+  ///
+  /// In en, this message translates to:
+  /// **'No other closets available to move to.'**
+  String get closet_moveErrorNoClosets;
+
   /// No description provided for @allItems_searchHint.
   ///
   /// In en, this message translates to:

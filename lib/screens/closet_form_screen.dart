@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/notifiers/closets_page_notifier.dart';
 import 'package:mincloset/providers/ui_providers.dart';
-import 'package:mincloset/helpers/context_extensions.dart'; 
 
 // --- THAY ĐỔI 1: Tách các Icon và Màu sắc ra khỏi widget để dễ quản lý ---
 const Map<String, IconData> _availableIcons = {
@@ -64,6 +64,7 @@ class _ClosetFormScreenState extends ConsumerState<ClosetFormScreen> {
   }
 
   void _saveChanges() {
+    final l10n = context.l10n;
     final notifier = ref.read(closetsPageProvider.notifier);
     final name = _nameController.text.trim();
 
@@ -74,13 +75,14 @@ class _ClosetFormScreenState extends ConsumerState<ClosetFormScreen> {
         iconName: _selectedIconName,
         colorHex: _selectedColorHex,
       );
-      notifier.updateClosetDetails(updatedCloset);
+      notifier.updateClosetDetails(updatedCloset, l10n: l10n);
     } else {
       // Nếu là chế độ thêm, gọi hàm addCloset với các thông tin đã chọn
       notifier.addCloset(
         name,
         iconName: _selectedIconName,
         colorHex: _selectedColorHex,
+        l10n: l10n,
       );
       // Bổ sung logic điều hướng
       // 1. Chuyển trang chính đến tab "Closets" (index = 1)

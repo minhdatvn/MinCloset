@@ -502,7 +502,7 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                       );
                       if (confirmed == true) {
                           // Chỉ cần gọi notifier để xóa
-                          await ref.read(closetsPageProvider.notifier).deleteCloset(closet.id);
+                          await ref.read(closetsPageProvider.notifier).deleteCloset(closet.id, l10n: l10n);
                       }
                       // Luôn trả về false để Dismissible không tự xóa widget
                       // Việc cập nhật UI sẽ do provider đảm nhiệm

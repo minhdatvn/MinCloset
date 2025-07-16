@@ -914,6 +914,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get closetDialog_createLabel => 'Closet name';
 
   @override
+  String get closet_error_emptyName => 'Closet name cannot be empty.';
+
+  @override
+  String get closet_error_maxLength =>
+      'Closet name cannot exceed 30 characters.';
+
+  @override
+  String get closet_error_limitReached =>
+      'Maximum number of closets (10) reached.';
+
+  @override
+  String get closet_error_duplicateName =>
+      'A closet with this name already exists.';
+
+  @override
+  String get closet_error_notEmptyOnDelete =>
+      'Closet is not empty. Move or delete items first.';
+
+  @override
+  String closet_success_created(Object closetName) {
+    return 'Successfully created \"$closetName\" closet.';
+  }
+
+  @override
+  String get closet_success_updated => 'Closet updated successfully.';
+
+  @override
+  String get closet_success_deleted => 'Closet deleted successfully.';
+
+  @override
+  String get closet_moveErrorNoClosets =>
+      'No other closets available to move to.';
+
+  @override
   String get allItems_searchHint => 'Search items...';
 
   @override

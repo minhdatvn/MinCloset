@@ -302,6 +302,16 @@
     "closetDialog_editLabel": "New name",
     "closetDialog_createLabel": "Closet name",
 
+    "closet_error_emptyName": "Closet name cannot be empty.",
+    "closet_error_maxLength": "Closet name cannot exceed 30 characters.",
+    "closet_error_limitReached": "Maximum number of closets (10) reached.",
+    "closet_error_duplicateName": "A closet with this name already exists.",
+    "closet_error_notEmptyOnDelete": "Closet is not empty. Move or delete items first.",
+    "closet_success_created": "Successfully created \"{closetName}\" closet.",
+    "closet_success_updated": "Closet updated successfully.",
+    "closet_success_deleted": "Closet deleted successfully.",
+    "closet_moveErrorNoClosets": "No other closets available to move to.",
+
     "allItems_searchHint": "Search items...",
     "allItems_filterTooltip": "Filter",
     "allItems_emptyCloset": "Your closet is empty.",

@@ -895,6 +895,39 @@ class AppLocalizationsVi extends AppLocalizations {
   String get closetDialog_createLabel => 'Tên tủ đồ';
 
   @override
+  String get closet_error_emptyName => 'Tên tủ đồ không được để trống.';
+
+  @override
+  String get closet_error_maxLength =>
+      'Tên tủ đồ không được vượt quá 30 ký tự.';
+
+  @override
+  String get closet_error_limitReached =>
+      'Đã đạt giới hạn số lượng tủ đồ (10).';
+
+  @override
+  String get closet_error_duplicateName => 'Tên tủ đồ này đã tồn tại.';
+
+  @override
+  String get closet_error_notEmptyOnDelete =>
+      'Tủ đồ không trống. Hãy di chuyển hoặc xóa các vật phẩm trước.';
+
+  @override
+  String closet_success_created(Object closetName) {
+    return 'Đã tạo thành công tủ đồ \"$closetName\".';
+  }
+
+  @override
+  String get closet_success_updated => 'Cập nhật tủ đồ thành công.';
+
+  @override
+  String get closet_success_deleted => 'Đã xóa tủ đồ thành công.';
+
+  @override
+  String get closet_moveErrorNoClosets =>
+      'Không có tủ đồ nào khác để di chuyển tới.';
+
+  @override
   String get allItems_searchHint => 'Tìm kiếm vật phẩm...';
 
   @override

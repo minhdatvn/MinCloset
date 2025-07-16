@@ -6,6 +6,7 @@ import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/repositories/closet_repository.dart';
+import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:uuid/uuid.dart';
 
 class ClosetsPageState {
@@ -47,10 +48,11 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
     String name, {
     String? iconName,
     String? colorHex,
+    required AppLocalizations l10n,
   }) async {
     final trimmedName = name.trim();
     if (trimmedName.isEmpty) {
-      state = state.copyWith(errorMessage: 'Closet name cannot be empty.');
+      state = state.copyWith(errorMessage: l10n.closet_error_emptyName);
       return;
     }
 
@@ -66,7 +68,7 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
       },
       (closets) async {
         if (closets.length >= 10) {
-          state = state.copyWith(isLoading: false, errorMessage: 'Maximum number of closets (10) reached.');
+          state = state.copyWith(isLoading: false, errorMessage: l10n.closet_error_limitReached);
           return;
         }
 
@@ -74,7 +76,7 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
             closet.name.trim().toLowerCase() == trimmedName.toLowerCase());
 
         if (isDuplicate) {
-          state = state.copyWith(isLoading: false, errorMessage: 'A closet with this name already exists.');
+          state = state.copyWith(isLoading: false, errorMessage: l10n.closet_error_duplicateName);
           return;
         }
 
@@ -102,22 +104,22 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
             }
             
             _ref.invalidate(closetsProvider);
-            state = state.copyWith(isLoading: false, successMessage: 'Successfully created "$trimmedName" closet.');
+            state = state.copyWith(isLoading: false, successMessage: l10n.closet_success_created(trimmedName));
           },
         );
       },
     );
   }
   
-  Future<void> updateClosetDetails(Closet updatedCloset) async {
+   Future<void> updateClosetDetails(Closet updatedCloset, {required AppLocalizations l10n}) async {
     // 1. Kiểm tra tên mới có hợp lệ không
     final trimmedName = updatedCloset.name.trim();
     if (trimmedName.isEmpty) {
-      state = state.copyWith(errorMessage: 'Closet name cannot be empty.');
+      state = state.copyWith(errorMessage: l10n.closet_error_emptyName);
       return;
     }
     if (trimmedName.length > 30) {
-      state = state.copyWith(errorMessage: 'Closet name cannot exceed 30 characters.');
+      state = state.copyWith(errorMessage: l10n.closet_error_maxLength);
       return;
     }
 
@@ -136,7 +138,7 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
             closet.name.trim().toLowerCase() == trimmedName.toLowerCase());
 
         if (isDuplicate) {
-          state = state.copyWith(errorMessage: 'A closet with this name already exists.');
+          state = state.copyWith(errorMessage: l10n.closet_error_duplicateName);
           return;
         }
 
@@ -151,14 +153,14 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
           (_) {
             // 4. Cập nhật thành công, làm mới lại danh sách và báo thành công
             _ref.invalidate(closetsProvider);
-            state = state.copyWith(successMessage: 'Closet updated successfully.');
+            state = state.copyWith(successMessage: l10n.closet_success_updated);
           },
         );
       },
     );
   }
 
-  Future<void> deleteCloset(String closetId) async {
+  Future<void> deleteCloset(String closetId, {required AppLocalizations l10n}) async {
     final clothingItemRepo = _ref.read(clothingItemRepositoryProvider);
     final itemsResult = await clothingItemRepo.getItemsInCloset(closetId);
 
@@ -166,7 +168,7 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
 
     final itemsInCloset = itemsResult.getOrElse((_) => []);
     if (itemsInCloset.isNotEmpty) {
-      state = state.copyWith(errorMessage: 'Closet is not empty. Move or delete items first.');
+      state = state.copyWith(errorMessage: l10n.closet_error_notEmptyOnDelete);
       return;
     }
 
@@ -180,14 +182,12 @@ class ClosetsPageNotifier extends StateNotifier<ClosetsPageState> {
       },
       (_) {
         _ref.invalidate(closetsProvider);
-        // Lấy tên closet để hiển thị thông báo (tùy chọn, có thể bỏ qua để đơn giản)
-        state = state.copyWith(successMessage: 'Closet deleted successfully.');
+        state = state.copyWith(successMessage: l10n.closet_success_deleted);
       },
     );
   }
 }
 
-// <<< THAY ĐỔI QUAN TRỌNG NHẤT: XÓA .autoDispose >>>
 final closetsPageProvider =
     StateNotifierProvider<ClosetsPageNotifier, ClosetsPageState>((ref) {
   final repo = ref.watch(closetRepositoryProvider);

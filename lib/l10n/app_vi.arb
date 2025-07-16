@@ -292,6 +292,16 @@
     "closetDialog_editLabel": "Tên mới",
     "closetDialog_createLabel": "Tên tủ đồ",
 
+    "closet_error_emptyName": "Tên tủ đồ không được để trống.",
+    "closet_error_maxLength": "Tên tủ đồ không được vượt quá 30 ký tự.",
+    "closet_error_limitReached": "Đã đạt giới hạn số lượng tủ đồ (10).",
+    "closet_error_duplicateName": "Tên tủ đồ này đã tồn tại.",
+    "closet_error_notEmptyOnDelete": "Tủ đồ không trống. Hãy di chuyển hoặc xóa các vật phẩm trước.",
+    "closet_success_created": "Đã tạo thành công tủ đồ \"{closetName}\".",
+    "closet_success_updated": "Cập nhật tủ đồ thành công.",
+    "closet_success_deleted": "Đã xóa tủ đồ thành công.",
+    "closet_moveErrorNoClosets": "Không có tủ đồ nào khác để di chuyển tới.",
+
     "allItems_searchHint": "Tìm kiếm vật phẩm...",
     "allItems_filterTooltip": "Lọc",
     "allItems_emptyCloset": "Tủ đồ của bạn đang trống.",

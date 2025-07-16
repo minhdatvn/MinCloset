@@ -2498,6 +2498,36 @@ abstract class AppLocalizations {
   /// **'Could not update image: {error}'**
   String itemNotifier_error_updateImage(Object error);
 
+  /// No description provided for @batchAdd_title_page.
+  ///
+  /// In en, this message translates to:
+  /// **'Add item ({current}/{total})'**
+  String batchAdd_title_page(Object current, Object total);
+
+  /// No description provided for @batchAdd_button_previous.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get batchAdd_button_previous;
+
+  /// No description provided for @batchAdd_button_next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get batchAdd_button_next;
+
+  /// No description provided for @batchAdd_button_saveAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Save all'**
+  String get batchAdd_button_saveAll;
+
+  /// No description provided for @batchAdd_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No photos to display.'**
+  String get batchAdd_empty;
+
   /// No description provided for @analysis_preparingImages.
   ///
   /// In en, this message translates to:

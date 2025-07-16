@@ -1362,6 +1362,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String batchAdd_title_page(Object current, Object total) {
+    return 'Add item ($current/$total)';
+  }
+
+  @override
+  String get batchAdd_button_previous => 'Previous';
+
+  @override
+  String get batchAdd_button_next => 'Next';
+
+  @override
+  String get batchAdd_button_saveAll => 'Save all';
+
+  @override
+  String get batchAdd_empty => 'No photos to display.';
+
+  @override
   String get analysis_preparingImages => 'Preparing images...';
 
   @override

@@ -501,6 +501,12 @@
     "itemNotifier_delete_success": "Đã xoá thành công vật phẩm \"{itemName}\".",
     "itemNotifier_error_updateImage": "Không thể cập nhật hình ảnh: {error}",
 
+    "batchAdd_title_page": "Thêm vật phẩm ({current}/{total})",
+    "batchAdd_button_previous": "Trước",
+    "batchAdd_button_next": "Sau",
+    "batchAdd_button_saveAll": "Lưu tất cả",
+    "batchAdd_empty": "Không có ảnh nào để hiển thị.",
+
     "analysis_preparingImages": "Đang chuẩn bị hình ảnh...",
     "analysis_prefillingInfo": "Đang điền trước thông tin...\nQuá trình này có thể mất một chút thời gian.",
     "analysis_maxPhotosWarning": "Đã chọn tối đa 10 ảnh. Các ảnh thừa đã được bỏ qua.",

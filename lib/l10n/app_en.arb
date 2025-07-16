@@ -511,6 +511,12 @@
     "itemNotifier_delete_success": "Successfully deleted item \"{itemName}\".",
     "itemNotifier_error_updateImage": "Could not update image: {error}",
 
+    "batchAdd_title_page": "Add item ({current}/{total})",
+    "batchAdd_button_previous": "Previous",
+    "batchAdd_button_next": "Next",
+    "batchAdd_button_saveAll": "Save all",
+    "batchAdd_empty": "No photos to display.",
+
     "analysis_preparingImages": "Preparing images...",
     "analysis_prefillingInfo": "Pre-filling information...\nThis may take a moment to complete.",
     "analysis_maxPhotosWarning": "Maximum of 10 photos selected. Extra photos were skipped.",

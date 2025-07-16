@@ -13,6 +13,7 @@ import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
 import 'package:mincloset/widgets/item_detail_form.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 
 class BatchItemDetailScreen extends ConsumerStatefulWidget {
   const BatchItemDetailScreen({super.key});
@@ -37,6 +38,7 @@ class _BatchItemDetailScreenState extends ConsumerState<BatchItemDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final state = ref.watch(batchAddScreenProvider);
     final notifier = ref.read(batchAddScreenProvider.notifier);
     final itemArgsList = state.itemArgsList;
@@ -80,11 +82,16 @@ class _BatchItemDetailScreenState extends ConsumerState<BatchItemDetailScreen> {
     });
 
     if (itemArgsList.isEmpty) {
-      return const Scaffold(body: Center(child: Text('No photos to display.')));
+      return Scaffold(body: Center(child: Text(l10n.batchAdd_empty)));
     }
 
     return PageScaffold(
-      appBar: AppBar(title: Text('Add item (${state.currentIndex + 1}/${itemArgsList.length})')),
+      appBar: AppBar(
+        title: Text(l10n.batchAdd_title_page(
+          (state.currentIndex + 1).toString(),
+          itemArgsList.length.toString(),
+        )),
+      ),
       body: Column(
         children: [
           Expanded(
@@ -106,18 +113,21 @@ class _BatchItemDetailScreenState extends ConsumerState<BatchItemDetailScreen> {
                 ElevatedButton.icon(
                   onPressed: state.currentIndex > 0 ? notifier.previousPage : null,
                   icon: const Icon(Icons.arrow_back),
-                  label: const Text('Previous'),              
+                  label: Text(l10n.batchAdd_button_previous),           
                 ),
                 if (state.currentIndex < itemArgsList.length - 1)
-                  // Nút "Sau" giờ sẽ gọi hàm nextPage đã có validation
-                  ElevatedButton.icon(onPressed: notifier.nextPage, icon: const Icon(Icons.arrow_forward), label: const Text('Next'))
+                  ElevatedButton.icon(
+                    onPressed: notifier.nextPage,
+                    icon: const Icon(Icons.arrow_forward),
+                    label: Text(l10n.batchAdd_button_next),
+                  )
                 else
                   ElevatedButton.icon(
                     onPressed: state.isSaving ? null : notifier.saveAll,
                     icon: state.isSaving
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                         : const Icon(Icons.save),
-                    label: const Text('Save all'),
+                    label: Text(l10n.batchAdd_button_saveAll),
                   ),
               ],
             ),
@@ -135,6 +145,7 @@ class ItemFormPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final itemState = ref.watch(batchItemFormProvider(providerArgs));
     final itemNotifier = ref.read(batchItemFormProvider(providerArgs).notifier);
 
@@ -151,7 +162,7 @@ class ItemFormPage extends ConsumerWidget {
       onPriceChanged: itemNotifier.onPriceChanged,
       onNotesChanged: itemNotifier.onNotesChanged,
       onImageUpdated: (newBytes) {
-        itemNotifier.updateImageWithBytes(newBytes);
+          itemNotifier.updateImageWithBytes(newBytes, l10n: l10n);
       },
       onEditImagePressed: () async {
         final navigator = Navigator.of(context);
@@ -174,7 +185,7 @@ class ItemFormPage extends ConsumerWidget {
 
         // Nếu có ảnh đã sửa trả về, cập nhật state
         if (editedBytes != null && context.mounted) {
-          itemNotifier.updateImageWithBytes(editedBytes);
+          itemNotifier.updateImageWithBytes(editedBytes, l10n: l10n);
         }
       },
     );

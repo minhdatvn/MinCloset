@@ -1321,6 +1321,23 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String batchAdd_title_page(Object current, Object total) {
+    return 'Thêm vật phẩm ($current/$total)';
+  }
+
+  @override
+  String get batchAdd_button_previous => 'Trước';
+
+  @override
+  String get batchAdd_button_next => 'Sau';
+
+  @override
+  String get batchAdd_button_saveAll => 'Lưu tất cả';
+
+  @override
+  String get batchAdd_empty => 'Không có ảnh nào để hiển thị.';
+
+  @override
   String get analysis_preparingImages => 'Đang chuẩn bị hình ảnh...';
 
   @override

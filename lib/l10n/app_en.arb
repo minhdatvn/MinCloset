@@ -517,6 +517,10 @@
     "batchAdd_button_saveAll": "Save all",
     "batchAdd_empty": "No photos to display.",
 
+    "batchNotifier_analysis_error": "Pre-filling information failed for one or more items.\\nReason: {error}",
+    "batchNotifier_validation_nameTaken": "\"{itemName}\" for item {itemNumber} is already taken. Please use a different name.",
+    "batchNotifier_validation_nameConflict": "\"{itemName}\" for item {itemNumber} is already used by item {conflictNumber}. Please use a different name.",
+
     "analysis_preparingImages": "Preparing images...",
     "analysis_prefillingInfo": "Pre-filling information...\nThis may take a moment to complete.",
     "analysis_maxPhotosWarning": "Maximum of 10 photos selected. Extra photos were skipped.",

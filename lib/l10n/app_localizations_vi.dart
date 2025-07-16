@@ -1338,6 +1338,23 @@ class AppLocalizationsVi extends AppLocalizations {
   String get batchAdd_empty => 'Không có ảnh nào để hiển thị.';
 
   @override
+  String batchNotifier_analysis_error(Object error) {
+    return 'Điền trước thông tin thất bại cho một hoặc nhiều vật phẩm.\\nLý do: $error';
+  }
+
+  @override
+  String batchNotifier_validation_nameTaken(
+      Object itemName, Object itemNumber) {
+    return '\"$itemName\" của vật phẩm số $itemNumber đã tồn tại. Vui lòng sử dụng tên khác.';
+  }
+
+  @override
+  String batchNotifier_validation_nameConflict(
+      Object conflictNumber, Object itemName, Object itemNumber) {
+    return '\"$itemName\" của vật phẩm số $itemNumber đã được dùng cho vật phẩm số $conflictNumber. Vui lòng sử dụng tên khác.';
+  }
+
+  @override
   String get analysis_preparingImages => 'Đang chuẩn bị hình ảnh...';
 
   @override

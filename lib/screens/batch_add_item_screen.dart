@@ -123,7 +123,9 @@ class _BatchItemDetailScreenState extends ConsumerState<BatchItemDetailScreen> {
                   )
                 else
                   ElevatedButton.icon(
-                    onPressed: state.isSaving ? null : notifier.saveAll,
+                    onPressed: state.isSaving ? null : () {
+                      notifier.saveAll(l10n: l10n);
+                    },
                     icon: state.isSaving
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                         : const Icon(Icons.save),

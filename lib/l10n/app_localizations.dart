@@ -2528,6 +2528,25 @@ abstract class AppLocalizations {
   /// **'No photos to display.'**
   String get batchAdd_empty;
 
+  /// No description provided for @batchNotifier_analysis_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Pre-filling information failed for one or more items.\\nReason: {error}'**
+  String batchNotifier_analysis_error(Object error);
+
+  /// No description provided for @batchNotifier_validation_nameTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{itemName}\" for item {itemNumber} is already taken. Please use a different name.'**
+  String batchNotifier_validation_nameTaken(Object itemName, Object itemNumber);
+
+  /// No description provided for @batchNotifier_validation_nameConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{itemName}\" for item {itemNumber} is already used by item {conflictNumber}. Please use a different name.'**
+  String batchNotifier_validation_nameConflict(
+      Object conflictNumber, Object itemName, Object itemNumber);
+
   /// No description provided for @analysis_preparingImages.
   ///
   /// In en, this message translates to:

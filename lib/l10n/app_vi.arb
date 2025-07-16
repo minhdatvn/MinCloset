@@ -507,6 +507,10 @@
     "batchAdd_button_saveAll": "Lưu tất cả",
     "batchAdd_empty": "Không có ảnh nào để hiển thị.",
 
+    "batchNotifier_analysis_error": "Điền trước thông tin thất bại cho một hoặc nhiều vật phẩm.\\nLý do: {error}",
+    "batchNotifier_validation_nameTaken": "\"{itemName}\" của vật phẩm số {itemNumber} đã tồn tại. Vui lòng sử dụng tên khác.",
+    "batchNotifier_validation_nameConflict": "\"{itemName}\" của vật phẩm số {itemNumber} đã được dùng cho vật phẩm số {conflictNumber}. Vui lòng sử dụng tên khác.",
+
     "analysis_preparingImages": "Đang chuẩn bị hình ảnh...",
     "analysis_prefillingInfo": "Đang điền trước thông tin...\nQuá trình này có thể mất một chút thời gian.",
     "analysis_maxPhotosWarning": "Đã chọn tối đa 10 ảnh. Các ảnh thừa đã được bỏ qua.",

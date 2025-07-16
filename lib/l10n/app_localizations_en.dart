@@ -1379,6 +1379,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get batchAdd_empty => 'No photos to display.';
 
   @override
+  String batchNotifier_analysis_error(Object error) {
+    return 'Pre-filling information failed for one or more items.\\nReason: $error';
+  }
+
+  @override
+  String batchNotifier_validation_nameTaken(
+      Object itemName, Object itemNumber) {
+    return '\"$itemName\" for item $itemNumber is already taken. Please use a different name.';
+  }
+
+  @override
+  String batchNotifier_validation_nameConflict(
+      Object conflictNumber, Object itemName, Object itemNumber) {
+    return '\"$itemName\" for item $itemNumber is already used by item $conflictNumber. Please use a different name.';
+  }
+
+  @override
   String get analysis_preparingImages => 'Preparing images...';
 
   @override

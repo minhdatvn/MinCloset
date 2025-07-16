@@ -1,5 +1,6 @@
 // lib/notifiers/batch_add_item_notifier.dart
 import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/constants/app_options.dart';
@@ -14,11 +15,12 @@ import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/repositories/clothing_item_repository.dart';
-import 'package:mincloset/states/item_detail_state.dart';
+import 'package:mincloset/repositories/quest_repository.dart';
 import 'package:mincloset/states/batch_add_item_state.dart';
+import 'package:mincloset/states/item_detail_state.dart';
 import 'package:mincloset/utils/logger.dart';
 import 'package:uuid/uuid.dart';
-import 'package:mincloset/repositories/quest_repository.dart';
+import 'package:mincloset/l10n/app_localizations.dart';
 
 class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
   final ClothingItemRepository _clothingItemRepo;
@@ -87,7 +89,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
       );
   }
 
-  Future<void> analyzeAllImages(List<XFile> images) async {
+  Future<void> analyzeAllImages(List<XFile> images, {required AppLocalizations l10n}) async {
     // Cập nhật trạng thái sang analyzing KHI bắt đầu công việc nặng
     logger.d("⏳ [3] `analyzeAllImages` called. Setting stage to analyzing.");
     state = state.copyWith(stage: AnalysisStage.analyzing);
@@ -113,7 +115,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
       resultEither.fold(
         (failure) {
           _ref.read(notificationServiceProvider).showBanner(
-            message: "Pre-filling information failed.\nReason: ${failure.message}",
+            message: l10n.batchNotifier_analysis_error(failure.message),
           );
           final tempId = const Uuid().v4();
           final preAnalyzedState = ItemDetailState(id: tempId, image: File(image.path));
@@ -180,7 +182,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
     }
   }
 
-  Future<void> saveAll() async {
+  Future<void> saveAll({required AppLocalizations l10n}) async {
     state = state.copyWith(isSaving: true, clearSaveError: true);
     final itemStates = state.itemArgsList.map((args) => _ref.read(batchItemFormProvider(args))).toList();
     
@@ -204,7 +206,12 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
       },
       (nameValidationResult) {
         if (!nameValidationResult.success) {
-          _ref.read(batchItemDetailErrorProvider.notifier).state = nameValidationResult.errorMessage;
+          // Xử lý chuỗi lỗi từ ValidationResult ở đây
+          String errorMessage = nameValidationResult.errorMessage!;
+          // Bạn có thể tạo các key l10n cụ thể hơn nếu muốn
+          // Ví dụ: 'Tên "{itemName}" đã tồn tại.'
+          // Ở đây tôi sẽ giữ nguyên logic cũ nhưng bạn có thể thay đổi
+          _ref.read(batchItemDetailErrorProvider.notifier).state = errorMessage;
           state = state.copyWith(isSaving: false, currentIndex: nameValidationResult.errorIndex);
           return;
         }

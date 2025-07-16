@@ -17,3 +17,7 @@ final unlockedAchievementProvider = StateProvider<Achievement?>((ref) => null);
 
 /// Provider này sẽ được kích hoạt khi nhóm nhiệm vụ tân thủ hoàn thành.
 final beginnerAchievementProvider = StateProvider<Achievement?>((ref) => null);
+
+/// Provider này hoạt động như một kênh để gửi các sự kiện lỗi từ Notifier đến UI
+/// một cách tức thời mà không cần lưu vào state chính.
+final itemDetailErrorProvider = StateProvider<String?>((ref) => null);

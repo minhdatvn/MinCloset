@@ -81,33 +81,33 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
     final l10n = context.l10n;
 
     // <<< KHỐI LISTEN ĐỂ XỬ LÝ THÔNG BÁO VÀ ĐIỀU HƯỚNG >>>
+    ref.listen<String?>(itemDetailErrorProvider, (previous, next) {
+      if (next != null) {
+        ref.read(notificationServiceProvider).showBanner(message: next);
+        // Reset kênh ngay lập tức để sẵn sàng cho lỗi tiếp theo
+        ref.read(itemDetailErrorProvider.notifier).state = null;
+      }
+    });
+
+    // Lắng nghe trạng thái của form để xử lý thành công và điều hướng
     ref.listen<ItemDetailState>(provider, (previous, next) {
-      // Khi có thông báo thành công (tức là đã lưu item xong)
-      if (next.successMessage != null) {
+      if (!mounted) return;
+      // Khi có thông báo thành công (đã lưu xong)
+      if (next.successMessage != null && previous?.successMessage == null) {
         ref.read(notificationServiceProvider).showBanner(
           message: next.successMessage!,
           type: NotificationType.success,
         );
-        notifier.clearMessages();
-        
-        // **LOGIC ĐIỀU HƯỚNG MỚI**
-        // Nếu đây là đang tạo item mới (không phải sửa)
-        if (!state.isEditing) {
-          // 1. Chuyển MainScreen đến trang Closets (index = 1)
+        if (!next.isEditing) {
           ref.read(mainScreenIndexProvider.notifier).state = 1;
-          
-          // 2. Chỉ định cho ClosetsPage hiển thị tab "All Items" (index = 0)
           ref.read(closetsSubTabIndexProvider.notifier).state = 0;
         }
-
-        // 3. Đóng màn hình hiện tại và quay về
         Navigator.of(context).pop(true);
       }
-      
-      // Logic xử lý lỗi giữ nguyên
-      if (next.errorMessage != null) {
+      // Xử lý các lỗi hệ thống (không phải lỗi nhập liệu)
+      if (next.errorMessage != null && previous?.errorMessage == null) {
         ref.read(notificationServiceProvider).showBanner(message: next.errorMessage!);
-        notifier.clearMessages();
+        notifier.clearMessages(); // Vẫn xóa lỗi hệ thống khỏi state chính
       }
     });
 

@@ -106,67 +106,70 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
     );
   }
   
-  // <<< BẮT ĐẦU SỬA LỖI TẠI ĐÂY >>>
   Future<void> saveItem() async {
+    // 1. Vẫn kiểm tra ảnh và các trường bắt buộc như cũ
     final sourceImagePath = state.image?.path ?? state.imagePath;
     if (sourceImagePath == null) {
-      state = state.copyWith(errorMessage: 'Please add a photo for the item.');
+      _ref.read(itemDetailErrorProvider.notifier).state = 'Please add a photo for the item.';
       return;
     }
+    
+    final requiredFieldsResult = _validateRequiredUseCase.executeForSingle(state);
+    if (!requiredFieldsResult.success) {
+      _ref.read(itemDetailErrorProvider.notifier).state = requiredFieldsResult.errorMessage;
+      return;
+    }
+
+    // Nếu không có lỗi, tiếp tục với logic xử lý bất đồng bộ
     state = state.copyWith(isLoading: true, errorMessage: null, successMessage: null);
 
-    // 1. Khai báo kiểu là Either<Failure, Unit> thay vì Either<Failure, void>
-    final Either<Failure, Unit> initialValidation;
-    final requiredFieldsResult = _validateRequiredUseCase.executeForSingle(state);
-
-    if (requiredFieldsResult.success) {
-      // Dùng const Right(unit) của fpdart
-      initialValidation = const Right(unit);
-    } else {
-      initialValidation = Left(GenericFailure(requiredFieldsResult.errorMessage!));
-    }
-    
-    final task = TaskEither.fromEither(initialValidation)
-        .flatMap((_) => TaskEither(() => _validateNameUseCase.forSingleItem(
-              name: state.name,
-              existingId: state.isEditing ? state.id : null,
-            )))
+    final task = TaskEither(
+            () => _validateNameUseCase.forSingleItem(
+                  name: state.name,
+                  existingId: state.isEditing ? state.id : null,
+                ))
         .flatMap((validationResult) => validationResult.success
-            ? TaskEither.right(unit) // Dùng TaskEither.right(unit)
+            ? TaskEither.right(unit)
             : TaskEither.left(GenericFailure(validationResult.errorMessage!)))
         .flatMap((_) => TaskEither.tryCatch(
               () => state.image != null
                   ? _imageHelper.createThumbnail(sourceImagePath)
                   : Future.value(state.thumbnailPath),
-              (error, stackTrace) => GenericFailure('Error creating thumbnail: $error'),
+              (error, stackTrace) =>
+                  GenericFailure('Error creating thumbnail: $error'),
             ))
         .flatMap((thumbnailPath) {
-          final item = ClothingItem(
-            id: state.isEditing ? state.id : const Uuid().v4(),
-            name: state.name.trim(),
-            category: state.selectedCategoryValue,
-            closetId: state.selectedClosetId!,
-            imagePath: sourceImagePath,
-            thumbnailPath: thumbnailPath,
-            color: state.selectedColors.join(', '),
-            season: state.selectedSeasons.join(', '),
-            occasion: state.selectedOccasions.join(', '),
-            material: state.selectedMaterials.join(', '),
-            pattern: state.selectedPatterns.join(', '),
-            isFavorite: state.isFavorite,
-            price: state.price,
-            notes: state.notes,
-          );
-          final saveFuture = state.isEditing ? _clothingItemRepo.updateItem(item) : _clothingItemRepo.insertItem(item);
-          return TaskEither(() => saveFuture);
-        });
+      final item = ClothingItem(
+        id: state.isEditing ? state.id : const Uuid().v4(),
+        name: state.name.trim(),
+        category: state.selectedCategoryValue,
+        closetId: state.selectedClosetId!,
+        imagePath: sourceImagePath,
+        thumbnailPath: thumbnailPath,
+        color: state.selectedColors.join(', '),
+        season: state.selectedSeasons.join(', '),
+        occasion: state.selectedOccasions.join(', '),
+        material: state.selectedMaterials.join(', '),
+        pattern: state.selectedPatterns.join(', '),
+        isFavorite: state.isFavorite,
+        price: state.price,
+        notes: state.notes,
+      );
+      final saveFuture = state.isEditing
+          ? _clothingItemRepo.updateItem(item)
+          : _clothingItemRepo.insertItem(item);
+      return TaskEither(() => saveFuture);
+    });
 
     final result = await task.run();
 
     if (!mounted) return;
 
+    // Logic xử lý kết quả cuối cùng không thay đổi
     result.fold(
       (failure) {
+        // Nếu chuỗi tác vụ nặng thất bại, chúng ta vẫn dùng state để báo lỗi
+        // vì đây là lỗi hệ thống, không phải lỗi nhập liệu.
         state = state.copyWith(isLoading: false, errorMessage: failure.message);
       },
       (_) async {

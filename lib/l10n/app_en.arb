@@ -13,6 +13,7 @@
     "banner_deleteSuccess": "Deleted \"{itemName}\".",
     "banner_deleteFailed": "Failed to delete. Please try again.",
     "common_cancel": "Cancel",
+    "common_save": "Save",
     "common_today": "Today",
 
     "category_tops": "Tops",
@@ -295,6 +296,11 @@
     "closetDetail_moveDialogTitle": "Move {count,plural, =1{1 item} other{{count} items}} to...",
     "closetDetail_moveErrorNoClosets": "No other closets available to move to.",
     "closetDetail_cancel": "Cancel",
+
+    "closetDialog_editTitle": "Edit closet name",
+    "closetDialog_createTitle": "Create new closet",
+    "closetDialog_editLabel": "New name",
+    "closetDialog_createLabel": "Closet name",
 
     "allItems_searchHint": "Search items...",
     "allItems_filterTooltip": "Filter",

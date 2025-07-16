@@ -6,6 +6,7 @@
     "banner_deleteSuccess": "Đã xoá \"{itemName}\".",
     "banner_deleteFailed": "Xoá thất bại. Vui lòng thử lại.",
     "common_cancel": "Huỷ",
+    "common_save": "Lưu",
     "common_today": "Hôm nay",
 
     "category_tops": "Áo",
@@ -285,6 +286,11 @@
     "closetDetail_moveDialogTitle": "Di chuyển {count,plural, =1{1 vật phẩm} other{{count} vật phẩm}} tới...",
     "closetDetail_moveErrorNoClosets": "Không có tủ đồ nào khác để di chuyển tới.",
     "closetDetail_cancel": "Huỷ",
+
+    "closetDialog_editTitle": "Sửa tên tủ đồ",
+    "closetDialog_createTitle": "Tạo tủ đồ mới",
+    "closetDialog_editLabel": "Tên mới",
+    "closetDialog_createLabel": "Tên tủ đồ",
 
     "allItems_searchHint": "Tìm kiếm vật phẩm...",
     "allItems_filterTooltip": "Lọc",

@@ -26,6 +26,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get common_cancel => 'Huỷ';
 
   @override
+  String get common_save => 'Lưu';
+
+  @override
   String get common_today => 'Hôm nay';
 
   @override
@@ -878,6 +881,18 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get closetDetail_cancel => 'Huỷ';
+
+  @override
+  String get closetDialog_editTitle => 'Sửa tên tủ đồ';
+
+  @override
+  String get closetDialog_createTitle => 'Tạo tủ đồ mới';
+
+  @override
+  String get closetDialog_editLabel => 'Tên mới';
+
+  @override
+  String get closetDialog_createLabel => 'Tên tủ đồ';
 
   @override
   String get allItems_searchHint => 'Tìm kiếm vật phẩm...';

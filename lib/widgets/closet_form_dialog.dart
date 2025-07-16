@@ -1,6 +1,7 @@
 // lib/widgets/closet_form_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 
 class ClosetFormDialog extends StatefulWidget {
   // Tham số để truyền vào tên closet ban đầu (dùng cho chế độ Edit)
@@ -55,14 +56,14 @@ class _ClosetFormDialogState extends State<ClosetFormDialog> {
 
   @override
   Widget build(BuildContext context) {
-    // Xác định xem đây là dialog Add hay Edit
+    final l10n = context.l10n; // Lấy l10n một lần ở đầu hàm
     final bool isEditing = widget.initialName != null;
 
     return AlertDialog(
       iconPadding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 3.0),
       icon: Icon(isEditing ? Symbols.edit_square : Symbols.add_column_right, size: 32),
       titlePadding: const EdgeInsets.fromLTRB(24.0, 0, 24.0, 0),
-      title: Text(isEditing ? 'Edit closet name' : 'Create new closet'),
+      title: Text(isEditing ? l10n.closetDialog_editTitle : l10n.closetDialog_createTitle), // <-- THAY ĐỔI
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -71,7 +72,7 @@ class _ClosetFormDialogState extends State<ClosetFormDialog> {
             autofocus: true,
             maxLength: 30,
             decoration: InputDecoration(
-              labelText: isEditing ? 'New name' : 'Closet name',
+              labelText: isEditing ? l10n.closetDialog_editLabel : l10n.closetDialog_createLabel, // <-- THAY ĐỔI
               errorText: _errorText,
               errorMaxLines: 2,
             ),
@@ -88,11 +89,11 @@ class _ClosetFormDialogState extends State<ClosetFormDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: Text(l10n.common_cancel), // <-- THAY ĐỔI
         ),
         FilledButton(
           onPressed: _submit,
-          child: const Text('Save'),
+          child: Text(l10n.common_save), // <-- THAY ĐỔI
         ),
       ],
     );

@@ -128,6 +128,12 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get common_cancel;
 
+  /// No description provided for @common_save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get common_save;
+
   /// No description provided for @common_today.
   ///
   /// In en, this message translates to:
@@ -1723,6 +1729,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get closetDetail_cancel;
+
+  /// No description provided for @closetDialog_editTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit closet name'**
+  String get closetDialog_editTitle;
+
+  /// No description provided for @closetDialog_createTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new closet'**
+  String get closetDialog_createTitle;
+
+  /// No description provided for @closetDialog_editLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New name'**
+  String get closetDialog_editLabel;
+
+  /// No description provided for @closetDialog_createLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Closet name'**
+  String get closetDialog_createLabel;
 
   /// No description provided for @allItems_searchHint.
   ///

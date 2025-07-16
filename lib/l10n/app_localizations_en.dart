@@ -26,6 +26,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_cancel => 'Cancel';
 
   @override
+  String get common_save => 'Save';
+
+  @override
   String get common_today => 'Today';
 
   @override
@@ -897,6 +900,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get closetDetail_cancel => 'Cancel';
+
+  @override
+  String get closetDialog_editTitle => 'Edit closet name';
+
+  @override
+  String get closetDialog_createTitle => 'Create new closet';
+
+  @override
+  String get closetDialog_editLabel => 'New name';
+
+  @override
+  String get closetDialog_createLabel => 'Closet name';
 
   @override
   String get allItems_searchHint => 'Search items...';

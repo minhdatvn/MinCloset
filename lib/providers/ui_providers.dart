@@ -20,9 +20,8 @@ final tutorialProvider = StateNotifierProvider<TutorialNotifier, TutorialState>(
 /// Provider để theo dõi xem trang Quests có đang được hiển thị hay không.
 final isQuestsPageActiveProvider = StateProvider<bool>((ref) => false);
 
-
-// ===================================================================
-// <<< BẮT ĐẦU THÊM MÃ MỚI TỪ ĐÂY >>>
+/// Provider để theo dõi trạng thái mở/đóng của menu "Add items" trên MainScreen.
+final isAddItemMenuOpenProvider = StateProvider<bool>((ref) => false);
 
 /// Lớp này chứa tất cả các GlobalKey được sử dụng cho tính năng gợi ý nhiệm vụ.
 /// Việc tập trung các key vào một nơi giúp quản lý dễ dàng hơn.

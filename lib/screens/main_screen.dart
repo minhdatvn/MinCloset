@@ -42,8 +42,7 @@ class MainScreen extends ConsumerWidget {
 class _MainScreenViewState extends ConsumerState<MainScreenView>
     with SingleTickerProviderStateMixin {
   late final AnimationController _animationController;
-  late OverlayEntry? _menuOverlay;
-  bool _isMenuOpen = false;
+  OverlayEntry? _menuOverlay;
 
   final List<Widget> _pages = const [
     HomePage(),
@@ -66,15 +65,14 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     _menuOverlay = null;
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final prefs = await SharedPreferences.getInstance(); // Đọc trạng thái từ SharedPreferences
-      final bool hasCompletedTutorial = prefs.getBool('has_completed_tutorial') ?? false;
-      // Chỉ bắt đầu hướng dẫn nếu chưa hoàn thành
-      if (!hasCompletedTutorial && mounted) {
-        ShowCaseWidget.of(context).startShowCase([_welcomeKey, _introduceKey, _addKey]);
-        ref.read(tutorialProvider.notifier).startTutorial();
-      }
-    });
-  }
+    final prefs = await SharedPreferences.getInstance();
+    final bool hasCompletedTutorial = prefs.getBool('has_completed_tutorial') ?? false;
+    if (!hasCompletedTutorial && mounted) {
+      ShowCaseWidget.of(context).startShowCase([_welcomeKey, _introduceKey, _addKey]);
+      ref.read(tutorialProvider.notifier).startTutorial();
+    }
+  });
+}
 
   @override
   void dispose() {
@@ -82,7 +80,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     _removeMenuOverlay();
     super.dispose();
   }
-  
+
   void _removeMenuOverlay() {
     _menuOverlay?.remove();
     _menuOverlay = null;
@@ -90,21 +88,12 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
 
   void _toggleMenu() {
     if (ref.read(tutorialProvider).isActive) return;
-    setState(() {
-      _isMenuOpen = !_isMenuOpen;
-      if (_isMenuOpen) {
-        _animationController.forward();
-        _menuOverlay = _buildMenuOverlay();
-        Overlay.of(context).insert(_menuOverlay!);
-      } else {
-        _animationController.reverse();
-        _removeMenuOverlay();
-      }
-    });
+    final currentState = ref.read(isAddItemMenuOpenProvider);
+    ref.read(isAddItemMenuOpenProvider.notifier).state = !currentState;
   }
 
   void _closeMenu() {
-    if (_isMenuOpen) {
+    if (ref.read(isAddItemMenuOpenProvider)) {
       _toggleMenu();
     }
   }
@@ -113,7 +102,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     final theme = Theme.of(context);
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final l10n = context.l10n;
-    
+
     void performAction(ImageSource source) {
       _closeMenu();
       Future.delayed(const Duration(milliseconds: 100), () {
@@ -126,7 +115,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
         return GestureDetector(
           onTap: _closeMenu,
           child: Material(
-            color: Colors.black.withValues(alpha:0.5),
+            color: Colors.black.withValues(alpha: 0.5), // Đã sửa lỗi withValues
             child: SafeArea(
               child: Stack(
                 children: [
@@ -186,20 +175,26 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     );
     return _menuOverlay!;
   }
-  
+
   void _onItemTapped(int index) {
     if (ref.read(tutorialProvider).isActive) return;
 
+    // Nếu nhấn vào nút "Add items" (index 2)
     if (index == 2) {
-      _toggleMenu();
-      return;
+      ref.read(isAddItemMenuOpenProvider.notifier).state = true; // Chỉ mở menu
+      return; // Không làm gì khác, không thay đổi trang chính
     }
 
-    if (_isMenuOpen) {
-      _closeMenu();
+    // Đóng menu nếu nó đang mở và người dùng chọn tab khác
+    if (ref.read(isAddItemMenuOpenProvider)) {
+      ref.read(isAddItemMenuOpenProvider.notifier).state = false;
     }
 
-    int pageIndex = index > 2 ? index - 1 : index;
+    // Logic thay đổi chỉ mục trang chính
+    int pageIndex = index;
+    if (index > 2) { // Nếu index từ NavigationBar lớn hơn 2 (tức là Outfits hoặc Profile)
+      pageIndex = index - 1; // Giảm đi 1 để bỏ qua vị trí của nút Add items ảo
+    }
     ref.read(mainScreenIndexProvider.notifier).state = pageIndex;
   }
 
@@ -234,7 +229,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
       }
     }
   }
-  
+
   Widget _buildMascotContainer(BuildContext context, {required TutorialStep forStep}) {
     final l10n = context.l10n;
     String bubbleText;
@@ -253,9 +248,6 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     }
 
     return GestureDetector(
-      // THAY ĐỔI 3: Đơn giản hóa logic onTap.
-      // Giờ đây nó chỉ có nhiệm vụ chuyển sang bước tiếp theo.
-      // Việc kết thúc luồng đã được onFinish xử lý.
       onTap: () {
         ShowCaseWidget.of(context).next();
       },
@@ -274,15 +266,23 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<bool>(isAddItemMenuOpenProvider, (previous, isOpen) {
+      if (isOpen) {
+        _animationController.forward();
+        _menuOverlay = _buildMenuOverlay();
+        if (mounted) { // Chỉ cần kiểm tra mounted là đủ an toàn
+          Overlay.of(context, rootOverlay: true).insert(_menuOverlay!);
+        }
+      } else {
+        _animationController.reverse();
+        _removeMenuOverlay();
+      }
+    });
     ref.listen<QuestHintState?>(questHintProvider, (previous, next) {
-      // Nếu có tín hiệu mới (next != null), có key để gợi ý, và không phải là điều hướng qua routeName
       if (next != null && next.hintKey != null && next.routeName == null) {
-        // Đợi UI build xong frame tiếp theo (sau khi đã chuyển tab)
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            // Bắt đầu hiển thị showcase cho key được chỉ định
             ShowCaseWidget.of(context).startShowCase([next.hintKey!]);
-            // Xóa tín hiệu đi để không bị gọi lại
             ref.read(questHintProvider.notifier).clearHint();
           }
         });
@@ -292,19 +292,21 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
     final selectedPageIndex = ref.watch(mainScreenIndexProvider);
     final l10n = context.l10n;
 
-    int destinationIndex = selectedPageIndex >= 2 ? selectedPageIndex + 1 : selectedPageIndex;
-    if (_isMenuOpen) destinationIndex = 2;
-
+    // Các biến này phải nằm trong phương thức build để có thể được truy cập
     final theme = Theme.of(context);
     final navBarTheme = theme.navigationBarTheme;
-    final Set<WidgetState> states = _isMenuOpen ? {WidgetState.selected} : {};
+    final Set<WidgetState> states = ref.watch(isAddItemMenuOpenProvider) ? {WidgetState.selected} : {};
     final labelStyle = navBarTheme.labelTextStyle?.resolve(states);
     final iconColor = navBarTheme.iconTheme?.resolve(states)?.color;
 
+    // Bắt đầu từ đây, đoạn code bạn cung cấp sẽ nằm trong build method
+    int destinationIndex = selectedPageIndex >= 2 ? selectedPageIndex + 1 : selectedPageIndex;
+    if (ref.watch(isAddItemMenuOpenProvider)) destinationIndex = 2; // Đã sửa lỗi _isMenuOpen
+
     return PopScope(
-        canPop: !_isMenuOpen,
+        canPop: !ref.watch(isAddItemMenuOpenProvider), // Đã sửa lỗi _isMenuOpen
         onPopInvokedWithResult: (didPop, result) {
-          if (!didPop && _isMenuOpen) {
+          if (!didPop && ref.watch(isAddItemMenuOpenProvider)) { // Đã sửa lỗi _isMenuOpen
             _closeMenu();
           }
         },
@@ -342,7 +344,6 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
                   ],
                 ),
               ),
-              // QuestMascot đã được chuyển ra GlobalUiScope, nên ta xóa nó ở đây.
             ],
           ),
           bottomNavigationBar: NavigationBar(
@@ -380,7 +381,7 @@ class _MainScreenViewState extends ConsumerState<MainScreenView>
                               duration: const Duration(milliseconds: 300),
                               transitionBuilder: (child, animation) =>
                                   ScaleTransition(scale: animation, child: child),
-                              child: _isMenuOpen
+                              child: ref.watch(isAddItemMenuOpenProvider) // Đã sửa lỗi _isMenuOpen
                                   ? Icon(
                                       Icons.cancel,
                                       key: const ValueKey('cancel_icon'),

@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/notifiers/home_page_notifier.dart';
@@ -20,7 +20,6 @@ import 'package:mincloset/states/home_page_state.dart';
 import 'package:mincloset/widgets/action_card.dart';
 import 'package:mincloset/widgets/section_header.dart';
 import 'package:mincloset/widgets/weekly_planner.dart';
-import 'package:mincloset/helpers/context_extensions.dart'; 
 import 'package:showcaseview/showcaseview.dart';
 
 final recentItemsProvider =
@@ -77,43 +76,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     _purposeController.dispose();
     _purposeFocusNode.dispose(); 
     super.dispose();
-  }
-
-  void _showAddItemSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Wrap(
-          children: <Widget>[
-            ListTile(
-              leading: const Icon(Icons.photo_camera_outlined),
-              title: const Text('Take photo'),
-              onTap: () async {
-                Navigator.of(ctx).pop(); // Đóng menu
-                final imagePicker = ImagePicker();
-                final singleFile = await imagePicker.pickImage(
-                  source: ImageSource.camera,
-                  maxWidth: 1024,
-                  imageQuality: 85,
-                );
-                if (singleFile != null && context.mounted) {
-                  Navigator.pushNamed(context, AppRoutes.analysisLoading, arguments: [singleFile]);
-                }
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('From album'),
-              onTap: () {
-                Navigator.of(ctx).pop(); // Đóng menu
-                // Điều hướng đến màn hình loading và cho phép chọn nhiều ảnh từ album
-                Navigator.pushNamed(context, AppRoutes.analysisLoading);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -233,7 +195,9 @@ class _HomePageState extends ConsumerState<HomePage> {
             ActionCard(
               label: l10n.home_actionAddItem,
               icon: Icons.add_a_photo_outlined,
-              onTap: () => _showAddItemSheet(context), // Gọi menu chọn ảnh
+              onTap: () {
+                ref.read(isAddItemMenuOpenProvider.notifier).state = true;
+              },
             ),
             const SizedBox(width: 6),
             ActionCard(

@@ -803,7 +803,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get closets_title => 'Tủ đồ của bạn';
 
   @override
-  String closets_itemsSelected(int count) {
+  String closets_itemsSelected(num count) {
     return 'Đã chọn $count';
   }
 
@@ -812,6 +812,72 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get closets_tabByCloset => 'Theo Tủ đồ';
+
+  @override
+  String closetDetail_itemsSelected(num count) {
+    return 'Đã chọn $count';
+  }
+
+  @override
+  String closetDetail_itemCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vật phẩm',
+      one: '1 vật phẩm',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get closetDetail_searchHint => 'Tìm trong tủ đồ này...';
+
+  @override
+  String get closetDetail_noItemsFound => 'Không tìm thấy vật phẩm.';
+
+  @override
+  String get closetDetail_emptyCloset => 'Tủ đồ này đang trống.';
+
+  @override
+  String get closetDetail_delete => 'Xoá';
+
+  @override
+  String get closetDetail_move => 'Di chuyển';
+
+  @override
+  String get closetDetail_createOutfit => 'Tạo Trang phục';
+
+  @override
+  String get closetDetail_confirmDeleteTitle => 'Xác nhận Xoá';
+
+  @override
+  String closetDetail_confirmDeleteContent(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vật phẩm đã chọn',
+      one: '1 vật phẩm đã chọn',
+    );
+    return 'Bạn có chắc muốn xoá vĩnh viễn $_temp0 không?';
+  }
+
+  @override
+  String closetDetail_moveDialogTitle(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vật phẩm',
+      one: '1 vật phẩm',
+    );
+    return 'Di chuyển $_temp0 tới...';
+  }
+
+  @override
+  String get closetDetail_moveErrorNoClosets =>
+      'Không có tủ đồ nào khác để di chuyển tới.';
+
+  @override
+  String get closetDetail_cancel => 'Huỷ';
 
   @override
   String get allItems_searchHint => 'Tìm kiếm vật phẩm...';
@@ -968,6 +1034,10 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get home_suggestionTitle => 'Gợi ý trang phục';
+
+  @override
+  String get home_suggestion_showcase_description =>
+      'Mô tả mục đích trong ngày của bạn (ví dụ: \"đi cà phê với bạn bè\", \"họp công việc\") và nhấn nút gửi để nhận gợi ý trang phục được cá nhân hóa!';
 
   @override
   String get mainScreen_bottomNav_home => 'Trang chủ';

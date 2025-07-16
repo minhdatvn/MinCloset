@@ -240,7 +240,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   return Showcase(
       key: QuestHintKeys.getSuggestionHintKey,
       title: l10n.home_suggestionTitle,
-      description: 'Describe your purpose for the day (e.g., "coffee with friends", "work meeting") and tap the send button to get a personalized outfit suggestion!',
+      description: l10n.home_suggestion_showcase_description,
       child: Card(
       elevation: 0,
       color: Colors.transparent,

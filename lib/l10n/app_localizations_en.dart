@@ -810,7 +810,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get closets_title => 'Your Closet';
 
   @override
-  String closets_itemsSelected(int count) {
+  String closets_itemsSelected(num count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
@@ -825,6 +825,78 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get closets_tabByCloset => 'By Closet';
+
+  @override
+  String closetDetail_itemsSelected(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected',
+      one: '1 selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String closetDetail_itemCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get closetDetail_searchHint => 'Search in this closet...';
+
+  @override
+  String get closetDetail_noItemsFound => 'No items found.';
+
+  @override
+  String get closetDetail_emptyCloset => 'This closet is empty.';
+
+  @override
+  String get closetDetail_delete => 'Delete';
+
+  @override
+  String get closetDetail_move => 'Move';
+
+  @override
+  String get closetDetail_createOutfit => 'Create Outfit';
+
+  @override
+  String get closetDetail_confirmDeleteTitle => 'Confirm Deletion';
+
+  @override
+  String closetDetail_confirmDeleteContent(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected items',
+      one: '1 selected item',
+    );
+    return 'Are you sure you want to permanently delete $_temp0?';
+  }
+
+  @override
+  String closetDetail_moveDialogTitle(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return 'Move $_temp0 to...';
+  }
+
+  @override
+  String get closetDetail_moveErrorNoClosets =>
+      'No other closets available to move to.';
+
+  @override
+  String get closetDetail_cancel => 'Cancel';
 
   @override
   String get allItems_searchHint => 'Search items...';
@@ -1001,6 +1073,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get home_suggestionTitle => 'Outfit suggestion';
+
+  @override
+  String get home_suggestion_showcase_description =>
+      'Describe your purpose for the day (e.g., \"coffee with friends\", \"work meeting\") and tap the send button to get a personalized outfit suggestion!';
 
   @override
   String get mainScreen_bottomNav_home => 'Home';

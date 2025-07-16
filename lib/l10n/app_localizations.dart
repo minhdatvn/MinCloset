@@ -1632,7 +1632,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{count,plural, =1{1 selected} other{{count} selected}}'**
-  String closets_itemsSelected(int count);
+  String closets_itemsSelected(num count);
 
   /// No description provided for @closets_tabAllItems.
   ///
@@ -1645,6 +1645,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'By Closet'**
   String get closets_tabByCloset;
+
+  /// No description provided for @closetDetail_itemsSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'{count,plural, =1{1 selected} other{{count} selected}}'**
+  String closetDetail_itemsSelected(num count);
+
+  /// No description provided for @closetDetail_itemCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count,plural, =1{1 item} other{{count} items}}'**
+  String closetDetail_itemCount(num count);
+
+  /// No description provided for @closetDetail_searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search in this closet...'**
+  String get closetDetail_searchHint;
+
+  /// No description provided for @closetDetail_noItemsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No items found.'**
+  String get closetDetail_noItemsFound;
+
+  /// No description provided for @closetDetail_emptyCloset.
+  ///
+  /// In en, this message translates to:
+  /// **'This closet is empty.'**
+  String get closetDetail_emptyCloset;
+
+  /// No description provided for @closetDetail_delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get closetDetail_delete;
+
+  /// No description provided for @closetDetail_move.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get closetDetail_move;
+
+  /// No description provided for @closetDetail_createOutfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Outfit'**
+  String get closetDetail_createOutfit;
+
+  /// No description provided for @closetDetail_confirmDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Deletion'**
+  String get closetDetail_confirmDeleteTitle;
+
+  /// No description provided for @closetDetail_confirmDeleteContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to permanently delete {count,plural, =1{1 selected item} other{{count} selected items}}?'**
+  String closetDetail_confirmDeleteContent(num count);
+
+  /// No description provided for @closetDetail_moveDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move {count,plural, =1{1 item} other{{count} items}} to...'**
+  String closetDetail_moveDialogTitle(num count);
+
+  /// No description provided for @closetDetail_moveErrorNoClosets.
+  ///
+  /// In en, this message translates to:
+  /// **'No other closets available to move to.'**
+  String get closetDetail_moveErrorNoClosets;
+
+  /// No description provided for @closetDetail_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get closetDetail_cancel;
 
   /// No description provided for @allItems_searchHint.
   ///
@@ -1927,6 +2005,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Outfit suggestion'**
   String get home_suggestionTitle;
+
+  /// No description provided for @home_suggestion_showcase_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Describe your purpose for the day (e.g., \"coffee with friends\", \"work meeting\") and tap the send button to get a personalized outfit suggestion!'**
+  String get home_suggestion_showcase_description;
 
   /// No description provided for @mainScreen_bottomNav_home.
   ///

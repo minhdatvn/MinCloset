@@ -270,15 +270,21 @@
 
     "closets_title": "Tủ đồ của bạn",
     "closets_itemsSelected": "Đã chọn {count}",
-    "@closets_itemsSelected": {
-        "placeholders": {
-            "count": {
-                "type": "int"
-            }
-        }
-    },
     "closets_tabAllItems": "Tất cả",
     "closets_tabByCloset": "Theo Tủ đồ",
+    "closetDetail_itemsSelected": "Đã chọn {count}",
+    "closetDetail_itemCount": "{count,plural, =1{1 vật phẩm} other{{count} vật phẩm}}",
+    "closetDetail_searchHint": "Tìm trong tủ đồ này...",
+    "closetDetail_noItemsFound": "Không tìm thấy vật phẩm.",
+    "closetDetail_emptyCloset": "Tủ đồ này đang trống.",
+    "closetDetail_delete": "Xoá",
+    "closetDetail_move": "Di chuyển",
+    "closetDetail_createOutfit": "Tạo Trang phục",
+    "closetDetail_confirmDeleteTitle": "Xác nhận Xoá",
+    "closetDetail_confirmDeleteContent": "Bạn có chắc muốn xoá vĩnh viễn {count,plural, =1{1 vật phẩm đã chọn} other{{count} vật phẩm đã chọn}} không?",
+    "closetDetail_moveDialogTitle": "Di chuyển {count,plural, =1{1 vật phẩm} other{{count} vật phẩm}} tới...",
+    "closetDetail_moveErrorNoClosets": "Không có tủ đồ nào khác để di chuyển tới.",
+    "closetDetail_cancel": "Huỷ",
 
     "allItems_searchHint": "Tìm kiếm vật phẩm...",
     "allItems_filterTooltip": "Lọc",
@@ -373,6 +379,7 @@
     "home_weeklyJournalTitle": "Nhật ký Tuần",
     "home_weeklyJournalViewMore": "Xem thêm",
     "home_suggestionTitle": "Gợi ý trang phục",
+    "home_suggestion_showcase_description": "Mô tả mục đích trong ngày của bạn (ví dụ: \"đi cà phê với bạn bè\", \"họp công việc\") và nhấn nút gửi để nhận gợi ý trang phục được cá nhân hóa!",
 
     "mainScreen_bottomNav_home": "Trang chủ",
     "mainScreen_bottomNav_closets": "Tủ đồ",

@@ -12,6 +12,9 @@ import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
+import 'package:mincloset/providers/service_providers.dart';
+import 'package:mincloset/models/notification_type.dart';
 
 class ClosetDetailPage extends ConsumerStatefulWidget {
   final Closet closet;
@@ -51,31 +54,35 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
   }
 
   Future<void> _showMoveDialog(ClosetDetailNotifier notifier, Set<ClothingItem> itemsToMove) async {
-      final closets = await ref.read(closetsProvider.future);
-      final availableClosets = closets.where((c) => c.id != widget.closet.id).toList();
+    final l10n = context.l10n;
+    final closets = await ref.read(closetsProvider.future);
+    final availableClosets = closets.where((c) => c.id != widget.closet.id).toList();
 
-      if (!mounted) return;
-      if (availableClosets.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No other closets available to move to.')));
-        return;
-      }
-
-      final String? targetClosetId = await showAnimatedDialog(
-        context,
-        builder: (ctx) => _MoveItemsDialog(
-          availableClosets: availableClosets,
-          itemCount: itemsToMove.length,
-        ),
+    if (!mounted) return;
+    if (availableClosets.isEmpty) {
+        ref.read(notificationServiceProvider).showBanner(
+        message: l10n.closetDetail_moveErrorNoClosets,
+        type: NotificationType.warning,
       );
+      return;
+    }
 
-      if (targetClosetId != null) {
-        await notifier.moveSelectedItems(targetClosetId);
-      }
+    final String? targetClosetId = await showAnimatedDialog(
+      context,
+      builder: (ctx) => _MoveItemsDialog(
+        availableClosets: availableClosets,
+        itemCount: itemsToMove.length,
+      ),
+    );
+
+    if (targetClosetId != null) {
+      await notifier.moveSelectedItems(targetClosetId);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final provider = closetDetailProvider(widget.closet.id);
     final state = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
@@ -98,7 +105,7 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
                 icon: const Icon(Icons.close),
                 onPressed: notifier.clearSelectionAndExitMode,
               ),
-              title: Text('${state.selectedItemIds.length} selected'),
+              title: Text(l10n.closetDetail_itemsSelected(state.selectedItemIds.length)),
             )
           : AppBar(
               // Title giờ chỉ chứa tên closet, tự động xử lý overflow
@@ -116,7 +123,7 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
                     child: Center(
                       child: Chip(
                         label: Text(
-                          '${state.items.length} ${state.items.length == 1 ? "item" : "items"}',
+                          l10n.closetDetail_itemCount(state.items.length),
                           style: TextStyle(
                               color: Theme.of(context).colorScheme.secondary),
                         ),
@@ -137,7 +144,7 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: TextField(
                   decoration: InputDecoration(
-                    hintText: 'Search in this closet...',
+                    hintText: l10n.closetDetail_searchHint,
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                     filled: true,
@@ -158,7 +165,7 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
                   if (state.items.isEmpty) {
                     return Center(
                       child: Text(
-                        state.searchQuery.isNotEmpty ? 'No items found.' : 'This closet is empty.',
+                        state.searchQuery.isNotEmpty ? l10n.closetDetail_noItemsFound : l10n.closetDetail_emptyCloset,
                         textAlign: TextAlign.center,
                         style: const TextStyle(fontSize: 18, color: Colors.grey),
                       ),
@@ -195,20 +202,20 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
                       _buildBottomBarButton(
                         context: context,
                         icon: Icons.delete_outline,
-                        label: 'Delete',
+                        label: l10n.closetDetail_delete,
                         color: Colors.red,
                         onPressed: () async {
                           final confirmed = await showAnimatedDialog<bool>(
                             context,
                             builder: (ctx) => AlertDialog(
-                              title: const Text('Confirm Deletion'),
-                              content: Text('Are you sure you want to permanently delete ${state.selectedItemIds.length} selected item(s)?'),
+                              title: Text(l10n.closetDetail_confirmDeleteTitle),
+                              content: Text(l10n.closetDetail_confirmDeleteContent(state.selectedItemIds.length)),
                               actions: [
-                                TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+                                TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.closetDetail_cancel)),
                                 TextButton(
                                   onPressed: () => Navigator.of(ctx).pop(true),
                                   style: TextButton.styleFrom(foregroundColor: Colors.red),
-                                  child: const Text('Delete'),
+                                  child: Text(l10n.closetDetail_delete),
                                 ),
                               ],
                             ),
@@ -221,7 +228,7 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
                       _buildBottomBarButton(
                         context: context,
                         icon: Icons.move_up_outlined,
-                        label: 'Move',
+                        label: l10n.closetDetail_move,
                         onPressed: () {
                           final itemsToMove = state.items.where((item) => state.selectedItemIds.contains(item.id)).toSet();
                           _showMoveDialog(notifier, itemsToMove);
@@ -230,7 +237,7 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
                       _buildBottomBarButton(
                         context: context,
                         icon: Icons.add_to_photos_outlined,
-                        label: 'Create Outfit',
+                        label: l10n.closetDetail_createOutfit,
                         onPressed: () {
                           final selectedItems = state.items.where((item) => state.selectedItemIds.contains(item.id)).toList();
                           notifier.clearSelectionAndExitMode();
@@ -387,8 +394,9 @@ class _MoveItemsDialogState extends State<_MoveItemsDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return AlertDialog(
-      title: Text('Move ${widget.itemCount} items to...'),
+      title: Text(l10n.closetDetail_moveDialogTitle(widget.itemCount)), 
       contentPadding: const EdgeInsets.symmetric(vertical: 20.0),
       content: SizedBox(
         width: double.maxFinite,
@@ -451,11 +459,11 @@ class _MoveItemsDialogState extends State<_MoveItemsDialog> {
       actions: [
         TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel')),
+            child: Text(l10n.closetDetail_cancel)),
         ElevatedButton(
           onPressed:
               _selectedId == null ? null : () => Navigator.of(context).pop(_selectedId),
-          child: const Text('Move'),
+          child: Text(l10n.closetDetail_move),
         ),
       ],
     );

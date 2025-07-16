@@ -3,13 +3,20 @@
 class ValidationResult {
   final bool success;
   final String? errorMessage;
-  final int? errorIndex; // Dùng cho trường hợp batch, để biết lỗi ở món đồ nào
+  final int? errorIndex;
+  
+  // THÊM 2 TRƯỜNG MỚI
+  final String? errorCode; 
+  final Map<String, dynamic>? data;
 
   ValidationResult.success()
       : success = true,
         errorMessage = null,
-        errorIndex = null;
+        errorIndex = null,
+        errorCode = null, // Khởi tạo giá trị null
+        data = null;
 
-  ValidationResult.failure(this.errorMessage, {this.errorIndex})
+  // SỬA LẠI CONSTRUCTOR `failure`
+  ValidationResult.failure(this.errorMessage, {this.errorIndex, this.errorCode, this.data})
       : success = false;
 }

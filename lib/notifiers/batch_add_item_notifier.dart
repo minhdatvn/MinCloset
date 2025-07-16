@@ -206,16 +206,27 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
       },
       (nameValidationResult) {
         if (!nameValidationResult.success) {
-          // Xử lý chuỗi lỗi từ ValidationResult ở đây
-          String errorMessage = nameValidationResult.errorMessage!;
-          // Bạn có thể tạo các key l10n cụ thể hơn nếu muốn
-          // Ví dụ: 'Tên "{itemName}" đã tồn tại.'
-          // Ở đây tôi sẽ giữ nguyên logic cũ nhưng bạn có thể thay đổi
+          String errorMessage = 'An unknown validation error occurred.'; // Lỗi mặc định
+          final data = nameValidationResult.data;
+    
+          if (nameValidationResult.errorCode == 'nameConflict' && data != null) {
+            errorMessage = l10n.batchNotifier_validation_nameConflict(
+              data['itemName'],
+              data['itemNumber'].toString(),
+              data['conflictNumber'].toString(),
+            );
+          } else if (nameValidationResult.errorCode == 'nameTaken' && data != null) {
+            errorMessage = l10n.batchNotifier_validation_nameTaken(
+              data['itemName'],
+              data['itemNumber'].toString(),
+            );
+          }
+          
           _ref.read(batchItemDetailErrorProvider.notifier).state = errorMessage;
           state = state.copyWith(isSaving: false, currentIndex: nameValidationResult.errorIndex);
           return;
+          // --- KẾT THÚC LOGIC MỚI ---
         }
-        // Nếu không có lỗi, thực hiện lưu
         _performSave(itemStates);
       },
     );

@@ -45,8 +45,14 @@ class ValidateItemNameUseCase {
       if (nameTracker.containsKey(currentName)) {
         final originalIndex = nameTracker[currentName]!;
         return Right(ValidationResult.failure(
-          '"$currentName" for item ${i + 1}  is already used by item ${originalIndex + 1}. Please use a different name. You can add numbers to distinguish items (e.g., Shirt 1, Shirt 2...).',
+          null, // Không cần chuỗi lỗi nữa
           errorIndex: i,
+          errorCode: 'nameConflict', // <-- Trả về MÃ LỖI
+          data: { // <-- Trả về DỮ LIỆU
+            'itemName': currentName,
+            'itemNumber': i + 1,
+            'conflictNumber': originalIndex + 1,
+          },
         ));
       }
       nameTracker[currentName] = i;
@@ -63,8 +69,13 @@ class ValidateItemNameUseCase {
           final currentName = itemStates[i].name.trim();
           if (existingNames.contains(currentName.toLowerCase())) {
             return Right(ValidationResult.failure(
-              '"$currentName" for item ${i + 1} is already taken. Please use a different name. You can add numbers to distinguish items (e.g., Shirt 1, Shirt 2...).',
+              null, // Không cần chuỗi lỗi nữa
               errorIndex: i,
+              errorCode: 'nameTaken', // <-- Trả về MÃ LỖI
+              data: { // <-- Trả về DỮ LIỆU
+                'itemName': currentName,
+                'itemNumber': i + 1,
+              },
             ));
           }
         }

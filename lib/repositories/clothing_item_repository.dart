@@ -13,15 +13,51 @@ class ClothingItemRepository {
 
   ClothingItemRepository(this._dbHelper);
 
-  FutureEither<List<ClothingItem>> getAllItems({int? limit, int? offset}) async {
+  FutureEither<List<ClothingItem>> getFilteredItems({
+    String query = '',
+    OutfitFilter? filters,
+    int? limit,
+    int? offset,
+  }) async {
     try {
-      final data = await _dbHelper.getAllItems(limit: limit, offset: offset);
+      final data = await _dbHelper.getFilteredItems(
+        query: query,
+        filters: filters,
+        limit: limit,
+        offset: offset,
+      );
       final items = data.map((map) => ClothingItem.fromMap(map)).toList();
       return Right(items);
-    } on DatabaseException catch (e) {
-      return Left(CacheFailure('Failed to get items: $e'));
+    } on DatabaseException catch(e) {
+      return Left(CacheFailure('Failed to get filtered items: $e'));
     }
   }
+
+  /// Hàm getAllItems giờ chỉ là một trường hợp đặc biệt của getFilteredItems
+  FutureEither<List<ClothingItem>> getAllItems({int? limit, int? offset}) {
+    return getFilteredItems(limit: limit, offset: offset);
+  }
+
+  /// Hàm getItemsInCloset cũng gọi đến getFilteredItems với bộ lọc closetId
+  FutureEither<List<ClothingItem>> getItemsInCloset(String closetId, {int? limit, int? offset}) {
+    return getFilteredItems(
+      filters: OutfitFilter(closetId: closetId),
+      limit: limit,
+      offset: offset,
+    );
+  }
+
+  /// Hàm searchItemsInCloset cũng gọi đến getFilteredItems với bộ lọc closetId và query
+  FutureEither<List<ClothingItem>> searchItemsInCloset(String closetId, String query, {int? limit, int? offset}) {
+    return getFilteredItems(
+      query: query,
+      filters: OutfitFilter(closetId: closetId),
+      limit: limit,
+      offset: offset,
+    );
+  }
+  
+  // === CÁC HÀM CŨ KHÁC GIỮ NGUYÊN HOẶC ĐÃ ĐƯỢC TỐI ƯU ===
   
   FutureEither<ClothingItem?> getItemById(String id) async {
     try {
@@ -32,16 +68,6 @@ class ClothingItemRepository {
       return const Right(null);
     } on DatabaseException catch (e) {
       return Left(CacheFailure('Failed to get item by ID: $e'));
-    }
-  }
-
-  FutureEither<List<ClothingItem>> getItemsInCloset(String closetId, {int? limit, int? offset}) async {
-     try {
-      final data = await _dbHelper.getItemsInCloset(closetId, limit: limit, offset: offset);
-      final items = data.map((map) => ClothingItem.fromMap(map)).toList();
-      return Right(items);
-    } on DatabaseException catch (e) {
-      return Left(CacheFailure('Failed to get items in closet: $e'));
     }
   }
 
@@ -92,55 +118,12 @@ class ClothingItemRepository {
     }
   }
 
-  FutureEither<List<ClothingItem>> searchItemsInCloset(String closetId, String query, {int? limit, int? offset}) async {
-    try {
-      if (query.isEmpty) {
-        return getItemsInCloset(closetId, limit: limit, offset: offset);
-      }
-      final data = await _dbHelper.searchItemsInCloset(closetId, query, limit: limit, offset: offset);
-      final items = data.map((map) => ClothingItem.fromMap(map)).toList();
-      return Right(items);
-    } on DatabaseException catch (e) {
-      return Left(CacheFailure('Failed to search items in closet: $e'));
-    }
-  }
-
-  FutureEither<List<ClothingItem>> searchAllItems(String query, {int? limit, int? offset}) async {
-    try {
-      final data = await _dbHelper.searchAllItems(query, limit: limit, offset: offset);
-      final items = data.map((map) => ClothingItem.fromMap(map)).toList();
-      return Right(items);
-    } on DatabaseException catch (e) {
-      return Left(CacheFailure('Failed to search all items: $e'));
-    }
-  }
-
   FutureEither<bool> itemNameExists(String name, String closetId, {String? currentItemId}) async {
     try {
       final result = await _dbHelper.itemNameExistsInCloset(name, closetId, currentItemId: currentItemId);
       return Right(result);
     } on DatabaseException catch (e) {
       return Left(CacheFailure('Failed to check if item name exists: $e'));
-    }
-  }
-
-  FutureEither<List<ClothingItem>> getFilteredItems({
-    String query = '',
-    OutfitFilter? filters,
-    int? limit,
-    int? offset,
-  }) async {
-    try {
-      final data = await _dbHelper.getFilteredItems(
-        query: query,
-        filters: filters,
-        limit: limit,
-        offset: offset,
-      );
-      final items = data.map((map) => ClothingItem.fromMap(map)).toList();
-      return Right(items);
-    } on DatabaseException catch(e) {
-      return Left(CacheFailure('Failed to get filtered items: $e'));
     }
   }
 

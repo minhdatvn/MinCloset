@@ -35,6 +35,11 @@ class ClosetDetailNotifier extends StateNotifier<ClosetDetailState> {
     this._notificationService,
   ) : super(const ClosetDetailState()) {
     fetchInitialItems();
+    _ref.listen<int>(itemChangedTriggerProvider, (previous, next) {
+      if (previous != next) {
+        fetchInitialItems();
+      }
+    });
   }
 
   // Các hàm từ _fetchPage đến clearSelectionAndExitMode không thay đổi

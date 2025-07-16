@@ -331,7 +331,7 @@ class DatabaseHelper {
       'clothing_items',
       where: whereString,
       whereArgs: whereArgs.isNotEmpty ? whereArgs : null,
-      orderBy: 'id DESC',
+      orderBy: 'isFavorite DESC, id DESC', 
       limit: limit,
       offset: offset,
     );

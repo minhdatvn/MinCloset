@@ -453,7 +453,7 @@
     "onboarding_page1_title": "A closet full of clothes...",
     "onboarding_page1_subtitle": "...but nothing to wear?",
     "onboarding_page1_description": "Do you often spend time wondering what to wear? Do you forget what amazing items you already own?",
-    
+
     "onboarding_page1_title": "A closet full of clothes...",
     "onboarding_page1_subtitle": "...but nothing to wear?",
     "onboarding_page1_description": "Do you often spend time wondering what to wear? Do you forget what amazing items you already own?",
@@ -471,5 +471,15 @@
     "onboarding_page3_title": "Let's get to know each other!",
     "onboarding_page3_subtitle": "Tell us your name so we can get more personal.",
     "onboarding_page3_nameHint": "Enter your name...",
-    "onboarding_page3_nameValidator": "Please tell me your name"
+    "onboarding_page3_nameValidator": "Please tell me your name",
+
+    "permissions_title": "Allow Access",
+    "permissions_description": "MinCloset needs some permissions to provide the best experience, including:",
+    "permissions_notifications_title": "Notifications",
+    "permissions_notifications_desc": "To remind you what to wear every day.",
+    "permissions_camera_title": "Camera",
+    "permissions_camera_desc": "To take photos and add new items to your closet.",
+    "permissions_location_title": "Location",
+    "permissions_location_desc": "To provide outfit suggestions that match the weather.",
+    "permissions_continue_button": "Continue"
 }

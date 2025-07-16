@@ -2215,6 +2215,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please tell me your name'**
   String get onboarding_page3_nameValidator;
+
+  /// No description provided for @permissions_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Access'**
+  String get permissions_title;
+
+  /// No description provided for @permissions_description.
+  ///
+  /// In en, this message translates to:
+  /// **'MinCloset needs some permissions to provide the best experience, including:'**
+  String get permissions_description;
+
+  /// No description provided for @permissions_notifications_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get permissions_notifications_title;
+
+  /// No description provided for @permissions_notifications_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'To remind you what to wear every day.'**
+  String get permissions_notifications_desc;
+
+  /// No description provided for @permissions_camera_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get permissions_camera_title;
+
+  /// No description provided for @permissions_camera_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'To take photos and add new items to your closet.'**
+  String get permissions_camera_desc;
+
+  /// No description provided for @permissions_location_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get permissions_location_title;
+
+  /// No description provided for @permissions_location_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'To provide outfit suggestions that match the weather.'**
+  String get permissions_location_desc;
+
+  /// No description provided for @permissions_continue_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get permissions_continue_button;
 }
 
 class _AppLocalizationsDelegate

@@ -1124,4 +1124,35 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get onboarding_page3_nameValidator =>
       'Vui lòng cho tôi biết tên của bạn';
+
+  @override
+  String get permissions_title => 'Cho phép Truy cập';
+
+  @override
+  String get permissions_description =>
+      'MinCloset cần một số quyền để cung cấp trải nghiệm tốt nhất, bao gồm:';
+
+  @override
+  String get permissions_notifications_title => 'Thông báo';
+
+  @override
+  String get permissions_notifications_desc =>
+      'Để nhắc nhở bạn nên mặc gì mỗi ngày.';
+
+  @override
+  String get permissions_camera_title => 'Máy ảnh';
+
+  @override
+  String get permissions_camera_desc =>
+      'Để chụp ảnh và thêm vật phẩm mới vào tủ đồ của bạn.';
+
+  @override
+  String get permissions_location_title => 'Vị trí';
+
+  @override
+  String get permissions_location_desc =>
+      'Để cung cấp gợi ý trang phục phù hợp với thời tiết.';
+
+  @override
+  String get permissions_continue_button => 'Tiếp tục';
 }

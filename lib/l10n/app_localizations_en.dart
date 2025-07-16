@@ -1153,4 +1153,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboarding_page3_nameValidator => 'Please tell me your name';
+
+  @override
+  String get permissions_title => 'Allow Access';
+
+  @override
+  String get permissions_description =>
+      'MinCloset needs some permissions to provide the best experience, including:';
+
+  @override
+  String get permissions_notifications_title => 'Notifications';
+
+  @override
+  String get permissions_notifications_desc =>
+      'To remind you what to wear every day.';
+
+  @override
+  String get permissions_camera_title => 'Camera';
+
+  @override
+  String get permissions_camera_desc =>
+      'To take photos and add new items to your closet.';
+
+  @override
+  String get permissions_location_title => 'Location';
+
+  @override
+  String get permissions_location_desc =>
+      'To provide outfit suggestions that match the weather.';
+
+  @override
+  String get permissions_continue_button => 'Continue';
 }

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/providers/flow_providers.dart';
 import 'package:mincloset/src/providers/notification_providers.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -28,6 +29,7 @@ class PermissionsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -39,34 +41,34 @@ class PermissionsScreen extends ConsumerWidget {
               const Spacer(),
               const Icon(Icons.shield_outlined, size: 80, color: Colors.blue),
               const SizedBox(height: 24),
-              const Text(
-                'Allow Access',
+              Text(
+                l10n.permissions_title,
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              const Text(
-                'MinCloset needs some permissions to provide the best experience, including:',
+              Text(
+                l10n.permissions_description,
                 style: TextStyle(fontSize: 16, color: Colors.black54),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
               _buildPermissionItem(
                 Icons.notifications_outlined,
-                'Notifications',
-                'To remind you what to wear every day.',
+                l10n.permissions_notifications_title,
+                l10n.permissions_notifications_desc,
               ),
               const SizedBox(height: 16),
               _buildPermissionItem(
                 Icons.camera_alt_outlined,
-                'Camera',
-                'To take photos and add new items to your closet.',
+                l10n.permissions_camera_title,
+                l10n.permissions_camera_desc,
               ),
               const SizedBox(height: 16),
               _buildPermissionItem(
                 Icons.location_on_outlined,
-                'Location',
-                'To provide outfit suggestions that match the weather.',
+                l10n.permissions_location_title,
+                l10n.permissions_location_desc,
               ),
               const Spacer(),
               ElevatedButton(
@@ -79,7 +81,7 @@ class PermissionsScreen extends ConsumerWidget {
                   ),
                 ),
                 onPressed: () => _requestPermissions(context, ref),
-                child: const Text('Continue', style: TextStyle(fontSize: 18)),
+                child: Text(l10n.permissions_continue_button, style: TextStyle(fontSize: 18)),
               ),
             ],
           ),

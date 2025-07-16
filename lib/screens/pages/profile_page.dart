@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/constants/app_options.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
+import 'package:mincloset/helpers/l10n_helper.dart';
 import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
@@ -344,6 +346,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final sortedEntries = dataMap.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final topEntries = sortedEntries.take(4);
+    final l10n = context.l10n;
 
     const double chartSize = 90;
 
@@ -389,8 +392,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       children: topEntries.map((entry) {
                         final percentage = (entry.value / totalValue * 100);
                         final color = (specificColors ?? AppChartColors.defaultChartColors)[sortedEntries.indexOf(entry) % (specificColors ?? AppChartColors.defaultChartColors).length];
-                        
-                        final truncatedName = truncateText(entry.key, 10);
+                        final String translatedName = translateAppOption(entry.key, l10n);
+                        final truncatedName = truncateText(translatedName, 10);
 
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 2.0),

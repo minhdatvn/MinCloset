@@ -185,8 +185,8 @@ class GetOutfitSuggestionUseCase {
 
     // --- BƯỚC XÁC THỰC (VALIDATION) ---
     // Thực hiện kiểm tra logic nghiệp vụ ở đây
-    final topwearCount = allItems.where((item) => item.category.startsWith('Tops')).length;
-    final bottomwearCount = allItems.where((item) => item.category.startsWith('Bottoms') || item.category.startsWith('Dresses/Jumpsuits')).length;
+    final topwearCount = allItems.where((item) => item.category.startsWith('category_tops')).length;
+    final bottomwearCount = allItems.where((item) => item.category.startsWith('category_bottoms') || item.category.startsWith('category_dresses_jumpsuits')).length;
     
     // Nếu không đủ điều kiện, trả về một `Left` chứa `Failure` một cách tường minh.
     if (topwearCount < 3 || bottomwearCount < 3) {

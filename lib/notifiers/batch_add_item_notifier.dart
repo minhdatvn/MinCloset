@@ -272,9 +272,9 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
             // THAY ĐỔI: Xác định loại sự kiện dựa trên category
             final mainCategory = item.category.split(' > ').first.trim();
             QuestEvent? event;
-            if (mainCategory == 'Tops') {
+            if (mainCategory == 'category_tops') {
               event = QuestEvent.topAdded;
-            } else if (mainCategory == 'Bottoms' || mainCategory == 'Dresses/Jumpsuits') {
+            } else if (mainCategory == 'category_bottoms' || mainCategory == 'category_dresses_jumpsuits') {
               event = QuestEvent.bottomAdded;
             }
             

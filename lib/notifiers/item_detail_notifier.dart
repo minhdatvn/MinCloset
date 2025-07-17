@@ -206,9 +206,9 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
         if (!state.isEditing) {
             final mainCategory = state.selectedCategoryValue.split(' > ').first.trim();
             QuestEvent? event;
-            if (mainCategory == 'Tops') {
+            if (mainCategory == 'category_tops') {
               event = QuestEvent.topAdded;
-            } else if (mainCategory == 'Bottoms' || mainCategory == 'Dresses/Jumpsuits') {
+            } else if (mainCategory == 'category_bottoms' || mainCategory == 'category_dresses_jumpsuits') {
               event = QuestEvent.bottomAdded;
             }
 

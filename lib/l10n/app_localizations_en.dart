@@ -1245,6 +1245,41 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get getOutfitSuggestion_errorManualLocationMissing =>
+      'Your manually selected location data is missing. Please select your city again in the settings.';
+
+  @override
+  String get getOutfitSuggestion_errorLocationServicesDisabled =>
+      'Location services are disabled. Please enable it in your device settings.';
+
+  @override
+  String get getOutfitSuggestion_errorLocationPermissionDenied =>
+      'Location permissions are denied. Please enable it for MinCloset in your device settings.';
+
+  @override
+  String get getOutfitSuggestion_errorLocationUndetermined =>
+      'Could not determine your location to get weather data. Please check your device settings or select a location manually.';
+
+  @override
+  String get getOutfitSuggestion_errorNotEnoughItems =>
+      'Please add at least 3 tops and 3 bottoms/skirts to your closet to receive suggestions.';
+
+  @override
+  String get getOutfitSuggestion_defaultSelectedLocation => 'Selected Location';
+
+  @override
+  String get getOutfitSuggestion_defaultCurrentLocation => 'Current Location';
+
+  @override
+  String get getOutfitSuggestion_defaultNotSpecified => 'Not specified';
+
+  @override
+  String get getOutfitSuggestion_defaultAnyStyle => 'Any style';
+
+  @override
+  String get getOutfitSuggestion_defaultAnyColor => 'Any color';
+
+  @override
   String get itemDetail_titleEdit => 'Edit item';
 
   @override

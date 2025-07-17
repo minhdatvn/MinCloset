@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:fpdart/fpdart.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:mincloset/constants/prompt_strings.dart';
 import 'package:mincloset/domain/failures/failures.dart';
 import 'package:mincloset/domain/models/suggestion_result.dart';
 import 'package:mincloset/models/clothing_item.dart';
@@ -16,6 +17,7 @@ import 'package:mincloset/repositories/weather_repository.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/utils/logger.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GetOutfitSuggestionUseCase {
   final ClothingItemRepository _clothingItemRepo;
@@ -23,13 +25,15 @@ class GetOutfitSuggestionUseCase {
   final SuggestionRepository _suggestionRepo;
   final OutfitRepository _outfitRepo;
   final SettingsRepository _settingsRepo;
+  final SharedPreferences _prefs;
 
   GetOutfitSuggestionUseCase(
     this._clothingItemRepo,
     this._weatherRepo,
     this._suggestionRepo,
     this._outfitRepo,
-    this._settingsRepo
+    this._settingsRepo,
+    this._prefs,
   );
 
   // Sửa lỗi `asyncMap` bằng cách await và fold một cách thủ công.
@@ -74,7 +78,7 @@ class GetOutfitSuggestionUseCase {
           // --- BẮT ĐẦU SỬA ĐỔI ---
           logger.w('Manual location data is missing. User needs to re-select a city.');
           // Trả về một Failure rõ ràng thay vì lấy thời tiết mặc định.
-          return const Left(GenericFailure('Your manually selected location data is missing. Please select your city again in the settings.'));
+          return const Left(GenericFailure('GetOutfitSuggestion_error_manualLocationMissing'));
           // --- KẾT THÚC SỬA ĐỔI ---
       }
     } else { // Chế độ Auto-detect không thay đổi
@@ -82,7 +86,7 @@ class GetOutfitSuggestionUseCase {
         logger.i('Getting weather by auto-detecting location…');
         final serviceEnabled = await Geolocator.isLocationServiceEnabled();
         if (!serviceEnabled) {
-          return const Left(GenericFailure('Location services are disabled. Please enable it in your device settings.'));
+          return const Left(GenericFailure('GetOutfitSuggestion_error_locationServicesDisabled'));
         }
 
         LocationPermission permission = await Geolocator.checkPermission();
@@ -90,7 +94,7 @@ class GetOutfitSuggestionUseCase {
           permission = await Geolocator.requestPermission();
         }
         if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
-          return const Left(GenericFailure('Location permissions are denied. Please enable it for MinCloset in your device settings.'));
+          return const Left(GenericFailure('GetOutfitSuggestion_error_locationPermissionDenied'));
         }
 
         late LocationSettings locationSettings;
@@ -128,7 +132,7 @@ class GetOutfitSuggestionUseCase {
         logger.e("Failed to get auto location or weather.", error: e, stackTrace: s);
         Sentry.captureException(e, stackTrace: s);
         // Thay vì lấy thời tiết mặc định, trả về một Failure rõ ràng
-        return const Left(GenericFailure('Could not determine your location to get weather data. Please check your device settings or select a location manually.'));
+        return const Left(GenericFailure('GetOutfitSuggestion_error_locationUndetermined'));
       }
     }
   }
@@ -186,36 +190,40 @@ class GetOutfitSuggestionUseCase {
     
     // Nếu không đủ điều kiện, trả về một `Left` chứa `Failure` một cách tường minh.
     if (topwearCount < 3 || bottomwearCount < 3) {
-      return TaskEither.left(const GenericFailure('Please add at least 3 tops and 3 bottoms/skirts to your closet to receive suggestions.'));
+      return TaskEither.left(const GenericFailure('GetOutfitSuggestion_error_notEnoughItems'));
     }
 
     // --- BƯỚC GỌI API ---
     // Nếu đã qua bước xác thực, tiếp tục với logic gọi AI trong một khối try-catch an toàn.
     return TaskEither.tryCatch(
       () async {
+        final langCode = _prefs.getString('language_code') ?? 'en';
+        final promptParts = PromptStrings.localized[langCode]!;
         // Gọi hàm `getUserProfile()` để lấy tất cả thông tin
         final profileData = await _settingsRepo.getUserProfile();
-        // Lấy các giá trị cần thiết từ map trả về
-        final gender = profileData['gender'] as String? ?? 'Not specified';
-        final userStyle = profileData['style'] as String? ?? 'Any style';
-        // --- KẾT THÚC SỬA LỖI ---
-        final favoriteColors = 'Any color'; // Giữ nguyên hoặc lấy từ repo nếu có
+
+        final gender = profileData['gender'] as String?;
+        final userStyle = profileData['style'] as String?;
+        final favoriteColors = 'Any color';
 
         final setOutfits = allOutfits.where((o) => o.isFixed).toList();
         final fixedItemIds = setOutfits.expand((o) => o.itemIds.split(',')).toSet();
         final individualItems = allItems.where((item) => !fixedItemIds.contains(item.id)).toList();
-        
-        final setOutfitsString = setOutfits.map((outfit) => '- Set "${outfit.name}": Gồm [${outfit.itemIds.split(',').map((id) => allItems.firstWhere((item) => item.id == id, orElse: () => ClothingItem(id: '', name: 'Unknown Item', category: '', color: '', imagePath: '', closetId: '')).name).join(', ')}]').join('\n');
-        final closetItemsString = individualItems.map((item) => '- ${item.name} (${item.category}, màu ${item.color})').join('\n');
+        final unknownItemName = promptParts['prompt_part_unknown_item'] ?? 'Unknown Item';
+        final setOutfitsString = setOutfits.map((outfit) => 
+            '- ${promptParts['prompt_part_set']} "${outfit.name}": ${promptParts['prompt_part_includes']} [${outfit.itemIds.split(',').map((id) => allItems.firstWhere((item) => item.id == id, orElse: () => ClothingItem(id: '', name: unknownItemName, category: '', color: '', imagePath: '', closetId: '')).name).join(', ')}]').join('\n');
+
+        final closetItemsString = individualItems.map((item) => 
+            '- ${item.name} (${item.category}, ${promptParts['prompt_part_color']} ${item.color})').join('\n');
 
         final suggestionJsonEither = await _suggestionRepo.getOutfitSuggestion(
           weather: weatherData,
           cityName: weatherData?['name'] as String? ?? 'Unknown Location',
-          gender: gender,
-          userStyle: userStyle,
+          gender: gender ?? '',
+          userStyle: userStyle ?? '',
           favoriteColors: favoriteColors,
-          setOutfitsString: setOutfitsString.isNotEmpty ? setOutfitsString : "Không có",
-          closetItemsString: closetItemsString.isNotEmpty ? closetItemsString : "Không có",
+          setOutfitsString: setOutfitsString.isNotEmpty ? setOutfitsString : (promptParts['prompt_part_none'] ?? 'None'),
+          closetItemsString: closetItemsString.isNotEmpty ? closetItemsString : (promptParts['prompt_part_none'] ?? 'None'),
           purpose: purpose,
         );
 
@@ -231,8 +239,8 @@ class GetOutfitSuggestionUseCase {
             }
         });
         final suggestionResult = SuggestionResult(
-            outfitName: suggestionJson['outfit_name'] as String? ?? 'Stylish Outfit',
-            reason: suggestionJson['reason'] as String? ?? 'A great choice for today!',
+            outfitName: suggestionJson['outfit_name'] as String? ?? (promptParts['useCase_default_stylishOutfit'] ?? 'Stylish Outfit'),
+            reason: suggestionJson['reason'] as String? ?? (promptParts['useCase_default_greatChoice'] ?? 'A great choice!'),
             composition: structuredComposition,
         );
 

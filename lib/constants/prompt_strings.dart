@@ -30,14 +30,20 @@ class PromptStrings {
       'note_1': '- For each slot in "outfit_composition", fill in the item name EXACTLY as it appears in the closet list.',
       'note_2': '- If no item is suitable for a slot (e.g., no outerwear needed), fill in `null` for that value.',
 
-      // --- BẮT ĐẦU THÊM MỚI: Classification Prompts ---
       'classification_role': 'You are an expert fashion classifier. Based on the provided image, return a single JSON object with the following keys: "name", "category", "colors", "material", "pattern".',
       'classification_name_instruction': '1. "name": Suggest a short, descriptive name in English for the item (max 30 CHARACTERS). E.g., "White t-shirt", "Blue jeans".',
       'classification_category_instruction': '2. "category": Analyze in 2 steps. First, determine the main category (Tier 1). Then, find the most suitable sub-category (Tier 2) from the corresponding list provided. Return the result as a "Main Category > Sub-category" string. If no suitable sub-category is found, use "Other" as the sub-category. If the main category cannot be determined, return "Other > Other". Category structure:',
       'classification_colors_instruction': '3. "colors": Return an ARRAY OF COLOR NAME STRINGS found in the image. Try to identify all possible colors from the following list:',
       'classification_material_instruction': '4. "material": CHOOSE ONLY ONE best-guess material from the following list: If unsure, return "Other".',
-      'classification_pattern_instruction': '5. "pattern": CHOOSE ONLY ONE best-guess pattern from the following list: If unsure, return "Other".'
-      // --- KẾT THÚC THÊM MỚI ---
+      'classification_pattern_instruction': '5. "pattern": CHOOSE ONLY ONE best-guess pattern from the following list: If unsure, return "Other".',
+
+      'prompt_part_set': 'Set',
+      'prompt_part_includes': 'Includes',
+      'prompt_part_color': 'color',
+      'prompt_part_none': 'None',
+      'prompt_part_unknown_item': 'Unknown Item',
+      'useCase_default_stylishOutfit': 'Stylish Outfit',
+      'useCase_default_greatChoice': 'A great choice for today!',
     },
     'vi': {
       // --- Suggestion Prompts ---
@@ -67,14 +73,20 @@ class PromptStrings {
       'note_1': '- Với mỗi vị trí trong "outfit_composition", hãy điền tên món đồ CHÍNH XÁC như trong danh sách tủ đồ.',
       'note_2': '- Nếu không có món đồ nào phù hợp cho một vị trí, hãy điền `null`.',
 
-      // --- BẮT ĐẦU THÊM MỚI: Classification Prompts ---
       'classification_role': 'Bạn là một chuyên gia phân loại thời trang. Dựa vào hình ảnh được cung cấp, hãy trả về một đối tượng JSON duy nhất có các key sau: "name", "category", "colors", "material", "pattern".',
       'classification_name_instruction': '1. "name": Gợi ý một tên ngắn gọn, mô tả bằng tiếng Việt cho món đồ (tối đa 30 KÝ TỰ). Ví dụ: "Áo thun trắng", "Quần jeans xanh".',
       'classification_category_instruction': '2. "category": Phân tích theo 2 bước. Đầu tiên, xác định danh mục chính (Tầng 1). Sau đó, tìm danh mục con phù hợp nhất (Tầng 2) trong danh sách tương ứng được cung cấp. Trả về kết quả dưới dạng chuỗi "Danh mục chính > Danh mục con". Nếu không tìm thấy danh mục con phù hợp, hãy dùng "Khác" làm danh mục con. Nếu không xác định được cả danh mục chính, trả về "Khác > Khác". Cấu trúc danh mục:',
       'classification_colors_instruction': '3. "colors": Trả về một MẢNG CHỨA CÁC CHUỖI TÊN MÀU có trong ảnh. Cố gắng xác định tất cả các màu có thể từ danh sách sau:',
       'classification_material_instruction': '4. "material": CHỈ CHỌN MỘT chất liệu gần đúng nhất từ danh sách sau: Nếu không chắc chắn, trả về "Khác".',
-      'classification_pattern_instruction': '5. "pattern": CHỈ CHỌN MỘT họa tiết gần đúng nhất từ danh sách sau: Nếu không chắc chắn, trả về "Khác".'
-      // --- KẾT THÚC THÊM MỚI ---
+      'classification_pattern_instruction': '5. "pattern": CHỈ CHỌN MỘT họa tiết gần đúng nhất từ danh sách sau: Nếu không chắc chắn, trả về "Khác".',
+
+      'prompt_part_set': 'Set',
+      'prompt_part_includes': 'Gồm',
+      'prompt_part_color': 'màu',
+      'prompt_part_none': 'Không có',
+      'prompt_part_unknown_item': 'Vật phẩm không rõ',
+      'useCase_default_stylishOutfit': 'Bộ đồ sành điệu',
+      'useCase_default_greatChoice': 'Một lựa chọn tuyệt vời cho hôm nay!',
     }
   };
 }

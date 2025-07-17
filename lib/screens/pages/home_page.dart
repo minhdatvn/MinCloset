@@ -393,7 +393,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         ? null
                         : () {
                             final notifier = ref.read(homeProvider.notifier);
-                            notifier.getNewSuggestion(purpose: _purposeController.text);
+                            notifier.getNewSuggestion(purpose: _purposeController.text, l10n: l10n);
                             _purposeFocusNode.unfocus(); 
                         }
                     )

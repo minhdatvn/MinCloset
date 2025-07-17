@@ -1205,6 +1205,41 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
+  String get getOutfitSuggestion_errorManualLocationMissing =>
+      'Dữ liệu vị trí bạn chọn thủ công bị thiếu. Vui lòng chọn lại thành phố trong cài đặt.';
+
+  @override
+  String get getOutfitSuggestion_errorLocationServicesDisabled =>
+      'Dịch vụ vị trí đã bị tắt. Vui lòng bật trong cài đặt thiết bị của bạn.';
+
+  @override
+  String get getOutfitSuggestion_errorLocationPermissionDenied =>
+      'Quyền truy cập vị trí đã bị từ chối. Vui lòng cấp quyền cho MinCloset trong cài đặt thiết bị.';
+
+  @override
+  String get getOutfitSuggestion_errorLocationUndetermined =>
+      'Không thể xác định vị trí của bạn để lấy dữ liệu thời tiết. Vui lòng kiểm tra cài đặt hoặc chọn vị trí thủ công.';
+
+  @override
+  String get getOutfitSuggestion_errorNotEnoughItems =>
+      'Vui lòng thêm ít nhất 3 áo và 3 quần/váy vào tủ đồ để nhận gợi ý.';
+
+  @override
+  String get getOutfitSuggestion_defaultSelectedLocation => 'Vị trí đã chọn';
+
+  @override
+  String get getOutfitSuggestion_defaultCurrentLocation => 'Vị trí hiện tại';
+
+  @override
+  String get getOutfitSuggestion_defaultNotSpecified => 'Chưa xác định';
+
+  @override
+  String get getOutfitSuggestion_defaultAnyStyle => 'Mọi phong cách';
+
+  @override
+  String get getOutfitSuggestion_defaultAnyColor => 'Mọi màu sắc';
+
+  @override
   String get itemDetail_titleEdit => 'Sửa vật phẩm';
 
   @override

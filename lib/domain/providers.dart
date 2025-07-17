@@ -7,6 +7,7 @@ import 'package:mincloset/domain/use_cases/validate_item_name_use_case.dart';
 import 'package:mincloset/domain/use_cases/validate_required_fields_use_case.dart';
 import 'package:mincloset/helpers/image_helper.dart';
 import 'package:mincloset/providers/repository_providers.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/services/classification_service.dart';
 import 'package:mincloset/services/generative_ai_wrapper.dart';
 import 'package:mincloset/domain/use_cases/delete_multiple_items_use_case.dart';
@@ -35,7 +36,8 @@ final getOutfitSuggestionUseCaseProvider = Provider<GetOutfitSuggestionUseCase>(
   final suggestionRepo = ref.watch(suggestionRepositoryProvider);
   final outfitRepo = ref.watch(outfitRepositoryProvider);
   final settingsRepo = ref.watch(settingsRepositoryProvider);
-  return GetOutfitSuggestionUseCase(clothingRepo, weatherRepo, suggestionRepo, outfitRepo, settingsRepo);
+  final prefs = ref.watch(sharedPreferencesProvider); 
+  return GetOutfitSuggestionUseCase(clothingRepo, weatherRepo, suggestionRepo, outfitRepo, settingsRepo, prefs);
 });
 
 final saveOutfitUseCaseProvider = Provider<SaveOutfitUseCase>((ref) {

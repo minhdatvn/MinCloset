@@ -2294,6 +2294,66 @@ abstract class AppLocalizations {
   /// **'Last updated: {datetime}'**
   String suggestion_lastUpdated(String datetime);
 
+  /// No description provided for @getOutfitSuggestion_errorManualLocationMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Your manually selected location data is missing. Please select your city again in the settings.'**
+  String get getOutfitSuggestion_errorManualLocationMissing;
+
+  /// No description provided for @getOutfitSuggestion_errorLocationServicesDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services are disabled. Please enable it in your device settings.'**
+  String get getOutfitSuggestion_errorLocationServicesDisabled;
+
+  /// No description provided for @getOutfitSuggestion_errorLocationPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permissions are denied. Please enable it for MinCloset in your device settings.'**
+  String get getOutfitSuggestion_errorLocationPermissionDenied;
+
+  /// No description provided for @getOutfitSuggestion_errorLocationUndetermined.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not determine your location to get weather data. Please check your device settings or select a location manually.'**
+  String get getOutfitSuggestion_errorLocationUndetermined;
+
+  /// No description provided for @getOutfitSuggestion_errorNotEnoughItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add at least 3 tops and 3 bottoms/skirts to your closet to receive suggestions.'**
+  String get getOutfitSuggestion_errorNotEnoughItems;
+
+  /// No description provided for @getOutfitSuggestion_defaultSelectedLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected Location'**
+  String get getOutfitSuggestion_defaultSelectedLocation;
+
+  /// No description provided for @getOutfitSuggestion_defaultCurrentLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Location'**
+  String get getOutfitSuggestion_defaultCurrentLocation;
+
+  /// No description provided for @getOutfitSuggestion_defaultNotSpecified.
+  ///
+  /// In en, this message translates to:
+  /// **'Not specified'**
+  String get getOutfitSuggestion_defaultNotSpecified;
+
+  /// No description provided for @getOutfitSuggestion_defaultAnyStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Any style'**
+  String get getOutfitSuggestion_defaultAnyStyle;
+
+  /// No description provided for @getOutfitSuggestion_defaultAnyColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Any color'**
+  String get getOutfitSuggestion_defaultAnyColor;
+
   /// No description provided for @itemDetail_titleEdit.
   ///
   /// In en, this message translates to:

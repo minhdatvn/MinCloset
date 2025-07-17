@@ -462,6 +462,17 @@
         }
     },
 
+    "getOutfitSuggestion_errorManualLocationMissing": "Your manually selected location data is missing. Please select your city again in the settings.",
+    "getOutfitSuggestion_errorLocationServicesDisabled": "Location services are disabled. Please enable it in your device settings.",
+    "getOutfitSuggestion_errorLocationPermissionDenied": "Location permissions are denied. Please enable it for MinCloset in your device settings.",
+    "getOutfitSuggestion_errorLocationUndetermined": "Could not determine your location to get weather data. Please check your device settings or select a location manually.",
+    "getOutfitSuggestion_errorNotEnoughItems": "Please add at least 3 tops and 3 bottoms/skirts to your closet to receive suggestions.",
+    "getOutfitSuggestion_defaultSelectedLocation": "Selected Location",
+    "getOutfitSuggestion_defaultCurrentLocation": "Current Location",
+    "getOutfitSuggestion_defaultNotSpecified": "Not specified",
+    "getOutfitSuggestion_defaultAnyStyle": "Any style",
+    "getOutfitSuggestion_defaultAnyColor": "Any color",
+
     "itemDetail_titleEdit": "Edit item",
     "itemDetail_titleAdd": "Add item",
     "itemDetail_favoriteTooltip_add": "Add to favorites",

@@ -224,7 +224,7 @@
 
     "mascot_newQuest": "Nhiệm vụ mới!",
     "mascot_questCompleted": "Hoàn thành nhiệm vụ!",
-    
+
     "insights_title": "Thống kê Tủ đồ",
     "insights_exclusive": "MINCLOSET ĐỘC QUYỀN",
     "insights_journeyTitle": "Hành trình Phong cách của {userName}",
@@ -451,6 +451,17 @@
             }
         }
     },
+
+    "getOutfitSuggestion_errorManualLocationMissing": "Dữ liệu vị trí bạn chọn thủ công bị thiếu. Vui lòng chọn lại thành phố trong cài đặt.",
+    "getOutfitSuggestion_errorLocationServicesDisabled": "Dịch vụ vị trí đã bị tắt. Vui lòng bật trong cài đặt thiết bị của bạn.",
+    "getOutfitSuggestion_errorLocationPermissionDenied": "Quyền truy cập vị trí đã bị từ chối. Vui lòng cấp quyền cho MinCloset trong cài đặt thiết bị.",
+    "getOutfitSuggestion_errorLocationUndetermined": "Không thể xác định vị trí của bạn để lấy dữ liệu thời tiết. Vui lòng kiểm tra cài đặt hoặc chọn vị trí thủ công.",
+    "getOutfitSuggestion_errorNotEnoughItems": "Vui lòng thêm ít nhất 3 áo và 3 quần/váy vào tủ đồ để nhận gợi ý.",
+    "getOutfitSuggestion_defaultSelectedLocation": "Vị trí đã chọn",
+    "getOutfitSuggestion_defaultCurrentLocation": "Vị trí hiện tại",
+    "getOutfitSuggestion_defaultNotSpecified": "Chưa xác định",
+    "getOutfitSuggestion_defaultAnyStyle": "Mọi phong cách",
+    "getOutfitSuggestion_defaultAnyColor": "Mọi màu sắc",
 
     "itemDetail_titleEdit": "Sửa vật phẩm",
     "itemDetail_titleAdd": "Thêm vật phẩm",

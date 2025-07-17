@@ -12,6 +12,7 @@ import 'package:mincloset/services/notification_service.dart';
 import 'package:mincloset/states/home_page_state.dart';
 import 'package:mincloset/utils/logger.dart';
 import 'package:mincloset/states/profile_page_state.dart';
+import 'package:mincloset/l10n/app_localizations.dart';
 
 class HomePageNotifier extends StateNotifier<HomePageState> {
   final GetOutfitSuggestionUseCase _getSuggestionUseCase;
@@ -81,7 +82,7 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
     });
   }
 
-  Future<void> getNewSuggestion({String? purpose}) async {
+  Future<void> getNewSuggestion({String? purpose, required AppLocalizations l10n}) async {
     state = state.copyWith(isLoading: true, clearError: true);
     final weatherImageService = await _ref.read(weatherImageServiceProvider.future);
 
@@ -96,7 +97,8 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
     resultEither.fold(
       (failure) {
         logger.e('Failed to get new suggestions', error: failure.message);
-        _notificationService.showBanner(message: failure.message);
+        String translatedError = _translateErrorCode(failure.message, l10n);
+        _notificationService.showBanner(message: translatedError);
         state = state.copyWith(isLoading: false);
       },
       (result) async { //Chuyển thành hàm async
@@ -107,6 +109,14 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
         }
 
         final weatherData = result['weather'] as Map<String, dynamic>?;
+        if (weatherData != null && weatherData['name'] == null) {
+          weatherData['name'] = l10n.getOutfitSuggestion_defaultCurrentLocation;
+        } else if (weatherData != null && weatherData['name'] == 'Selected Location') {
+          // Lưu ý: Chuỗi 'Selected Location' này là giá trị cũ, chúng ta sẽ thay thế nó.
+          // Trong UseCase, chúng ta đã trả về tên thành phố thật sự, nên dòng này có thể không cần thiết nữa
+          // nhưng để đây để đảm bảo tính tương thích ngược.
+          weatherData['name'] = l10n.getOutfitSuggestion_defaultSelectedLocation;
+        }
         
         // Bây giờ 'weatherImageService' đã được định nghĩa và có thể sử dụng ở đây
         final newPath = weatherImageService.getBackgroundImageForWeather(
@@ -122,6 +132,23 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
         );
       },
     );
+  }
+
+  String _translateErrorCode(String code, AppLocalizations l10n) {
+      switch (code) {
+        case 'GetOutfitSuggestion_error_manualLocationMissing':
+          return l10n.getOutfitSuggestion_errorManualLocationMissing;
+        case 'GetOutfitSuggestion_error_locationServicesDisabled':
+          return l10n.getOutfitSuggestion_errorLocationServicesDisabled;
+        case 'GetOutfitSuggestion_error_locationPermissionDenied':
+          return l10n.getOutfitSuggestion_errorLocationPermissionDenied;
+        case 'GetOutfitSuggestion_error_locationUndetermined':
+          return l10n.getOutfitSuggestion_errorLocationUndetermined;
+        case 'GetOutfitSuggestion_error_notEnoughItems':
+          return l10n.getOutfitSuggestion_errorNotEnoughItems;
+        default:
+          return code; // Trả về chính mã lỗi nếu không tìm thấy bản dịch
+      }
   }
 }
 

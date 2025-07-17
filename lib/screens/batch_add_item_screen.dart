@@ -117,7 +117,7 @@ class _BatchItemDetailScreenState extends ConsumerState<BatchItemDetailScreen> {
                 ),
                 if (state.currentIndex < itemArgsList.length - 1)
                   ElevatedButton.icon(
-                    onPressed: notifier.nextPage,
+                    onPressed: () => notifier.nextPage(l10n: l10n),
                     icon: const Icon(Icons.arrow_forward),
                     label: Text(l10n.batchAdd_button_next),
                   )

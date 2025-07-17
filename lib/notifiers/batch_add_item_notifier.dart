@@ -134,7 +134,7 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
     state = state.copyWith(currentIndex: index, clearSaveError: true);
   }
 
-  void nextPage() {
+  void nextPage({required AppLocalizations l10n}) {
     final currentItemArgs = state.itemArgsList[state.currentIndex];
     final currentItemState = _ref.read(batchItemFormProvider(currentItemArgs));
     
@@ -148,7 +148,20 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
         );
       }
     } else {
-      _ref.read(batchItemDetailErrorProvider.notifier).state = validationResult.errorMessage;
+      String errorMessage = 'An unknown validation error occurred'; // ignore: unused_local_variable
+      final itemNumber = (state.currentIndex + 1).toString();
+      switch (validationResult.errorCode) {
+        case 'name_required':
+          errorMessage = l10n.validation_error_batch_name_required(itemNumber);
+          break;
+        case 'closet_required':
+          errorMessage = l10n.validation_error_batch_closet_required(itemNumber);
+          break;
+        case 'category_required':
+          errorMessage = l10n.validation_error_batch_category_required(itemNumber);
+          break;
+      }
+      _ref.read(batchItemDetailErrorProvider.notifier).state = errorMessage;
     }
   }
 

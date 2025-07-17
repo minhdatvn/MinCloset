@@ -10,7 +10,8 @@ import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:mincloset/src/providers/notification_providers.dart';
-import 'package:mincloset/helpers/context_extensions.dart'; 
+import 'package:mincloset/helpers/context_extensions.dart';
+import 'package:mincloset/widgets/section_header.dart'; 
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -31,7 +32,7 @@ class SettingsPage extends ConsumerWidget {
         padding: const EdgeInsets.all(16.0),
         children: [
           // --- NHÓM 1: CÀI ĐẶT CHUNG ---
-          _SectionTitle(context.l10n.settings_general_sectionHeader), 
+          SectionHeader(title: context.l10n.settings_general_sectionHeader), 
           _SettingsTile(
             icon: Icons.public_outlined,
             title: context.l10n.settings_localization_tile,
@@ -213,7 +214,7 @@ class SettingsPage extends ConsumerWidget {
           const Divider(height: 32),
 
           // --- NHÓM 2: GIỚI THIỆU & HỖ TRỢ ---
-          _SectionTitle(context.l10n.settings_aboutSupport_sectionHeader),
+          SectionHeader(title: context.l10n.settings_aboutSupport_sectionHeader),
           _SettingsTile(
             icon: Icons.info_outline,
             title: context.l10n.settings_aboutLegal_tile,
@@ -235,27 +236,6 @@ class SettingsPage extends ConsumerWidget {
             },
           ),
         ],
-      ),
-    );
-  }
-}
-
-// Widget helper để tạo tiêu đề cho mỗi nhóm
-class _SectionTitle extends StatelessWidget {
-  final String title;
-  const _SectionTitle(this.title);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-      child: Text(
-        title.toUpperCase(),
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
-            ),
       ),
     );
   }

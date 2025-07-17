@@ -11,6 +11,7 @@ import 'package:mincloset/services/unit_conversion_service.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
+import 'package:mincloset/widgets/section_header.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -168,7 +169,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _buildSectionTitle(l10n.editProfile_basicInfo_sectionHeader),
+            SectionHeader(title: l10n.editProfile_basicInfo_sectionHeader),
             const SizedBox(height: 16),
             TextFormField(
               controller: _nameController,
@@ -260,7 +261,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             ),
             const Divider(height: 48),
-            _buildSectionTitle(l10n.editProfile_interests_sectionHeader),
+            SectionHeader(title: l10n.editProfile_interests_sectionHeader),
             const SizedBox(height: 8),
             MultiSelectChipField(
               label: l10n.editProfile_personalStyle_label,
@@ -278,9 +279,5 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         ),
       ),
     );
-  }
-
-  Widget _buildSectionTitle(String title) {
-    return Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold));
   }
 }

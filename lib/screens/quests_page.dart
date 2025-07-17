@@ -13,6 +13,7 @@ import 'package:mincloset/routing/route_generator.dart';
 import 'package:mincloset/screens/badge_detail_page.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:mincloset/helpers/context_extensions.dart'; 
+import 'package:mincloset/widgets/section_header.dart';
 
 class QuestsPage extends ConsumerWidget {
   const QuestsPage({super.key});
@@ -33,11 +34,11 @@ class QuestsPage extends ConsumerWidget {
             : ListView(
                 padding: const EdgeInsets.all(16.0),
                 children: [
-                  _buildSectionTitle(context, context.l10n.quests_yourBadges_sectionHeader),
+                  SectionHeader(title: context.l10n.quests_yourBadges_sectionHeader),
                   const SizedBox(height: 8),
                   _buildBadgesGrid(context, state),
                   const SizedBox(height: 24),
-                  _buildSectionTitle(context, context.l10n.quests_inProgress_sectionHeader),
+                  SectionHeader(title: context.l10n.quests_inProgress_sectionHeader),
                   if (state.inProgressQuests.isEmpty)
                     Center(child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 32.0),
@@ -62,16 +63,6 @@ class QuestsPage extends ConsumerWidget {
                     }),
                 ],
               ),
-      ),
-    );
-  }
-  
-  Widget _buildSectionTitle(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0, top: 16.0),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
       ),
     );
   }

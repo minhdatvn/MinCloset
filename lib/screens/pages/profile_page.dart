@@ -12,6 +12,7 @@ import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/widgets/statistic_card.dart';
 import 'package:mincloset/widgets/stats_overview_card.dart';
+import 'package:mincloset/widgets/section_header.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
@@ -239,35 +240,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        l10n.profile_closetsOverview_sectionHeader,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, AppRoutes.closetInsights);
-                        },
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              l10n.profile_insights_button,
-                              style: TextStyle(color: Theme.of(context).colorScheme.primary),
-                            ),
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.arrow_forward_ios,
-                              size: 14,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  SectionHeader(
+                    title: l10n.profile_closetsOverview_sectionHeader,
+                    seeAllText: l10n.profile_insights_button,
+                    onSeeAll: () {
+                      Navigator.pushNamed(context, AppRoutes.closetInsights);
+                    },
                   ),
                   const SizedBox(height: 8),
                   StatsOverviewCard(
@@ -276,7 +254,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     totalOutfits: state.totalOutfits,
                   ),
                   const SizedBox(height: 24),
-                  Text(l10n.profile_statistics_sectionHeader, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                  SectionHeader(title: l10n.profile_statistics_sectionHeader),
                 ],
               ),
             ),

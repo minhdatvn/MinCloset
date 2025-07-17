@@ -1229,6 +1229,10 @@ class AppLocalizationsVi extends AppLocalizations {
       'Mô tả mục đích trong ngày của bạn (ví dụ: \"đi cà phê với bạn bè\", \"họp công việc\") và nhấn nút gửi để nhận gợi ý trang phục được cá nhân hóa!';
 
   @override
+  String get home_weather_noNetwork =>
+      'Thời tiết không khả dụng. Không có kết nối mạng';
+
+  @override
   String get mainScreen_bottomNav_home => 'Trang chủ';
 
   @override

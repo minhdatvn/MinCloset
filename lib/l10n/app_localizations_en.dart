@@ -1285,6 +1285,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Describe your purpose for the day (e.g., \"coffee with friends\", \"work meeting\") and tap the send button to get a personalized outfit suggestion!';
 
   @override
+  String get home_weather_noNetwork =>
+      'Weather unavailable. No network connection';
+
+  @override
   String get mainScreen_bottomNav_home => 'Home';
 
   @override

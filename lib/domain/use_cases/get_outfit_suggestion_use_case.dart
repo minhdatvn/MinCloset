@@ -18,6 +18,7 @@ import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/utils/logger.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 class GetOutfitSuggestionUseCase {
   final ClothingItemRepository _clothingItemRepo;
@@ -61,6 +62,12 @@ class GetOutfitSuggestionUseCase {
     final settings = await _settingsRepo.getUserProfile();
     final cityModeString = settings[SettingsRepository.cityModeKey] as String? ?? 'auto';
     final cityMode = CityMode.values.byName(cityModeString);
+    final connectivityResult = await Connectivity().checkConnectivity();
+    
+    if (connectivityResult.contains(ConnectivityResult.none)) { // Lưu ý: connectivity_plus 6.x trả về một List
+      logger.w('No network connection detected before API call.');
+      return const Left(NetworkFailure('error_noNetworkConnection')); // Trả về một mã lỗi cụ thể để Notifier có thể nhận biết
+    }
 
     if (cityMode == CityMode.manual) {
       final lat = settings[SettingsRepository.manualCityLatKey] as double?;

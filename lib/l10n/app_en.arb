@@ -456,6 +456,7 @@
     "home_weeklyJournalViewMore": "View more",
     "home_suggestionTitle": "Outfit suggestion",
     "home_suggestion_showcase_description": "Describe your purpose for the day (e.g., \"coffee with friends\", \"work meeting\") and tap the send button to get a personalized outfit suggestion!",
+    "home_weather_noNetwork": "Weather unavailable. No network connection",
 
     "mainScreen_bottomNav_home": "Home",
     "mainScreen_bottomNav_closets": "Closets",

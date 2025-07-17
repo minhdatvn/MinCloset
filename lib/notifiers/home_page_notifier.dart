@@ -48,11 +48,23 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
         weatherEither.fold(
           (failure) {
             logger.e("Failed to refresh weather: ${failure.message}");
+            if (failure.message == 'error_noNetworkConnection') {
+              state = state.copyWith(
+                isLoading: false,
+                weather: null,
+                errorMessage: failure.message,
+                backgroundImagePath: 'assets/images/weather_backgrounds/default_1.webp',
+              );
+            }
           },
           (weatherData) {
-            final newPath = weatherImageService.getBackgroundImageForWeather(
+          final newPath = weatherImageService.getBackgroundImageForWeather(
                 weatherData['weather'][0]['icon'] as String?);
-            state = state.copyWith(weather: weatherData, backgroundImagePath: newPath);
+            state = state.copyWith(
+              weather: weatherData,
+              backgroundImagePath: newPath,
+              clearError: true // Xóa lỗi cũ nếu lần này thành công
+            );
           },
         );
       }
@@ -97,9 +109,19 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
     resultEither.fold(
       (failure) {
         logger.e('Failed to get new suggestions', error: failure.message);
-        String translatedError = _translateErrorCode(failure.message, l10n);
-        _notificationService.showBanner(message: translatedError);
-        state = state.copyWith(isLoading: false);
+        if (failure.message == 'error_noNetworkConnection') {
+          // Nếu là lỗi mạng, cập nhật state để UI hiển thị thông báo
+          state = state.copyWith(
+              isLoading: false,
+              weather: null,
+              errorMessage: failure.message
+          );
+        } else {
+          // Các lỗi khác thì vẫn hiện banner như cũ
+          String translatedError = _translateErrorCode(failure.message, l10n);
+          _notificationService.showBanner(message: translatedError);
+          state = state.copyWith(isLoading: false);
+        }
       },
       (result) async { //Chuyển thành hàm async
         //Bắt lấy kết quả và phát tín hiệu

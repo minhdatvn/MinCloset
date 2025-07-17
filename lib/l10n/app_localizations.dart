@@ -2342,6 +2342,12 @@ abstract class AppLocalizations {
   /// **'Describe your purpose for the day (e.g., \"coffee with friends\", \"work meeting\") and tap the send button to get a personalized outfit suggestion!'**
   String get home_suggestion_showcase_description;
 
+  /// No description provided for @home_weather_noNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather unavailable. No network connection'**
+  String get home_weather_noNetwork;
+
   /// No description provided for @mainScreen_bottomNav_home.
   ///
   /// In en, this message translates to:

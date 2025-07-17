@@ -317,7 +317,25 @@ class _HomePageState extends ConsumerState<HomePage> {
                         ),
                       
                       // Thông tin thời tiết được đặt trong Positioned như cũ
-                      if (state.weather != null)
+                      // Trường hợp 1: Nếu state có mã lỗi không có mạng
+                      if (state.errorMessage == 'error_noNetworkConnection')
+                        Positioned.fill(
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Text(
+                                l10n.home_weather_noNetwork, // Sử dụng chuỗi l10n
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.grey.shade700,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      // Trường hợp 2: Nếu có dữ liệu thời tiết, hiển thị như cũ
+                      else if (state.weather != null)
                         Positioned(
                           bottom: 4,
                           left: 16,
@@ -327,7 +345,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                             children: [
                               Icon(
                                 _getWeatherIcon(state.weather!['weather'][0]['icon'] as String),
-                                color: Colors.orange.shade700, // << Đổi lại màu chữ và icon
+                                color: Colors.orange.shade700,
                                 size: 20,
                               ),
                               const SizedBox(width: 8),
@@ -335,7 +353,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 child: Text(
                                   state.weather!['name'] as String,
                                   style: const TextStyle(
-                                    color: Colors.black87, // << Đổi lại màu chữ
+                                    color: Colors.black87,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),

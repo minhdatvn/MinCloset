@@ -1,30 +1,35 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mincloset/helpers/db_helper.dart'; 
-import 'package:mincloset/models/closet.dart'; 
+import 'package:mincloset/helpers/db_helper.dart';
+import 'package:mincloset/l10n/app_localizations.dart';
+import 'package:mincloset/models/closet.dart';
+import 'package:mincloset/providers/flow_providers.dart';
 import 'package:mincloset/providers/locale_provider.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/routing/route_generator.dart';
-import 'package:mincloset/screens/main_screen.dart'; 
-import 'package:mincloset/screens/onboarding_screen.dart'; 
+import 'package:mincloset/screens/main_screen.dart';
+import 'package:mincloset/screens/onboarding_screen.dart';
+import 'package:mincloset/screens/permissions_screen.dart';
 import 'package:mincloset/services/weather_image_service.dart';
 import 'package:mincloset/src/services/local_notification_service.dart';
 import 'package:mincloset/theme/app_theme.dart';
 import 'package:mincloset/widgets/global_ui_scope.dart';
-import 'package:mincloset/screens/permissions_screen.dart';
-import 'package:mincloset/providers/flow_providers.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart'; 
-import 'package:uuid/uuid.dart'; 
-import 'package:mincloset/l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 // BƯỚC 1: Chuyển hàm main thành async
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+  ]);
   await dotenv.load(fileName: ".env");
   await LocalNotificationService().init();
   

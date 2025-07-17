@@ -14,6 +14,7 @@
     "banner_deleteFailed": "Failed to delete. Please try again.",
     "common_cancel": "Cancel",
     "common_save": "Save",
+    "common_done": "Done",
     "common_today": "Today",
     "common_seeAll": "See all",
 
@@ -195,6 +196,14 @@
     "settings_sendFeedback_subtitle": "Help us improve MinCloset",
     "settings_rateApp_tile": "Rate on App Store",
 
+    "about_title": "About & Legal",
+    "about_privacy_title": "Privacy Policy",
+    "about_privacy_subtitle": "How we handle your data.",
+    "about_terms_title": "Terms of Use",
+    "about_terms_subtitle": "Rules for using the app.",
+    "about_loadingVersion": "Loading version...",
+    "about_version": "Version {version} ({buildNumber})",
+
     "editProfile_title": "Edit profile",
     "editProfile_saveButton": "Save",
     "editProfile_basicInfo_sectionHeader": "Basic info",
@@ -238,6 +247,10 @@
 
     "mascot_newQuest": "New Quest!",
     "mascot_questCompleted": "Quest Completed!",
+
+    "stats_label_item": "{count,plural, =1{Item} other{Items}}",
+    "stats_label_closet": "{count,plural, =1{Closet} other{Closets}}",
+    "stats_label_outfit": "{count,plural, =1{Outfit} other{Outfits}}",
 
     "insights_title": "Closet Insights",
     "insights_exclusive": "MINCLOSET EXCLUSIVE",
@@ -562,6 +575,7 @@
     "analysis_preparingImages": "Preparing images...",
     "analysis_prefillingInfo": "Pre-filling information...\nThis may take a moment to complete.",
     "analysis_maxPhotosWarning": "Maximum of 10 photos selected. Extra photos were skipped.",
+    "analysis_error_pickImage": "An error occurred while picking images. Please try again.",
 
     "onboarding_page1_title": "A closet full of clothes...",
     "onboarding_page1_subtitle": "...but nothing to wear?",
@@ -601,5 +615,10 @@
     "validation_error_category_required": "Please select a category",
     "validation_error_batch_name_required": "Please enter a name for Item {itemNumber}",
     "validation_error_batch_closet_required": "Please select a closet for Item {itemNumber}",
-    "validation_error_batch_category_required": "Please select a category for Item {itemNumber}"
+    "validation_error_batch_category_required": "Please select a category for Item {itemNumber}",
+
+    "removeBg_title": "Remove Background",
+    "removeBg_processing": "Processing, please wait...",
+    "removeBg_error_process": "Could not process image.",
+    "removeBg_error_generic": "Error processing image: {error}"
 }

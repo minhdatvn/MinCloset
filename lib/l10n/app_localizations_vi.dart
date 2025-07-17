@@ -29,6 +29,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get common_save => 'Lưu';
 
   @override
+  String get common_done => 'Xong';
+
+  @override
   String get common_today => 'Hôm nay';
 
   @override
@@ -542,6 +545,29 @@ class AppLocalizationsVi extends AppLocalizations {
   String get settings_rateApp_tile => 'Đánh giá trên App Store';
 
   @override
+  String get about_title => 'Giới thiệu & Pháp lý';
+
+  @override
+  String get about_privacy_title => 'Chính sách Bảo mật';
+
+  @override
+  String get about_privacy_subtitle => 'Cách chúng tôi xử lý dữ liệu của bạn.';
+
+  @override
+  String get about_terms_title => 'Điều khoản Sử dụng';
+
+  @override
+  String get about_terms_subtitle => 'Các quy tắc khi sử dụng ứng dụng.';
+
+  @override
+  String get about_loadingVersion => 'Đang tải phiên bản...';
+
+  @override
+  String about_version(Object buildNumber, Object version) {
+    return 'Phiên bản $version ($buildNumber)';
+  }
+
+  @override
   String get editProfile_title => 'Chỉnh sửa hồ sơ';
 
   @override
@@ -665,6 +691,21 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get mascot_questCompleted => 'Hoàn thành nhiệm vụ!';
+
+  @override
+  String stats_label_item(num count) {
+    return 'Vật phẩm';
+  }
+
+  @override
+  String stats_label_closet(num count) {
+    return 'Tủ đồ';
+  }
+
+  @override
+  String stats_label_outfit(num count) {
+    return 'Trang phục';
+  }
 
   @override
   String get insights_title => 'Thống kê Tủ đồ';
@@ -1463,6 +1504,10 @@ class AppLocalizationsVi extends AppLocalizations {
       'Đã chọn tối đa 10 ảnh. Các ảnh thừa đã được bỏ qua.';
 
   @override
+  String get analysis_error_pickImage =>
+      'Đã xảy ra lỗi khi chọn ảnh. Vui lòng thử lại.';
+
+  @override
   String get onboarding_page1_title => 'Một tủ đầy quần áo...';
 
   @override
@@ -1571,5 +1616,19 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String validation_error_batch_category_required(Object itemNumber) {
     return 'Vui lòng chọn danh mục cho Vật phẩm số $itemNumber';
+  }
+
+  @override
+  String get removeBg_title => 'Tách Nền';
+
+  @override
+  String get removeBg_processing => 'Đang xử lý, vui lòng chờ...';
+
+  @override
+  String get removeBg_error_process => 'Không thể xử lý hình ảnh.';
+
+  @override
+  String removeBg_error_generic(Object error) {
+    return 'Lỗi xử lý ảnh: $error';
   }
 }

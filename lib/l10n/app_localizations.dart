@@ -134,6 +134,12 @@ abstract class AppLocalizations {
   /// **'Save'**
   String get common_save;
 
+  /// No description provided for @common_done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get common_done;
+
   /// No description provided for @common_today.
   ///
   /// In en, this message translates to:
@@ -1154,6 +1160,48 @@ abstract class AppLocalizations {
   /// **'Rate on App Store'**
   String get settings_rateApp_tile;
 
+  /// No description provided for @about_title.
+  ///
+  /// In en, this message translates to:
+  /// **'About & Legal'**
+  String get about_title;
+
+  /// No description provided for @about_privacy_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get about_privacy_title;
+
+  /// No description provided for @about_privacy_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How we handle your data.'**
+  String get about_privacy_subtitle;
+
+  /// No description provided for @about_terms_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Use'**
+  String get about_terms_title;
+
+  /// No description provided for @about_terms_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rules for using the app.'**
+  String get about_terms_subtitle;
+
+  /// No description provided for @about_loadingVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading version...'**
+  String get about_loadingVersion;
+
+  /// No description provided for @about_version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} ({buildNumber})'**
+  String about_version(Object buildNumber, Object version);
+
   /// No description provided for @editProfile_title.
   ///
   /// In en, this message translates to:
@@ -1393,6 +1441,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Quest Completed!'**
   String get mascot_questCompleted;
+
+  /// No description provided for @stats_label_item.
+  ///
+  /// In en, this message translates to:
+  /// **'{count,plural, =1{Item} other{Items}}'**
+  String stats_label_item(num count);
+
+  /// No description provided for @stats_label_closet.
+  ///
+  /// In en, this message translates to:
+  /// **'{count,plural, =1{Closet} other{Closets}}'**
+  String stats_label_closet(num count);
+
+  /// No description provided for @stats_label_outfit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count,plural, =1{Outfit} other{Outfits}}'**
+  String stats_label_outfit(num count);
 
   /// No description provided for @insights_title.
   ///
@@ -2745,6 +2811,12 @@ abstract class AppLocalizations {
   /// **'Maximum of 10 photos selected. Extra photos were skipped.'**
   String get analysis_maxPhotosWarning;
 
+  /// No description provided for @analysis_error_pickImage.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred while picking images. Please try again.'**
+  String get analysis_error_pickImage;
+
   /// No description provided for @onboarding_page1_title.
   ///
   /// In en, this message translates to:
@@ -2930,6 +3002,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please select a category for Item {itemNumber}'**
   String validation_error_batch_category_required(Object itemNumber);
+
+  /// No description provided for @removeBg_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Background'**
+  String get removeBg_title;
+
+  /// No description provided for @removeBg_processing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing, please wait...'**
+  String get removeBg_processing;
+
+  /// No description provided for @removeBg_error_process.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not process image.'**
+  String get removeBg_error_process;
+
+  /// No description provided for @removeBg_error_generic.
+  ///
+  /// In en, this message translates to:
+  /// **'Error processing image: {error}'**
+  String removeBg_error_generic(Object error);
 }
 
 class _AppLocalizationsDelegate

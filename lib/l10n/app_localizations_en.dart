@@ -29,6 +29,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_save => 'Save';
 
   @override
+  String get common_done => 'Done';
+
+  @override
   String get common_today => 'Today';
 
   @override
@@ -544,6 +547,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_rateApp_tile => 'Rate on App Store';
 
   @override
+  String get about_title => 'About & Legal';
+
+  @override
+  String get about_privacy_title => 'Privacy Policy';
+
+  @override
+  String get about_privacy_subtitle => 'How we handle your data.';
+
+  @override
+  String get about_terms_title => 'Terms of Use';
+
+  @override
+  String get about_terms_subtitle => 'Rules for using the app.';
+
+  @override
+  String get about_loadingVersion => 'Loading version...';
+
+  @override
+  String about_version(Object buildNumber, Object version) {
+    return 'Version $version ($buildNumber)';
+  }
+
+  @override
   String get editProfile_title => 'Edit profile';
 
   @override
@@ -667,6 +693,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mascot_questCompleted => 'Quest Completed!';
+
+  @override
+  String stats_label_item(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Items',
+      one: 'Item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String stats_label_closet(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Closets',
+      one: 'Closet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String stats_label_outfit(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Outfits',
+      one: 'Outfit',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get insights_title => 'Closet Insights';
@@ -1504,6 +1563,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Maximum of 10 photos selected. Extra photos were skipped.';
 
   @override
+  String get analysis_error_pickImage =>
+      'An error occurred while picking images. Please try again.';
+
+  @override
   String get onboarding_page1_title => 'A closet full of clothes...';
 
   @override
@@ -1610,5 +1673,19 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String validation_error_batch_category_required(Object itemNumber) {
     return 'Please select a category for Item $itemNumber';
+  }
+
+  @override
+  String get removeBg_title => 'Remove Background';
+
+  @override
+  String get removeBg_processing => 'Processing, please wait...';
+
+  @override
+  String get removeBg_error_process => 'Could not process image.';
+
+  @override
+  String removeBg_error_generic(Object error) {
+    return 'Error processing image: $error';
   }
 }

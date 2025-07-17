@@ -7,6 +7,7 @@
     "banner_deleteFailed": "Xoá thất bại. Vui lòng thử lại.",
     "common_cancel": "Huỷ",
     "common_save": "Lưu",
+    "common_done": "Xong",
     "common_today": "Hôm nay",
     "common_seeAll": "Xem tất cả",
 
@@ -185,6 +186,14 @@
     "settings_sendFeedback_subtitle": "Giúp chúng tôi cải thiện MinCloset",
     "settings_rateApp_tile": "Đánh giá trên App Store",
 
+    "about_title": "Giới thiệu & Pháp lý",
+    "about_privacy_title": "Chính sách Bảo mật",
+    "about_privacy_subtitle": "Cách chúng tôi xử lý dữ liệu của bạn.",
+    "about_terms_title": "Điều khoản Sử dụng",
+    "about_terms_subtitle": "Các quy tắc khi sử dụng ứng dụng.",
+    "about_loadingVersion": "Đang tải phiên bản...",
+    "about_version": "Phiên bản {version} ({buildNumber})",
+
     "editProfile_title": "Chỉnh sửa hồ sơ",
     "editProfile_saveButton": "Lưu",
     "editProfile_basicInfo_sectionHeader": "Thông tin cơ bản",
@@ -228,6 +237,10 @@
 
     "mascot_newQuest": "Nhiệm vụ mới!",
     "mascot_questCompleted": "Hoàn thành nhiệm vụ!",
+
+    "stats_label_item": "Vật phẩm",
+    "stats_label_closet": "Tủ đồ",
+    "stats_label_outfit": "Trang phục",
 
     "insights_title": "Thống kê Tủ đồ",
     "insights_exclusive": "MINCLOSET ĐỘC QUYỀN",
@@ -552,6 +565,7 @@
     "analysis_preparingImages": "Đang chuẩn bị hình ảnh...",
     "analysis_prefillingInfo": "Đang điền trước thông tin...\nQuá trình này có thể mất một chút thời gian.",
     "analysis_maxPhotosWarning": "Đã chọn tối đa 10 ảnh. Các ảnh thừa đã được bỏ qua.",
+    "analysis_error_pickImage": "Đã xảy ra lỗi khi chọn ảnh. Vui lòng thử lại.",
 
     "onboarding_page1_title": "Một tủ đầy quần áo...",
     "onboarding_page1_subtitle": "...nhưng không có gì để mặc?",
@@ -591,5 +605,10 @@
     "validation_error_category_required": "Vui lòng chọn một danh mục",
     "validation_error_batch_name_required": "Vui lòng nhập tên cho Vật phẩm số {itemNumber}",
     "validation_error_batch_closet_required": "Vui lòng chọn tủ đồ cho Vật phẩm số {itemNumber}",
-    "validation_error_batch_category_required": "Vui lòng chọn danh mục cho Vật phẩm số {itemNumber}"
+    "validation_error_batch_category_required": "Vui lòng chọn danh mục cho Vật phẩm số {itemNumber}",
+
+    "removeBg_title": "Tách Nền",
+    "removeBg_processing": "Đang xử lý, vui lòng chờ...",
+    "removeBg_error_process": "Không thể xử lý hình ảnh.",
+    "removeBg_error_generic": "Lỗi xử lý ảnh: {error}"
 }

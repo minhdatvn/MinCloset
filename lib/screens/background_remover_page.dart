@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_background_remover/image_background_remover.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
 
@@ -52,9 +53,10 @@ class _BackgroundRemoverPageState extends ConsumerState<BackgroundRemoverPage> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = context.l10n;
         ref.read(notificationServiceProvider).showBanner(
-              message: 'Error processing image: $e',
-            );
+          message: l10n.removeBg_error_generic(e.toString()),
+        );
         Navigator.of(context).pop();
       }
     }
@@ -62,10 +64,10 @@ class _BackgroundRemoverPageState extends ConsumerState<BackgroundRemoverPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Giao diện không thay đổi
+    final l10n = context.l10n;
     return PageScaffold(
       appBar: AppBar(
-        title: const Text('Remove Background'),
+        title: Text(l10n.removeBg_title),
         actions: [
           TextButton(
             onPressed: (_removedBgImageBytes == null || _isLoading)
@@ -73,23 +75,23 @@ class _BackgroundRemoverPageState extends ConsumerState<BackgroundRemoverPage> {
                 : () {
                     Navigator.of(context).pop(_removedBgImageBytes);
                   },
-            child: const Text('Done'),
+            child: Text(l10n.common_done),
           )
         ],
       ),
       body: Center(
         child: _isLoading
-            ? const Column(
+            ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 16),
-                  Text('Processing, please wait...'),
+                  Text(l10n.removeBg_processing),
                 ],
               )
             : _removedBgImageBytes != null
                 ? InteractiveViewer(child: Image.memory(_removedBgImageBytes!))
-                : const Text('Could not process image.'),
+                : Text(l10n.removeBg_error_process),
       ),
     );
   }

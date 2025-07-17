@@ -1,5 +1,6 @@
 // lib/widgets/stats_overview_card.dart
 import 'package:flutter/material.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 
 class StatsOverviewCard extends StatelessWidget {
   final int totalItems;
@@ -15,6 +16,7 @@ class StatsOverviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
 
     return Card(
@@ -27,17 +29,17 @@ class StatsOverviewCard extends StatelessWidget {
           children: [
             _buildStatItem(
               context: context,
-              label: 'Item',
+              label: l10n.stats_label_item(totalItems),
               value: totalItems.toString(),
             ),
             _buildStatItem(
               context: context,
-              label: 'Closet',
+              label: l10n.stats_label_closet(totalClosets),
               value: totalClosets.toString(),
             ),
             _buildStatItem(
               context: context,
-              label: 'Outfit',
+              label: l10n.stats_label_outfit(totalOutfits),
               value: totalOutfits.toString(),
             ),
           ],

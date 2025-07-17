@@ -12,7 +12,6 @@ import 'package:mincloset/utils/logger.dart';
 import 'package:mincloset/helpers/context_extensions.dart';
 
 class AnalysisLoadingScreen extends ConsumerStatefulWidget {
-  // --- THAY ĐỔI 1: Thay đổi constructor để nhận ImageSource ---
   final ImageSource source; 
   const AnalysisLoadingScreen({super.key, required this.source});
 
@@ -27,13 +26,12 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        // --- THAY ĐỔI 2: Gọi hàm mới để bắt đầu quy trình ---
         _triggerImagePickingAndAnalysis();
       }
     });
   }
 
-  // --- THAY ĐỔI 3: Tạo hàm mới xử lý việc chọn ảnh ---
+  // --- Hàm xử lý việc chọn ảnh ---
   Future<void> _triggerImagePickingAndAnalysis() async {
     final imagePicker = ImagePicker();
     List<XFile> pickedFiles = [];
@@ -57,7 +55,10 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
     } catch (e) {
       logger.e("Lỗi khi chọn ảnh", error: e);
       if(mounted) {
-        Navigator.of(context).pop();
+        ref.read(notificationServiceProvider).showBanner(
+        message: context.l10n.analysis_error_pickImage,
+      );
+      Navigator.of(context).pop();
       }
       return;
     }
@@ -66,19 +67,13 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
     if (!mounted) return;
 
     if (pickedFiles.isEmpty) {
-      logger.i("Người dùng đã hủy chọn ảnh.");
+      logger.i("User has cancelled photo selection.");
       Navigator.of(context).pop();
       return; 
     }
-    
-    // Nếu có ảnh, bắt đầu phân tích
-    _startAnalysis(pickedFiles);
+    _startAnalysis(pickedFiles); // Nếu có ảnh, bắt đầu phân tích
   }
 
-  // --- THAY ĐỔI 4: Xóa hàm _startImagePickingAndAnalysis cũ ---
-  // Future<void> _startImagePickingAndAnalysis() async { ... } // XÓA HÀM NÀY
-
-  // Hàm _startAnalysis giờ đã đơn giản hơn
   Future<void> _startAnalysis(List<XFile> files) async {
     final l10n = context.l10n;
     List<XFile> filesToProcess = files;
@@ -103,8 +98,6 @@ class _AnalysisLoadingScreenState extends ConsumerState<AnalysisLoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Phần build giữ nguyên vì nó chỉ phụ thuộc vào state của notifier
-    // ...
     final stage = ref.watch(batchAddScreenProvider.select((s) => s.stage));
     final loadingMessage = stage == AnalysisStage.preparing 
         ? context.l10n.analysis_preparingImages 

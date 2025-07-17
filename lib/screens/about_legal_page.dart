@@ -1,5 +1,6 @@
 // lib/screens/about_legal_page.dart
 import 'package:flutter/material.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/routing/app_routes.dart'; // <<< THÊM IMPORT
 import 'package:mincloset/screens/webview_page.dart'; // <<< THÊM IMPORT
 import 'package:package_info_plus/package_info_plus.dart';
@@ -9,24 +10,24 @@ class AboutLegalPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('About & Legal'),
+        title: Text(l10n.about_title),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           ListTile(
             leading: const Icon(Icons.description_outlined),
-            title: const Text('Privacy Policy'),
-            subtitle: const Text('How we handle your data.'),
+            title: Text(l10n.about_privacy_title),
+            subtitle: Text(l10n.about_privacy_subtitle),
             onTap: () {
-              // --- THAY ĐỔI Ở ĐÂY ---
               Navigator.pushNamed(
                 context,
                 AppRoutes.webview,
-                arguments: const WebViewPageArgs(
-                  title: 'Privacy Policy',
+                arguments: WebViewPageArgs(
+                  title: l10n.about_privacy_title,
                   url:'https://minhdatvn.github.io/MinCloset/privacy-policy.html'
            ),
               );
@@ -35,45 +36,27 @@ class AboutLegalPage extends StatelessWidget {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.gavel_outlined),
-            title: const Text('Terms of Use'),
-            subtitle: const Text('Rules for using the app.'),
+            title: Text(l10n.about_terms_title),
+            subtitle: Text(l10n.about_terms_subtitle),
             onTap: () {
-              // --- THAY ĐỔI Ở ĐÂY ---
               Navigator.pushNamed(
                 context,
                 AppRoutes.webview,
-                arguments: const WebViewPageArgs(
-                  title: 'Terms of Use',
+                arguments: WebViewPageArgs(
+                  title: l10n.about_terms_title,
                   url: 'https://minhdatvn.github.io/MinCloset/terms-of-use.html'
                 )
               );
             },
           ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.code_outlined),
-            title: const Text('Open Source Licenses'),
-            subtitle: const Text('Libraries that make MinCloset possible.'),
-            onTap: () async {
-              // Lấy thông tin phiên bản một cách tự động
-              final packageInfo = await PackageInfo.fromPlatform();
-              if (context.mounted) {
-                showLicensePage(
-                  context: context,
-                  applicationName: 'MinCloset',
-                  applicationVersion: packageInfo.version,
-                  applicationIcon: const Icon(Icons.checkroom, size: 48), // Tùy chọn
-                );
-              }
-            },
-          ),
+          
           const Divider(height: 48),
           FutureBuilder<PackageInfo>(
             future: PackageInfo.fromPlatform(),
             builder: (context, snapshot) {
               final version = snapshot.hasData
-                  ? 'Version ${snapshot.data!.version} (${snapshot.data!.buildNumber})'
-                  : 'Loading version...';
+                  ? l10n.about_version(snapshot.data!.version, snapshot.data!.buildNumber)
+                  : l10n.about_loadingVersion;
               return Center(
                 child: Text(
                   version,

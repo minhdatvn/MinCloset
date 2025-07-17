@@ -205,27 +205,13 @@ class _OutfitsHubPageState extends ConsumerState<OutfitsHubPage> {
     final l10n = context.l10n;
     final dialogTitle = l10n.outfitsHub_delete_dialogTitle;
     final dialogContent = l10n.outfitsHub_delete_dialogContent(outfit.name);
-    final cancelButton = l10n.outfitsHub_cancel_button;
-    final deleteButton = l10n.outfitsHub_delete_label;
     final successMessage = l10n.banner_deleteSuccess(outfit.name);
     final failedMessage = l10n.banner_deleteFailed;
 
-    final confirmed = await showAnimatedDialog<bool>(
+    final confirmed = await showDeleteConfirmationDialog(
       context,
-      builder: (ctx) => AlertDialog(
-        title: Text(dialogTitle),       // Dùng biến
-        content: Text(dialogContent),  // Dùng biến
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(cancelButton)), // Dùng biến
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(deleteButton, style: const TextStyle(color: Colors.red)), // Dùng biến
-          ),
-        ],
-      ),
+      title: dialogTitle,
+      content: Text(dialogContent),
     );
 
     // 2. Thêm một kiểm tra `context.mounted` để đảm bảo an toàn tuyệt đối.

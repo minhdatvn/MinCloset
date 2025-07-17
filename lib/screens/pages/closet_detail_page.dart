@@ -143,7 +143,7 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
           onRefresh: notifier.fetchInitialItems,
           child: CustomScrollView( // <-- Sử dụng CustomScrollView
             slivers: [
-              SliverPersistentHeader( // <-- Thêm Header mới
+              SliverPersistentHeader(
                 pinned: true,
                 delegate: PersistentHeaderDelegate(
                   // Truyền vào widget thanh tìm kiếm/lọc mới
@@ -210,20 +210,10 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
                         label: l10n.closetDetail_delete,
                         color: Colors.red,
                         onPressed: () async {
-                          final confirmed = await showAnimatedDialog<bool>(
+                          final confirmed = await showDeleteConfirmationDialog(
                             context,
-                            builder: (ctx) => AlertDialog(
-                              title: Text(l10n.closetDetail_confirmDeleteTitle),
-                              content: Text(l10n.closetDetail_confirmDeleteContent(state.selectedItemIds.length)),
-                              actions: [
-                                TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.closetDetail_cancel)),
-                                TextButton(
-                                  onPressed: () => Navigator.of(ctx).pop(true),
-                                  style: TextButton.styleFrom(foregroundColor: Colors.red),
-                                  child: Text(l10n.closetDetail_delete),
-                                ),
-                              ],
-                            ),
+                            title: l10n.closetDetail_confirmDeleteTitle,
+                            content: Text(l10n.closetDetail_confirmDeleteContent(state.selectedItemIds.length)),
                           );
                           if (confirmed == true) {
                             await notifier.deleteSelectedItems();

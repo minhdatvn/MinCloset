@@ -217,20 +217,10 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
                     label: l10n.allItems_delete,
                     color: Colors.red,
                     onPressed: () async {
-                      final confirmed = await showAnimatedDialog<bool>(
+                      final confirmed = await showDeleteConfirmationDialog(
                         context,
-                        builder: (ctx) => AlertDialog(
-                          title: Text(l10n.allItems_deleteDialogTitle),
-                          content: Text(l10n.allItems_deleteDialogContent(state.selectedItemIds.length)), 
-                          actions: [
-                            TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.common_cancel)), 
-                            TextButton(
-                              onPressed: () => Navigator.of(ctx).pop(true),
-                              style: TextButton.styleFrom(foregroundColor: Colors.red),
-                              child: Text(l10n.allItems_delete), 
-                            ),
-                          ],
-                        ),
+                        title: l10n.allItems_deleteDialogTitle,
+                        content: Text(l10n.allItems_deleteDialogContent(state.selectedItemIds.length)),
                       );
                       if (confirmed == true) {
                         await notifier.deleteSelectedItems();
@@ -425,20 +415,10 @@ class _ClosetsListTabState extends ConsumerState<_ClosetsListTab> {
                   ),
                   confirmDismiss: (direction) async {
                     if (direction == DismissDirection.endToStart) {
-                      final confirmed = await showAnimatedDialog<bool>(
+                      final confirmed = await showDeleteConfirmationDialog(
                         context,
-                        builder: (dialogCtx) => AlertDialog(
-                          title: Text(l10n.byCloset_deleteDialogTitle),
-                          content: Text(l10n.byCloset_deleteDialogContent(closet.name)),
-                          actions: [
-                            TextButton(onPressed: () => Navigator.of(dialogCtx).pop(false), child: Text(l10n.common_cancel)),
-                            TextButton(
-                              style: TextButton.styleFrom(foregroundColor: Colors.red),
-                              onPressed: () => Navigator.of(dialogCtx).pop(true),
-                              child: Text(l10n.allItems_delete),
-                            ),
-                          ],
-                        ),
+                        title: l10n.byCloset_deleteDialogTitle,
+                        content: Text(l10n.byCloset_deleteDialogContent(closet.name)),
                       );
                       if (confirmed == true) {
                           // Chỉ cần gọi notifier để xóa

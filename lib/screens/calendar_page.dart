@@ -126,20 +126,10 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                   // <<< THAY ĐỔI 1: Đổi màu icon thùng rác >>>
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
                   onPressed: () async {
-                    final confirmed = await showAnimatedDialog<bool>(
+                    final confirmed = await showDeleteConfirmationDialog(
                       context,
-                      builder: (ctx) => AlertDialog(
-                        title: Text(l10n.calendar_deleteDialogTitle),
-                        content: Text(l10n.calendar_deleteDialogContent(selectedGroupCount)),
-                        actions: [
-                          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.common_cancel)),
-                          TextButton(
-                            onPressed: () => Navigator.of(ctx).pop(true),
-                            style: TextButton.styleFrom(foregroundColor: Colors.red),
-                            child: Text(l10n.allItems_delete),
-                          ),
-                        ],
-                      ),
+                      title: l10n.calendar_deleteDialogTitle,
+                      content: Text(l10n.calendar_deleteDialogContent(selectedGroupCount)),
                     );
                     if (confirmed == true) {
                       await notifier.deleteSelected();
@@ -339,23 +329,13 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                 child: const Icon(Icons.delete_outline, color: Colors.white),
               ),
               confirmDismiss: (direction) async {
-                  return await showAnimatedDialog<bool>(
+                  return await showDeleteConfirmationDialog(
                     context,
-                    builder: (ctx) => AlertDialog(
-                      title: Text(l10n.calendar_deleteDialogTitle),
-                      content: Text(isOutfit
-                          ? l10n.calendar_deleteDialogContentOutfit(group.outfit!.name)
-                          : l10n.calendar_deleteDialogContentItem(group.items.first.name)),
-                      actions: [
-                        TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.common_cancel)),
-                        TextButton(
-                          onPressed: () => Navigator.of(ctx).pop(true),
-                          style: TextButton.styleFrom(foregroundColor: Colors.red),
-                          child: Text(l10n.allItems_delete),
-                        ),
-                      ],
-                    ),
-                  ) ?? false;
+                    title: l10n.calendar_deleteDialogTitle,
+                    content: Text(isOutfit
+                        ? l10n.calendar_deleteDialogContentOutfit(group.outfit!.name)
+                        : l10n.calendar_deleteDialogContentItem(group.items.first.name)),
+                  );
               },
               onDismissed: (direction) {
                 notifier.deleteWornGroup(group);

@@ -51,20 +51,10 @@ class _ItemDetailScreenState extends ConsumerState<ItemDetailScreen> {
     if (widget.itemToEdit == null) return;
     final l10n = context.l10n;
 
-    final confirmed = await showAnimatedDialog<bool>(
+    final confirmed = await showDeleteConfirmationDialog(
       context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.itemDetail_deleteDialogTitle),
-        content: Text(l10n.itemDetail_deleteDialogContent(widget.itemToEdit!.name)),
-        actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.common_cancel)),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(l10n.allItems_delete),
-          ),
-        ],
-      ),
+      title: l10n.itemDetail_deleteDialogTitle,
+      content: Text(l10n.itemDetail_deleteDialogContent(widget.itemToEdit!.name)),
     );
 
     if (confirmed == true) {

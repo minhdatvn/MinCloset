@@ -125,23 +125,10 @@ class OutfitActionsMenu extends ConsumerWidget {
     final navigator = Navigator.of(context);
     final notificationService = ref.read(notificationServiceProvider); // Lấy service ra trước
 
-    final confirmed = await showAnimatedDialog<bool>(
+    final confirmed = await showDeleteConfirmationDialog(
       context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l10n.outfitMenu_delete_dialogTitle),
-        content: Text(l10n.outfitMenu_delete_dialogContent(outfit.name)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l10n.common_cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(l10n.outfitMenu_delete),
-          ),
-        ],
-      )
+      title: l10n.outfitMenu_delete_dialogTitle,
+      content: Text(l10n.outfitMenu_delete_dialogContent(outfit.name)),
     );
 
     if (confirmed == true && context.mounted) {

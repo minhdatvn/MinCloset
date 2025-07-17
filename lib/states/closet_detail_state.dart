@@ -2,6 +2,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mincloset/models/clothing_item.dart';
+import 'package:mincloset/models/outfit_filter.dart';
 
 @immutable
 class ClosetDetailState extends Equatable {
@@ -13,10 +14,10 @@ class ClosetDetailState extends Equatable {
   final String? errorMessage;
   final bool isMultiSelectMode;
   final Set<String> selectedItemIds;
-  
-  // <<< THÊM CÁC THUỘC TÍNH CÒN THIẾU Ở ĐÂY >>>
+  final OutfitFilter activeFilters;
   final int page;
   final bool isSearching;
+
 
   const ClosetDetailState({
     this.isLoading = true,
@@ -27,8 +28,9 @@ class ClosetDetailState extends Equatable {
     this.errorMessage,
     this.isMultiSelectMode = false,
     this.selectedItemIds = const {},
-    this.page = 0, // Giá trị mặc định
-    this.isSearching = false, // Giá trị mặc định
+    this.activeFilters = const OutfitFilter(),
+    this.page = 0, 
+    this.isSearching = false, 
   });
 
   ClosetDetailState copyWith({
@@ -41,6 +43,7 @@ class ClosetDetailState extends Equatable {
     bool? isMultiSelectMode,
     Set<String>? selectedItemIds,
     bool clearError = false,
+    OutfitFilter? activeFilters,
     int? page,
     bool? isSearching,
   }) {
@@ -53,6 +56,7 @@ class ClosetDetailState extends Equatable {
       errorMessage: clearError ? null : errorMessage ?? this.errorMessage,
       isMultiSelectMode: isMultiSelectMode ?? this.isMultiSelectMode,
       selectedItemIds: selectedItemIds ?? this.selectedItemIds,
+      activeFilters: activeFilters ?? this.activeFilters,
       page: page ?? this.page,
       isSearching: isSearching ?? this.isSearching,
     );
@@ -68,6 +72,7 @@ class ClosetDetailState extends Equatable {
         errorMessage,
         isMultiSelectMode,
         selectedItemIds,
+        activeFilters,
         page,
         isSearching,
       ];

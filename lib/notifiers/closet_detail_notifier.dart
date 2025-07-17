@@ -6,6 +6,7 @@ import 'package:mincloset/domain/providers.dart';
 import 'package:mincloset/domain/use_cases/delete_multiple_items_use_case.dart';
 import 'package:mincloset/domain/use_cases/move_multiple_items_use_case.dart';
 import 'package:mincloset/models/notification_type.dart';
+import 'package:mincloset/models/outfit_filter.dart';
 import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
@@ -44,9 +45,12 @@ class ClosetDetailNotifier extends StateNotifier<ClosetDetailState> {
 
   // Các hàm từ _fetchPage đến clearSelectionAndExitMode không thay đổi
   Future<void> _fetchPage(int page) async {
-    final result = await _repo.searchItemsInCloset(
-      _closetId,
-      state.searchQuery,
+  // Luôn đảm bảo rằng bộ lọc có closetId của trang hiện tại
+    final filtersWithClosetId = state.activeFilters.copyWith(closetId: _closetId);
+
+    final result = await _repo.getFilteredItems(
+      query: state.searchQuery,
+      filters: filtersWithClosetId,
       limit: _pageSize,
       offset: page * _pageSize,
     );
@@ -85,6 +89,11 @@ class ClosetDetailNotifier extends StateNotifier<ClosetDetailState> {
       state = state.copyWith(searchQuery: query, page: 0);
       fetchInitialItems();
     });
+  }
+
+  void applyFilters(OutfitFilter filters) {
+    state = state.copyWith(activeFilters: filters, page: 0);
+    fetchInitialItems();
   }
 
   @override

@@ -16,6 +16,8 @@ import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:mincloset/widgets/multi_select_action_button.dart';
+import 'package:mincloset/widgets/item_search_filter_bar.dart';
+import 'package:mincloset/widgets/persistent_header_delegate.dart';
 
 class ClosetDetailPage extends ConsumerStatefulWidget {
   final Closet closet;
@@ -139,42 +141,45 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
             ),
         body: RefreshIndicator(
           onRefresh: notifier.fetchInitialItems,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: l10n.closetDetail_searchHint,
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                    contentPadding: EdgeInsets.zero,
+          child: CustomScrollView( // <-- Sử dụng CustomScrollView
+            slivers: [
+              SliverPersistentHeader( // <-- Thêm Header mới
+                pinned: true,
+                delegate: PersistentHeaderDelegate(
+                  // Truyền vào widget thanh tìm kiếm/lọc mới
+                  child: ItemSearchFilterBar(
+                    providerId: widget.closet.id, // ID của provider giờ là ID của closet
+                    onApplyFilter: notifier.applyFilters,
+                    // Thêm tùy chọn để ẩn bộ lọc Closet
+                    showClosetFilter: false,
+                    activeFilters: state.activeFilters,
                   ),
-                  onChanged: notifier.search,
                 ),
               ),
-              Expanded(
-                child: Builder(builder: (context) {
-                  if (state.isLoading && state.items.isEmpty) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (state.errorMessage != null && state.items.isEmpty) {
-                    return Center(child: Text(state.errorMessage!));
-                  }
-                  if (state.items.isEmpty) {
-                    return Center(
-                      child: Text(
-                        state.searchQuery.isNotEmpty ? l10n.closetDetail_noItemsFound : l10n.closetDetail_emptyCloset,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 18, color: Colors.grey),
-                      ),
-                    );
-                  }
-                  return _buildItemsGrid(context, ref, state.items, state.hasMore);
-                }),
-              ),
+              // Xử lý các trạng thái loading/empty/error bằng Sliver
+              if (state.isLoading && state.items.isEmpty)
+                const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (state.errorMessage != null && state.items.isEmpty)
+                SliverFillRemaining(
+                  child: Center(child: Text(state.errorMessage!)),
+                )
+              else if (state.items.isEmpty)
+                SliverFillRemaining(
+                  child: Center(
+                    child: Text(
+                      state.searchQuery.isNotEmpty
+                          ? l10n.closetDetail_noItemsFound
+                          : l10n.closetDetail_emptyCloset,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  ),
+                )
+              else
+                // GridView cũ giờ được chuyển thành SliverGrid
+                _buildItemsGrid(context, ref, state.items, state.hasMore),
             ],
           ),
         ),
@@ -252,49 +257,52 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
     );
   }
 
-  Widget _buildItemsGrid(BuildContext context, WidgetRef ref, List<ClothingItem> items, bool hasMore) {
+  SliverPadding _buildItemsGrid(BuildContext context, WidgetRef ref, List<ClothingItem> items, bool hasMore) {
     final state = ref.watch(closetDetailProvider(widget.closet.id));
     final notifier = ref.read(closetDetailProvider(widget.closet.id).notifier);
 
-    return GridView.builder(
-      controller: _scrollController,
+    // Bọc SliverGrid.builder bằng SliverPadding
+    return SliverPadding(
       padding: const EdgeInsets.all(16),
-      itemCount: items.length + (hasMore && !state.isMultiSelectMode ? 1 : 0),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 3 / 4,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-      ),
-      itemBuilder: (ctx, index) {
-        if (index >= items.length) {
-          return const Center(child: CircularProgressIndicator());
-        }
+      sliver: SliverGrid.builder( // SliverGrid.builder giờ nằm bên trong SliverPadding
+        itemCount: items.length + (hasMore && !state.isMultiSelectMode ? 1 : 0),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          childAspectRatio: 3 / 4,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+        ),
+        itemBuilder: (ctx, index) {
+          // ... nội dung của itemBuilder không thay đổi
+          if (index >= items.length) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        final item = items[index];
-        final isSelected = state.selectedItemIds.contains(item.id);
+          final item = items[index];
+          final isSelected = state.selectedItemIds.contains(item.id);
 
-        return GestureDetector(
-          onLongPress: () {
-            if (!state.isMultiSelectMode) {
-              notifier.enableMultiSelectMode(item.id);
-            }
-          },
-          onTap: () async {
-            if (state.isMultiSelectMode) {
-              notifier.toggleItemSelection(item.id);
-            } else {
-              final wasChanged = await Navigator.pushNamed(context, AppRoutes.addItem, arguments: ItemDetailNotifierArgs(tempId: item.id, itemToEdit: item));
-              if (wasChanged == true) {
-                setState(() => _didChange = true);
-                ref.read(itemChangedTriggerProvider.notifier).state++;
-                ref.invalidate(closetDetailProvider(widget.closet.id));
+          return GestureDetector(
+            onLongPress: () {
+              if (!state.isMultiSelectMode) {
+                notifier.enableMultiSelectMode(item.id);
               }
-            }
-          },
-          child: RecentItemCard(item: item, isSelected: isSelected),
-        );
-      },
+            },
+            onTap: () async {
+              if (state.isMultiSelectMode) {
+                notifier.toggleItemSelection(item.id);
+              } else {
+                final wasChanged = await Navigator.pushNamed(context, AppRoutes.addItem, arguments: ItemDetailNotifierArgs(tempId: item.id, itemToEdit: item));
+                if (wasChanged == true) {
+                  setState(() => _didChange = true);
+                  ref.read(itemChangedTriggerProvider.notifier).state++;
+                  ref.invalidate(closetDetailProvider(widget.closet.id));
+                }
+              }
+            },
+            child: RecentItemCard(item: item, isSelected: isSelected),
+          );
+        },
+      ),
     );
   }
 }

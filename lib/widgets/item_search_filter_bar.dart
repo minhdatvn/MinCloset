@@ -3,16 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mincloset/helpers/context_extensions.dart';
+import 'package:mincloset/models/outfit_filter.dart';
 import 'package:mincloset/notifiers/item_filter_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/widgets/filter_bottom_sheet.dart';
 
 class ItemSearchFilterBar extends HookConsumerWidget {
   final String providerId;
+  final void Function(OutfitFilter)? onApplyFilter;
+  final bool showClosetFilter;
+  final OutfitFilter activeFilters;
 
   const ItemSearchFilterBar({
     super.key,
     required this.providerId,
+    this.onApplyFilter,
+    this.showClosetFilter = true,
+    this.activeFilters = const OutfitFilter(),
   });
 
   @override
@@ -20,17 +27,9 @@ class ItemSearchFilterBar extends HookConsumerWidget {
     // Sử dụng Hook để quản lý controller một cách gọn gàng
     final searchController = useTextEditingController();
     // Lấy state và notifier tương ứng với providerId được truyền vào
-    final state = ref.watch(itemFilterProvider(providerId));
     final notifier = ref.read(itemFilterProvider(providerId).notifier);
     final closetsAsync = ref.watch(closetsProvider);
     final l10n = context.l10n;
-    // Đồng bộ text trong controller với state (hữu ích khi xóa filter)
-    useEffect(() {
-      if (searchController.text != state.searchQuery) {
-        searchController.text = state.searchQuery;
-      }
-      return null;
-    }, [state.searchQuery]);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -54,28 +53,30 @@ class ItemSearchFilterBar extends HookConsumerWidget {
             ),
           ),
           const SizedBox(width: 8),
-          IconButton(
-            icon: Badge(
-              // Hiển thị badge nếu có filter đang được áp dụng
-              isLabelVisible: state.activeFilters.isApplied,
-              child: const Icon(Icons.filter_list),
+          if (onApplyFilter != null)
+            IconButton(
+              icon: Badge(
+                isLabelVisible: activeFilters.isApplied,
+                child: const Icon(Icons.filter_list),
+              ),
+              tooltip: l10n.allItems_filterTooltip,
+              onPressed: () {
+                closetsAsync.whenData((closets) {
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    builder: (_) => FilterBottomSheet(
+                      currentFilter: activeFilters,
+                      closets: closets,
+                      // Gọi đến callback onApplyFilter đã được truyền vào
+                      onApplyFilter: onApplyFilter!,
+                      // Truyền giá trị showClosetFilter vào BottomSheet
+                      showClosetFilter: showClosetFilter,
+                    ),
+                  );
+                });
+              },
             ),
-            tooltip: l10n.allItems_filterTooltip,
-            onPressed: () {
-              // Chỉ mở bottom sheet khi đã tải xong danh sách tủ đồ
-              closetsAsync.whenData((closets) {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  builder: (_) => FilterBottomSheet(
-                    currentFilter: state.activeFilters,
-                    closets: closets,
-                    onApplyFilter: notifier.applyFilters,
-                  ),
-                );
-              });
-            },
-          ),
         ],
       ),
     );

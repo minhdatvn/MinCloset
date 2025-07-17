@@ -12,12 +12,14 @@ class FilterBottomSheet extends ConsumerStatefulWidget {
   final OutfitFilter currentFilter;
   final List<Closet> closets;
   final void Function(OutfitFilter) onApplyFilter;
+  final bool showClosetFilter;
   
   const FilterBottomSheet({
     super.key,
     required this.currentFilter,
     required this.closets,
     required this.onApplyFilter,
+    this.showClosetFilter = true,
   });
 
   @override
@@ -53,23 +55,25 @@ class _FilterBottomSheetState extends ConsumerState<FilterBottomSheet> {
                 Text(l10n.filter_title, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
                 const SizedBox(height: 16),
 
-                // BỘ LỌC TỦ ĐỒ (GIỮ NGUYÊN)
-                DropdownButtonFormField<String?>(
-                  value: _temporaryFilter.closetId,
-                  decoration: InputDecoration(labelText: l10n.filter_closet),
-                  items: [
-                    DropdownMenuItem(value: null, child: Text(l10n.filter_allClosets)),
-                    ...widget.closets.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _temporaryFilter = _temporaryFilter.copyWith(closetId: value);
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
+                // BỘ LỌC TỦ ĐỒ
+                if (widget.showClosetFilter) ...[
+                  DropdownButtonFormField<String?>(
+                    value: _temporaryFilter.closetId,
+                    decoration: InputDecoration(labelText: l10n.filter_closet),
+                    items: [
+                      DropdownMenuItem(value: null, child: Text(l10n.filter_allClosets)),
+                      ...widget.closets.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _temporaryFilter = _temporaryFilter.copyWith(closetId: value);
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 
-                // <<< THÊM MỚI: BỘ LỌC DANH MỤC
+                // BỘ LỌC DANH MỤC
                 DropdownButtonFormField<String?>(
                   value: _temporaryFilter.category,
                   decoration: InputDecoration(labelText: l10n.filter_category),

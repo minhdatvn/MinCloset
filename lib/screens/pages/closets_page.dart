@@ -21,6 +21,7 @@ import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:mincloset/widgets/multi_select_action_button.dart';
+import 'package:mincloset/widgets/persistent_header_delegate.dart';
 
 IconData _getIconDataFromName(String? iconName) {
   // Đây là map tương tự như ở màn hình EditClosetScreen
@@ -67,28 +68,26 @@ class _ClosetsPageState extends ConsumerState<ClosetsPage> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     const allItemsProviderId = 'closetsPage';
-    final allItemsState = ref.watch(itemFilterProvider(allItemsProviderId));
     final l10n = context.l10n;  
 
     return PageScaffold(
       appBar: AppBar(
-        // Tự động tắt nút back khi ở chế độ chọn nhiều
-        automaticallyImplyLeading: !allItemsState.isMultiSelectMode,
-        // Hiển thị nút 'X' để thoát khi ở chế độ chọn nhiều
-        leading: allItemsState.isMultiSelectMode
+        // Đọc trực tiếp trạng thái isMultiSelectMode từ provider
+        automaticallyImplyLeading: !ref.watch(itemFilterProvider(allItemsProviderId)).isMultiSelectMode,
+        leading: ref.watch(itemFilterProvider(allItemsProviderId)).isMultiSelectMode
             ? IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () => ref.read(itemFilterProvider(allItemsProviderId).notifier).clearSelectionAndExitMode(),
               )
             : null,
-        // Thay đổi tiêu đề một cách linh động
         title: Text(
-          allItemsState.isMultiSelectMode
-              ? l10n.closets_itemsSelected(allItemsState.selectedItemIds.length)
+          ref.watch(itemFilterProvider(allItemsProviderId)).isMultiSelectMode
+              // Đọc độ dài của danh sách ID đã chọn
+              ? l10n.closets_itemsSelected(ref.watch(itemFilterProvider(allItemsProviderId)).selectedItemIds.length)
               : l10n.closets_title,
         ),
-        bottom: allItemsState.isMultiSelectMode // Giữ nguyên TabBar, nhưng ẩn nó đi khi đang chọn nhiều
-            ? null // Ẩn TabBar
+        bottom: ref.watch(itemFilterProvider(allItemsProviderId)).isMultiSelectMode
+            ? null
             : TabBar(
                 controller: _tabController,
                 tabs: [
@@ -163,8 +162,12 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
           slivers: [
             SliverPersistentHeader(
               pinned: true,
-              delegate: _SliverAppBarDelegate(
-                ItemSearchFilterBar(providerId: providerId),
+              delegate: PersistentHeaderDelegate(
+                child: ItemSearchFilterBar(
+                  providerId: providerId,
+                  onApplyFilter: notifier.applyFilters,
+                  activeFilters: ref.watch(itemFilterProvider(providerId)).activeFilters,
+                ),
               ),
             ),
             // Xử lý các trạng thái loading/empty/error
@@ -306,33 +309,6 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
     );
   }
 }
-
-// <<< THÊM MỚI: Lớp Delegate cho SliverPersistentHeader >>>
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  final ItemSearchFilterBar _searchBar;
-
-  _SliverAppBarDelegate(this._searchBar);
-
-  @override
-  double get minExtent => 72.0; // Chiều cao tối thiểu khi cuộn
-
-  @override
-  double get maxExtent => 72.0; // Chiều cao tối đa khi mở rộng
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor, // Thêm màu nền để không bị trong suốt
-      child: _searchBar,
-    );
-  }
-
-  @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return false;
-  }
-}
-
 
 // _ClosetsListTab không thay đổi
 class _ClosetsListTab extends ConsumerStatefulWidget {

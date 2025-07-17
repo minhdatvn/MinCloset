@@ -23,25 +23,7 @@ import 'package:mincloset/widgets/item_search_filter_bar.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 import 'package:uuid/uuid.dart';
-
-// _SliverAppBarDelegate không đổi
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  final ItemSearchFilterBar _searchBar;
-  _SliverAppBarDelegate(this._searchBar);
-  @override
-  double get minExtent => 72.0;
-  @override
-  double get maxExtent => 72.0;
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Material(
-      color: Theme.of(context).scaffoldBackgroundColor.withAlpha(242),
-      child: _searchBar,
-    );
-  }
-  @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) => false;
-}
+import 'package:mincloset/widgets/persistent_header_delegate.dart';
 
 class OutfitBuilderPage extends ConsumerStatefulWidget {
   final List<ClothingItem>? preselectedItems;
@@ -212,7 +194,16 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                   child: Center(child: Container(width: 40, height: 5, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(12)))),
                 ),
               ),
-              SliverPersistentHeader(pinned: true, delegate: _SliverAppBarDelegate(const ItemSearchFilterBar(providerId: _itemBrowserProviderId))),
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: PersistentHeaderDelegate( // Sử dụng delegate chung mà chúng ta đã tạo
+                  child: ItemSearchFilterBar( // Bỏ const
+                    providerId: _itemBrowserProviderId,
+                    onApplyFilter: notifier.applyFilters,
+                    activeFilters: ref.watch(itemFilterProvider(_itemBrowserProviderId)).activeFilters,
+                  ),
+                ),
+              ),
               ItemBrowserView(
                 providerId: _itemBrowserProviderId,
                 onItemTapped: (item) {

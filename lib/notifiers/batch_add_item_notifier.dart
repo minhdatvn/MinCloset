@@ -205,9 +205,9 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
     
           if (nameValidationResult.errorCode == 'nameConflict' && data != null) {
             errorMessage = l10n.batchNotifier_validation_nameConflict(
-              data['itemName'],
-              data['itemNumber'].toString(),
               data['conflictNumber'].toString(),
+              data['itemName'],                  
+              data['itemNumber'].toString(),
             );
           } else if (nameValidationResult.errorCode == 'nameTaken' && data != null) {
             errorMessage = l10n.batchNotifier_validation_nameTaken(

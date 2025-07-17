@@ -545,6 +545,22 @@ class AppLocalizationsVi extends AppLocalizations {
   String get settings_rateApp_tile => 'Đánh giá trên App Store';
 
   @override
+  String get citySelection_title => 'Chọn Vị trí';
+
+  @override
+  String get citySelection_autoDetect => 'Tự động phát hiện';
+
+  @override
+  String get citySelection_autoDetect_subtitle =>
+      'Sử dụng vị trí hiện tại của bạn';
+
+  @override
+  String get citySelection_manual => 'Thủ công';
+
+  @override
+  String get citySelection_searchHint => 'Tìm kiếm thành phố/vị trí…';
+
+  @override
   String get about_title => 'Giới thiệu & Pháp lý';
 
   @override
@@ -685,6 +701,13 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get achievementDialog_button => 'Tuyệt vời!';
+
+  @override
+  String get badgeDetail_completedQuests => 'Nhiệm vụ đã Hoàn thành';
+
+  @override
+  String get badgeDetail_noQuests =>
+      'Không tìm thấy nhiệm vụ nào cho huy hiệu này.';
 
   @override
   String get mascot_newQuest => 'Nhiệm vụ mới!';
@@ -1158,6 +1181,21 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get calendar_formatWeek => '1 Tuần';
+
+  @override
+  String get logWear_title_items => 'Chọn Vật phẩm';
+
+  @override
+  String get logWear_title_outfits => 'Chọn Trang phục';
+
+  @override
+  String get logWear_noData_items => 'Không có vật phẩm để chọn.';
+
+  @override
+  String get logWear_noData_outfits => 'Không có trang phục để chọn.';
+
+  @override
+  String get logWear_label_outfit => 'Trang phục';
 
   @override
   String get home_greeting => 'Xin chào,';

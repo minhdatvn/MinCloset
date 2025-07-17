@@ -1,5 +1,6 @@
 // lib/screens/badge_detail_page.dart
 import 'package:flutter/material.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/models/badge.dart' as model;
 import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/screens/quests_page.dart'; // Sử dụng lại _QuestCard
@@ -20,6 +21,7 @@ class BadgeDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     return PageScaffold(
       appBar: AppBar(
@@ -57,13 +59,13 @@ class BadgeDetailPage extends StatelessWidget {
           const Divider(height: 32),
           // Tiêu đề cho phần quest
           Text(
-            'Completed Quests',
+            l10n.badgeDetail_completedQuests,
             style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           // Danh sách các quest đã hoàn thành
           if (args.quests.isEmpty)
-            const Center(child: Text('No quests found for this badge.'))
+            Center(child: Text(l10n.badgeDetail_noQuests))
           else
             ...args.quests.map((quest) => QuestCard(quest: quest)),
         ],

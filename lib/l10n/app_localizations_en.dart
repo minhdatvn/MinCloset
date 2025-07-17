@@ -547,6 +547,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings_rateApp_tile => 'Rate on App Store';
 
   @override
+  String get citySelection_title => 'Select Location';
+
+  @override
+  String get citySelection_autoDetect => 'Auto-detect';
+
+  @override
+  String get citySelection_autoDetect_subtitle => 'Use your current location';
+
+  @override
+  String get citySelection_manual => 'Manually';
+
+  @override
+  String get citySelection_searchHint => 'Search city/location…';
+
+  @override
   String get about_title => 'About & Legal';
 
   @override
@@ -687,6 +702,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get achievementDialog_button => 'Awesome!';
+
+  @override
+  String get badgeDetail_completedQuests => 'Completed Quests';
+
+  @override
+  String get badgeDetail_noQuests => 'No quests found for this badge.';
 
   @override
   String get mascot_newQuest => 'New Quest!';
@@ -1216,6 +1237,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get calendar_formatWeek => 'Week';
+
+  @override
+  String get logWear_title_items => 'Select Items';
+
+  @override
+  String get logWear_title_outfits => 'Select Outfits';
+
+  @override
+  String get logWear_noData_items => 'No items to select.';
+
+  @override
+  String get logWear_noData_outfits => 'No outfits to select.';
+
+  @override
+  String get logWear_label_outfit => 'Outfit';
 
   @override
   String get home_greeting => 'Hello,';

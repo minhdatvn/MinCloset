@@ -1160,6 +1160,36 @@ abstract class AppLocalizations {
   /// **'Rate on App Store'**
   String get settings_rateApp_tile;
 
+  /// No description provided for @citySelection_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Location'**
+  String get citySelection_title;
+
+  /// No description provided for @citySelection_autoDetect.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-detect'**
+  String get citySelection_autoDetect;
+
+  /// No description provided for @citySelection_autoDetect_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your current location'**
+  String get citySelection_autoDetect_subtitle;
+
+  /// No description provided for @citySelection_manual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manually'**
+  String get citySelection_manual;
+
+  /// No description provided for @citySelection_searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search city/location…'**
+  String get citySelection_searchHint;
+
   /// No description provided for @about_title.
   ///
   /// In en, this message translates to:
@@ -1429,6 +1459,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Awesome!'**
   String get achievementDialog_button;
+
+  /// No description provided for @badgeDetail_completedQuests.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed Quests'**
+  String get badgeDetail_completedQuests;
+
+  /// No description provided for @badgeDetail_noQuests.
+  ///
+  /// In en, this message translates to:
+  /// **'No quests found for this badge.'**
+  String get badgeDetail_noQuests;
 
   /// No description provided for @mascot_newQuest.
   ///
@@ -2209,6 +2251,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Week'**
   String get calendar_formatWeek;
+
+  /// No description provided for @logWear_title_items.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Items'**
+  String get logWear_title_items;
+
+  /// No description provided for @logWear_title_outfits.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Outfits'**
+  String get logWear_title_outfits;
+
+  /// No description provided for @logWear_noData_items.
+  ///
+  /// In en, this message translates to:
+  /// **'No items to select.'**
+  String get logWear_noData_items;
+
+  /// No description provided for @logWear_noData_outfits.
+  ///
+  /// In en, this message translates to:
+  /// **'No outfits to select.'**
+  String get logWear_noData_outfits;
+
+  /// No description provided for @logWear_label_outfit.
+  ///
+  /// In en, this message translates to:
+  /// **'Outfit'**
+  String get logWear_label_outfit;
 
   /// No description provided for @home_greeting.
   ///

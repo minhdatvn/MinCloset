@@ -186,6 +186,12 @@
     "settings_sendFeedback_subtitle": "Giúp chúng tôi cải thiện MinCloset",
     "settings_rateApp_tile": "Đánh giá trên App Store",
 
+    "citySelection_title": "Chọn Vị trí",
+    "citySelection_autoDetect": "Tự động phát hiện",
+    "citySelection_autoDetect_subtitle": "Sử dụng vị trí hiện tại của bạn",
+    "citySelection_manual": "Thủ công",
+    "citySelection_searchHint": "Tìm kiếm thành phố/vị trí…",
+
     "about_title": "Giới thiệu & Pháp lý",
     "about_privacy_title": "Chính sách Bảo mật",
     "about_privacy_subtitle": "Cách chúng tôi xử lý dữ liệu của bạn.",
@@ -234,6 +240,9 @@
 
     "achievementDialog_title": "ĐÃ MỞ KHÓA THÀNH TÍCH!",
     "achievementDialog_button": "Tuyệt vời!",
+
+    "badgeDetail_completedQuests": "Nhiệm vụ đã Hoàn thành",
+    "badgeDetail_noQuests": "Không tìm thấy nhiệm vụ nào cho huy hiệu này.",
 
     "mascot_newQuest": "Nhiệm vụ mới!",
     "mascot_questCompleted": "Hoàn thành nhiệm vụ!",
@@ -420,6 +429,12 @@
     "calendar_formatMonth": "Tháng",
     "calendar_formatTwoWeeks": "2 Tuần",
     "calendar_formatWeek": "1 Tuần",
+
+    "logWear_title_items": "Chọn Vật phẩm",
+    "logWear_title_outfits": "Chọn Trang phục",
+    "logWear_noData_items": "Không có vật phẩm để chọn.",
+    "logWear_noData_outfits": "Không có trang phục để chọn.",
+    "logWear_label_outfit": "Trang phục",
 
     "home_greeting": "Xin chào,",
     "home_userNameDefault": "Bạn",

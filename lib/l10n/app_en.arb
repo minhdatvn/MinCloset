@@ -196,6 +196,12 @@
     "settings_sendFeedback_subtitle": "Help us improve MinCloset",
     "settings_rateApp_tile": "Rate on App Store",
 
+    "citySelection_title": "Select Location",
+    "citySelection_autoDetect": "Auto-detect",
+    "citySelection_autoDetect_subtitle": "Use your current location",
+    "citySelection_manual": "Manually",
+    "citySelection_searchHint": "Search city/location…",
+
     "about_title": "About & Legal",
     "about_privacy_title": "Privacy Policy",
     "about_privacy_subtitle": "How we handle your data.",
@@ -244,6 +250,9 @@
 
     "achievementDialog_title": "ACHIEVEMENT UNLOCKED!",
     "achievementDialog_button": "Awesome!",
+
+    "badgeDetail_completedQuests": "Completed Quests",
+    "badgeDetail_noQuests": "No quests found for this badge.",
 
     "mascot_newQuest": "New Quest!",
     "mascot_questCompleted": "Quest Completed!",
@@ -430,6 +439,12 @@
     "calendar_formatMonth": "Month",
     "calendar_formatTwoWeeks": "2 Weeks",
     "calendar_formatWeek": "Week",
+
+    "logWear_title_items": "Select Items",
+    "logWear_title_outfits": "Select Outfits",
+    "logWear_noData_items": "No items to select.",
+    "logWear_noData_outfits": "No outfits to select.",
+    "logWear_label_outfit": "Outfit",
 
     "home_greeting": "Hello,",
     "home_userNameDefault": "User",

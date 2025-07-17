@@ -1,6 +1,7 @@
 // lib/screens/log_wear_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/models/clothing_item.dart';
 import 'package:mincloset/models/outfit.dart';
 import 'package:mincloset/notifiers/log_wear_notifier.dart';
@@ -44,8 +45,11 @@ class _LogWearScreenState extends ConsumerState<LogWearScreen> {
     final provider = logWearProvider(widget.args);
     final state = ref.watch(provider);
     final notifier = ref.read(provider.notifier);
+    final l10n = context.l10n;
     
-    final String title = widget.args.type == SelectionType.items ? 'Select Items' : 'Select Outfits';
+    final String title = widget.args.type == SelectionType.items 
+      ? l10n.logWear_title_items 
+      : l10n.logWear_title_outfits;
 
     return PageScaffold(
       appBar: AppBar(
@@ -60,7 +64,7 @@ class _LogWearScreenState extends ConsumerState<LogWearScreen> {
                       // Trả về danh sách các ID đã chọn
                       Navigator.of(context).pop(state.selectedIds);
                     },
-              child: const Text('Save'),
+              child: Text(l10n.common_save),
             ),
           )
         ],
@@ -70,6 +74,7 @@ class _LogWearScreenState extends ConsumerState<LogWearScreen> {
   }
 
   Widget _buildGrid(LogWearState state, LogWearNotifier notifier) {
+    final l10n = context.l10n;
     if (state.isLoading && state.allData.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -77,7 +82,10 @@ class _LogWearScreenState extends ConsumerState<LogWearScreen> {
       return Center(child: Text('Error: ${state.errorMessage}'));
     }
     if (state.allData.isEmpty) {
-      return Center(child: Text('No ${widget.args.type.name} to select.'));
+      final message = widget.args.type == SelectionType.items
+          ? l10n.logWear_noData_items
+          : l10n.logWear_noData_outfits;
+      return Center(child: Text(message));
     }
 
     return GridView.builder(
@@ -107,7 +115,7 @@ class _LogWearScreenState extends ConsumerState<LogWearScreen> {
           itemForCard = ClothingItem(
             id: data.id,
             name: data.name,
-            category: 'Outfit',
+            category: l10n.logWear_label_outfit,
             closetId: '',
             imagePath: data.imagePath,
             thumbnailPath: data.thumbnailPath,

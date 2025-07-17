@@ -18,7 +18,7 @@ import 'package:mincloset/screens/background_remover_page.dart';
 import 'package:mincloset/screens/badge_detail_page.dart';
 import 'package:mincloset/screens/batch_add_item_screen.dart';
 import 'package:mincloset/screens/calendar_page.dart';
-import 'package:mincloset/screens/city_selection_screen.dart';
+import 'package:mincloset/screens/location_selection_screen.dart';
 import 'package:mincloset/screens/closet_form_screen.dart';
 import 'package:mincloset/screens/closet_insights_screen.dart';
 import 'package:mincloset/screens/edit_profile_screen.dart';

@@ -1,6 +1,7 @@
 // lib/screens/city_selection_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/models/city_suggestion.dart';
 import 'package:mincloset/notifiers/city_selection_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
@@ -30,6 +31,7 @@ class _CitySelectionScreenState extends ConsumerState<CitySelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final state = ref.watch(citySelectionProvider);
     final notifier = ref.read(citySelectionProvider.notifier);
 
@@ -47,7 +49,7 @@ class _CitySelectionScreenState extends ConsumerState<CitySelectionScreen> {
 
     return PageScaffold(
       appBar: AppBar(
-        title: const Text('Select Location'),
+        title: Text(l10n.citySelection_title),
       ),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -55,8 +57,8 @@ class _CitySelectionScreenState extends ConsumerState<CitySelectionScreen> {
               padding: const EdgeInsets.all(16.0),
               children: [
                 _LocationTile(
-                  title: 'Auto-detect',
-                  subtitle: 'Use your current location',
+                  title: l10n.citySelection_autoDetect,
+                  subtitle: l10n.citySelection_autoDetect_subtitle,
                   isSelected: state.selectedMode == CityMode.auto,
                   onTap: notifier.selectAutoDetect,
                 ),
@@ -64,7 +66,7 @@ class _CitySelectionScreenState extends ConsumerState<CitySelectionScreen> {
 
                 _LocationTile(
                   expansibleController: _expansibleController,
-                  title: 'Manually',
+                  title: l10n.citySelection_manual,
                   subtitle: state.selectedSuggestion?.displayName ?? state.currentManualCityName,
                   isSelected: state.selectedMode == CityMode.manual,
                   onExpansionChanged: (isExpanded) {
@@ -80,7 +82,7 @@ class _CitySelectionScreenState extends ConsumerState<CitySelectionScreen> {
                         controller: _textController,
                         onChanged: notifier.search,
                         decoration: InputDecoration(
-                          hintText: 'Search city/location…',
+                          hintText: l10n.citySelection_searchHint,
                           prefixIcon: const Icon(Icons.search),
                           suffixIcon: state.isSearching
                               ? const Padding(

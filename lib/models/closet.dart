@@ -33,7 +33,6 @@ class Closet extends Equatable {
     return {
       'id': id,
       'name': name,
-      // --- THÊM 2 DÒNG MỚI ---
       'iconName': iconName,
       'colorHex': colorHex,
     };
@@ -43,7 +42,6 @@ class Closet extends Equatable {
     return Closet(
       id: map['id'] as String,
       name: map['name'] as String,
-      // --- THÊM 2 DÒNG MỚI ---
       iconName: map['iconName'] as String?,
       colorHex: map['colorHex'] as String?,
     );

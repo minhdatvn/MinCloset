@@ -20,6 +20,7 @@ import 'package:mincloset/widgets/item_search_filter_bar.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:mincloset/widgets/recent_item_card.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:mincloset/widgets/multi_select_action_button.dart';
 
 IconData _getIconDataFromName(String? iconName) {
   // Đây là map tương tự như ở màn hình EditClosetScreen
@@ -208,8 +209,7 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   // Các nút bấm giữ nguyên như cũ
-                  _buildBottomBarButton(
-                    context: context,
+                  MultiSelectActionButton(
                     icon: Icons.delete_outline,
                     label: l10n.allItems_delete,
                     color: Colors.red,
@@ -234,8 +234,7 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
                       }
                     },
                   ),
-                  _buildBottomBarButton(
-                    context: context,
+                  MultiSelectActionButton(
                     icon: Icons.add_to_photos_outlined,
                     label: l10n.allItems_createOutfit,
                     onPressed: () {
@@ -303,41 +302,6 @@ class _AllItemsTabState extends ConsumerState<_AllItemsTab> {
             delay: (50 * (index % 15)).ms, // Thêm delay tăng dần cho hiệu ứng stagger
           );
         },
-      ),
-    );
-  }
-   Widget _buildBottomBarButton({
-    required BuildContext context,
-    required IconData icon,
-    required String label,
-    required VoidCallback onPressed,
-    Color? color,
-  }) {
-    final theme = Theme.of(context);
-    return TextButton(
-      onPressed: onPressed,
-      style: TextButton.styleFrom(
-        foregroundColor: color ?? theme.colorScheme.onSurface,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        // Yêu cầu Column chỉ chiếm không gian tối thiểu theo chiều dọc
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 22),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              // Đặt chiều cao dòng chữ để nó gọn hơn
-              height: 1.2,
-            ),
-          ),
-        ],
       ),
     );
   }

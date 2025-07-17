@@ -1,20 +1,21 @@
 // lib/screens/pages/closet_detail_page.dart
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
+import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/models/closet.dart';
 import 'package:mincloset/models/clothing_item.dart';
-import 'package:mincloset/notifiers/item_detail_notifier.dart';
+import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/closet_detail_notifier.dart';
+import 'package:mincloset/notifiers/item_detail_notifier.dart';
 import 'package:mincloset/providers/database_providers.dart';
 import 'package:mincloset/providers/event_providers.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/screens/pages/outfit_builder_page.dart';
-import 'package:mincloset/widgets/recent_item_card.dart';
-import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
-import 'package:mincloset/helpers/context_extensions.dart';
-import 'package:mincloset/providers/service_providers.dart';
-import 'package:mincloset/models/notification_type.dart';
+import 'package:mincloset/widgets/recent_item_card.dart';
+import 'package:mincloset/widgets/multi_select_action_button.dart';
 
 class ClosetDetailPage extends ConsumerStatefulWidget {
   final Closet closet;
@@ -199,8 +200,7 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       // Các nút bấm giữ nguyên như cũ
-                      _buildBottomBarButton(
-                        context: context,
+                      MultiSelectActionButton(
                         icon: Icons.delete_outline,
                         label: l10n.closetDetail_delete,
                         color: Colors.red,
@@ -225,8 +225,7 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
                           }
                         },
                       ),
-                      _buildBottomBarButton(
-                        context: context,
+                      MultiSelectActionButton(
                         icon: Icons.move_up_outlined,
                         label: l10n.closetDetail_move,
                         onPressed: () {
@@ -234,8 +233,7 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
                           _showMoveDialog(notifier, itemsToMove);
                         },
                       ),
-                      _buildBottomBarButton(
-                        context: context,
+                      MultiSelectActionButton(
                         icon: Icons.add_to_photos_outlined,
                         label: l10n.closetDetail_createOutfit,
                         onPressed: () {
@@ -297,42 +295,6 @@ class _ClosetDetailPageState extends ConsumerState<ClosetDetailPage> {
           child: RecentItemCard(item: item, isSelected: isSelected),
         );
       },
-    );
-  }
-
-   Widget _buildBottomBarButton({
-    required BuildContext context,
-    required IconData icon,
-    required String label,
-    required VoidCallback onPressed,
-    Color? color,
-  }) {
-    final theme = Theme.of(context);
-    return TextButton(
-      onPressed: onPressed,
-      style: TextButton.styleFrom(
-        foregroundColor: color ?? theme.colorScheme.onSurface,
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        // Yêu cầu Column chỉ chiếm không gian tối thiểu theo chiều dọc
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 22),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              // Đặt chiều cao dòng chữ để nó gọn hơn
-              height: 1.2,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

@@ -116,20 +116,41 @@ class _BatchItemDetailScreenState extends ConsumerState<BatchItemDetailScreen> {
                   label: Text(l10n.batchAdd_button_previous),           
                 ),
                 if (state.currentIndex < itemArgsList.length - 1)
-                  ElevatedButton.icon(
+                  ElevatedButton( // Sử dụng ElevatedButton thông thường
                     onPressed: () => notifier.nextPage(l10n: l10n),
-                    icon: const Icon(Icons.arrow_forward),
-                    label: Text(l10n.batchAdd_button_next),
+                    child: Row( // Dùng Row để sắp xếp lại nội dung
+                      mainAxisSize: MainAxisSize.min, // Giúp Row co lại vừa với nội dung
+                      children: [
+                        Text(l10n.batchAdd_button_next), // Chữ ở trước
+                        const SizedBox(width: 8), // Thêm một khoảng cách nhỏ
+                        const Icon(Icons.arrow_forward), // Icon ở sau
+                      ],
+                    ),
                   )
                 else
-                  ElevatedButton.icon(
+                  ElevatedButton( // Sử dụng ElevatedButton thông thường
                     onPressed: state.isSaving ? null : () {
                       notifier.saveAll(l10n: l10n);
                     },
-                    icon: state.isSaving
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : const Icon(Icons.save),
-                    label: Text(l10n.batchAdd_button_saveAll),
+                    child: state.isSaving
+                        // Giữ nguyên logic hiển thị vòng xoay khi đang lưu
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 3,
+                            ),
+                          )
+                        // Khi không lưu, sử dụng Row để sắp xếp lại nội dung
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(l10n.batchAdd_button_saveAll), // Chữ ở trước
+                              const SizedBox(width: 8),
+                              const Icon(Icons.save), // Icon ở sau
+                            ],
+                          ),
                   ),
               ],
             ),

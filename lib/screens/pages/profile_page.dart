@@ -6,15 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/constants/app_options.dart';
-import 'package:mincloset/helpers/context_extensions.dart';
-import 'package:mincloset/helpers/l10n_helper.dart';
 import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/profile_page_state.dart';
-import 'package:mincloset/theme/app_theme.dart';
+import 'package:mincloset/widgets/statistic_card.dart';
 import 'package:mincloset/widgets/stats_overview_card.dart';
-import 'package:mincloset/widgets/stats_pie_chart.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
@@ -191,28 +188,25 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
     final List<Widget> statPages = [];
     if (state.categoryDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage(l10n.profile_statPage_category, state.categoryDistribution));
+      statPages.add(StatisticCard(title: l10n.profile_statPage_category, dataMap: state.categoryDistribution));
     }
     if (state.colorDistribution.isNotEmpty) {
-      final sortedColorEntries = state.colorDistribution.entries.toList()
-        ..sort((a, b) => b.value.compareTo(a.value));
-      final dynamicColors = sortedColorEntries
-          .map((entry) => AppOptions.colors[entry.key] ?? Colors.grey)
-          .toList();
+      final sortedColorEntries = state.colorDistribution.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+      final dynamicColors = sortedColorEntries.map((entry) => AppOptions.colors[entry.key] ?? Colors.grey).toList();
       final sortedColorMap = Map.fromEntries(sortedColorEntries);
-      statPages.add(_buildStatPage(l10n.profile_statPage_color, sortedColorMap, specificColors: dynamicColors));
+      statPages.add(StatisticCard(title: l10n.profile_statPage_color, dataMap: sortedColorMap, specificColors: dynamicColors));
     }
     if (state.seasonDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage(l10n.profile_statPage_season, state.seasonDistribution));
+      statPages.add(StatisticCard(title: l10n.profile_statPage_season, dataMap: state.seasonDistribution));
     }
     if (state.occasionDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage(l10n.profile_statPage_occasion, state.occasionDistribution));
+      statPages.add(StatisticCard(title: l10n.profile_statPage_occasion, dataMap: state.occasionDistribution));
     }
     if (state.materialDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage(l10n.profile_statPage_material, state.materialDistribution));
+      statPages.add(StatisticCard(title: l10n.profile_statPage_material, dataMap: state.materialDistribution));
     }
     if (state.patternDistribution.isNotEmpty) {
-      statPages.add(_buildStatPage(l10n.profile_statPage_pattern, state.patternDistribution));
+      statPages.add(StatisticCard(title: l10n.profile_statPage_pattern, dataMap: state.patternDistribution));
     }
 
     return RefreshIndicator(
@@ -335,103 +329,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ],
               ),
             const SizedBox(height: 16.0),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatPage(String title, Map<String, int> dataMap, {List<Color>? specificColors}) {
-    final totalValue = dataMap.values.fold(0, (sum, item) => sum + item);
-    final sortedEntries = dataMap.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    final topEntries = sortedEntries.take(4);
-    final l10n = context.l10n;
-
-    const double chartSize = 90;
-
-    String truncateText(String text, int maxLength) {
-      if (text.length <= maxLength) {
-        return text;
-      }
-      return '${text.substring(0, maxLength)}...';
-    }
-
-    return Card(
-      elevation: 0,
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            Expanded(
-              child: Center(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      width: chartSize,
-                      height: chartSize,
-                      child: StatsPieChart(
-                        title: '',
-                        dataMap: dataMap,
-                        showChartTitle: false,
-                        colors: specificColors ?? AppChartColors.defaultChartColors,
-                        size: chartSize,
-                      ),
-                    ),
-                    const SizedBox(width: 24),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: topEntries.map((entry) {
-                        final percentage = (entry.value / totalValue * 100);
-                        final color = (specificColors ?? AppChartColors.defaultChartColors)[sortedEntries.indexOf(entry) % (specificColors ?? AppChartColors.defaultChartColors).length];
-                        final String translatedName = translateAppOption(entry.key, l10n);
-                        final truncatedName = truncateText(translatedName, 10);
-
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2.0),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 12,
-                                height: 12,
-                                decoration: BoxDecoration(
-                                  color: color,
-                                  borderRadius: BorderRadius.circular(3.0),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              RichText(
-                                text: TextSpan(
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                  children: [
-                                    TextSpan(text: '$truncatedName '),
-                                    TextSpan(
-                                      text: '${percentage.toStringAsFixed(0)}%',
-                                      style: TextStyle(
-                                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-              ),
-            ),
           ],
         ),
       ),

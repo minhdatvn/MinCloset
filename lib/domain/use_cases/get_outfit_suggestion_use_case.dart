@@ -71,7 +71,7 @@ class GetOutfitSuggestionUseCase {
           final weatherData = await _weatherRepo.getWeatherByCoords(lat, lon);
           
           return weatherData.map((data) {
-              data['name'] = settings['manualCity'] ?? 'Selected Location';
+              data['name'] = settings['manualCity'] ?? data['name'] ?? 'Unknown Location';
               return data;
           });
       } else {

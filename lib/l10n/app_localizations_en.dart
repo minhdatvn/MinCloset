@@ -32,6 +32,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_today => 'Today';
 
   @override
+  String get common_seeAll => 'See all';
+
+  @override
   String get category_tops => 'Tops';
 
   @override
@@ -652,6 +655,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get quest_firstLog_description =>
       'Log an item or an outfit to your Journey to keep track of what you wear.';
+
+  @override
+  String get achievementDialog_title => 'ACHIEVEMENT UNLOCKED!';
+
+  @override
+  String get achievementDialog_button => 'Awesome!';
 
   @override
   String get mascot_newQuest => 'New Quest!';
@@ -1372,6 +1381,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get itemDetail_form_notesLabel => 'Notes';
+
+  @override
+  String get itemBrowser_noItemsFound => 'No items found.';
+
+  @override
+  String get itemBrowser_empty => 'Your closet is empty.';
 
   @override
   String itemNotifier_analysis_error(Object error) {

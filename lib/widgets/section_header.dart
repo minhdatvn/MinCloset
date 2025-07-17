@@ -1,11 +1,12 @@
 // lib/widgets/section_header.dart
 
 import 'package:flutter/material.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 
 class SectionHeader extends StatelessWidget {
   final String title;
   final VoidCallback? onSeeAll;
-  final String? seeAllText; // <<< THÊM THAM SỐ MỚI
+  final String? seeAllText;
   final IconData? actionIcon;
   final VoidCallback? onActionPressed;
 
@@ -13,13 +14,14 @@ class SectionHeader extends StatelessWidget {
     super.key,
     required this.title,
     this.onSeeAll,
-    this.seeAllText, // <<< THÊM VÀO CONSTRUCTOR
+    this.seeAllText,
     this.actionIcon,
     this.onActionPressed,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -32,8 +34,7 @@ class SectionHeader extends StatelessWidget {
             onPressed: onSeeAll,
             child: Row(
               children: [
-                // <<< SỬ DỤNG THAM SỐ MỚI HOẶC GIÁ TRỊ MẶC ĐỊNH
-                Text(seeAllText ?? 'See all'),
+                Text(seeAllText ?? l10n.common_seeAll),
                 const Icon(Icons.arrow_forward_ios, size: 14),
               ],
             ),

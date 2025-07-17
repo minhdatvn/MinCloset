@@ -8,6 +8,7 @@
     "common_cancel": "Huỷ",
     "common_save": "Lưu",
     "common_today": "Hôm nay",
+    "common_seeAll": "Xem tất cả",
 
     "category_tops": "Áo",
     "category_tops_tshirts": "Áo thun",
@@ -221,6 +222,9 @@
     "quest_organizeCloset_description": "Tạo một tủ đồ mới để sắp xếp quần áo tốt hơn (ví dụ: cho công việc, cho thể thao).",
     "quest_firstLog_title": "Theo dõi Hành trình Phong cách",
     "quest_firstLog_description": "Ghi lại một món đồ hoặc một bộ trang phục vào Nhật ký để theo dõi những gì bạn mặc.",
+
+    "achievementDialog_title": "ĐÃ MỞ KHÓA THÀNH TÍCH!",
+    "achievementDialog_button": "Tuyệt vời!",
 
     "mascot_newQuest": "Nhiệm vụ mới!",
     "mascot_questCompleted": "Hoàn thành nhiệm vụ!",
@@ -506,6 +510,9 @@
     "itemDetail_form_patternLabel": "Hoạ tiết",
     "itemDetail_form_priceLabel": "Giá tiền",
     "itemDetail_form_notesLabel": "Ghi chú",
+
+    "itemBrowser_noItemsFound": "Không tìm thấy vật phẩm.",
+    "itemBrowser_empty": "Tủ đồ của bạn đang trống.",
 
     "itemNotifier_analysis_error": "Điền trước thông tin thất bại.\\nLý do: {error}",
     "itemNotifier_error_noPhoto": "Vui lòng thêm ảnh cho vật phẩm.",

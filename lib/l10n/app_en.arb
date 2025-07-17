@@ -15,6 +15,7 @@
     "common_cancel": "Cancel",
     "common_save": "Save",
     "common_today": "Today",
+    "common_seeAll": "See all",
 
     "category_tops": "Tops",
     "category_tops_tshirts": "T-shirts",
@@ -231,6 +232,9 @@
     "quest_organizeCloset_description": "Create a new closet to better organize your clothing items (e.g., for work, for sports).",
     "quest_firstLog_title": "Track Your Style Journey",
     "quest_firstLog_description": "Log an item or an outfit to your Journey to keep track of what you wear.",
+
+    "achievementDialog_title": "ACHIEVEMENT UNLOCKED!",
+    "achievementDialog_button": "Awesome!",
 
     "mascot_newQuest": "New Quest!",
     "mascot_questCompleted": "Quest Completed!",
@@ -516,6 +520,9 @@
     "itemDetail_form_patternLabel": "Pattern",
     "itemDetail_form_priceLabel": "Price",
     "itemDetail_form_notesLabel": "Notes",
+
+    "itemBrowser_noItemsFound": "No items found.",
+    "itemBrowser_empty": "Your closet is empty.",
 
     "itemNotifier_analysis_error": "Pre-filling information failed.\\nReason: {error}",
     "itemNotifier_error_noPhoto": "Please add a photo for the item.",

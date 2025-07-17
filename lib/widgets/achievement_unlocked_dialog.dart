@@ -1,6 +1,7 @@
 // lib/widgets/achievement_unlocked_dialog.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 // THAY ĐỔI 1: Thêm tiền tố 'model' cho import
 import 'package:mincloset/models/badge.dart' as model;
 
@@ -12,6 +13,7 @@ class AchievementUnlockedDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     final theme = Theme.of(context);
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -20,7 +22,7 @@ class AchievementUnlockedDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'ACHIEVEMENT UNLOCKED!',
+            l10n.achievementDialog_title,
             textAlign: TextAlign.center,
             style: theme.textTheme.titleSmall?.copyWith(
               color: theme.colorScheme.primary,
@@ -58,7 +60,7 @@ class AchievementUnlockedDialog extends StatelessWidget {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Awesome!'),
+            child: Text(l10n.achievementDialog_button),
           ).animate().fadeIn(delay: 600.ms),
         ],
       ),

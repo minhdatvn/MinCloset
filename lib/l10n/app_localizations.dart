@@ -140,6 +140,12 @@ abstract class AppLocalizations {
   /// **'Today'**
   String get common_today;
 
+  /// No description provided for @common_seeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get common_seeAll;
+
   /// No description provided for @category_tops.
   ///
   /// In en, this message translates to:
@@ -1364,6 +1370,18 @@ abstract class AppLocalizations {
   /// **'Log an item or an outfit to your Journey to keep track of what you wear.'**
   String get quest_firstLog_description;
 
+  /// No description provided for @achievementDialog_title.
+  ///
+  /// In en, this message translates to:
+  /// **'ACHIEVEMENT UNLOCKED!'**
+  String get achievementDialog_title;
+
+  /// No description provided for @achievementDialog_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Awesome!'**
+  String get achievementDialog_button;
+
   /// No description provided for @mascot_newQuest.
   ///
   /// In en, this message translates to:
@@ -2527,6 +2545,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Notes'**
   String get itemDetail_form_notesLabel;
+
+  /// No description provided for @itemBrowser_noItemsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No items found.'**
+  String get itemBrowser_noItemsFound;
+
+  /// No description provided for @itemBrowser_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your closet is empty.'**
+  String get itemBrowser_empty;
 
   /// No description provided for @itemNotifier_analysis_error.
   ///

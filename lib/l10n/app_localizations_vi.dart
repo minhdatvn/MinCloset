@@ -32,6 +32,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get common_today => 'Hôm nay';
 
   @override
+  String get common_seeAll => 'Xem tất cả';
+
+  @override
   String get category_tops => 'Áo';
 
   @override
@@ -650,6 +653,12 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get quest_firstLog_description =>
       'Ghi lại một món đồ hoặc một bộ trang phục vào Nhật ký để theo dõi những gì bạn mặc.';
+
+  @override
+  String get achievementDialog_title => 'ĐÃ MỞ KHÓA THÀNH TÍCH!';
+
+  @override
+  String get achievementDialog_button => 'Tuyệt vời!';
 
   @override
   String get mascot_newQuest => 'Nhiệm vụ mới!';
@@ -1330,6 +1339,12 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get itemDetail_form_notesLabel => 'Ghi chú';
+
+  @override
+  String get itemBrowser_noItemsFound => 'Không tìm thấy vật phẩm.';
+
+  @override
+  String get itemBrowser_empty => 'Tủ đồ của bạn đang trống.';
 
   @override
   String itemNotifier_analysis_error(Object error) {

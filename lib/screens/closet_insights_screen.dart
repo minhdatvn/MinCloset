@@ -16,7 +16,6 @@ import 'package:mincloset/states/log_wear_state.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:mincloset/helpers/context_extensions.dart';
 
-// --- MÀN HÌNH CHÍNH ---
 class ClosetInsightsScreen extends ConsumerWidget {
   const ClosetInsightsScreen({super.key});
 
@@ -25,8 +24,15 @@ class ClosetInsightsScreen extends ConsumerWidget {
     final state = ref.watch(closetInsightsProvider);
     final notifier = ref.read(closetInsightsProvider.notifier);
     final userName = ref.watch(profileProvider.select((s) => s.userName)) ?? context.l10n.home_userNameDefault;
-
+    final l10n = context.l10n;
+    final bool needsSimpleAppBar = state.errorMessage != null || (state.insights == null && !state.isLoading);
+    
     return PageScaffold(
+      appBar: needsSimpleAppBar
+          ? AppBar(
+              title: Text(l10n.insights_title),
+            )
+          : null, // Khi có dữ liệu, SliverAppBar bên trong sẽ được dùng
       body: RefreshIndicator(
         onRefresh: notifier.fetchInsights,
         child: _buildBody(context, ref, state, userName),

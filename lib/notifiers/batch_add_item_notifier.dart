@@ -21,6 +21,7 @@ import 'package:mincloset/states/item_detail_state.dart';
 import 'package:mincloset/utils/logger.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mincloset/l10n/app_localizations.dart';
+import 'package:mincloset/helpers/category_helper.dart';
 
 class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
   final ClothingItemRepository _clothingItemRepo;
@@ -53,28 +54,6 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
     return selections;
   }
 
-  String _normalizeCategory(String? rawCategory) {
-    if (rawCategory == null || rawCategory.trim().isEmpty) { return 'Other > Other'; }
-    if (!rawCategory.contains('>') && AppOptions.categories.containsKey(rawCategory)) { return '$rawCategory > Other'; }
-    final parts = rawCategory.split(' > ');
-    if (!AppOptions.categories.containsKey(parts.first)) { return 'Other > Other'; }
-    return rawCategory;
-  }
-  Set<String> _normalizeMultiSelect(dynamic rawValue, List<String> validOptions) {
-    final selections = <String>{};
-    if (rawValue == null) { return selections; }
-    final validOptionsSet = validOptions.toSet();
-    bool hasUnknowns = false;
-    List<String> valuesToProcess = [];
-    if (rawValue is String) { valuesToProcess = [rawValue]; }
-    else if (rawValue is List) { valuesToProcess = rawValue.map((e) => e.toString()).toList(); }
-    for (final value in valuesToProcess) {
-      if (validOptionsSet.contains(value)) { selections.add(value); }
-      else { hasUnknowns = true; }
-    }
-    if (hasUnknowns && validOptionsSet.contains('Other')) { selections.add('Other'); }
-    return selections;
-  }
 
   // HÀM MỚI: Chỉ để thiết lập trạng thái chuẩn bị
   void prepareForAnalysis(int total) {
@@ -125,10 +104,10 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
           final tempId = const Uuid().v4();
           final preAnalyzedState = ItemDetailState(
             id: tempId, name: result['name'] as String? ?? '', image: File(image.path),
-            selectedCategoryValue: _normalizeCategory(result['category'] as String?),
+            selectedCategoryValue: normalizeCategory(result['category'] as String?),
             selectedColors: _normalizeColors(result['colors'] as List<dynamic>?),
-            selectedMaterials: _normalizeMultiSelect(result['material'], AppOptions.materials.map((e) => e.name).toList()),
-            selectedPatterns: _normalizeMultiSelect(result['pattern'], AppOptions.patterns.map((e) => e.name).toList()),
+            selectedMaterials: normalizeMultiSelect(result['material'], 'material', AppOptions.materials.map((e) => e.name).toList()),
+            selectedPatterns: normalizeMultiSelect(result['pattern'], 'pattern', AppOptions.patterns.map((e) => e.name).toList()),
           );
           itemArgsList.add(ItemDetailNotifierArgs(tempId: tempId, preAnalyzedState: preAnalyzedState));
         },

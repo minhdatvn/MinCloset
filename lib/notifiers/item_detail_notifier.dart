@@ -26,6 +26,7 @@ import 'package:mincloset/states/item_detail_state.dart';
 import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:mincloset/helpers/category_helper.dart';
 
 class ItemDetailNotifierArgs extends Equatable {
   final String tempId;
@@ -85,11 +86,11 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
         );
       },
       (result) {
-        final category = _normalizeCategory(result['category'] as String?);
+        final category = normalizeCategory(result['category'] as String?);
         final colors = _normalizeColors(result['colors'] as List<dynamic>?);
-        final materials = _normalizeMultiSelect(result['material'], 'material',
+        final materials = normalizeMultiSelect(result['material'], 'material',
             AppOptions.materials.map((e) => e.name).toList());
-        final patterns = _normalizeMultiSelect(result['pattern'], 'pattern',
+        final patterns = normalizeMultiSelect(result['pattern'], 'pattern',
             AppOptions.patterns.map((e) => e.name).toList());
 
         state = state.copyWith(
@@ -280,87 +281,6 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
         selections.add(color.toString());
       }
     }
-    return selections;
-  }
-
-  String _createLocalizationKey(String base, String value) {
-    return '${base}_${value.toLowerCase().replaceAll(' ', '_').replaceAll('/', '_')}';
-  }
-
-  // --- HÀM ĐƯỢC CẬP NHẬT ---
-  String _normalizeCategory(String? rawCategory) {
-    if (rawCategory == null || rawCategory.trim().isEmpty) {
-      return 'category_other';
-    }
-
-    final parts = rawCategory.split(' > ').map((p) => p.trim()).toList();
-    final mainCategoryText = parts.first;
-
-    // Nếu danh mục chính là "Other" hoặc "Khác" (bất kể có danh mục con hay không)
-    // thì coi đó là danh mục "Khác" cấp 1
-    if (mainCategoryText.toLowerCase() == 'other' || mainCategoryText.toLowerCase() == 'khác') {
-      return 'category_other';
-    }
-
-    final mainCategoryKey = _createLocalizationKey('category', mainCategoryText);
-
-    // Nếu không nhận dạng được danh mục chính
-    if (!AppOptions.categories.containsKey(mainCategoryKey)) {
-      return 'category_other';
-    }
-
-    // Nếu chỉ có 1 phần tử, hoặc phần tử thứ 2 là "Other"/"Khác"
-    if (parts.length == 1 || parts[1].toLowerCase() == 'other' || parts[1].toLowerCase() == 'khác') {
-      // Trả về dạng "danh_muc_chinh > danh_muc_chinh_other"
-      return '$mainCategoryKey > ${mainCategoryKey}_other';
-    }
-
-    // Xử lý trường hợp "danh mục chính > danh mục con" thông thường
-    final subCategoryText = parts[1];
-    final subCategoryKey = _createLocalizationKey(mainCategoryKey, subCategoryText);
-
-    if (AppOptions.categories[mainCategoryKey]?.contains(subCategoryKey) ?? false) {
-      return '$mainCategoryKey > $subCategoryKey';
-    }
-
-    // Nếu không tìm thấy, trả về danh mục chính với con là "other"
-    return '$mainCategoryKey > ${mainCategoryKey}_other';
-  }
-
-  Set<String> _normalizeMultiSelect(
-      dynamic rawValue, String baseKey, List<String> validOptionKeys) {
-    final selections = <String>{};
-    if (rawValue == null) return selections;
-
-    final validOptionsSet = validOptionKeys.toSet();
-    List<String> valuesToProcess = [];
-
-    if (rawValue is String) {
-      valuesToProcess = [rawValue];
-    } else if (rawValue is List) {
-      valuesToProcess = rawValue.map((e) => e.toString()).toList();
-    }
-
-    for (final value in valuesToProcess) {
-      // Sửa lỗi: Nhận diện cả 'Other' và 'Khác'
-      if (value.toLowerCase() == 'other' || value.toLowerCase() == 'khác') {
-        selections.add('${baseKey}_other');
-        continue;
-      }
-
-      final optionKey = _createLocalizationKey(baseKey, value);
-      if (validOptionsSet.contains(optionKey)) {
-        selections.add(optionKey);
-      }
-    }
-
-    if (selections.isEmpty && valuesToProcess.isNotEmpty) {
-      final otherKey = '${baseKey}_other';
-      if (validOptionsSet.contains(otherKey)) {
-        selections.add(otherKey);
-      }
-    }
-
     return selections;
   }
 

@@ -21,14 +21,14 @@ class MainScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
+    final l10n = context.l10n;
     return ShowCaseWidget(
       onFinish: () {
         // Gọi đến hàm trong tutorialProvider như cũ
         ref.read(tutorialProvider.notifier).dismissTutorial();
         
         // Gọi đến hàm mới để xử lý toàn bộ logic của mascot
-        ref.read(questMascotProvider.notifier).finishTutorialAndShowMascot();
+        ref.read(questMascotProvider.notifier).finishTutorialAndShowMascot(l10n: l10n);
       },
       builder: (context) => const MainScreenView(),
     );

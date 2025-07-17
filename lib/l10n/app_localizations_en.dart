@@ -654,6 +654,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'Log an item or an outfit to your Journey to keep track of what you wear.';
 
   @override
+  String get mascot_newQuest => 'New Quest!';
+
+  @override
+  String get mascot_questCompleted => 'Quest Completed!';
+
+  @override
   String get insights_title => 'Closet Insights';
 
   @override

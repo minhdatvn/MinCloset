@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:mincloset/models/achievement.dart'; // <<< THÊM IMPORT NÀY
 import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/quest_mascot_notifier.dart';
@@ -47,9 +48,10 @@ class _GlobalUiScopeState extends ConsumerState<GlobalUiScope> {
     ref.listen<Quest?>(completedQuestProvider, (previous, next) {
       if (next != null) {
         final screenWidth = MediaQuery.of(context).size.width;
+        final l10n = AppLocalizations.of(context)!;
         ref
             .read(questMascotProvider.notifier)
-            .showQuestCompletedNotification(next.titleKey, screenWidth);
+            .showQuestCompletedNotification(l10n: l10n, screenWidth: screenWidth);
         ref.read(completedQuestProvider.notifier).state = null; // Reset lại
       }
     });

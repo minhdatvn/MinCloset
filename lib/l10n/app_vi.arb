@@ -222,6 +222,9 @@
     "quest_firstLog_title": "Theo dõi Hành trình Phong cách",
     "quest_firstLog_description": "Ghi lại một món đồ hoặc một bộ trang phục vào Nhật ký để theo dõi những gì bạn mặc.",
 
+    "mascot_newQuest": "Nhiệm vụ mới!",
+    "mascot_questCompleted": "Hoàn thành nhiệm vụ!",
+    
     "insights_title": "Thống kê Tủ đồ",
     "insights_exclusive": "MINCLOSET ĐỘC QUYỀN",
     "insights_journeyTitle": "Hành trình Phong cách của {userName}",

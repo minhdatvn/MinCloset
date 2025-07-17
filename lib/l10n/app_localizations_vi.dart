@@ -652,6 +652,12 @@ class AppLocalizationsVi extends AppLocalizations {
       'Ghi lại một món đồ hoặc một bộ trang phục vào Nhật ký để theo dõi những gì bạn mặc.';
 
   @override
+  String get mascot_newQuest => 'Nhiệm vụ mới!';
+
+  @override
+  String get mascot_questCompleted => 'Hoàn thành nhiệm vụ!';
+
+  @override
   String get insights_title => 'Thống kê Tủ đồ';
 
   @override

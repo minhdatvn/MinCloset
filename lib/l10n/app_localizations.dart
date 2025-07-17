@@ -1364,6 +1364,18 @@ abstract class AppLocalizations {
   /// **'Log an item or an outfit to your Journey to keep track of what you wear.'**
   String get quest_firstLog_description;
 
+  /// No description provided for @mascot_newQuest.
+  ///
+  /// In en, this message translates to:
+  /// **'New Quest!'**
+  String get mascot_newQuest;
+
+  /// No description provided for @mascot_questCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Quest Completed!'**
+  String get mascot_questCompleted;
+
   /// No description provided for @insights_title.
   ///
   /// In en, this message translates to:

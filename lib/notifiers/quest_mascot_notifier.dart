@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/repository_providers.dart';
@@ -108,13 +109,13 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     updatePosition(newPosition);
   }
 
-  void showNewQuestNotification(String questId) {
+  void showNewQuestNotification(String questId, {required AppLocalizations l10n}) {
     _notificationTimer?.cancel();
     if (mounted) {
       state = state.copyWith(
         isVisible: true,
         notificationType: MascotNotificationType.newQuest,
-        notificationMessage: 'New Quest!',
+        notificationMessage: l10n.mascot_newQuest,
       );
     }
 
@@ -129,7 +130,7 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     });
   }
 
-  void showQuestCompletedNotification(String title, double screenWidth) {
+  void showQuestCompletedNotification({required AppLocalizations l10n, required double screenWidth}) {
     _notificationTimer?.cancel();
     final currentPosition = state.position;
     if (currentPosition == null) return;
@@ -142,7 +143,7 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
         position: newPos,
         originalPosition: currentPosition,
         notificationType: MascotNotificationType.questCompleted,
-        notificationMessage: 'Quest Completed!',
+        notificationMessage: l10n.mascot_questCompleted,
       );
     }
 
@@ -155,11 +156,11 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
         );
         _snapToEdge(screenWidth);
       }
-      checkForNewQuests();
+      checkForNewQuests(l10n: l10n);
     });
   }
 
-  void checkForNewQuests() {
+  void checkForNewQuests({required AppLocalizations l10n}) {
     if (state.notificationType != MascotNotificationType.none || !state.isVisible) {
       return;
     }
@@ -179,7 +180,7 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     }
     
     if (newQuestToShow != null) {
-      showNewQuestNotification(newQuestToShow.id);
+      showNewQuestNotification(newQuestToShow.id, l10n: l10n);
     }
   }
 
@@ -193,14 +194,14 @@ class QuestMascotNotifier extends StateNotifier<QuestMascotState> {
     }
   }
 
-  Future<void> finishTutorialAndShowMascot() async {    
+  Future<void> finishTutorialAndShowMascot({required AppLocalizations l10n}) async {      
     await _prefs.setBool('has_completed_tutorial', true);
     if (mounted) {
       state = state.copyWith(isVisible: true);
     }
     await Future.delayed(const Duration(milliseconds: 500));
     if (mounted) {
-      checkForNewQuests();
+      checkForNewQuests(l10n: l10n);
     }
   }
 

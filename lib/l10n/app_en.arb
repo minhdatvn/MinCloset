@@ -232,6 +232,9 @@
     "quest_firstLog_title": "Track Your Style Journey",
     "quest_firstLog_description": "Log an item or an outfit to your Journey to keep track of what you wear.",
 
+    "mascot_newQuest": "New Quest!",
+    "mascot_questCompleted": "Quest Completed!",
+
     "insights_title": "Closet Insights",
     "insights_exclusive": "MINCLOSET EXCLUSIVE",
     "insights_journeyTitle": "Inside {userName}'s Style Journey",

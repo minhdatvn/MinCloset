@@ -86,22 +86,19 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
         );
       },
       (result) {
+        // <<< SỬ DỤNG CÁC HÀM HELPER Ở ĐÂY >>>
         final category = normalizeCategory(result['category'] as String?);
-        final colors = _normalizeColors(result['colors'] as List<dynamic>?);
-        final materials = normalizeMultiSelect(result['material'], 'material',
-            AppOptions.materials.map((e) => e.name).toList());
-        final patterns = normalizeMultiSelect(result['pattern'], 'pattern',
-            AppOptions.patterns.map((e) => e.name).toList());
+        final colors = normalizeColors(result['colors'] as List<dynamic>?);
+        final materials = normalizeMultiSelect(result['material'], 'material', AppOptions.materials.map((e) => e.name).toList());
+        final patterns = normalizeMultiSelect(result['pattern'], 'pattern', AppOptions.patterns.map((e) => e.name).toList());
 
         state = state.copyWith(
           isAnalyzing: false,
           name: result['name'] as String? ?? state.name,
           selectedCategoryValue: category,
           selectedColors: colors,
-          selectedMaterials:
-              materials.isNotEmpty ? materials : state.selectedMaterials,
-          selectedPatterns:
-              patterns.isNotEmpty ? patterns : state.selectedPatterns,
+          selectedMaterials: materials.isNotEmpty ? materials : state.selectedMaterials,
+          selectedPatterns: patterns.isNotEmpty ? patterns : state.selectedPatterns,
         );
       },
     );
@@ -272,17 +269,8 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
   }
   
   // --- Các hàm còn lại giữ nguyên, không cần thay đổi ---
-  Set<String> _normalizeColors(List<dynamic>? rawColors) {
-    if (rawColors == null) return {};
-    final validColorNames = AppOptions.colors.keys.toSet();
-    final selections = <String>{};
-    for (final color in rawColors) {
-      if (validColorNames.contains(color.toString())) {
-        selections.add(color.toString());
-      }
-    }
-    return selections;
-  }
+  
+  // <<< HÀM _normalizeColors ĐÃ ĐƯỢC XÓA >>>
 
   void onNameChanged(String name) => state = state.copyWith(name: name);
   void onClosetChanged(String? closetId) => state = state.copyWith(selectedClosetId: closetId);

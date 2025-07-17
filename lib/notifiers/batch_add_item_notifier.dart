@@ -31,7 +31,6 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
   final ValidateItemNameUseCase _validateNameUseCase;
   final Ref _ref;
 
-  // <<< THAY ĐỔI 2: Truyền dependencies vào constructor >>>
   BatchAddItemNotifier(
     this._clothingItemRepo,
     this._questRepo,
@@ -40,20 +39,6 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
     this._validateNameUseCase,
     this._ref,
   ) : super(const BatchItemDetailState());
-
-  // Các hàm helper và setCurrentIndex/nextPage/previousPage không thay đổi
-  Set<String> _normalizeColors(List<dynamic>? rawColors) {
-    if (rawColors == null) return {};
-    final validColorNames = AppOptions.colors.keys.toSet();
-    final selections = <String>{};
-    for (final color in rawColors) {
-      if (validColorNames.contains(color.toString())) {
-        selections.add(color.toString());
-      }
-    }
-    return selections;
-  }
-
 
   // HÀM MỚI: Chỉ để thiết lập trạng thái chuẩn bị
   void prepareForAnalysis(int total) {
@@ -104,8 +89,9 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
           final tempId = const Uuid().v4();
           final preAnalyzedState = ItemDetailState(
             id: tempId, name: result['name'] as String? ?? '', image: File(image.path),
+            // <<< SỬ DỤNG CÁC HÀM HELPER Ở ĐÂY >>>
             selectedCategoryValue: normalizeCategory(result['category'] as String?),
-            selectedColors: _normalizeColors(result['colors'] as List<dynamic>?),
+            selectedColors: normalizeColors(result['colors'] as List<dynamic>?),
             selectedMaterials: normalizeMultiSelect(result['material'], 'material', AppOptions.materials.map((e) => e.name).toList()),
             selectedPatterns: normalizeMultiSelect(result['pattern'], 'pattern', AppOptions.patterns.map((e) => e.name).toList()),
           );
@@ -290,7 +276,6 @@ class BatchAddItemNotifier extends StateNotifier<BatchItemDetailState> {
 }
 
 final batchAddScreenProvider = StateNotifierProvider.autoDispose<BatchAddItemNotifier, BatchItemDetailState>((ref) {
-  // <<< THAY ĐỔI 7: Lấy tất cả dependency và truyền vào Notifier >>>
   final repo = ref.watch(clothingItemRepositoryProvider);
   final questRepo = ref.watch(questRepositoryProvider);
   final analyzeItemUseCase = ref.watch(analyzeItemUseCaseProvider);

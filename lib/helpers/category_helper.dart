@@ -4,6 +4,7 @@ import 'package:mincloset/constants/app_options.dart';
 
 // Hàm này được chuyển ra từ notifier, nó sẽ là hàm riêng tư trong file này
 String _createLocalizationKey(String base, String value) {
+  // Thay thế ký tự không hợp lệ và chuyển thành chữ thường
   return '${base}_${value.toLowerCase().replaceAll(' ', '_').replaceAll('/', '_')}';
 }
 
@@ -58,6 +59,20 @@ String normalizeCategory(String? rawCategory) {
   return '';
 }
 
+/// Chuẩn hóa danh sách màu sắc trả về từ AI.
+Set<String> normalizeColors(List<dynamic>? rawColors) {
+  if (rawColors == null) return {};
+  final validColorNames = AppOptions.colors.keys.toSet();
+  final selections = <String>{};
+  for (final color in rawColors) {
+    if (validColorNames.contains(color.toString())) {
+      selections.add(color.toString());
+    }
+  }
+  return selections;
+}
+
+/// Chuẩn hóa danh sách các lựa chọn đa tuyển (multi-select) như mùa, dịp, chất liệu, họa tiết.
 Set<String> normalizeMultiSelect(
     dynamic rawValue, String baseKey, List<String> validOptionKeys) {
   final selections = <String>{};
@@ -66,6 +81,7 @@ Set<String> normalizeMultiSelect(
   final validOptionsSet = validOptionKeys.toSet();
   List<String> valuesToProcess = [];
 
+  // Giá trị từ AI có thể là một chuỗi đơn hoặc một danh sách chuỗi
   if (rawValue is String) {
     valuesToProcess = [rawValue];
   } else if (rawValue is List) {
@@ -73,7 +89,7 @@ Set<String> normalizeMultiSelect(
   }
 
   for (final value in valuesToProcess) {
-    // Sửa lỗi: Nhận diện cả 'Other' và 'Khác'
+    // Sửa lỗi: Nhận diện cả 'Other' và 'Khác' để tạo key '..._other'
     if (value.toLowerCase() == 'other' || value.toLowerCase() == 'khác') {
       selections.add('${baseKey}_other');
       continue;
@@ -85,6 +101,8 @@ Set<String> normalizeMultiSelect(
     }
   }
 
+  // Nếu không có lựa chọn nào hợp lệ nhưng vẫn có dữ liệu đầu vào,
+  // thì mặc định chọn "Khác"
   if (selections.isEmpty && valuesToProcess.isNotEmpty) {
     final otherKey = '${baseKey}_other';
     if (validOptionsSet.contains(otherKey)) {

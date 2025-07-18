@@ -176,7 +176,6 @@ class HomePageNotifier extends StateNotifier<HomePageState> {
 
 final homeProvider =
     StateNotifierProvider<HomePageNotifier, HomePageState>((ref) {
-  // Xóa bỏ hoàn toàn khối ref.listen ở đây
   final getSuggestionUseCase = ref.watch(getOutfitSuggestionUseCaseProvider);
   final notificationService = ref.watch(notificationServiceProvider);
   return HomePageNotifier(getSuggestionUseCase, notificationService, ref);

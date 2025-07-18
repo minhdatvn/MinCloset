@@ -882,6 +882,9 @@ class AppLocalizationsVi extends AppLocalizations {
   String get outfitBuilder_stickers_placeholder => 'Nhãn dán sẽ sớm ra mắt.';
 
   @override
+  String get outfitBuilder_save_success => 'Đã lưu trang phục thành công!';
+
+  @override
   String get outfitDetail_fixedOutfit_title => 'Bộ đồ cố định';
 
   @override

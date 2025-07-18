@@ -267,10 +267,6 @@ class ItemDetailNotifier extends StateNotifier<ItemDetailState> {
       state = state.copyWith(errorMessage: l10n.itemNotifier_error_updateImage(e.toString()));
     }
   }
-  
-  // --- Các hàm còn lại giữ nguyên, không cần thay đổi ---
-  
-  // <<< HÀM _normalizeColors ĐÃ ĐƯỢC XÓA >>>
 
   void onNameChanged(String name) => state = state.copyWith(name: name);
   void onClosetChanged(String? closetId) => state = state.copyWith(selectedClosetId: closetId);

@@ -1,4 +1,4 @@
-// lib/helpers/ui_helpers.dart
+// lib/helpers/dialog_helpers.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:mincloset/l10n/app_localizations.dart';

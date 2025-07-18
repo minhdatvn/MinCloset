@@ -307,6 +307,7 @@
     "outfitBuilder_save_isFixedLabel": "Fixed outfit",
     "outfitBuilder_save_isFixedSubtitle": "Items in this outfit are always worn together. Each item can only belong to one fixed outfit.",
     "outfitBuilder_stickers_placeholder": "Stickers will be available soon.",
+    "outfitBuilder_save_success": "Outfit saved successfully!",
 
     "outfitDetail_fixedOutfit_title": "Fixed outfit",
     "outfitDetail_fixedOutfit_description": "Items in this outfit are always worn together. Each item can only belong to one fixed outfit.",

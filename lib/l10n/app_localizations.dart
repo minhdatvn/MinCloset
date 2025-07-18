@@ -1766,6 +1766,12 @@ abstract class AppLocalizations {
   /// **'Stickers will be available soon.'**
   String get outfitBuilder_stickers_placeholder;
 
+  /// No description provided for @outfitBuilder_save_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Outfit saved successfully!'**
+  String get outfitBuilder_save_success;
+
   /// No description provided for @outfitDetail_fixedOutfit_title.
   ///
   /// In en, this message translates to:

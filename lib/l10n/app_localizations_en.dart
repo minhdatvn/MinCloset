@@ -905,6 +905,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Stickers will be available soon.';
 
   @override
+  String get outfitBuilder_save_success => 'Outfit saved successfully!';
+
+  @override
   String get outfitDetail_fixedOutfit_title => 'Fixed outfit';
 
   @override

@@ -223,12 +223,12 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
 
   @override
   Widget build(BuildContext context) {
-    // <<< THAY ĐỔI 1: Thêm ref.listen để xử lý điều hướng >>>
+    //ref.listen để xử lý điều hướng
     ref.listen<OutfitBuilderState>(outfitBuilderProvider, (previous, next) {
       // Khi cờ saveSuccess chuyển từ false -> true
       if (next.saveSuccess && previous?.saveSuccess == false) {
         ref.read(notificationServiceProvider).showBanner(
-          message: 'Outfit saved successfully!',
+          message: context.l10n.outfitBuilder_save_success,
           type: NotificationType.success,
         );
         // Pop màn hình và trả về true
@@ -238,9 +238,11 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
 
       // Hiển thị lỗi nếu có
       if (next.errorMessage != null && previous?.errorMessage == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(next.errorMessage!)),
-        );
+        // Thay thế ScaffoldMessenger bằng NotificationService
+        ref.read(notificationServiceProvider).showBanner(
+              message: next.errorMessage!,
+              // Mặc định là NotificationType.error nên không cần truyền
+            );
       }
     });
 

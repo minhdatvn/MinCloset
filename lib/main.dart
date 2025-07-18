@@ -1,7 +1,6 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/helpers/db_helper.dart';
@@ -31,7 +30,7 @@ Future<void> main() async {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
   ]);
-  await dotenv.load(fileName: ".env");
+
   await LocalNotificationService().init();
   
   await DatabaseHelper.instance.database;

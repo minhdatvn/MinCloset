@@ -3110,6 +3110,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error processing image: {error}'**
   String removeBg_error_generic(Object error);
+
+  /// No description provided for @proImageEditor_common_done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get proImageEditor_common_done;
+
+  /// No description provided for @proImageEditor_common_back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get proImageEditor_common_back;
+
+  /// No description provided for @proImageEditor_common_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get proImageEditor_common_cancel;
+
+  /// No description provided for @proImageEditor_common_undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get proImageEditor_common_undo;
+
+  /// No description provided for @proImageEditor_common_redo.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo'**
+  String get proImageEditor_common_redo;
+
+  /// No description provided for @proImageEditor_common_remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get proImageEditor_common_remove;
+
+  /// No description provided for @proImageEditor_common_edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get proImageEditor_common_edit;
+
+  /// No description provided for @proImageEditor_common_rotateScale.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate and Scale'**
+  String get proImageEditor_common_rotateScale;
+
+  /// No description provided for @proImageEditor_common_more.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get proImageEditor_common_more;
+
+  /// No description provided for @proImageEditor_crop_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Crop/ Rotate'**
+  String get proImageEditor_crop_title;
+
+  /// No description provided for @proImageEditor_crop_rotate.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotate'**
+  String get proImageEditor_crop_rotate;
+
+  /// No description provided for @proImageEditor_crop_flip.
+  ///
+  /// In en, this message translates to:
+  /// **'Flip'**
+  String get proImageEditor_crop_flip;
+
+  /// No description provided for @proImageEditor_crop_ratio.
+  ///
+  /// In en, this message translates to:
+  /// **'Ratio'**
+  String get proImageEditor_crop_ratio;
+
+  /// No description provided for @proImageEditor_crop_reset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get proImageEditor_crop_reset;
+
+  /// No description provided for @proImageEditor_filter_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get proImageEditor_filter_title;
+
+  /// No description provided for @proImageEditor_filter_noFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'No Filter'**
+  String get proImageEditor_filter_noFilter;
+
+  /// No description provided for @proImageEditor_tune_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Tune'**
+  String get proImageEditor_tune_title;
+
+  /// No description provided for @proImageEditor_tune_brightness.
+  ///
+  /// In en, this message translates to:
+  /// **'Brightness'**
+  String get proImageEditor_tune_brightness;
+
+  /// No description provided for @proImageEditor_tune_contrast.
+  ///
+  /// In en, this message translates to:
+  /// **'Contrast'**
+  String get proImageEditor_tune_contrast;
+
+  /// No description provided for @proImageEditor_tune_saturation.
+  ///
+  /// In en, this message translates to:
+  /// **'Saturation'**
+  String get proImageEditor_tune_saturation;
+
+  /// No description provided for @proImageEditor_tune_exposure.
+  ///
+  /// In en, this message translates to:
+  /// **'Exposure'**
+  String get proImageEditor_tune_exposure;
+
+  /// No description provided for @proImageEditor_tune_hue.
+  ///
+  /// In en, this message translates to:
+  /// **'Hue'**
+  String get proImageEditor_tune_hue;
+
+  /// No description provided for @proImageEditor_tune_temperature.
+  ///
+  /// In en, this message translates to:
+  /// **'Temperature'**
+  String get proImageEditor_tune_temperature;
+
+  /// No description provided for @proImageEditor_tune_sharpness.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharpness'**
+  String get proImageEditor_tune_sharpness;
+
+  /// No description provided for @proImageEditor_tune_fade.
+  ///
+  /// In en, this message translates to:
+  /// **'Fade'**
+  String get proImageEditor_tune_fade;
+
+  /// No description provided for @proImageEditor_tune_luminance.
+  ///
+  /// In en, this message translates to:
+  /// **'Luminance'**
+  String get proImageEditor_tune_luminance;
+
+  /// No description provided for @proImageEditor_blur_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Blur'**
+  String get proImageEditor_blur_title;
+
+  /// No description provided for @proImageEditor_sticker_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Stickers'**
+  String get proImageEditor_sticker_title;
+
+  /// No description provided for @proImageEditor_paint_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Paint'**
+  String get proImageEditor_paint_title;
+
+  /// No description provided for @proImageEditor_text_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get proImageEditor_text_title;
+
+  /// No description provided for @proImageEditor_text_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter text'**
+  String get proImageEditor_text_hint;
+
+  /// No description provided for @proImageEditor_emoji_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Emoji'**
+  String get proImageEditor_emoji_title;
 }
 
 class _AppLocalizationsDelegate

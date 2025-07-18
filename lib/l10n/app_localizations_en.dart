@@ -1731,4 +1731,100 @@ class AppLocalizationsEn extends AppLocalizations {
   String removeBg_error_generic(Object error) {
     return 'Error processing image: $error';
   }
+
+  @override
+  String get proImageEditor_common_done => 'Done';
+
+  @override
+  String get proImageEditor_common_back => 'Back';
+
+  @override
+  String get proImageEditor_common_cancel => 'Cancel';
+
+  @override
+  String get proImageEditor_common_undo => 'Undo';
+
+  @override
+  String get proImageEditor_common_redo => 'Redo';
+
+  @override
+  String get proImageEditor_common_remove => 'Remove';
+
+  @override
+  String get proImageEditor_common_edit => 'Edit';
+
+  @override
+  String get proImageEditor_common_rotateScale => 'Rotate and Scale';
+
+  @override
+  String get proImageEditor_common_more => 'More';
+
+  @override
+  String get proImageEditor_crop_title => 'Crop/ Rotate';
+
+  @override
+  String get proImageEditor_crop_rotate => 'Rotate';
+
+  @override
+  String get proImageEditor_crop_flip => 'Flip';
+
+  @override
+  String get proImageEditor_crop_ratio => 'Ratio';
+
+  @override
+  String get proImageEditor_crop_reset => 'Reset';
+
+  @override
+  String get proImageEditor_filter_title => 'Filter';
+
+  @override
+  String get proImageEditor_filter_noFilter => 'No Filter';
+
+  @override
+  String get proImageEditor_tune_title => 'Tune';
+
+  @override
+  String get proImageEditor_tune_brightness => 'Brightness';
+
+  @override
+  String get proImageEditor_tune_contrast => 'Contrast';
+
+  @override
+  String get proImageEditor_tune_saturation => 'Saturation';
+
+  @override
+  String get proImageEditor_tune_exposure => 'Exposure';
+
+  @override
+  String get proImageEditor_tune_hue => 'Hue';
+
+  @override
+  String get proImageEditor_tune_temperature => 'Temperature';
+
+  @override
+  String get proImageEditor_tune_sharpness => 'Sharpness';
+
+  @override
+  String get proImageEditor_tune_fade => 'Fade';
+
+  @override
+  String get proImageEditor_tune_luminance => 'Luminance';
+
+  @override
+  String get proImageEditor_blur_title => 'Blur';
+
+  @override
+  String get proImageEditor_sticker_title => 'Stickers';
+
+  @override
+  String get proImageEditor_paint_title => 'Paint';
+
+  @override
+  String get proImageEditor_text_title => 'Text';
+
+  @override
+  String get proImageEditor_text_hint => 'Enter text';
+
+  @override
+  String get proImageEditor_emoji_title => 'Emoji';
 }

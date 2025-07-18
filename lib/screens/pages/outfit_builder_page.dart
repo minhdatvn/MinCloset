@@ -24,6 +24,7 @@ import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mincloset/widgets/persistent_header_delegate.dart';
+import 'package:mincloset/helpers/pro_image_editor_i18n_helper.dart';
 
 class OutfitBuilderPage extends ConsumerStatefulWidget {
   final List<ClothingItem>? preselectedItems;
@@ -316,6 +317,7 @@ class _OutfitBuilderPageState extends ConsumerState<OutfitBuilderPage> {
                             },
                           ),
                           configs: ProImageEditorConfigs(   
+                            i18n: getProImageEditorI18n(context.l10n),
                             layerInteraction: const LayerInteractionConfigs(
                                 selectable: LayerInteractionSelectable.enabled,
                                 initialSelected: false,

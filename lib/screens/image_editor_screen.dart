@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:mincloset/theme/app_theme.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
+import 'package:mincloset/helpers/pro_image_editor_i18n_helper.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 
 class ImageEditorScreen extends StatelessWidget {
   final Uint8List imageBytes;
@@ -14,6 +16,7 @@ class ImageEditorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return ProImageEditor.memory(
       imageBytes,
       callbacks: ProImageEditorCallbacks(
@@ -23,6 +26,7 @@ class ImageEditorScreen extends StatelessWidget {
         },
       ),
       configs: ProImageEditorConfigs(
+        i18n: getProImageEditorI18n(l10n),
         theme: appTheme,
         cropRotateEditor: const CropRotateEditorConfigs(enabled: true),
         filterEditor: const FilterEditorConfigs(enabled: true),

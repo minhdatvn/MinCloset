@@ -5,6 +5,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:mincloset/theme/app_theme.dart';
 import 'package:pro_image_editor/pro_image_editor.dart';
+import 'package:mincloset/helpers/pro_image_editor_i18n_helper.dart';
+import 'package:mincloset/helpers/context_extensions.dart';
 
 class BackgroundCropperScreen extends StatefulWidget {
   final Uint8List imageBytes;
@@ -24,6 +26,7 @@ class _BackgroundCropperScreenState extends State<BackgroundCropperScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return ProImageEditor.memory(
       widget.imageBytes,
       callbacks: ProImageEditorCallbacks(
@@ -36,6 +39,7 @@ class _BackgroundCropperScreenState extends State<BackgroundCropperScreen> {
         },
       ),
       configs: ProImageEditorConfigs(
+        i18n: getProImageEditorI18n(l10n),
         theme: appTheme,
         cropRotateEditor: const CropRotateEditorConfigs(
           initAspectRatio: 3 / 4,

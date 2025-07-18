@@ -1676,4 +1676,100 @@ class AppLocalizationsVi extends AppLocalizations {
   String removeBg_error_generic(Object error) {
     return 'Lỗi xử lý ảnh: $error';
   }
+
+  @override
+  String get proImageEditor_common_done => 'Xong';
+
+  @override
+  String get proImageEditor_common_back => 'Quay lại';
+
+  @override
+  String get proImageEditor_common_cancel => 'Huỷ';
+
+  @override
+  String get proImageEditor_common_undo => 'Hoàn tác';
+
+  @override
+  String get proImageEditor_common_redo => 'Làm lại';
+
+  @override
+  String get proImageEditor_common_remove => 'Xoá';
+
+  @override
+  String get proImageEditor_common_edit => 'Sửa';
+
+  @override
+  String get proImageEditor_common_rotateScale => 'Xoay & Thu phóng';
+
+  @override
+  String get proImageEditor_common_more => 'Thêm';
+
+  @override
+  String get proImageEditor_crop_title => 'Cắt/ Xoay';
+
+  @override
+  String get proImageEditor_crop_rotate => 'Xoay';
+
+  @override
+  String get proImageEditor_crop_flip => 'Lật';
+
+  @override
+  String get proImageEditor_crop_ratio => 'Tỷ lệ';
+
+  @override
+  String get proImageEditor_crop_reset => 'Đặt lại';
+
+  @override
+  String get proImageEditor_filter_title => 'Bộ lọc';
+
+  @override
+  String get proImageEditor_filter_noFilter => 'Không có';
+
+  @override
+  String get proImageEditor_tune_title => 'Tinh chỉnh';
+
+  @override
+  String get proImageEditor_tune_brightness => 'Độ sáng';
+
+  @override
+  String get proImageEditor_tune_contrast => 'Tương phản';
+
+  @override
+  String get proImageEditor_tune_saturation => 'Bão hoà';
+
+  @override
+  String get proImageEditor_tune_exposure => 'Phơi sáng';
+
+  @override
+  String get proImageEditor_tune_hue => 'Tông màu';
+
+  @override
+  String get proImageEditor_tune_temperature => 'Nhiệt độ';
+
+  @override
+  String get proImageEditor_tune_sharpness => 'Độ nét';
+
+  @override
+  String get proImageEditor_tune_fade => 'Làm mờ';
+
+  @override
+  String get proImageEditor_tune_luminance => 'Độ chói';
+
+  @override
+  String get proImageEditor_blur_title => 'Làm mờ';
+
+  @override
+  String get proImageEditor_sticker_title => 'Nhãn dán';
+
+  @override
+  String get proImageEditor_paint_title => 'Vẽ';
+
+  @override
+  String get proImageEditor_text_title => 'Chữ';
+
+  @override
+  String get proImageEditor_text_hint => 'Nhập văn bản';
+
+  @override
+  String get proImageEditor_emoji_title => 'Biểu cảm';
 }

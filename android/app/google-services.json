@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "35306730291",
+    "project_id": "mincloset-vn",
+    "storage_bucket": "mincloset-vn.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:35306730291:android:112b9d7b10967779a24446",
+        "android_client_info": {
+          "package_name": "com.example.mincloset"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyByO-_mrA-6FBMcYIgoWQAZJRxmQfiEh6Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

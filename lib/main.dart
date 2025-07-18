@@ -22,10 +22,14 @@ import 'package:mincloset/widgets/global_ui_scope.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-// BƯỚC 1: Chuyển hàm main thành async
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -35,6 +39,16 @@ Future<void> main() async {
   
   await DatabaseHelper.instance.database;
   final prefs = await SharedPreferences.getInstance();
+
+  // Tạo một ProviderContainer tạm thời chỉ để chạy logic khởi tạo
+  // Điều này cho phép các service truy cập các provider khác như SharedPreferences
+  final container = ProviderContainer(
+    overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+  );
+  
+  // Kích hoạt việc lấy key chạy trong nền. Chúng ta không "await" ở đây.
+  // Đây là hành động "fire-and-forget".
+  container.read(remoteConfigServiceProvider).initializeAndFetchKeys();
 
   // Đọc trạng thái từ SharedPreferences
   final bool hasCompletedOnboarding = prefs.getBool('has_completed_onboarding') ?? false;
@@ -106,7 +120,7 @@ class MinClosetApp extends ConsumerWidget {
       navigatorKey: navigatorKey,
       title: 'MinCloset',
       theme: appTheme,
-      home: const MainAppWrapper(), // Giữ nguyên
+      home: const FullAppNavigator(),
       locale: locale,
       localizationsDelegates: const [
         AppLocalizations.delegate,
@@ -119,6 +133,46 @@ class MinClosetApp extends ConsumerWidget {
         Locale('en'),
       ],
       debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class FullAppNavigator extends ConsumerWidget {
+  const FullAppNavigator({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Logic của widget này không thay đổi, chỉ đổi tên
+    final nestedNavigatorKey = ref.watch(nestedNavigatorKeyProvider);
+    final initialScreen = ref.watch(initialScreenProvider);
+
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
+        if (didPop) return;
+        final navigator = nestedNavigatorKey.currentState;
+        if (navigator != null && navigator.canPop()) {
+          navigator.pop();
+        }
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            AppFlowController(
+              child: Navigator(
+                key: nestedNavigatorKey,
+                onGenerateInitialRoutes: (navigator, initialRoute) {
+                  return [
+                    MaterialPageRoute(builder: (context) => initialScreen)
+                  ];
+                },
+                onGenerateRoute: RouteGenerator.onGenerateRoute,
+              ),
+            ),
+            const GlobalUiScope(),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -150,45 +204,5 @@ class AppFlowController extends ConsumerWidget {
     });
 
     return child;
-  }
-}
-
-// BƯỚC 5: Cập nhật MainAppWrapper để đọc màn hình đầu tiên từ provider
-class MainAppWrapper extends ConsumerWidget {
-  const MainAppWrapper({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final nestedNavigatorKey = ref.watch(nestedNavigatorKeyProvider);
-    final initialScreen = ref.watch(initialScreenProvider); // Đọc màn hình đầu tiên
-
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (bool didPop, dynamic result) {
-        if (didPop) return;
-        final navigator = nestedNavigatorKey.currentState;
-        if (navigator != null && navigator.canPop()) {
-          navigator.pop();
-        }
-      },
-      child: Scaffold(
-        body: Stack(
-          children: [
-            AppFlowController(
-              child: Navigator(
-                key: nestedNavigatorKey,
-                onGenerateInitialRoutes: (navigator, initialRoute) {
-                  return [
-                    MaterialPageRoute(builder: (context) => initialScreen)
-                  ];
-                },
-                onGenerateRoute: RouteGenerator.onGenerateRoute,
-              ),
-            ),
-            const GlobalUiScope(),
-          ],
-        ),
-      ),
-    );
   }
 }

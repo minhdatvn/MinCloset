@@ -1,7 +1,10 @@
 // lib/domain/providers.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/domain/use_cases/analyze_item_use_case.dart';
+import 'package:mincloset/domain/use_cases/delete_multiple_items_use_case.dart';
+import 'package:mincloset/domain/use_cases/get_closet_insights_use_case.dart';
 import 'package:mincloset/domain/use_cases/get_outfit_suggestion_use_case.dart';
+import 'package:mincloset/domain/use_cases/move_multiple_items_use_case.dart';
 import 'package:mincloset/domain/use_cases/save_outfit_use_case.dart';
 import 'package:mincloset/domain/use_cases/validate_item_name_use_case.dart';
 import 'package:mincloset/domain/use_cases/validate_required_fields_use_case.dart';
@@ -10,12 +13,11 @@ import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/services/classification_service.dart';
 import 'package:mincloset/services/generative_ai_wrapper.dart';
-import 'package:mincloset/domain/use_cases/delete_multiple_items_use_case.dart';
-import 'package:mincloset/domain/use_cases/move_multiple_items_use_case.dart';
-import 'package:mincloset/domain/use_cases/get_closet_insights_use_case.dart';
 
 final generativeAIWrapperProvider = Provider<IGenerativeAIWrapper>((ref) {
-  return GenerativeAIWrapper();
+  // Đọc SecureStorageService và truyền nó vào constructor
+  final secureStorage = ref.watch(secureStorageServiceProvider);
+  return GenerativeAIWrapper(secureStorage);
 });
 
 // Provider cho Service mới

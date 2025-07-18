@@ -1,27 +1,35 @@
 // lib/services/generative_ai_wrapper.dart
 
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+// 1. Thêm import cho secure_storage_service
+import 'package:mincloset/services/secure_storage_service.dart';
 
-// 1. Định nghĩa một lớp trừu tượng (interface) cho các hành động chúng ta cần.
-//    Lớp này không phải final và có thể mock được.
 abstract class IGenerativeAIWrapper {
   Future<String?> generateContent(List<Content> content);
 }
 
-// 2. Tạo một lớp triển khai thật sự, lớp này sẽ chứa logic gọi API
 class GenerativeAIWrapper implements IGenerativeAIWrapper {
-  final GenerativeModel _model;
+  // 2. Thay đổi constructor để nhận SecureStorageService
+  final SecureStorageService _secureStorage;
+  GenerativeAIWrapper(this._secureStorage);
 
-  GenerativeAIWrapper()
-      : _model = GenerativeModel(
-          model: 'gemini-2.0-flash-lite',
-          apiKey: dotenv.env['GEMINI_API_KEY'] ?? 'API_KEY_NOT_FOUND',
-        );
+  // 3. Xóa việc khởi tạo _model ở đây
 
   @override
   Future<String?> generateContent(List<Content> content) async {
-    final response = await _model.generateContent(content);
+    // 4. Lấy API key và khởi tạo model ngay bên trong hàm
+    final apiKey = await _secureStorage.read(SecureStorageKeys.geminiApiKey);
+    if (apiKey == null || apiKey.isEmpty) {
+      // Nếu không có key, không thể tiếp tục
+      throw Exception('Gemini API key not found in secure storage.');
+    }
+
+    final model = GenerativeModel(
+      model: 'gemini-2.0-flash-lite',
+      apiKey: apiKey,
+    );
+    
+    final response = await model.generateContent(content);
     return response.text;
   }
 }

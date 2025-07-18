@@ -17,6 +17,7 @@ import 'package:mincloset/screens/onboarding_screen.dart';
 import 'package:mincloset/screens/permissions_screen.dart';
 import 'package:mincloset/services/weather_image_service.dart';
 import 'package:mincloset/src/services/local_notification_service.dart';
+import 'package:mincloset/services/secure_storage_service.dart';
 import 'package:mincloset/theme/app_theme.dart';
 import 'package:mincloset/widgets/global_ui_scope.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -56,23 +57,23 @@ Future<void> main() async {
     initialScreen = const MainScreen();
   }
 
+  // Đọc Sentry DSN từ Secure Storage trước khi khởi tạo Sentry
+  final secureStorage = SecureStorageService();
+  final sentryDsn = await secureStorage.read(SecureStorageKeys.sentryDsn);
+
   await SentryFlutter.init(
     (options) {
-      options.dsn = dotenv.env['SENTRY_DSN'] ?? '';
+      // Sử dụng DSN đã đọc được
+      options.dsn = sentryDsn ?? '';
     },
+    // --- KẾT THÚC THAY ĐỔI ---
     appRunner: () => runApp(
       ProviderScope(
         overrides: [
-          // THÊM DÒNG NÀY VÀO
-          // Cung cấp giá trị SharedPreferences đã được tải sẵn cho provider
           sharedPreferencesProvider.overrideWithValue(prefs),
-
-          // Các override cũ giữ nguyên
           initialScreenProvider.overrideWithValue(initialScreen),
-          onboardingCompletedProvider
-              .overrideWith((ref) => StateController(hasCompletedOnboarding)),
-          permissionsSeenProvider
-              .overrideWith((ref) => StateController(hasSeenPermissionsScreen)),
+          onboardingCompletedProvider.overrideWith((ref) => StateController(hasCompletedOnboarding)),
+          permissionsSeenProvider.overrideWith((ref) => StateController(hasSeenPermissionsScreen)),
         ],
         child: const MinClosetApp(),
       ),

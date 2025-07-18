@@ -1,18 +1,20 @@
 // lib/services/suggestion_service.dart
 
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'package:fpdart/fpdart.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:mincloset/constants/prompt_strings.dart';
 import 'package:mincloset/domain/core/type_defs.dart';
 import 'package:mincloset/domain/failures/failures.dart';
+import 'package:mincloset/services/secure_storage_service.dart';
 import 'package:mincloset/utils/logger.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SuggestionService {
-  final String _apiKey = dotenv.env['GEMINI_API_KEY'] ?? 'API_KEY_NOT_FOUND';
+  final SecureStorageService _secureStorage;
+  SuggestionService(this._secureStorage);
 
   FutureEither<Map<String, dynamic>> getOutfitSuggestion({
     required Map<String, dynamic>? weather,
@@ -24,19 +26,21 @@ class SuggestionService {
     required String closetItemsString,
     String? purpose,
   }) async {
+    final apiKey = await _secureStorage.read(SecureStorageKeys.geminiApiKey);
+    if (apiKey == null || apiKey.isEmpty) {
+      return const Left(ServerFailure('Gemini API key not found.'));
+    }
+
     final model = GenerativeModel(
       model: 'gemini-2.0-flash-lite',
-      apiKey: _apiKey,
+      apiKey: apiKey, // Sử dụng key vừa đọc được
     );
 
-    // --- BẮT ĐẦU SỬA ĐỔI ---
-
-    // BƯỚC 1: Di chuyển khối code này lên đầu hàm.
     final prefs = await SharedPreferences.getInstance();
     final langCode = prefs.getString('language_code') ?? 'en';
     final strings = PromptStrings.localized[langCode]!; // Lấy bộ chuỗi dịch tương ứng
 
-    // BƯỚC 2: Logic xử lý weatherString giờ sẽ được đặt sau khi đã có `strings`.
+    // Logic xử lý weatherString giờ sẽ được đặt sau khi đã có `strings`.
     final String weatherString;
     if (weather != null) {
       final temp = weather['main']['temp'].toStringAsFixed(0);
@@ -46,9 +50,6 @@ class SuggestionService {
       weatherString = "${strings['weather_label']} Unknown. Please provide a versatile/all-weather suggestion suitable for indoor activities or a general stylish look.";
     }
 
-    // --- KẾT THÚC SỬA ĐỔI ---
-
-    // Phần tạo prompt còn lại không thay đổi
     final prompt = """
     ${strings['assistant_role']}
 

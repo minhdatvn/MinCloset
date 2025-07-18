@@ -1,26 +1,33 @@
 // lib/providers/service_providers.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/services/achievement_service.dart';
 import 'package:mincloset/services/notification_service.dart';
 import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/services/quest_service.dart';
+import 'package:mincloset/services/secure_storage_service.dart';
 import 'package:mincloset/services/suggestion_service.dart';
 import 'package:mincloset/services/weather_image_service.dart';
 import 'package:mincloset/services/weather_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-final weatherServiceProvider = Provider<WeatherService>((ref) {
-  // <<< THAY ĐỔI: Đọc key ở đây và truyền vào service >>>
-  final apiKey = dotenv.env['OPENWEATHER_API_KEY'] ?? 'API_KEY_NOT_FOUND';
-  return WeatherService(apiKey: apiKey);
+// Provider cho SecureStorageService
+final secureStorageServiceProvider = Provider<SecureStorageService>((ref) {
+  return SecureStorageService();
 });
 
-// Tương tự, provider này cung cấp một đối tượng của SuggestionService.
+final weatherServiceProvider = Provider<WeatherService>((ref) {
+  // Đọc secure storage service
+  final secureStorage = ref.watch(secureStorageServiceProvider);
+  // Truyền nó vào constructor của WeatherService
+  return WeatherService(secureStorage: secureStorage);
+});
+
+// Provider này cung cấp một đối tượng của SuggestionService.
 final suggestionServiceProvider = Provider<SuggestionService>((ref) {
-  return SuggestionService();
+  final secureStorage = ref.watch(secureStorageServiceProvider);
+  return SuggestionService(secureStorage);
 });
 
 // Provider để tạo và cung cấp navigatorKey duy nhất cho ứng dụng

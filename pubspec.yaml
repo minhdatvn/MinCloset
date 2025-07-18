@@ -11,9 +11,9 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  flutter_riverpod: ^2.5.1
-  flutter_hooks: ^0.20.5
-  hooks_riverpod: ^2.5.1
+  flutter_riverpod: ^2.6.1
+  flutter_hooks: ^0.21.2
+  hooks_riverpod: ^2.6.1
   cupertino_icons: ^1.0.8
   image: ^4.2.0 
   image_picker: ^1.1.2
@@ -62,6 +62,8 @@ dependencies:
 dev_dependencies:
   sentry_dart_plugin: ^3.0.0
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   mocktail: ^1.0.3
   rename: ^3.0.2

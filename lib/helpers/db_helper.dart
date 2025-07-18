@@ -361,4 +361,10 @@ class DatabaseHelper {
     }
     await batch.commit(noResult: true);
   }
+
+  Future<void> close() async {
+    final db = await instance.database;
+    db.close();
+    _database = null;
+  }
 }

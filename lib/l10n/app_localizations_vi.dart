@@ -77,7 +77,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get category_tops_other => 'Khác';
 
   @override
-  String get category_bottoms => 'Quần/Váy';
+  String get category_bottoms => 'Quần';
 
   @override
   String get category_bottoms_jeans => 'Quần jeans';
@@ -182,7 +182,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get category_outerwear_zipup_hoodies => 'Áo hoodie kéo khoá';
 
   @override
-  String get category_outerwear_field_jackets => 'Áo khoác野 chiến';
+  String get category_outerwear_field_jackets => 'Áo khoác chiến';
 
   @override
   String get category_outerwear_track_jackets => 'Áo khoác thể thao';

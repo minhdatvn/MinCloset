@@ -14,6 +14,7 @@ import 'package:mincloset/services/suggestion_service.dart';
 import 'package:mincloset/services/weather_image_service.dart';
 import 'package:mincloset/services/weather_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+export '../services/backup_service.dart';
 
 /// Provider này hoạt động như một công tắc BẬT/TẮT toàn cục.
 /// Nó cho toàn bộ ứng dụng biết: "API keys đã sẵn sàng để sử dụng chưa?".

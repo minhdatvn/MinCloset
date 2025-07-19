@@ -1,5 +1,5 @@
 // lib/screens/edit_profile_screen.dart
-import 'package:firebase_auth/firebase_auth.dart'; // <<< THÊM MỚI
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,8 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/l10n/app_localizations.dart';
+import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
-import 'package:mincloset/providers/auth_providers.dart'; // <<< THÊM MỚI
+import 'package:mincloset/providers/auth_providers.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/services/unit_conversion_service.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
@@ -144,6 +146,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   /// Xây dựng giao diện cho khu vực tài khoản, thay đổi tùy theo trạng thái đăng nhập.
   Widget _buildAccountSection(User? user) {
+    final isLoading = ref.watch(backupRestoreLoadingProvider);
+    final lastBackupAsyncValue = ref.watch(lastBackupProvider);
     if (user == null) {
       return Card(
         elevation: 0,
@@ -175,6 +179,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       );
     }
 
+    // Nếu đã đăng nhập
     return Card(
       elevation: 0,
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -192,7 +197,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Hàng chứa Icon và Text (giống ListTile)
                 Row(
                   children: [
                     const Icon(Icons.cloud_sync_outlined, color: Colors.grey),
@@ -202,22 +206,55 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       children: [
                         const Text("Backup & Restore", style: TextStyle(fontSize: 16)),
                         const SizedBox(height: 4),
-                        Text(
-                          "Last backup: Not yet available",
-                          style: Theme.of(context).textTheme.bodySmall,
+                        lastBackupAsyncValue.when(
+                          data: (date) => Text(
+                            date != null 
+                              ? "Last backup: ${DateFormat.yMd().add_jms().format(date)}"
+                              : "Last backup: Not yet available",
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          loading: () => const Text("Checking..."),
+                          error: (e, s) => const Text("Error loading backup time"),
                         ),
                       ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 12), // Tạo khoảng cách
-                // Hàng chỉ chứa các nút bấm
+                const SizedBox(height: 12),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center, // Đẩy các nút về phía bên phải
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    OutlinedButton(onPressed: () {}, child: const Text("Backup")),
+                    // Nút Backup
+                    OutlinedButton(
+                      onPressed: isLoading ? null : () async {
+                        ref.read(backupRestoreLoadingProvider.notifier).state = true;
+                        try {
+                          await ref.read(backupServiceProvider).performBackup();
+                          ref.read(notificationServiceProvider).showBanner(
+                            message: "Backup completed successfully!",
+                            type: NotificationType.success,
+                          );
+                          ref.invalidate(lastBackupProvider); // Làm mới lại thời gian backup
+                        } catch (e) {
+                          ref.read(notificationServiceProvider).showBanner(
+                            message: "Backup failed: ${e.toString()}",
+                          );
+                        } finally {
+                          if(mounted) {
+                            ref.read(backupRestoreLoadingProvider.notifier).state = false;
+                          }
+                        }
+                      }, 
+                      child: const Text("Backup")
+                    ),
                     const SizedBox(width: 8),
-                    FilledButton(onPressed: () {}, child: const Text("Restore")),
+                    // Nút Restore
+                    FilledButton(
+                      onPressed: isLoading ? null : () {
+                        // TODO: Implement Restore Logic
+                      }, 
+                      child: const Text("Restore")
+                    ),
                   ],
                 ),
               ],
@@ -235,8 +272,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       ),
     );
   }
-
-  // <<< KẾT THÚC VÙNG CODE MỚI >>>
 
   @override
   Widget build(BuildContext context) {

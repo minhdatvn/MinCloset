@@ -6,10 +6,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:mincloset/constants/app_options.dart';
+import 'package:mincloset/helpers/dialog_helpers.dart';
 import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/auth_providers.dart';
+import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/services/unit_conversion_service.dart';
 import 'package:mincloset/states/profile_page_state.dart';
@@ -250,10 +252,68 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                     const SizedBox(width: 8),
                     // Nút Restore
                     FilledButton(
-                      onPressed: isLoading ? null : () {
-                        // TODO: Implement Restore Logic
-                      }, 
-                      child: const Text("Restore")
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              // 1. Hiển thị hộp thoại xác nhận
+                              final confirmed = await showAnimatedDialog<bool>(
+                                context,
+                                builder: (ctx) => AlertDialog(
+                                  title: const Text("Confirm Restore"),
+                                  content: const Text(
+                                      "This will overwrite all local data on this device with your backed up data. This action cannot be undone."),
+                                  actions: [
+                                    TextButton(
+                                        onPressed: () => Navigator.of(ctx).pop(false),
+                                        child: const Text("Cancel")),
+                                    FilledButton(
+                                        onPressed: () => Navigator.of(ctx).pop(true),
+                                        child: const Text("Restore")),
+                                  ],
+                                ),
+                              );
+
+                              // 2. Nếu người dùng không xác nhận, dừng lại
+                              if (confirmed != true || !mounted) return;
+
+                              // 3. Bắt đầu quá trình phục hồi
+                              ref.read(backupRestoreLoadingProvider.notifier).state = true;
+                              try {
+                                await ref.read(restoreServiceProvider).performRestore();
+
+                                // 4. Xử lý khi thành công
+                                if (mounted) {
+                                  ref.read(notificationServiceProvider).showBanner(
+                                        message: "Restore completed successfully!",
+                                        type: NotificationType.success,
+                                      );
+                                  // Kích hoạt làm mới dữ liệu toàn ứng dụng
+                                  ref.read(itemChangedTriggerProvider.notifier).state++;
+                                  ref.invalidate(lastBackupProvider);
+                                }
+                              } catch (e) {
+                                // 5. Xử lý khi thất bại
+                                if (mounted) {
+                                  ref.read(notificationServiceProvider).showBanner(
+                                        message: "Restore failed: ${e.toString()}",
+                                      );
+                                }
+                              } finally {
+                                // 6. Luôn tắt trạng thái loading khi kết thúc
+                                if (mounted) {
+                                  ref.read(backupRestoreLoadingProvider.notifier).state = false;
+                                }
+                              }
+                            },
+                      child: isLoading
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ))
+                          : const Text("Restore"),
                     ),
                   ],
                 ),

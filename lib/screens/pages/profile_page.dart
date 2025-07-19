@@ -1,13 +1,14 @@
 // lib/screens/pages/profile_page.dart
 import 'dart:io';
 import 'dart:typed_data';
-
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
+import 'package:mincloset/providers/auth_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/widgets/statistic_card.dart';
@@ -31,6 +32,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     super.dispose();
   }
 
+  /// Xử lý toàn bộ luồng chọn, cắt và lưu ảnh đại diện mới.
   Future<void> _handleAvatarTap(AppLocalizations l10n) async {
     final navigator = Navigator.of(context);
 
@@ -43,12 +45,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           children: <Widget>[
             ListTile(
               leading: const Icon(Icons.photo_camera_outlined),
-              title: Text(l10n.profile_takePhoto_label), // Dùng l10n
+              title: Text(l10n.profile_takePhoto_label),
               onTap: () => Navigator.of(ctx).pop(ImageSource.camera),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: Text(l10n.profile_fromAlbum_label), // Dùng l10n
+              title: Text(l10n.profile_fromAlbum_label),
               onTap: () => Navigator.of(ctx).pop(ImageSource.gallery),
             ),
           ],
@@ -77,13 +79,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
   }
 
+  /// Xây dựng phần đầu của trang, bao gồm ảnh đại diện và tên người dùng.
   Widget _buildProfileHeader(ProfilePageState state, AppLocalizations l10n) {
     return Row(
       children: [
         Stack(
           clipBehavior: Clip.none,
           children: [
-            // <<< GỌI HÀM _handleAvatarTap KHI NHẤN >>>
             GestureDetector(
               onTap: () => _handleAvatarTap(l10n),
               child: CircleAvatar(
@@ -157,11 +159,88 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
+  /// Xây dựng giao diện cho khu vực tài khoản, thay đổi tùy theo trạng thái đăng nhập.
+  Widget _buildAccountSection(User? user) {
+    // Nếu chưa đăng nhập
+    if (user == null) {
+      return Card(
+        elevation: 0,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const Text(
+                "Sign in to back up your data and sync across devices.",
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () {
+                  ref.read(authRepositoryProvider).signInWithGoogle();
+                },
+                icon: Image.asset('assets/images/google_logo.png', height: 24.0),
+                label: const Text('Sign in with Google'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black, backgroundColor: Colors.white,
+                  side: const BorderSide(color: Colors.grey),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Nếu đã đăng nhập
+    return Card(
+      elevation: 0,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.email_outlined),
+            title: const Text("Account"),
+            subtitle: Text(user.email ?? "No email"),
+          ),
+          const Divider(height: 1, indent: 16, endIndent: 16),
+          ListTile(
+            leading: const Icon(Icons.cloud_sync_outlined),
+            title: const Text("Backup & Restore"),
+            subtitle: const Text("Last backup: Not yet available"),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                OutlinedButton(onPressed: () {}, child: const Text("Backup")),
+                const SizedBox(width: 8),
+                FilledButton(onPressed: () {}, child: const Text("Restore")),
+              ],
+            ),
+          ),
+          const Divider(height: 1, indent: 16, endIndent: 16),
+          ListTile(
+            leading: Icon(Icons.logout, color: Colors.red.shade700),
+            title: Text("Logout", style: TextStyle(color: Colors.red.shade700)),
+            onTap: () async {
+              await ref.read(authRepositoryProvider).signOut();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  /// Hàm build chính của Widget.
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(profileProvider);
     final notifier = ref.read(profileProvider.notifier);
-    final l10n = AppLocalizations.of(context)!; // Lấy l10n
+    final l10n = AppLocalizations.of(context)!;
+    
+    // Lắng nghe trạng thái đăng nhập từ provider
+    final authState = ref.watch(authStateChangesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -174,11 +253,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           )
         ],
       ),
-      body: _buildBody(context, state, notifier, l10n),
+      body: _buildBody(context, state, notifier, l10n, authState),
     );
   }
 
-  Widget _buildBody(BuildContext context, ProfilePageState state, ProfilePageNotifier notifier, AppLocalizations l10n) {
+  /// Xây dựng phần thân chính có thể cuộn của trang Profile.
+  Widget _buildBody(BuildContext context, ProfilePageState state, ProfilePageNotifier notifier, AppLocalizations l10n, AsyncValue<User?> authState) {
     if (state.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -188,27 +268,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     }
 
     final List<Widget> statPages = [];
-    if (state.categoryDistribution.isNotEmpty) {
-      statPages.add(StatisticCard(title: l10n.profile_statPage_category, dataMap: state.categoryDistribution));
-    }
+    if (state.categoryDistribution.isNotEmpty) statPages.add(StatisticCard(title: l10n.profile_statPage_category, dataMap: state.categoryDistribution));
     if (state.colorDistribution.isNotEmpty) {
       final sortedColorEntries = state.colorDistribution.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
       final dynamicColors = sortedColorEntries.map((entry) => AppOptions.colors[entry.key] ?? Colors.grey).toList();
       final sortedColorMap = Map.fromEntries(sortedColorEntries);
       statPages.add(StatisticCard(title: l10n.profile_statPage_color, dataMap: sortedColorMap, specificColors: dynamicColors));
     }
-    if (state.seasonDistribution.isNotEmpty) {
-      statPages.add(StatisticCard(title: l10n.profile_statPage_season, dataMap: state.seasonDistribution));
-    }
-    if (state.occasionDistribution.isNotEmpty) {
-      statPages.add(StatisticCard(title: l10n.profile_statPage_occasion, dataMap: state.occasionDistribution));
-    }
-    if (state.materialDistribution.isNotEmpty) {
-      statPages.add(StatisticCard(title: l10n.profile_statPage_material, dataMap: state.materialDistribution));
-    }
-    if (state.patternDistribution.isNotEmpty) {
-      statPages.add(StatisticCard(title: l10n.profile_statPage_pattern, dataMap: state.patternDistribution));
-    }
+    if (state.seasonDistribution.isNotEmpty) statPages.add(StatisticCard(title: l10n.profile_statPage_season, dataMap: state.seasonDistribution));
+    if (state.occasionDistribution.isNotEmpty) statPages.add(StatisticCard(title: l10n.profile_statPage_occasion, dataMap: state.occasionDistribution));
+    if (state.materialDistribution.isNotEmpty) statPages.add(StatisticCard(title: l10n.profile_statPage_material, dataMap: state.materialDistribution));
+    if (state.patternDistribution.isNotEmpty) statPages.add(StatisticCard(title: l10n.profile_statPage_pattern, dataMap: state.patternDistribution));
 
     return RefreshIndicator(
       onRefresh: notifier.loadInitialData,
@@ -225,6 +295,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   const SizedBox(height: 16),
                   _buildProfileHeader(state, l10n),
                   const Divider(height: 32),
+                  
+                  // Hiển thị widget tài khoản dựa trên trạng thái đăng nhập
+                  authState.when(
+                    data: (user) => _buildAccountSection(user),
+                    loading: () => const Center(child: CircularProgressIndicator()),
+                    error: (err, stack) => Center(child: Text('Error: $err')),
+                  ),
+                  
+                  const SizedBox(height: 24),
                   Card(
                     elevation: 0,
                     color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -289,7 +368,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: List<Widget>.generate(statPages.length, (index) {
+                    children: List.generate(statPages.length, (index) {
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
                         margin: const EdgeInsets.symmetric(horizontal: 4),

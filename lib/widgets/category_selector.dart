@@ -8,11 +8,13 @@ import 'package:mincloset/helpers/l10n_helper.dart';
 class CategorySelector extends StatefulWidget {
   final String? initialCategory;
   final Function(String) onCategorySelected;
+  final Widget? labelAction;
 
   const CategorySelector({
     super.key,
     this.initialCategory,
     required this.onCategorySelected,
+    this.labelAction,
   });
 
   @override
@@ -91,7 +93,15 @@ class _CategorySelectorState extends State<CategorySelector> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(l10n.itemDetail_form_categoryLabel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold,)),
+                Row( // Bọc Text và labelAction trong một Row con
+                  children: [
+                    Text(l10n.itemDetail_form_categoryLabel, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold,)),
+                    if (widget.labelAction != null) ...[
+                      const SizedBox(width: 4),
+                      widget.labelAction!,
+                    ],
+                  ],
+                ),
                 Expanded(
                   child: _buildSummaryView(),
                 ),

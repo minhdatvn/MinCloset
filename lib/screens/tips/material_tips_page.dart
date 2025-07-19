@@ -1,24 +1,19 @@
 // lib/screens/tips/material_tips_page.dart
 import 'package:flutter/material.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
+import 'package:mincloset/widgets/tip_card.dart';
 
-// Lớp helper để chứa dữ liệu cho mỗi mục
 class _HelpItem {
   final String title;
   final String description;
   final String imagePath;
-
-  const _HelpItem({
-    required this.title,
-    required this.description,
-    required this.imagePath,
-  });
+  const _HelpItem({ required this.title, required this.description, required this.imagePath });
 }
 
 class MaterialTipsPage extends StatelessWidget {
   const MaterialTipsPage({super.key});
 
-  // Dữ liệu hướng dẫn được định nghĩa trực tiếp tại đây
+  // <<< BẮT ĐẦU THAY ĐỔI DỮ LIỆU TẠI ĐÂY >>>
   static const List<_HelpItem> _materialHelpItems = [
     _HelpItem(
       title: "Cotton",
@@ -61,6 +56,7 @@ class MaterialTipsPage extends StatelessWidget {
       imagePath: 'assets/images/materials/leather.webp',
     ),
   ];
+  // <<< KẾT THÚC THAY ĐỔI DỮ LIỆU >>>
 
   @override
   Widget build(BuildContext context) {
@@ -74,33 +70,10 @@ class MaterialTipsPage extends StatelessWidget {
         separatorBuilder: (context, index) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
           final item = _materialHelpItems[index];
-          return Card(
-            elevation: 0,
-            color: Theme.of(context).colorScheme.surfaceContainerHighest,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Row(
-                children: [
-                  Image.asset(
-                    item.imagePath,
-                    width: 60,
-                    height: 60,
-                    errorBuilder: (ctx, err, stack) => const Icon(Icons.help_outline, size: 60),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(item.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                        const SizedBox(height: 4),
-                        Text(item.description, style: Theme.of(context).textTheme.bodySmall),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          return TipCard(
+            title: item.title,
+            description: item.description,
+            imagePath: item.imagePath,
           );
         },
       ),

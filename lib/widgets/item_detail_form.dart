@@ -300,6 +300,11 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
           CategorySelector(
             initialCategory: widget.itemState.selectedCategoryValue,
             onCategorySelected: widget.onCategoryChanged,
+            labelAction: HelpTooltipIcon(
+              onPressed: () {
+                Navigator.pushNamed(context, AppRoutes.categoryTips);
+              },
+            ),
           ),
           const SizedBox(height: 16),
           MultiSelectChipField(

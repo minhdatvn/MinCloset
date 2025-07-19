@@ -12,7 +12,20 @@
           "package_name": "com.example.mincloset"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "35306730291-jitrls8sp27tdqjf76sagl985lonfu85.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mincloset",
+            "certificate_hash": "fb9b6d08e3a2b3b7dbb06421e5853c8d5cb0cb42"
+          }
+        },
+        {
+          "client_id": "35306730291-p910ctseu69ornk23cvogeauvvga6hpl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyByO-_mrA-6FBMcYIgoWQAZJRxmQfiEh6Y"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "35306730291-p910ctseu69ornk23cvogeauvvga6hpl.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "35306730291-v9gn9frs2dsgbn8hrlbkp4i6e85023te.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.mincloset"
+              }
+            }
+          ]
         }
       }
     }

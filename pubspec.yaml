@@ -44,6 +44,7 @@ dependencies:
   package_info_plus: ^8.3.0
   url_launcher: ^6.3.1
   webview_flutter: ^4.13.0
+  webview_flutter_android: ^4.8.2
   table_calendar: ^3.2.0
   collection: ^1.19.1
   onnxruntime: ^1.4.1
@@ -64,6 +65,7 @@ dependencies:
   cloud_firestore: ^5.6.11
   firebase_storage: ^12.4.9
   google_sign_in: ^7.1.1
+  flutter_cache_manager: ^3.4.1
 
 dev_dependencies:
   sentry_dart_plugin: ^3.0.0

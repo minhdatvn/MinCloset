@@ -12,6 +12,7 @@ import 'package:mincloset/providers/repository_providers.dart';
 import 'package:mincloset/utils/logger.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:mincloset/models/closet.dart';
 
 class RestoreService {
   final Ref _ref;
@@ -29,18 +30,20 @@ class RestoreService {
     final userId = user.uid;
     logger.i("Bắt đầu phục hồi dữ liệu cho người dùng: $userId");
 
-    // BƯỚC 12 (Phần 1): XÓA SẠCH DỮ LIỆU CỤC BỘ CŨ
     await _clearLocalData();
-    
-    // BƯỚC 10: TẢI DỮ LIỆU METADATA TỪ FIRESTORE
+
     final userDocRef = _firestore.collection('users').doc(userId);
+
+    // <<< THÊM MỚI: Tải dữ liệu tủ đồ >>>
+    final closetsSnapshot = await userDocRef.collection('closets').get();
+    final closetsFromCloud = closetsSnapshot.docs.map((doc) => Closet.fromMap(doc.data())).toList();
+
     final itemsSnapshot = await userDocRef.collection('items').get();
     final itemsFromCloud = itemsSnapshot.docs.map((doc) => ClothingItem.fromMap(doc.data())).toList();
     final outfitsSnapshot = await userDocRef.collection('outfits').get();
     final outfitsFromCloud = outfitsSnapshot.docs.map((doc) => Outfit.fromMap(doc.data())).toList();
-    logger.i("Đã tải về ${itemsFromCloud.length} vật phẩm và ${outfitsFromCloud.length} trang phục từ Firestore.");
-    
-    // BƯỚC 11: TẢI ẢNH TỪ CLOUD STORAGE VỀ MÁY
+    logger.i("Đã tải về ${closetsFromCloud.length} tủ đồ, ${itemsFromCloud.length} vật phẩm và ${outfitsFromCloud.length} trang phục từ Firestore.");
+
     final List<ClothingItem> itemsToSaveLocally = [];
     for (final item in itemsFromCloud) {
       final newLocalImagePath = await _downloadAndSaveImage(item.imagePath, item.id);
@@ -62,7 +65,7 @@ class RestoreService {
       final newLocalThumbnailPath = outfit.thumbnailPath != null
           ? await _downloadAndSaveImage(outfit.thumbnailPath!, 'thumb_${outfit.id}')
           : null;
-          
+
       if (newLocalImagePath != null) {
         outfitsToSaveLocally.add(outfit.copyWith(
           imagePath: newLocalImagePath,
@@ -72,23 +75,25 @@ class RestoreService {
     }
     logger.i("Đã tải về và lưu lại cục bộ ${itemsToSaveLocally.length} ảnh vật phẩm và ${outfitsToSaveLocally.length} ảnh trang phục.");
 
-    // BƯỚC 12 (Phần 2): GHI DỮ LIỆU MỚI ĐÃ XỬ LÝ VÀO SQLITE
+    // <<< THÊM MỚI: Ghi tủ đồ vào SQLite >>>
+    final closetRepo = _ref.read(closetRepositoryProvider);
     final itemRepo = _ref.read(clothingItemRepositoryProvider);
     final outfitRepo = _ref.read(outfitRepositoryProvider);
+
+    for (final closet in closetsFromCloud) {
+      await closetRepo.insertCloset(closet);
+    }
 
     if (itemsToSaveLocally.isNotEmpty) {
       await itemRepo.insertBatchItems(itemsToSaveLocally);
     }
     if (outfitsToSaveLocally.isNotEmpty) {
       for (final outfit in outfitsToSaveLocally) {
-        // Outfit không có hàm batch insert nên chúng ta dùng vòng lặp
         await outfitRepo.insertOutfit(outfit);
       }
     }
-    
-    // TODO: Thêm logic phục hồi cho closets và wear_log nếu cần
 
-    logger.i("Hoàn tất phục hồi! Đã ghi ${itemsToSaveLocally.length} vật phẩm và ${outfitsToSaveLocally.length} trang phục vào SQLite.");
+    logger.i("Hoàn tất phục hồi! Đã ghi ${closetsFromCloud.length} tủ đồ, ${itemsToSaveLocally.length} vật phẩm và ${outfitsToSaveLocally.length} trang phục vào SQLite.");
   }
 
   /// Xóa tất cả dữ liệu trong các bảng SQLite và các file ảnh cũ.

@@ -1,5 +1,7 @@
 // scripts/merge_arb.dart
 
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;

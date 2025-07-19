@@ -1,0 +1,107 @@
+{
+    "@@locale": "vi",
+
+    
+    "calendar_title": "Nhật ký Phong cách",
+    "calendar_addLogButton": "Thêm",
+    "calendar_logWearHintTitle": "Ghi lại Trang phục",
+    "calendar_logWearHintDescription": "Chọn một ngày và nhấn vào đây để ghi lại những gì bạn đã mặc.",
+    "calendar_selectOutfits": "Chọn Trang phục",
+    "calendar_selectItems": "Chọn Vật phẩm",
+    "calendar_deleteDialogTitle": "Xác nhận Xoá",
+    "calendar_deleteDialogContent": "Bạn có chắc muốn xoá {count} lựa chọn khỏi ngày này không?",
+    "@calendar_deleteDialogContent": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "calendar_deleteDialogContentOutfit": "Bạn có chắc muốn xoá trang phục '{outfitName}' khỏi nhật ký của ngày này không?",
+    "@calendar_deleteDialogContentOutfit": {
+        "placeholders": {
+            "outfitName": {
+                "type": "String"
+            }
+        }
+    },
+    "calendar_deleteDialogContentItem": "Bạn có chắc muốn xoá vật phẩm '{itemName}' khỏi nhật ký của ngày này không?",
+    "@calendar_deleteDialogContentItem": {
+        "placeholders": {
+            "itemName": {
+                "type": "String"
+            }
+        }
+    },
+    "calendar_noItemsLogged": "Không có vật phẩm nào được ghi lại cho ngày này.",
+    "calendar_outfitLabel": "Trang phục",
+    "calendar_formatMonth": "Tháng",
+    "calendar_formatTwoWeeks": "2 Tuần",
+    "calendar_formatWeek": "1 Tuần",
+
+    "logWear_title_items": "Chọn Vật phẩm",
+    "logWear_title_outfits": "Chọn Trang phục",
+    "logWear_noData_items": "Không có vật phẩm để chọn.",
+    "logWear_noData_outfits": "Không có trang phục để chọn.",
+    "logWear_label_outfit": "Trang phục",
+
+    "home_greeting": "Xin chào,",
+    "home_userNameDefault": "Bạn",
+    "home_actionAddItem": "Thêm mới\nvật phẩm",
+    "home_actionCreateCloset": "Tạo mới\ntủ đồ",
+    "home_actionCreateOutfits": "Tạo mới\ntrang phục",
+    "home_actionSavedOutfits": "Trang phục\nđã có",
+    "home_weeklyJournalTitle": "Nhật ký Tuần",
+    "home_weeklyJournalViewMore": "Xem thêm",
+    "home_suggestionTitle": "Gợi ý trang phục",
+    "home_suggestion_showcase_description": "Mô tả mục đích trong ngày của bạn (ví dụ: \"đi cà phê với bạn bè\", \"họp công việc\") và nhấn nút gửi để nhận gợi ý trang phục được cá nhân hóa!",
+    "home_weather_noNetwork": "Thời tiết không khả dụng. Không có kết nối mạng",
+
+    "mainScreen_bottomNav_home": "Trang chủ",
+    "mainScreen_bottomNav_closets": "Tủ đồ",
+    "mainScreen_bottomNav_addItems": "Thêm đồ",
+    "mainScreen_bottomNav_outfits": "Trang phục",
+    "mainScreen_bottomNav_profile": "Hồ sơ",
+    "mainScreen_addItem_takePhoto": "Chụp ảnh",
+    "mainScreen_addItem_fromAlbum": "Từ album (tối đa 10)",
+    "mainScreen_tutorial_welcome": "Chào mừng đến với MinCloset! Tôi là trợ lý thời trang cá nhân của bạn.",
+    "mainScreen_tutorial_introduce": "Để tôi giới thiệu cho bạn tính năng đầu tiên và quan trọng nhất nhé!",
+    "mainScreen_tutorial_showAddItem": "Hãy bắt đầu bằng cách thêm vật phẩm đầu tiên vào tủ đồ nào!",
+    "mainScreen_hint_addItem": "Thêm Vật phẩm",
+    "mainScreen_hint_addItem_description": "Nhấn vào đây để số hoá quần áo của bạn bằng cách chụp ảnh hoặc chọn từ thư viện.",
+
+    "suggestion_purposeHint": "Mục đích? (vd: đi cà phê, hẹn hò...)",
+    "suggestion_purposeLength": "{current}/{max}",
+    "@suggestion_purposeLength": {
+        "placeholders": {
+            "current": {
+                "type": "int"
+            },
+            "max": {
+                "type": "int"
+            }
+        }
+    },
+    "suggestion_editAndSaveButton": "Sửa & Lưu",
+    "suggestion_placeholder": "Mô tả mục đích của bạn và nhấn nút gửi để nhận gợi ý!",
+    "suggestion_weatherUnavailable": "Không có dữ liệu thời tiết. Đây là một gợi ý chung.",
+    "suggestion_lastUpdated": "Cập nhật lần cuối: {datetime}",
+    "@suggestion_lastUpdated": {
+        "placeholders": {
+            "datetime": {
+                "type": "String"
+            }
+        }
+    },
+
+    "getOutfitSuggestion_errorManualLocationMissing": "Dữ liệu vị trí bạn chọn thủ công bị thiếu. Vui lòng chọn lại thành phố trong cài đặt.",
+    "getOutfitSuggestion_errorLocationServicesDisabled": "Dịch vụ vị trí đã bị tắt. Vui lòng bật trong cài đặt thiết bị của bạn.",
+    "getOutfitSuggestion_errorLocationPermissionDenied": "Quyền truy cập vị trí đã bị từ chối. Vui lòng cấp quyền cho MinCloset trong cài đặt thiết bị.",
+    "getOutfitSuggestion_errorLocationUndetermined": "Không thể xác định vị trí của bạn để lấy dữ liệu thời tiết. Vui lòng kiểm tra cài đặt hoặc chọn vị trí thủ công.",
+    "getOutfitSuggestion_errorNotEnoughItems": "Vui lòng thêm ít nhất 3 áo và 3 quần/váy vào tủ đồ để nhận gợi ý.",
+    "getOutfitSuggestion_defaultSelectedLocation": "Vị trí đã chọn",
+    "getOutfitSuggestion_defaultCurrentLocation": "Vị trí hiện tại",
+    "getOutfitSuggestion_defaultNotSpecified": "Chưa xác định",
+    "getOutfitSuggestion_defaultAnyStyle": "Mọi phong cách",
+    "getOutfitSuggestion_defaultAnyColor": "Mọi màu sắc"
+}

@@ -1,0 +1,107 @@
+{
+    "@@locale": "en",
+
+    
+    "calendar_title": "Style Journal",
+    "calendar_addLogButton": "Add",
+    "calendar_logWearHintTitle": "Log Your Wear",
+    "calendar_logWearHintDescription": "Select a day and tap here to log what you wore.",
+    "calendar_selectOutfits": "Select Outfits",
+    "calendar_selectItems": "Select Items",
+    "calendar_deleteDialogTitle": "Confirm Deletion",
+    "calendar_deleteDialogContent": "Are you sure you want to remove {count,plural, =1{1 selection} other{{count} selections}} from this day?",
+    "@calendar_deleteDialogContent": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "calendar_deleteDialogContentOutfit": "Are you sure you want to remove the outfit '{outfitName}' from this day's journal?",
+    "@calendar_deleteDialogContentOutfit": {
+        "placeholders": {
+            "outfitName": {
+                "type": "String"
+            }
+        }
+    },
+    "calendar_deleteDialogContentItem": "Are you sure you want to remove the item '{itemName}' from this day's journal?",
+    "@calendar_deleteDialogContentItem": {
+        "placeholders": {
+            "itemName": {
+                "type": "String"
+            }
+        }
+    },
+    "calendar_noItemsLogged": "No items logged for this day.",
+    "calendar_outfitLabel": "Outfit",
+    "calendar_formatMonth": "Month",
+    "calendar_formatTwoWeeks": "2 Weeks",
+    "calendar_formatWeek": "Week",
+
+    "logWear_title_items": "Select Items",
+    "logWear_title_outfits": "Select Outfits",
+    "logWear_noData_items": "No items to select.",
+    "logWear_noData_outfits": "No outfits to select.",
+    "logWear_label_outfit": "Outfit",
+
+    "home_greeting": "Hello,",
+    "home_userNameDefault": "User",
+    "home_actionAddItem": "Add\nItem",
+    "home_actionCreateCloset": "Create Closet",
+    "home_actionCreateOutfits": "Create Outfits",
+    "home_actionSavedOutfits": "Saved Outfits",
+    "home_weeklyJournalTitle": "Week's Journal",
+    "home_weeklyJournalViewMore": "View more",
+    "home_suggestionTitle": "Outfit suggestion",
+    "home_suggestion_showcase_description": "Describe your purpose for the day (e.g., \"coffee with friends\", \"work meeting\") and tap the send button to get a personalized outfit suggestion!",
+    "home_weather_noNetwork": "Weather unavailable. No network connection",
+
+    "mainScreen_bottomNav_home": "Home",
+    "mainScreen_bottomNav_closets": "Closets",
+    "mainScreen_bottomNav_addItems": "Add items",
+    "mainScreen_bottomNav_outfits": "Outfits",
+    "mainScreen_bottomNav_profile": "Profile",
+    "mainScreen_addItem_takePhoto": "Take photo",
+    "mainScreen_addItem_fromAlbum": "From album (up to 10)",
+    "mainScreen_tutorial_welcome": "Welcome to MinCloset! I'm your personal fashion assistant.",
+    "mainScreen_tutorial_introduce": "Let me introduce you to the first and most important feature!",
+    "mainScreen_tutorial_showAddItem": "Let's start by adding your first item to the closet!",
+    "mainScreen_hint_addItem": "Add Items",
+    "mainScreen_hint_addItem_description": "Tap here to digitize your clothes by taking a photo or choosing from your library.",
+
+    "suggestion_purposeHint": "Purpose? (e.g. coffee, date night...)",
+    "suggestion_purposeLength": "{current}/{max}",
+    "@suggestion_purposeLength": {
+        "placeholders": {
+            "current": {
+                "type": "int"
+            },
+            "max": {
+                "type": "int"
+            }
+        }
+    },
+    "suggestion_editAndSaveButton": "Edit & Save",
+    "suggestion_placeholder": "Describe your purpose and tap the send button to get suggestions!",
+    "suggestion_weatherUnavailable": "Weather data unavailable. This is a general suggestion.",
+    "suggestion_lastUpdated": "Last updated: {datetime}",
+    "@suggestion_lastUpdated": {
+        "placeholders": {
+            "datetime": {
+                "type": "String"
+            }
+        }
+    },
+
+    "getOutfitSuggestion_errorManualLocationMissing": "Your manually selected location data is missing. Please select your city again in the settings.",
+    "getOutfitSuggestion_errorLocationServicesDisabled": "Location services are disabled. Please enable it in your device settings.",
+    "getOutfitSuggestion_errorLocationPermissionDenied": "Location permissions are denied. Please enable it for MinCloset in your device settings.",
+    "getOutfitSuggestion_errorLocationUndetermined": "Could not determine your location to get weather data. Please check your device settings or select a location manually.",
+    "getOutfitSuggestion_errorNotEnoughItems": "Please add at least 3 tops and 3 bottoms/skirts to your closet to receive suggestions.",
+    "getOutfitSuggestion_defaultSelectedLocation": "Selected Location",
+    "getOutfitSuggestion_defaultCurrentLocation": "Current Location",
+    "getOutfitSuggestion_defaultNotSpecified": "Not specified",
+    "getOutfitSuggestion_defaultAnyStyle": "Any style",
+    "getOutfitSuggestion_defaultAnyColor": "Any color"
+}

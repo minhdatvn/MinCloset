@@ -38,6 +38,738 @@ class AppLocalizationsVi extends AppLocalizations {
   String get common_seeAll => 'Xem tất cả';
 
   @override
+  String get itemDetail_titleEdit => 'Sửa vật phẩm';
+
+  @override
+  String get itemDetail_titleAdd => 'Thêm vật phẩm';
+
+  @override
+  String get itemDetail_favoriteTooltip_add => 'Thêm vào yêu thích';
+
+  @override
+  String get itemDetail_favoriteTooltip_remove => 'Bỏ yêu thích';
+
+  @override
+  String get itemDetail_deleteTooltip => 'Xoá vật phẩm';
+
+  @override
+  String get itemDetail_deleteDialogTitle => 'Xác nhận xoá';
+
+  @override
+  String itemDetail_deleteDialogContent(String itemName) {
+    return 'Bạn có chắc muốn xoá vĩnh viễn vật phẩm \"$itemName\" không?';
+  }
+
+  @override
+  String get itemDetail_saveButton => 'Lưu';
+
+  @override
+  String get itemDetail_form_imageError => 'Vui lòng thêm ảnh cho vật phẩm.';
+
+  @override
+  String get itemDetail_form_editButton => 'Sửa';
+
+  @override
+  String get itemDetail_form_removeBgButton => 'Tách nền';
+
+  @override
+  String get itemDetail_form_removeBgDialogTitle => 'Ảnh có thể đã được xử lý';
+
+  @override
+  String get itemDetail_form_removeBgDialogContent =>
+      'Ảnh này có thể đã có nền trong suốt. Thực hiện lại có thể gây ra lỗi. Bạn có muốn tiếp tục không?';
+
+  @override
+  String get itemDetail_form_removeBgDialogContinue => 'Tiếp tục';
+
+  @override
+  String get itemDetail_form_errorReadingImage => 'Lỗi đọc định dạng ảnh.';
+
+  @override
+  String get itemDetail_form_timeoutError => 'Thao tác đã hết hạn sau 45 giây.';
+
+  @override
+  String itemDetail_form_unexpectedError(String error) {
+    return 'Đã xảy ra lỗi không mong muốn: $error';
+  }
+
+  @override
+  String get itemDetail_form_nameLabel => 'Tên vật phẩm *';
+
+  @override
+  String get itemDetail_form_closetLabel => 'Chọn tủ đồ *';
+
+  @override
+  String get itemDetail_form_categoryLabel => 'Danh mục *';
+
+  @override
+  String get itemDetail_form_categoryNoneSelected => 'Chưa chọn';
+
+  @override
+  String get itemDetail_form_colorLabel => 'Màu sắc';
+
+  @override
+  String get itemDetail_form_colorNotYet => 'Chưa có';
+
+  @override
+  String get itemDetail_form_seasonLabel => 'Mùa';
+
+  @override
+  String get itemDetail_form_occasionLabel => 'Dịp';
+
+  @override
+  String get itemDetail_form_materialLabel => 'Chất liệu';
+
+  @override
+  String get itemDetail_form_patternLabel => 'Hoạ tiết';
+
+  @override
+  String get itemDetail_form_priceLabel => 'Giá tiền';
+
+  @override
+  String get itemDetail_form_notesLabel => 'Ghi chú';
+
+  @override
+  String get itemBrowser_noItemsFound => 'Không tìm thấy vật phẩm.';
+
+  @override
+  String get itemBrowser_empty => 'Tủ đồ của bạn đang trống.';
+
+  @override
+  String itemNotifier_analysis_error(Object error) {
+    return 'Điền trước thông tin thất bại.\\nLý do: $error';
+  }
+
+  @override
+  String get itemNotifier_error_noPhoto => 'Vui lòng thêm ảnh cho vật phẩm.';
+
+  @override
+  String itemNotifier_error_createThumbnail(Object error) {
+    return 'Lỗi tạo ảnh thu nhỏ: $error';
+  }
+
+  @override
+  String get itemNotifier_save_success_updated =>
+      'Cập nhật vật phẩm thành công.';
+
+  @override
+  String get itemNotifier_save_success_created => 'Lưu vật phẩm thành công.';
+
+  @override
+  String itemNotifier_delete_success(Object itemName) {
+    return 'Đã xoá thành công vật phẩm \"$itemName\".';
+  }
+
+  @override
+  String itemNotifier_error_updateImage(Object error) {
+    return 'Không thể cập nhật hình ảnh: $error';
+  }
+
+  @override
+  String validation_nameTakenSingle(Object itemName) {
+    return 'Tên \"$itemName\" đã tồn tại. Vui lòng sử dụng tên khác. Bạn có thể thêm số để phân biệt các vật phẩm (VD: Áo 1, Áo 2...).';
+  }
+
+  @override
+  String get filter_title => 'Bộ lọc';
+
+  @override
+  String get filter_closet => 'Tủ đồ';
+
+  @override
+  String get filter_allClosets => 'Tất cả tủ đồ';
+
+  @override
+  String get filter_category => 'Danh mục';
+
+  @override
+  String get filter_allCategories => 'Tất cả danh mục';
+
+  @override
+  String get filter_color => 'Màu sắc';
+
+  @override
+  String get filter_season => 'Mùa';
+
+  @override
+  String get filter_occasion => 'Dịp';
+
+  @override
+  String get filter_material => 'Chất liệu';
+
+  @override
+  String get filter_pattern => 'Hoạ tiết';
+
+  @override
+  String get filter_clear => 'Xoá bộ lọc';
+
+  @override
+  String get filter_apply => 'Áp dụng';
+
+  @override
+  String batchAdd_title_page(Object current, Object total) {
+    return 'Thêm vật phẩm ($current/$total)';
+  }
+
+  @override
+  String get batchAdd_button_previous => 'Trước';
+
+  @override
+  String get batchAdd_button_next => 'Sau';
+
+  @override
+  String get batchAdd_button_saveAll => 'Lưu tất cả';
+
+  @override
+  String get batchAdd_empty => 'Không có ảnh nào để hiển thị.';
+
+  @override
+  String batchNotifier_analysis_error(Object error) {
+    return 'Điền trước thông tin thất bại cho một hoặc nhiều vật phẩm.\\nLý do: $error';
+  }
+
+  @override
+  String batchNotifier_validation_nameTaken(
+      Object itemName, Object itemNumber) {
+    return 'Tên \"$itemName\" của vật phẩm số $itemNumber đã tồn tại. Vui lòng sử dụng tên khác.';
+  }
+
+  @override
+  String batchNotifier_validation_nameConflict(
+      Object conflictNumber, Object itemName, Object itemNumber) {
+    return 'Tên \"$itemName\" của vật phẩm số $itemNumber đã được dùng cho vật phẩm số $conflictNumber. Vui lòng sử dụng tên khác.';
+  }
+
+  @override
+  String get analysis_preparingImages => 'Đang chuẩn bị hình ảnh...';
+
+  @override
+  String get analysis_prefillingInfo =>
+      'Đang điền trước thông tin...\nQuá trình này có thể mất một chút thời gian.';
+
+  @override
+  String get analysis_maxPhotosWarning =>
+      'Đã chọn tối đa 10 ảnh. Các ảnh thừa đã được bỏ qua.';
+
+  @override
+  String get analysis_error_pickImage =>
+      'Đã xảy ra lỗi khi chọn ảnh. Vui lòng thử lại.';
+
+  @override
+  String get onboarding_page1_title => 'Một tủ đầy quần áo...';
+
+  @override
+  String get onboarding_page1_subtitle => '...nhưng không có gì để mặc?';
+
+  @override
+  String get onboarding_page1_description =>
+      'Bạn có thường băn khoăn không biết nên mặc gì? Bạn có quên mất những món đồ tuyệt vời mà mình đã sở hữu không?';
+
+  @override
+  String get onboarding_page2_title => 'MinCloset\nTrợ lý tủ đồ thông minh';
+
+  @override
+  String get onboarding_page2_feature1_title => 'Số hoá tủ đồ';
+
+  @override
+  String get onboarding_page2_feature1_desc =>
+      'Chụp ảnh và để AI tự động phân loại quần áo của bạn.';
+
+  @override
+  String get onboarding_page2_feature2_title => 'Gợi ý trang phục từ AI';
+
+  @override
+  String get onboarding_page2_feature2_desc =>
+      'Nhận ý tưởng phối đồ cá nhân hóa dựa trên vật phẩm và thời tiết.';
+
+  @override
+  String get onboarding_page2_feature3_title => 'Xưởng phối đồ sáng tạo';
+
+  @override
+  String get onboarding_page2_feature3_desc =>
+      'Tự do kết hợp các vật phẩm để tạo ra những bộ trang phục độc đáo.';
+
+  @override
+  String get onboarding_page2_feature4_title =>
+      'Theo dõi hành trình phong cách';
+
+  @override
+  String get onboarding_page2_feature4_desc =>
+      'Ghi lại những gì bạn mặc và khám phá thói quen của mình.';
+
+  @override
+  String get onboarding_page3_title => 'Hãy làm quen với nhau nhé!';
+
+  @override
+  String get onboarding_page3_subtitle =>
+      'Cho chúng tôi biết tên của bạn để có những trải nghiệm cá nhân hơn.';
+
+  @override
+  String get onboarding_page3_nameHint => 'Nhập tên của bạn...';
+
+  @override
+  String get onboarding_page3_nameValidator =>
+      'Vui lòng cho tôi biết tên của bạn';
+
+  @override
+  String get permissions_title => 'Cho phép Truy cập';
+
+  @override
+  String get permissions_description =>
+      'MinCloset cần một số quyền để cung cấp trải nghiệm tốt nhất, bao gồm:';
+
+  @override
+  String get permissions_notifications_title => 'Thông báo';
+
+  @override
+  String get permissions_notifications_desc =>
+      'Để nhắc nhở bạn nên mặc gì mỗi ngày.';
+
+  @override
+  String get permissions_camera_title => 'Máy ảnh';
+
+  @override
+  String get permissions_camera_desc =>
+      'Để chụp ảnh và thêm vật phẩm mới vào tủ đồ của bạn.';
+
+  @override
+  String get permissions_location_title => 'Vị trí';
+
+  @override
+  String get permissions_location_desc =>
+      'Để cung cấp gợi ý trang phục phù hợp với thời tiết.';
+
+  @override
+  String get permissions_continue_button => 'Tiếp tục';
+
+  @override
+  String get validation_error_name_required => 'Vui lòng nhập tên vật phẩm';
+
+  @override
+  String get validation_error_closet_required => 'Vui lòng chọn một tủ đồ';
+
+  @override
+  String get validation_error_category_required => 'Vui lòng chọn một danh mục';
+
+  @override
+  String validation_error_batch_name_required(Object itemNumber) {
+    return 'Vui lòng nhập tên cho Vật phẩm số $itemNumber';
+  }
+
+  @override
+  String validation_error_batch_closet_required(Object itemNumber) {
+    return 'Vui lòng chọn tủ đồ cho Vật phẩm số $itemNumber';
+  }
+
+  @override
+  String validation_error_batch_category_required(Object itemNumber) {
+    return 'Vui lòng chọn danh mục cho Vật phẩm số $itemNumber';
+  }
+
+  @override
+  String get closets_title => 'Tủ đồ của bạn';
+
+  @override
+  String closets_itemsSelected(num count) {
+    return 'Đã chọn $count';
+  }
+
+  @override
+  String get closets_tabAllItems => 'Tất cả';
+
+  @override
+  String get closets_tabByCloset => 'Theo Tủ đồ';
+
+  @override
+  String closetDetail_itemsSelected(num count) {
+    return 'Đã chọn $count';
+  }
+
+  @override
+  String closetDetail_itemCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vật phẩm',
+      one: '1 vật phẩm',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get closetDetail_searchHint => 'Tìm trong tủ đồ này...';
+
+  @override
+  String get closetDetail_noItemsFound => 'Không tìm thấy vật phẩm.';
+
+  @override
+  String get closetDetail_emptyCloset => 'Tủ đồ này đang trống.';
+
+  @override
+  String get closetDetail_delete => 'Xoá';
+
+  @override
+  String get closetDetail_move => 'Di chuyển';
+
+  @override
+  String get closetDetail_createOutfit => 'Tạo Trang phục';
+
+  @override
+  String get closetDetail_confirmDeleteTitle => 'Xác nhận Xoá';
+
+  @override
+  String closetDetail_confirmDeleteContent(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vật phẩm đã chọn',
+      one: '1 vật phẩm đã chọn',
+    );
+    return 'Bạn có chắc muốn xoá vĩnh viễn $_temp0 không?';
+  }
+
+  @override
+  String closetDetail_moveDialogTitle(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vật phẩm',
+      one: '1 vật phẩm',
+    );
+    return 'Di chuyển $_temp0 tới...';
+  }
+
+  @override
+  String get closetDetail_moveErrorNoClosets =>
+      'Không có tủ đồ nào khác để di chuyển tới.';
+
+  @override
+  String get closetDetail_cancel => 'Huỷ';
+
+  @override
+  String get closetDialog_editTitle => 'Sửa tên tủ đồ';
+
+  @override
+  String get closetDialog_createTitle => 'Tạo tủ đồ mới';
+
+  @override
+  String get closetDialog_editLabel => 'Tên mới';
+
+  @override
+  String get closetDialog_createLabel => 'Tên tủ đồ';
+
+  @override
+  String get closet_error_emptyName => 'Tên tủ đồ không được để trống.';
+
+  @override
+  String get closet_error_maxLength =>
+      'Tên tủ đồ không được vượt quá 30 ký tự.';
+
+  @override
+  String get closet_error_limitReached =>
+      'Đã đạt giới hạn số lượng tủ đồ (10).';
+
+  @override
+  String get closet_error_duplicateName => 'Tên tủ đồ này đã tồn tại.';
+
+  @override
+  String get closet_error_notEmptyOnDelete =>
+      'Tủ đồ không trống. Hãy di chuyển hoặc xóa các vật phẩm trước.';
+
+  @override
+  String closet_success_created(Object closetName) {
+    return 'Đã tạo thành công tủ đồ \"$closetName\".';
+  }
+
+  @override
+  String get closet_success_updated => 'Cập nhật tủ đồ thành công.';
+
+  @override
+  String get closet_success_deleted => 'Đã xóa tủ đồ thành công.';
+
+  @override
+  String get closet_moveErrorNoClosets =>
+      'Không có tủ đồ nào khác để di chuyển tới.';
+
+  @override
+  String get allItems_searchHint => 'Tìm kiếm vật phẩm...';
+
+  @override
+  String get allItems_filterTooltip => 'Lọc';
+
+  @override
+  String get allItems_emptyCloset => 'Tủ đồ của bạn đang trống.';
+
+  @override
+  String get allItems_noItemsFound => 'Không tìm thấy vật phẩm nào phù hợp.';
+
+  @override
+  String get allItems_delete => 'Xoá';
+
+  @override
+  String get allItems_createOutfit => 'Tạo Trang phục';
+
+  @override
+  String get allItems_deleteDialogTitle => 'Xác nhận Xoá';
+
+  @override
+  String allItems_deleteDialogContent(int count) {
+    return 'Bạn có chắc chắn muốn xoá vĩnh viễn $count vật phẩm đã chọn không?';
+  }
+
+  @override
+  String get byCloset_addClosetHintTitle => 'Tạo Tủ đồ Mới';
+
+  @override
+  String get byCloset_addClosetHintDescription =>
+      'Nhấn vào đây để tạo một tủ đồ mới, giúp bạn sắp xếp quần áo cho các mục đích khác nhau như \'Công sở\' hoặc \'Tập gym\'.';
+
+  @override
+  String get byCloset_addNewCloset => 'Thêm tủ đồ mới';
+
+  @override
+  String byCloset_itemCount(int count) {
+    return '$count vật phẩm';
+  }
+
+  @override
+  String get byCloset_itemCountError => 'Lỗi';
+
+  @override
+  String get byCloset_itemCountLoading => '...';
+
+  @override
+  String get byCloset_deleteDialogTitle => 'Xác nhận Xoá';
+
+  @override
+  String byCloset_deleteDialogContent(String closetName) {
+    return 'Bạn có chắc chắn muốn xoá tủ đồ \"$closetName\" không?';
+  }
+
+  @override
+  String get byCloset_limitReached => 'Đã đạt giới hạn tủ đồ (10).';
+
+  @override
+  String get closetForm_titleEdit => 'Sửa Tủ đồ';
+
+  @override
+  String get closetForm_titleAdd => 'Thêm Tủ đồ Mới';
+
+  @override
+  String get closetForm_saveButton => 'Lưu';
+
+  @override
+  String get closetForm_nameLabel => 'Tên Tủ đồ';
+
+  @override
+  String get closetForm_iconLabel => 'Chọn Biểu tượng';
+
+  @override
+  String get closetForm_colorLabel => 'Chọn Màu thẻ';
+
+  @override
+  String get calendar_title => 'Nhật ký Phong cách';
+
+  @override
+  String get calendar_addLogButton => 'Thêm';
+
+  @override
+  String get calendar_logWearHintTitle => 'Ghi lại Trang phục';
+
+  @override
+  String get calendar_logWearHintDescription =>
+      'Chọn một ngày và nhấn vào đây để ghi lại những gì bạn đã mặc.';
+
+  @override
+  String get calendar_selectOutfits => 'Chọn Trang phục';
+
+  @override
+  String get calendar_selectItems => 'Chọn Vật phẩm';
+
+  @override
+  String get calendar_deleteDialogTitle => 'Xác nhận Xoá';
+
+  @override
+  String calendar_deleteDialogContent(int count) {
+    return 'Bạn có chắc muốn xoá $count lựa chọn khỏi ngày này không?';
+  }
+
+  @override
+  String calendar_deleteDialogContentOutfit(String outfitName) {
+    return 'Bạn có chắc muốn xoá trang phục \'$outfitName\' khỏi nhật ký của ngày này không?';
+  }
+
+  @override
+  String calendar_deleteDialogContentItem(String itemName) {
+    return 'Bạn có chắc muốn xoá vật phẩm \'$itemName\' khỏi nhật ký của ngày này không?';
+  }
+
+  @override
+  String get calendar_noItemsLogged =>
+      'Không có vật phẩm nào được ghi lại cho ngày này.';
+
+  @override
+  String get calendar_outfitLabel => 'Trang phục';
+
+  @override
+  String get calendar_formatMonth => 'Tháng';
+
+  @override
+  String get calendar_formatTwoWeeks => '2 Tuần';
+
+  @override
+  String get calendar_formatWeek => '1 Tuần';
+
+  @override
+  String get logWear_title_items => 'Chọn Vật phẩm';
+
+  @override
+  String get logWear_title_outfits => 'Chọn Trang phục';
+
+  @override
+  String get logWear_noData_items => 'Không có vật phẩm để chọn.';
+
+  @override
+  String get logWear_noData_outfits => 'Không có trang phục để chọn.';
+
+  @override
+  String get logWear_label_outfit => 'Trang phục';
+
+  @override
+  String get home_greeting => 'Xin chào,';
+
+  @override
+  String get home_userNameDefault => 'Bạn';
+
+  @override
+  String get home_actionAddItem => 'Thêm mới\nvật phẩm';
+
+  @override
+  String get home_actionCreateCloset => 'Tạo mới\ntủ đồ';
+
+  @override
+  String get home_actionCreateOutfits => 'Tạo mới\ntrang phục';
+
+  @override
+  String get home_actionSavedOutfits => 'Trang phục\nđã có';
+
+  @override
+  String get home_weeklyJournalTitle => 'Nhật ký Tuần';
+
+  @override
+  String get home_weeklyJournalViewMore => 'Xem thêm';
+
+  @override
+  String get home_suggestionTitle => 'Gợi ý trang phục';
+
+  @override
+  String get home_suggestion_showcase_description =>
+      'Mô tả mục đích trong ngày của bạn (ví dụ: \"đi cà phê với bạn bè\", \"họp công việc\") và nhấn nút gửi để nhận gợi ý trang phục được cá nhân hóa!';
+
+  @override
+  String get home_weather_noNetwork =>
+      'Thời tiết không khả dụng. Không có kết nối mạng';
+
+  @override
+  String get mainScreen_bottomNav_home => 'Trang chủ';
+
+  @override
+  String get mainScreen_bottomNav_closets => 'Tủ đồ';
+
+  @override
+  String get mainScreen_bottomNav_addItems => 'Thêm đồ';
+
+  @override
+  String get mainScreen_bottomNav_outfits => 'Trang phục';
+
+  @override
+  String get mainScreen_bottomNav_profile => 'Hồ sơ';
+
+  @override
+  String get mainScreen_addItem_takePhoto => 'Chụp ảnh';
+
+  @override
+  String get mainScreen_addItem_fromAlbum => 'Từ album (tối đa 10)';
+
+  @override
+  String get mainScreen_tutorial_welcome =>
+      'Chào mừng đến với MinCloset! Tôi là trợ lý thời trang cá nhân của bạn.';
+
+  @override
+  String get mainScreen_tutorial_introduce =>
+      'Để tôi giới thiệu cho bạn tính năng đầu tiên và quan trọng nhất nhé!';
+
+  @override
+  String get mainScreen_tutorial_showAddItem =>
+      'Hãy bắt đầu bằng cách thêm vật phẩm đầu tiên vào tủ đồ nào!';
+
+  @override
+  String get mainScreen_hint_addItem => 'Thêm Vật phẩm';
+
+  @override
+  String get mainScreen_hint_addItem_description =>
+      'Nhấn vào đây để số hoá quần áo của bạn bằng cách chụp ảnh hoặc chọn từ thư viện.';
+
+  @override
+  String get suggestion_purposeHint => 'Mục đích? (vd: đi cà phê, hẹn hò...)';
+
+  @override
+  String suggestion_purposeLength(int current, int max) {
+    return '$current/$max';
+  }
+
+  @override
+  String get suggestion_editAndSaveButton => 'Sửa & Lưu';
+
+  @override
+  String get suggestion_placeholder =>
+      'Mô tả mục đích của bạn và nhấn nút gửi để nhận gợi ý!';
+
+  @override
+  String get suggestion_weatherUnavailable =>
+      'Không có dữ liệu thời tiết. Đây là một gợi ý chung.';
+
+  @override
+  String suggestion_lastUpdated(String datetime) {
+    return 'Cập nhật lần cuối: $datetime';
+  }
+
+  @override
+  String get getOutfitSuggestion_errorManualLocationMissing =>
+      'Dữ liệu vị trí bạn chọn thủ công bị thiếu. Vui lòng chọn lại thành phố trong cài đặt.';
+
+  @override
+  String get getOutfitSuggestion_errorLocationServicesDisabled =>
+      'Dịch vụ vị trí đã bị tắt. Vui lòng bật trong cài đặt thiết bị của bạn.';
+
+  @override
+  String get getOutfitSuggestion_errorLocationPermissionDenied =>
+      'Quyền truy cập vị trí đã bị từ chối. Vui lòng cấp quyền cho MinCloset trong cài đặt thiết bị.';
+
+  @override
+  String get getOutfitSuggestion_errorLocationUndetermined =>
+      'Không thể xác định vị trí của bạn để lấy dữ liệu thời tiết. Vui lòng kiểm tra cài đặt hoặc chọn vị trí thủ công.';
+
+  @override
+  String get getOutfitSuggestion_errorNotEnoughItems =>
+      'Vui lòng thêm ít nhất 3 áo và 3 quần/váy vào tủ đồ để nhận gợi ý.';
+
+  @override
+  String get getOutfitSuggestion_defaultSelectedLocation => 'Vị trí đã chọn';
+
+  @override
+  String get getOutfitSuggestion_defaultCurrentLocation => 'Vị trí hiện tại';
+
+  @override
+  String get getOutfitSuggestion_defaultNotSpecified => 'Chưa xác định';
+
+  @override
+  String get getOutfitSuggestion_defaultAnyStyle => 'Mọi phong cách';
+
+  @override
+  String get getOutfitSuggestion_defaultAnyColor => 'Mọi màu sắc';
+
+  @override
   String get category_tops => 'Áo';
 
   @override
@@ -550,848 +1282,6 @@ class AppLocalizationsVi extends AppLocalizations {
       'Xoá trang phục thất bại. Vui lòng thử lại.';
 
   @override
-  String get closets_title => 'Tủ đồ của bạn';
-
-  @override
-  String closets_itemsSelected(num count) {
-    return 'Đã chọn $count';
-  }
-
-  @override
-  String get closets_tabAllItems => 'Tất cả';
-
-  @override
-  String get closets_tabByCloset => 'Theo Tủ đồ';
-
-  @override
-  String closetDetail_itemsSelected(num count) {
-    return 'Đã chọn $count';
-  }
-
-  @override
-  String closetDetail_itemCount(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count vật phẩm',
-      one: '1 vật phẩm',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get closetDetail_searchHint => 'Tìm trong tủ đồ này...';
-
-  @override
-  String get closetDetail_noItemsFound => 'Không tìm thấy vật phẩm.';
-
-  @override
-  String get closetDetail_emptyCloset => 'Tủ đồ này đang trống.';
-
-  @override
-  String get closetDetail_delete => 'Xoá';
-
-  @override
-  String get closetDetail_move => 'Di chuyển';
-
-  @override
-  String get closetDetail_createOutfit => 'Tạo Trang phục';
-
-  @override
-  String get closetDetail_confirmDeleteTitle => 'Xác nhận Xoá';
-
-  @override
-  String closetDetail_confirmDeleteContent(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count vật phẩm đã chọn',
-      one: '1 vật phẩm đã chọn',
-    );
-    return 'Bạn có chắc muốn xoá vĩnh viễn $_temp0 không?';
-  }
-
-  @override
-  String closetDetail_moveDialogTitle(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count vật phẩm',
-      one: '1 vật phẩm',
-    );
-    return 'Di chuyển $_temp0 tới...';
-  }
-
-  @override
-  String get closetDetail_moveErrorNoClosets =>
-      'Không có tủ đồ nào khác để di chuyển tới.';
-
-  @override
-  String get closetDetail_cancel => 'Huỷ';
-
-  @override
-  String get closetDialog_editTitle => 'Sửa tên tủ đồ';
-
-  @override
-  String get closetDialog_createTitle => 'Tạo tủ đồ mới';
-
-  @override
-  String get closetDialog_editLabel => 'Tên mới';
-
-  @override
-  String get closetDialog_createLabel => 'Tên tủ đồ';
-
-  @override
-  String get closet_error_emptyName => 'Tên tủ đồ không được để trống.';
-
-  @override
-  String get closet_error_maxLength =>
-      'Tên tủ đồ không được vượt quá 30 ký tự.';
-
-  @override
-  String get closet_error_limitReached =>
-      'Đã đạt giới hạn số lượng tủ đồ (10).';
-
-  @override
-  String get closet_error_duplicateName => 'Tên tủ đồ này đã tồn tại.';
-
-  @override
-  String get closet_error_notEmptyOnDelete =>
-      'Tủ đồ không trống. Hãy di chuyển hoặc xóa các vật phẩm trước.';
-
-  @override
-  String closet_success_created(Object closetName) {
-    return 'Đã tạo thành công tủ đồ \"$closetName\".';
-  }
-
-  @override
-  String get closet_success_updated => 'Cập nhật tủ đồ thành công.';
-
-  @override
-  String get closet_success_deleted => 'Đã xóa tủ đồ thành công.';
-
-  @override
-  String get closet_moveErrorNoClosets =>
-      'Không có tủ đồ nào khác để di chuyển tới.';
-
-  @override
-  String get allItems_searchHint => 'Tìm kiếm vật phẩm...';
-
-  @override
-  String get allItems_filterTooltip => 'Lọc';
-
-  @override
-  String get allItems_emptyCloset => 'Tủ đồ của bạn đang trống.';
-
-  @override
-  String get allItems_noItemsFound => 'Không tìm thấy vật phẩm nào phù hợp.';
-
-  @override
-  String get allItems_delete => 'Xoá';
-
-  @override
-  String get allItems_createOutfit => 'Tạo Trang phục';
-
-  @override
-  String get allItems_deleteDialogTitle => 'Xác nhận Xoá';
-
-  @override
-  String allItems_deleteDialogContent(int count) {
-    return 'Bạn có chắc chắn muốn xoá vĩnh viễn $count vật phẩm đã chọn không?';
-  }
-
-  @override
-  String get byCloset_addClosetHintTitle => 'Tạo Tủ đồ Mới';
-
-  @override
-  String get byCloset_addClosetHintDescription =>
-      'Nhấn vào đây để tạo một tủ đồ mới, giúp bạn sắp xếp quần áo cho các mục đích khác nhau như \'Công sở\' hoặc \'Tập gym\'.';
-
-  @override
-  String get byCloset_addNewCloset => 'Thêm tủ đồ mới';
-
-  @override
-  String byCloset_itemCount(int count) {
-    return '$count vật phẩm';
-  }
-
-  @override
-  String get byCloset_itemCountError => 'Lỗi';
-
-  @override
-  String get byCloset_itemCountLoading => '...';
-
-  @override
-  String get byCloset_deleteDialogTitle => 'Xác nhận Xoá';
-
-  @override
-  String byCloset_deleteDialogContent(String closetName) {
-    return 'Bạn có chắc chắn muốn xoá tủ đồ \"$closetName\" không?';
-  }
-
-  @override
-  String get byCloset_limitReached => 'Đã đạt giới hạn tủ đồ (10).';
-
-  @override
-  String get closetForm_titleEdit => 'Sửa Tủ đồ';
-
-  @override
-  String get closetForm_titleAdd => 'Thêm Tủ đồ Mới';
-
-  @override
-  String get closetForm_saveButton => 'Lưu';
-
-  @override
-  String get closetForm_nameLabel => 'Tên Tủ đồ';
-
-  @override
-  String get closetForm_iconLabel => 'Chọn Biểu tượng';
-
-  @override
-  String get closetForm_colorLabel => 'Chọn Màu thẻ';
-
-  @override
-  String get calendar_title => 'Nhật ký Phong cách';
-
-  @override
-  String get calendar_addLogButton => 'Thêm';
-
-  @override
-  String get calendar_logWearHintTitle => 'Ghi lại Trang phục';
-
-  @override
-  String get calendar_logWearHintDescription =>
-      'Chọn một ngày và nhấn vào đây để ghi lại những gì bạn đã mặc.';
-
-  @override
-  String get calendar_selectOutfits => 'Chọn Trang phục';
-
-  @override
-  String get calendar_selectItems => 'Chọn Vật phẩm';
-
-  @override
-  String get calendar_deleteDialogTitle => 'Xác nhận Xoá';
-
-  @override
-  String calendar_deleteDialogContent(int count) {
-    return 'Bạn có chắc muốn xoá $count lựa chọn khỏi ngày này không?';
-  }
-
-  @override
-  String calendar_deleteDialogContentOutfit(String outfitName) {
-    return 'Bạn có chắc muốn xoá trang phục \'$outfitName\' khỏi nhật ký của ngày này không?';
-  }
-
-  @override
-  String calendar_deleteDialogContentItem(String itemName) {
-    return 'Bạn có chắc muốn xoá vật phẩm \'$itemName\' khỏi nhật ký của ngày này không?';
-  }
-
-  @override
-  String get calendar_noItemsLogged =>
-      'Không có vật phẩm nào được ghi lại cho ngày này.';
-
-  @override
-  String get calendar_outfitLabel => 'Trang phục';
-
-  @override
-  String get calendar_formatMonth => 'Tháng';
-
-  @override
-  String get calendar_formatTwoWeeks => '2 Tuần';
-
-  @override
-  String get calendar_formatWeek => '1 Tuần';
-
-  @override
-  String get logWear_title_items => 'Chọn Vật phẩm';
-
-  @override
-  String get logWear_title_outfits => 'Chọn Trang phục';
-
-  @override
-  String get logWear_noData_items => 'Không có vật phẩm để chọn.';
-
-  @override
-  String get logWear_noData_outfits => 'Không có trang phục để chọn.';
-
-  @override
-  String get logWear_label_outfit => 'Trang phục';
-
-  @override
-  String get home_greeting => 'Xin chào,';
-
-  @override
-  String get home_userNameDefault => 'Bạn';
-
-  @override
-  String get home_actionAddItem => 'Thêm mới\nvật phẩm';
-
-  @override
-  String get home_actionCreateCloset => 'Tạo mới\ntủ đồ';
-
-  @override
-  String get home_actionCreateOutfits => 'Tạo mới\ntrang phục';
-
-  @override
-  String get home_actionSavedOutfits => 'Trang phục\nđã có';
-
-  @override
-  String get home_weeklyJournalTitle => 'Nhật ký Tuần';
-
-  @override
-  String get home_weeklyJournalViewMore => 'Xem thêm';
-
-  @override
-  String get home_suggestionTitle => 'Gợi ý trang phục';
-
-  @override
-  String get home_suggestion_showcase_description =>
-      'Mô tả mục đích trong ngày của bạn (ví dụ: \"đi cà phê với bạn bè\", \"họp công việc\") và nhấn nút gửi để nhận gợi ý trang phục được cá nhân hóa!';
-
-  @override
-  String get home_weather_noNetwork =>
-      'Thời tiết không khả dụng. Không có kết nối mạng';
-
-  @override
-  String get mainScreen_bottomNav_home => 'Trang chủ';
-
-  @override
-  String get mainScreen_bottomNav_closets => 'Tủ đồ';
-
-  @override
-  String get mainScreen_bottomNav_addItems => 'Thêm đồ';
-
-  @override
-  String get mainScreen_bottomNav_outfits => 'Trang phục';
-
-  @override
-  String get mainScreen_bottomNav_profile => 'Hồ sơ';
-
-  @override
-  String get mainScreen_addItem_takePhoto => 'Chụp ảnh';
-
-  @override
-  String get mainScreen_addItem_fromAlbum => 'Từ album (tối đa 10)';
-
-  @override
-  String get mainScreen_tutorial_welcome =>
-      'Chào mừng đến với MinCloset! Tôi là trợ lý thời trang cá nhân của bạn.';
-
-  @override
-  String get mainScreen_tutorial_introduce =>
-      'Để tôi giới thiệu cho bạn tính năng đầu tiên và quan trọng nhất nhé!';
-
-  @override
-  String get mainScreen_tutorial_showAddItem =>
-      'Hãy bắt đầu bằng cách thêm vật phẩm đầu tiên vào tủ đồ nào!';
-
-  @override
-  String get mainScreen_hint_addItem => 'Thêm Vật phẩm';
-
-  @override
-  String get mainScreen_hint_addItem_description =>
-      'Nhấn vào đây để số hoá quần áo của bạn bằng cách chụp ảnh hoặc chọn từ thư viện.';
-
-  @override
-  String get suggestion_purposeHint => 'Mục đích? (vd: đi cà phê, hẹn hò...)';
-
-  @override
-  String suggestion_purposeLength(int current, int max) {
-    return '$current/$max';
-  }
-
-  @override
-  String get suggestion_editAndSaveButton => 'Sửa & Lưu';
-
-  @override
-  String get suggestion_placeholder =>
-      'Mô tả mục đích của bạn và nhấn nút gửi để nhận gợi ý!';
-
-  @override
-  String get suggestion_weatherUnavailable =>
-      'Không có dữ liệu thời tiết. Đây là một gợi ý chung.';
-
-  @override
-  String suggestion_lastUpdated(String datetime) {
-    return 'Cập nhật lần cuối: $datetime';
-  }
-
-  @override
-  String get getOutfitSuggestion_errorManualLocationMissing =>
-      'Dữ liệu vị trí bạn chọn thủ công bị thiếu. Vui lòng chọn lại thành phố trong cài đặt.';
-
-  @override
-  String get getOutfitSuggestion_errorLocationServicesDisabled =>
-      'Dịch vụ vị trí đã bị tắt. Vui lòng bật trong cài đặt thiết bị của bạn.';
-
-  @override
-  String get getOutfitSuggestion_errorLocationPermissionDenied =>
-      'Quyền truy cập vị trí đã bị từ chối. Vui lòng cấp quyền cho MinCloset trong cài đặt thiết bị.';
-
-  @override
-  String get getOutfitSuggestion_errorLocationUndetermined =>
-      'Không thể xác định vị trí của bạn để lấy dữ liệu thời tiết. Vui lòng kiểm tra cài đặt hoặc chọn vị trí thủ công.';
-
-  @override
-  String get getOutfitSuggestion_errorNotEnoughItems =>
-      'Vui lòng thêm ít nhất 3 áo và 3 quần/váy vào tủ đồ để nhận gợi ý.';
-
-  @override
-  String get getOutfitSuggestion_defaultSelectedLocation => 'Vị trí đã chọn';
-
-  @override
-  String get getOutfitSuggestion_defaultCurrentLocation => 'Vị trí hiện tại';
-
-  @override
-  String get getOutfitSuggestion_defaultNotSpecified => 'Chưa xác định';
-
-  @override
-  String get getOutfitSuggestion_defaultAnyStyle => 'Mọi phong cách';
-
-  @override
-  String get getOutfitSuggestion_defaultAnyColor => 'Mọi màu sắc';
-
-  @override
-  String get itemDetail_titleEdit => 'Sửa vật phẩm';
-
-  @override
-  String get itemDetail_titleAdd => 'Thêm vật phẩm';
-
-  @override
-  String get itemDetail_favoriteTooltip_add => 'Thêm vào yêu thích';
-
-  @override
-  String get itemDetail_favoriteTooltip_remove => 'Bỏ yêu thích';
-
-  @override
-  String get itemDetail_deleteTooltip => 'Xoá vật phẩm';
-
-  @override
-  String get itemDetail_deleteDialogTitle => 'Xác nhận xoá';
-
-  @override
-  String itemDetail_deleteDialogContent(String itemName) {
-    return 'Bạn có chắc muốn xoá vĩnh viễn vật phẩm \"$itemName\" không?';
-  }
-
-  @override
-  String get itemDetail_saveButton => 'Lưu';
-
-  @override
-  String get itemDetail_form_imageError => 'Vui lòng thêm ảnh cho vật phẩm.';
-
-  @override
-  String get itemDetail_form_editButton => 'Sửa';
-
-  @override
-  String get itemDetail_form_removeBgButton => 'Tách nền';
-
-  @override
-  String get itemDetail_form_removeBgDialogTitle => 'Ảnh có thể đã được xử lý';
-
-  @override
-  String get itemDetail_form_removeBgDialogContent =>
-      'Ảnh này có thể đã có nền trong suốt. Thực hiện lại có thể gây ra lỗi. Bạn có muốn tiếp tục không?';
-
-  @override
-  String get itemDetail_form_removeBgDialogContinue => 'Tiếp tục';
-
-  @override
-  String get itemDetail_form_errorReadingImage => 'Lỗi đọc định dạng ảnh.';
-
-  @override
-  String get itemDetail_form_timeoutError => 'Thao tác đã hết hạn sau 45 giây.';
-
-  @override
-  String itemDetail_form_unexpectedError(String error) {
-    return 'Đã xảy ra lỗi không mong muốn: $error';
-  }
-
-  @override
-  String get itemDetail_form_nameLabel => 'Tên vật phẩm *';
-
-  @override
-  String get itemDetail_form_closetLabel => 'Chọn tủ đồ *';
-
-  @override
-  String get itemDetail_form_categoryLabel => 'Danh mục *';
-
-  @override
-  String get itemDetail_form_categoryNoneSelected => 'Chưa chọn';
-
-  @override
-  String get itemDetail_form_colorLabel => 'Màu sắc';
-
-  @override
-  String get itemDetail_form_colorNotYet => 'Chưa có';
-
-  @override
-  String get itemDetail_form_seasonLabel => 'Mùa';
-
-  @override
-  String get itemDetail_form_occasionLabel => 'Dịp';
-
-  @override
-  String get itemDetail_form_materialLabel => 'Chất liệu';
-
-  @override
-  String get itemDetail_form_patternLabel => 'Hoạ tiết';
-
-  @override
-  String get itemDetail_form_priceLabel => 'Giá tiền';
-
-  @override
-  String get itemDetail_form_notesLabel => 'Ghi chú';
-
-  @override
-  String get itemBrowser_noItemsFound => 'Không tìm thấy vật phẩm.';
-
-  @override
-  String get itemBrowser_empty => 'Tủ đồ của bạn đang trống.';
-
-  @override
-  String itemNotifier_analysis_error(Object error) {
-    return 'Điền trước thông tin thất bại.\\nLý do: $error';
-  }
-
-  @override
-  String get itemNotifier_error_noPhoto => 'Vui lòng thêm ảnh cho vật phẩm.';
-
-  @override
-  String itemNotifier_error_createThumbnail(Object error) {
-    return 'Lỗi tạo ảnh thu nhỏ: $error';
-  }
-
-  @override
-  String get itemNotifier_save_success_updated =>
-      'Cập nhật vật phẩm thành công.';
-
-  @override
-  String get itemNotifier_save_success_created => 'Lưu vật phẩm thành công.';
-
-  @override
-  String itemNotifier_delete_success(Object itemName) {
-    return 'Đã xoá thành công vật phẩm \"$itemName\".';
-  }
-
-  @override
-  String itemNotifier_error_updateImage(Object error) {
-    return 'Không thể cập nhật hình ảnh: $error';
-  }
-
-  @override
-  String validation_nameTakenSingle(Object itemName) {
-    return 'Tên \"$itemName\" đã tồn tại. Vui lòng sử dụng tên khác. Bạn có thể thêm số để phân biệt các vật phẩm (VD: Áo 1, Áo 2...).';
-  }
-
-  @override
-  String get filter_title => 'Bộ lọc';
-
-  @override
-  String get filter_closet => 'Tủ đồ';
-
-  @override
-  String get filter_allClosets => 'Tất cả tủ đồ';
-
-  @override
-  String get filter_category => 'Danh mục';
-
-  @override
-  String get filter_allCategories => 'Tất cả danh mục';
-
-  @override
-  String get filter_color => 'Màu sắc';
-
-  @override
-  String get filter_season => 'Mùa';
-
-  @override
-  String get filter_occasion => 'Dịp';
-
-  @override
-  String get filter_material => 'Chất liệu';
-
-  @override
-  String get filter_pattern => 'Hoạ tiết';
-
-  @override
-  String get filter_clear => 'Xoá bộ lọc';
-
-  @override
-  String get filter_apply => 'Áp dụng';
-
-  @override
-  String batchAdd_title_page(Object current, Object total) {
-    return 'Thêm vật phẩm ($current/$total)';
-  }
-
-  @override
-  String get batchAdd_button_previous => 'Trước';
-
-  @override
-  String get batchAdd_button_next => 'Sau';
-
-  @override
-  String get batchAdd_button_saveAll => 'Lưu tất cả';
-
-  @override
-  String get batchAdd_empty => 'Không có ảnh nào để hiển thị.';
-
-  @override
-  String batchNotifier_analysis_error(Object error) {
-    return 'Điền trước thông tin thất bại cho một hoặc nhiều vật phẩm.\\nLý do: $error';
-  }
-
-  @override
-  String batchNotifier_validation_nameTaken(
-      Object itemName, Object itemNumber) {
-    return 'Tên \"$itemName\" của vật phẩm số $itemNumber đã tồn tại. Vui lòng sử dụng tên khác.';
-  }
-
-  @override
-  String batchNotifier_validation_nameConflict(
-      Object conflictNumber, Object itemName, Object itemNumber) {
-    return 'Tên \"$itemName\" của vật phẩm số $itemNumber đã được dùng cho vật phẩm số $conflictNumber. Vui lòng sử dụng tên khác.';
-  }
-
-  @override
-  String get analysis_preparingImages => 'Đang chuẩn bị hình ảnh...';
-
-  @override
-  String get analysis_prefillingInfo =>
-      'Đang điền trước thông tin...\nQuá trình này có thể mất một chút thời gian.';
-
-  @override
-  String get analysis_maxPhotosWarning =>
-      'Đã chọn tối đa 10 ảnh. Các ảnh thừa đã được bỏ qua.';
-
-  @override
-  String get analysis_error_pickImage =>
-      'Đã xảy ra lỗi khi chọn ảnh. Vui lòng thử lại.';
-
-  @override
-  String get onboarding_page1_title => 'Một tủ đầy quần áo...';
-
-  @override
-  String get onboarding_page1_subtitle => '...nhưng không có gì để mặc?';
-
-  @override
-  String get onboarding_page1_description =>
-      'Bạn có thường băn khoăn không biết nên mặc gì? Bạn có quên mất những món đồ tuyệt vời mà mình đã sở hữu không?';
-
-  @override
-  String get onboarding_page2_title => 'MinCloset\nTrợ lý tủ đồ thông minh';
-
-  @override
-  String get onboarding_page2_feature1_title => 'Số hoá tủ đồ';
-
-  @override
-  String get onboarding_page2_feature1_desc =>
-      'Chụp ảnh và để AI tự động phân loại quần áo của bạn.';
-
-  @override
-  String get onboarding_page2_feature2_title => 'Gợi ý trang phục từ AI';
-
-  @override
-  String get onboarding_page2_feature2_desc =>
-      'Nhận ý tưởng phối đồ cá nhân hóa dựa trên vật phẩm và thời tiết.';
-
-  @override
-  String get onboarding_page2_feature3_title => 'Xưởng phối đồ sáng tạo';
-
-  @override
-  String get onboarding_page2_feature3_desc =>
-      'Tự do kết hợp các vật phẩm để tạo ra những bộ trang phục độc đáo.';
-
-  @override
-  String get onboarding_page2_feature4_title =>
-      'Theo dõi hành trình phong cách';
-
-  @override
-  String get onboarding_page2_feature4_desc =>
-      'Ghi lại những gì bạn mặc và khám phá thói quen của mình.';
-
-  @override
-  String get onboarding_page3_title => 'Hãy làm quen với nhau nhé!';
-
-  @override
-  String get onboarding_page3_subtitle =>
-      'Cho chúng tôi biết tên của bạn để có những trải nghiệm cá nhân hơn.';
-
-  @override
-  String get onboarding_page3_nameHint => 'Nhập tên của bạn...';
-
-  @override
-  String get onboarding_page3_nameValidator =>
-      'Vui lòng cho tôi biết tên của bạn';
-
-  @override
-  String get permissions_title => 'Cho phép Truy cập';
-
-  @override
-  String get permissions_description =>
-      'MinCloset cần một số quyền để cung cấp trải nghiệm tốt nhất, bao gồm:';
-
-  @override
-  String get permissions_notifications_title => 'Thông báo';
-
-  @override
-  String get permissions_notifications_desc =>
-      'Để nhắc nhở bạn nên mặc gì mỗi ngày.';
-
-  @override
-  String get permissions_camera_title => 'Máy ảnh';
-
-  @override
-  String get permissions_camera_desc =>
-      'Để chụp ảnh và thêm vật phẩm mới vào tủ đồ của bạn.';
-
-  @override
-  String get permissions_location_title => 'Vị trí';
-
-  @override
-  String get permissions_location_desc =>
-      'Để cung cấp gợi ý trang phục phù hợp với thời tiết.';
-
-  @override
-  String get permissions_continue_button => 'Tiếp tục';
-
-  @override
-  String get validation_error_name_required => 'Vui lòng nhập tên vật phẩm';
-
-  @override
-  String get validation_error_closet_required => 'Vui lòng chọn một tủ đồ';
-
-  @override
-  String get validation_error_category_required => 'Vui lòng chọn một danh mục';
-
-  @override
-  String validation_error_batch_name_required(Object itemNumber) {
-    return 'Vui lòng nhập tên cho Vật phẩm số $itemNumber';
-  }
-
-  @override
-  String validation_error_batch_closet_required(Object itemNumber) {
-    return 'Vui lòng chọn tủ đồ cho Vật phẩm số $itemNumber';
-  }
-
-  @override
-  String validation_error_batch_category_required(Object itemNumber) {
-    return 'Vui lòng chọn danh mục cho Vật phẩm số $itemNumber';
-  }
-
-  @override
-  String get removeBg_title => 'Tách Nền';
-
-  @override
-  String get removeBg_processing => 'Đang xử lý, vui lòng chờ...';
-
-  @override
-  String get removeBg_error_process => 'Không thể xử lý hình ảnh.';
-
-  @override
-  String removeBg_error_generic(Object error) {
-    return 'Lỗi xử lý ảnh: $error';
-  }
-
-  @override
-  String get proImageEditor_common_done => 'Xong';
-
-  @override
-  String get proImageEditor_common_back => 'Quay lại';
-
-  @override
-  String get proImageEditor_common_cancel => 'Huỷ';
-
-  @override
-  String get proImageEditor_common_undo => 'Hoàn tác';
-
-  @override
-  String get proImageEditor_common_redo => 'Làm lại';
-
-  @override
-  String get proImageEditor_common_remove => 'Xoá';
-
-  @override
-  String get proImageEditor_common_edit => 'Sửa';
-
-  @override
-  String get proImageEditor_common_rotateScale => 'Xoay & Thu phóng';
-
-  @override
-  String get proImageEditor_common_more => 'Thêm';
-
-  @override
-  String get proImageEditor_crop_title => 'Cắt/ Xoay';
-
-  @override
-  String get proImageEditor_crop_rotate => 'Xoay';
-
-  @override
-  String get proImageEditor_crop_flip => 'Lật';
-
-  @override
-  String get proImageEditor_crop_ratio => 'Tỷ lệ';
-
-  @override
-  String get proImageEditor_crop_reset => 'Đặt lại';
-
-  @override
-  String get proImageEditor_filter_title => 'Bộ lọc';
-
-  @override
-  String get proImageEditor_filter_noFilter => 'Không có';
-
-  @override
-  String get proImageEditor_tune_title => 'Tinh chỉnh';
-
-  @override
-  String get proImageEditor_tune_brightness => 'Độ sáng';
-
-  @override
-  String get proImageEditor_tune_contrast => 'Tương phản';
-
-  @override
-  String get proImageEditor_tune_saturation => 'Bão hoà';
-
-  @override
-  String get proImageEditor_tune_exposure => 'Phơi sáng';
-
-  @override
-  String get proImageEditor_tune_hue => 'Tông màu';
-
-  @override
-  String get proImageEditor_tune_temperature => 'Nhiệt độ';
-
-  @override
-  String get proImageEditor_tune_sharpness => 'Độ nét';
-
-  @override
-  String get proImageEditor_tune_fade => 'Làm mờ';
-
-  @override
-  String get proImageEditor_tune_luminance => 'Độ chói';
-
-  @override
-  String get proImageEditor_blur_title => 'Làm mờ';
-
-  @override
-  String get proImageEditor_sticker_title => 'Nhãn dán';
-
-  @override
-  String get proImageEditor_paint_title => 'Vẽ';
-
-  @override
-  String get proImageEditor_text_title => 'Chữ';
-
-  @override
-  String get proImageEditor_text_hint => 'Nhập văn bản';
-
-  @override
-  String get proImageEditor_emoji_title => 'Biểu cảm';
-
-  @override
   String get profile_title => 'Hồ sơ';
 
   @override
@@ -1772,4 +1662,114 @@ class AppLocalizationsVi extends AppLocalizations {
   String insights_wearToday_success(Object itemName) {
     return 'Đã thêm \"$itemName\" vào nhật ký hôm nay!';
   }
+
+  @override
+  String get removeBg_title => 'Tách Nền';
+
+  @override
+  String get removeBg_processing => 'Đang xử lý, vui lòng chờ...';
+
+  @override
+  String get removeBg_error_process => 'Không thể xử lý hình ảnh.';
+
+  @override
+  String removeBg_error_generic(Object error) {
+    return 'Lỗi xử lý ảnh: $error';
+  }
+
+  @override
+  String get proImageEditor_common_done => 'Xong';
+
+  @override
+  String get proImageEditor_common_back => 'Quay lại';
+
+  @override
+  String get proImageEditor_common_cancel => 'Huỷ';
+
+  @override
+  String get proImageEditor_common_undo => 'Hoàn tác';
+
+  @override
+  String get proImageEditor_common_redo => 'Làm lại';
+
+  @override
+  String get proImageEditor_common_remove => 'Xoá';
+
+  @override
+  String get proImageEditor_common_edit => 'Sửa';
+
+  @override
+  String get proImageEditor_common_rotateScale => 'Xoay & Thu phóng';
+
+  @override
+  String get proImageEditor_common_more => 'Thêm';
+
+  @override
+  String get proImageEditor_crop_title => 'Cắt/ Xoay';
+
+  @override
+  String get proImageEditor_crop_rotate => 'Xoay';
+
+  @override
+  String get proImageEditor_crop_flip => 'Lật';
+
+  @override
+  String get proImageEditor_crop_ratio => 'Tỷ lệ';
+
+  @override
+  String get proImageEditor_crop_reset => 'Đặt lại';
+
+  @override
+  String get proImageEditor_filter_title => 'Bộ lọc';
+
+  @override
+  String get proImageEditor_filter_noFilter => 'Không có';
+
+  @override
+  String get proImageEditor_tune_title => 'Tinh chỉnh';
+
+  @override
+  String get proImageEditor_tune_brightness => 'Độ sáng';
+
+  @override
+  String get proImageEditor_tune_contrast => 'Tương phản';
+
+  @override
+  String get proImageEditor_tune_saturation => 'Bão hoà';
+
+  @override
+  String get proImageEditor_tune_exposure => 'Phơi sáng';
+
+  @override
+  String get proImageEditor_tune_hue => 'Tông màu';
+
+  @override
+  String get proImageEditor_tune_temperature => 'Nhiệt độ';
+
+  @override
+  String get proImageEditor_tune_sharpness => 'Độ nét';
+
+  @override
+  String get proImageEditor_tune_fade => 'Làm mờ';
+
+  @override
+  String get proImageEditor_tune_luminance => 'Độ chói';
+
+  @override
+  String get proImageEditor_blur_title => 'Làm mờ';
+
+  @override
+  String get proImageEditor_sticker_title => 'Nhãn dán';
+
+  @override
+  String get proImageEditor_paint_title => 'Vẽ';
+
+  @override
+  String get proImageEditor_text_title => 'Chữ';
+
+  @override
+  String get proImageEditor_text_hint => 'Nhập văn bản';
+
+  @override
+  String get proImageEditor_emoji_title => 'Biểu cảm';
 }

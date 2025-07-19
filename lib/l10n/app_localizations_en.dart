@@ -38,6 +38,770 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_seeAll => 'See all';
 
   @override
+  String get itemDetail_titleEdit => 'Edit item';
+
+  @override
+  String get itemDetail_titleAdd => 'Add item';
+
+  @override
+  String get itemDetail_favoriteTooltip_add => 'Add to favorites';
+
+  @override
+  String get itemDetail_favoriteTooltip_remove => 'Remove from favorites';
+
+  @override
+  String get itemDetail_deleteTooltip => 'Delete item';
+
+  @override
+  String get itemDetail_deleteDialogTitle => 'Confirm deletion';
+
+  @override
+  String itemDetail_deleteDialogContent(String itemName) {
+    return 'Are you sure to permanently delete item \"$itemName\"?';
+  }
+
+  @override
+  String get itemDetail_saveButton => 'Save';
+
+  @override
+  String get itemDetail_form_imageError => 'Please add a photo for the item.';
+
+  @override
+  String get itemDetail_form_editButton => 'Edit';
+
+  @override
+  String get itemDetail_form_removeBgButton => 'Remove BG';
+
+  @override
+  String get itemDetail_form_removeBgDialogTitle =>
+      'Image May Have Been Processed';
+
+  @override
+  String get itemDetail_form_removeBgDialogContent =>
+      'This image might already have a transparent background. Proceeding again may cause errors. Do you want to continue?';
+
+  @override
+  String get itemDetail_form_removeBgDialogContinue => 'Continue';
+
+  @override
+  String get itemDetail_form_errorReadingImage => 'Error reading image format.';
+
+  @override
+  String get itemDetail_form_timeoutError =>
+      'Operation timed out after 45 seconds.';
+
+  @override
+  String itemDetail_form_unexpectedError(String error) {
+    return 'An unexpected error occurred: $error';
+  }
+
+  @override
+  String get itemDetail_form_nameLabel => 'Item name *';
+
+  @override
+  String get itemDetail_form_closetLabel => 'Select closet *';
+
+  @override
+  String get itemDetail_form_categoryLabel => 'Category *';
+
+  @override
+  String get itemDetail_form_categoryNoneSelected => 'None selected';
+
+  @override
+  String get itemDetail_form_colorLabel => 'Color';
+
+  @override
+  String get itemDetail_form_colorNotYet => 'Not yet';
+
+  @override
+  String get itemDetail_form_seasonLabel => 'Season';
+
+  @override
+  String get itemDetail_form_occasionLabel => 'Occasion';
+
+  @override
+  String get itemDetail_form_materialLabel => 'Material';
+
+  @override
+  String get itemDetail_form_patternLabel => 'Pattern';
+
+  @override
+  String get itemDetail_form_priceLabel => 'Price';
+
+  @override
+  String get itemDetail_form_notesLabel => 'Notes';
+
+  @override
+  String get itemBrowser_noItemsFound => 'No items found.';
+
+  @override
+  String get itemBrowser_empty => 'Your closet is empty.';
+
+  @override
+  String itemNotifier_analysis_error(Object error) {
+    return 'Pre-filling information failed.\\nReason: $error';
+  }
+
+  @override
+  String get itemNotifier_error_noPhoto => 'Please add a photo for the item.';
+
+  @override
+  String itemNotifier_error_createThumbnail(Object error) {
+    return 'Error creating thumbnail: $error';
+  }
+
+  @override
+  String get itemNotifier_save_success_updated => 'Item successfully updated.';
+
+  @override
+  String get itemNotifier_save_success_created => 'Item successfully saved.';
+
+  @override
+  String itemNotifier_delete_success(Object itemName) {
+    return 'Successfully deleted item \"$itemName\".';
+  }
+
+  @override
+  String itemNotifier_error_updateImage(Object error) {
+    return 'Could not update image: $error';
+  }
+
+  @override
+  String validation_nameTakenSingle(Object itemName) {
+    return '\"$itemName\" is already taken. Please use a different name. You can add numbers to distinguish items (e.g., Shirt 1, Shirt 2...).';
+  }
+
+  @override
+  String get filter_title => 'Filter';
+
+  @override
+  String get filter_closet => 'Closet';
+
+  @override
+  String get filter_allClosets => 'All closets';
+
+  @override
+  String get filter_category => 'Category';
+
+  @override
+  String get filter_allCategories => 'All categories';
+
+  @override
+  String get filter_color => 'Color';
+
+  @override
+  String get filter_season => 'Season';
+
+  @override
+  String get filter_occasion => 'Occasion';
+
+  @override
+  String get filter_material => 'Material';
+
+  @override
+  String get filter_pattern => 'Pattern';
+
+  @override
+  String get filter_clear => 'Clear filters';
+
+  @override
+  String get filter_apply => 'Apply';
+
+  @override
+  String batchAdd_title_page(Object current, Object total) {
+    return 'Add item ($current/$total)';
+  }
+
+  @override
+  String get batchAdd_button_previous => 'Previous';
+
+  @override
+  String get batchAdd_button_next => 'Next';
+
+  @override
+  String get batchAdd_button_saveAll => 'Save all';
+
+  @override
+  String get batchAdd_empty => 'No photos to display.';
+
+  @override
+  String batchNotifier_analysis_error(Object error) {
+    return 'Pre-filling information failed for one or more items.\\nReason: $error';
+  }
+
+  @override
+  String batchNotifier_validation_nameTaken(
+      Object itemName, Object itemNumber) {
+    return '\"$itemName\" for item $itemNumber is already taken. Please use a different name.';
+  }
+
+  @override
+  String batchNotifier_validation_nameConflict(
+      Object conflictNumber, Object itemName, Object itemNumber) {
+    return '\"$itemName\" for item $itemNumber is already used by item $conflictNumber. Please use a different name.';
+  }
+
+  @override
+  String get analysis_preparingImages => 'Preparing images...';
+
+  @override
+  String get analysis_prefillingInfo =>
+      'Pre-filling information...\nThis may take a moment to complete.';
+
+  @override
+  String get analysis_maxPhotosWarning =>
+      'Maximum of 10 photos selected. Extra photos were skipped.';
+
+  @override
+  String get analysis_error_pickImage =>
+      'An error occurred while picking images. Please try again.';
+
+  @override
+  String get onboarding_page1_title => 'A closet full of clothes...';
+
+  @override
+  String get onboarding_page1_subtitle => '...but nothing to wear?';
+
+  @override
+  String get onboarding_page1_description =>
+      'Do you often spend time wondering what to wear? Do you forget what amazing items you already own?';
+
+  @override
+  String get onboarding_page2_title => 'MinCloset\nYour Smart Closet Assistant';
+
+  @override
+  String get onboarding_page2_feature1_title => 'Digitize Your Closet';
+
+  @override
+  String get onboarding_page2_feature1_desc =>
+      'Snap a photo and let AI automatically categorize your clothes.';
+
+  @override
+  String get onboarding_page2_feature2_title => 'AI Outfit Suggestions';
+
+  @override
+  String get onboarding_page2_feature2_desc =>
+      'Get personalized outfit ideas based on your items and the weather.';
+
+  @override
+  String get onboarding_page2_feature3_title => 'Creative Outfit Studio';
+
+  @override
+  String get onboarding_page2_feature3_desc =>
+      'Freely mix and match items to create unique looks.';
+
+  @override
+  String get onboarding_page2_feature4_title => 'Track Your Style Journey';
+
+  @override
+  String get onboarding_page2_feature4_desc =>
+      'Log what you wear and discover your habits.';
+
+  @override
+  String get onboarding_page3_title => 'Let\'s get to know each other!';
+
+  @override
+  String get onboarding_page3_subtitle =>
+      'Tell us your name so we can get more personal.';
+
+  @override
+  String get onboarding_page3_nameHint => 'Enter your name...';
+
+  @override
+  String get onboarding_page3_nameValidator => 'Please tell me your name';
+
+  @override
+  String get permissions_title => 'Allow Access';
+
+  @override
+  String get permissions_description =>
+      'MinCloset needs some permissions to provide the best experience, including:';
+
+  @override
+  String get permissions_notifications_title => 'Notifications';
+
+  @override
+  String get permissions_notifications_desc =>
+      'To remind you what to wear every day.';
+
+  @override
+  String get permissions_camera_title => 'Camera';
+
+  @override
+  String get permissions_camera_desc =>
+      'To take photos and add new items to your closet.';
+
+  @override
+  String get permissions_location_title => 'Location';
+
+  @override
+  String get permissions_location_desc =>
+      'To provide outfit suggestions that match the weather.';
+
+  @override
+  String get permissions_continue_button => 'Continue';
+
+  @override
+  String get validation_error_name_required => 'Please enter item name';
+
+  @override
+  String get validation_error_closet_required => 'Please select a closet';
+
+  @override
+  String get validation_error_category_required => 'Please select a category';
+
+  @override
+  String validation_error_batch_name_required(Object itemNumber) {
+    return 'Please enter a name for Item $itemNumber';
+  }
+
+  @override
+  String validation_error_batch_closet_required(Object itemNumber) {
+    return 'Please select a closet for Item $itemNumber';
+  }
+
+  @override
+  String validation_error_batch_category_required(Object itemNumber) {
+    return 'Please select a category for Item $itemNumber';
+  }
+
+  @override
+  String get closets_title => 'Your Closet';
+
+  @override
+  String closets_itemsSelected(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected',
+      one: '1 selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get closets_tabAllItems => 'All Items';
+
+  @override
+  String get closets_tabByCloset => 'By Closet';
+
+  @override
+  String closetDetail_itemsSelected(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected',
+      one: '1 selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String closetDetail_itemCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get closetDetail_searchHint => 'Search in this closet...';
+
+  @override
+  String get closetDetail_noItemsFound => 'No items found.';
+
+  @override
+  String get closetDetail_emptyCloset => 'This closet is empty.';
+
+  @override
+  String get closetDetail_delete => 'Delete';
+
+  @override
+  String get closetDetail_move => 'Move';
+
+  @override
+  String get closetDetail_createOutfit => 'Create Outfit';
+
+  @override
+  String get closetDetail_confirmDeleteTitle => 'Confirm Deletion';
+
+  @override
+  String closetDetail_confirmDeleteContent(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected items',
+      one: '1 selected item',
+    );
+    return 'Are you sure you want to permanently delete $_temp0?';
+  }
+
+  @override
+  String closetDetail_moveDialogTitle(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return 'Move $_temp0 to...';
+  }
+
+  @override
+  String get closetDetail_moveErrorNoClosets =>
+      'No other closets available to move to.';
+
+  @override
+  String get closetDetail_cancel => 'Cancel';
+
+  @override
+  String get closetDialog_editTitle => 'Edit closet name';
+
+  @override
+  String get closetDialog_createTitle => 'Create new closet';
+
+  @override
+  String get closetDialog_editLabel => 'New name';
+
+  @override
+  String get closetDialog_createLabel => 'Closet name';
+
+  @override
+  String get closet_error_emptyName => 'Closet name cannot be empty.';
+
+  @override
+  String get closet_error_maxLength =>
+      'Closet name cannot exceed 30 characters.';
+
+  @override
+  String get closet_error_limitReached =>
+      'Maximum number of closets (10) reached.';
+
+  @override
+  String get closet_error_duplicateName =>
+      'A closet with this name already exists.';
+
+  @override
+  String get closet_error_notEmptyOnDelete =>
+      'Closet is not empty. Move or delete items first.';
+
+  @override
+  String closet_success_created(Object closetName) {
+    return 'Successfully created \"$closetName\" closet.';
+  }
+
+  @override
+  String get closet_success_updated => 'Closet updated successfully.';
+
+  @override
+  String get closet_success_deleted => 'Closet deleted successfully.';
+
+  @override
+  String get closet_moveErrorNoClosets =>
+      'No other closets available to move to.';
+
+  @override
+  String get allItems_searchHint => 'Search items...';
+
+  @override
+  String get allItems_filterTooltip => 'Filter';
+
+  @override
+  String get allItems_emptyCloset => 'Your closet is empty.';
+
+  @override
+  String get allItems_noItemsFound =>
+      'No items found for your search or filter.';
+
+  @override
+  String get allItems_delete => 'Delete';
+
+  @override
+  String get allItems_createOutfit => 'Create Outfit';
+
+  @override
+  String get allItems_deleteDialogTitle => 'Confirm Deletion';
+
+  @override
+  String allItems_deleteDialogContent(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Are you sure you want to permanently delete $count selected items?',
+      one: 'Are you sure you want to permanently delete 1 selected item?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get byCloset_addClosetHintTitle => 'Create a New Closet';
+
+  @override
+  String get byCloset_addClosetHintDescription =>
+      'Tap here to create a new closet, helping you organize your clothes for different purposes like \'Work\' or \'Gym\'.';
+
+  @override
+  String get byCloset_addNewCloset => 'Add new closet';
+
+  @override
+  String byCloset_itemCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+      zero: '0 items',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get byCloset_itemCountError => 'Error';
+
+  @override
+  String get byCloset_itemCountLoading => '...';
+
+  @override
+  String get byCloset_deleteDialogTitle => 'Confirm Deletion';
+
+  @override
+  String byCloset_deleteDialogContent(String closetName) {
+    return 'Are you sure you want to delete the \"$closetName\" closet?';
+  }
+
+  @override
+  String get byCloset_limitReached => 'Closet limit (10) reached.';
+
+  @override
+  String get closetForm_titleEdit => 'Edit Closet';
+
+  @override
+  String get closetForm_titleAdd => 'Add New Closet';
+
+  @override
+  String get closetForm_saveButton => 'Save';
+
+  @override
+  String get closetForm_nameLabel => 'Closet Name';
+
+  @override
+  String get closetForm_iconLabel => 'Choose Icon';
+
+  @override
+  String get closetForm_colorLabel => 'Choose Card Color';
+
+  @override
+  String get calendar_title => 'Style Journal';
+
+  @override
+  String get calendar_addLogButton => 'Add';
+
+  @override
+  String get calendar_logWearHintTitle => 'Log Your Wear';
+
+  @override
+  String get calendar_logWearHintDescription =>
+      'Select a day and tap here to log what you wore.';
+
+  @override
+  String get calendar_selectOutfits => 'Select Outfits';
+
+  @override
+  String get calendar_selectItems => 'Select Items';
+
+  @override
+  String get calendar_deleteDialogTitle => 'Confirm Deletion';
+
+  @override
+  String calendar_deleteDialogContent(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selections',
+      one: '1 selection',
+    );
+    return 'Are you sure you want to remove $_temp0 from this day?';
+  }
+
+  @override
+  String calendar_deleteDialogContentOutfit(String outfitName) {
+    return 'Are you sure you want to remove the outfit \'$outfitName\' from this day\'s journal?';
+  }
+
+  @override
+  String calendar_deleteDialogContentItem(String itemName) {
+    return 'Are you sure you want to remove the item \'$itemName\' from this day\'s journal?';
+  }
+
+  @override
+  String get calendar_noItemsLogged => 'No items logged for this day.';
+
+  @override
+  String get calendar_outfitLabel => 'Outfit';
+
+  @override
+  String get calendar_formatMonth => 'Month';
+
+  @override
+  String get calendar_formatTwoWeeks => '2 Weeks';
+
+  @override
+  String get calendar_formatWeek => 'Week';
+
+  @override
+  String get logWear_title_items => 'Select Items';
+
+  @override
+  String get logWear_title_outfits => 'Select Outfits';
+
+  @override
+  String get logWear_noData_items => 'No items to select.';
+
+  @override
+  String get logWear_noData_outfits => 'No outfits to select.';
+
+  @override
+  String get logWear_label_outfit => 'Outfit';
+
+  @override
+  String get home_greeting => 'Hello,';
+
+  @override
+  String get home_userNameDefault => 'User';
+
+  @override
+  String get home_actionAddItem => 'Add\nItem';
+
+  @override
+  String get home_actionCreateCloset => 'Create Closet';
+
+  @override
+  String get home_actionCreateOutfits => 'Create Outfits';
+
+  @override
+  String get home_actionSavedOutfits => 'Saved Outfits';
+
+  @override
+  String get home_weeklyJournalTitle => 'Week\'s Journal';
+
+  @override
+  String get home_weeklyJournalViewMore => 'View more';
+
+  @override
+  String get home_suggestionTitle => 'Outfit suggestion';
+
+  @override
+  String get home_suggestion_showcase_description =>
+      'Describe your purpose for the day (e.g., \"coffee with friends\", \"work meeting\") and tap the send button to get a personalized outfit suggestion!';
+
+  @override
+  String get home_weather_noNetwork =>
+      'Weather unavailable. No network connection';
+
+  @override
+  String get mainScreen_bottomNav_home => 'Home';
+
+  @override
+  String get mainScreen_bottomNav_closets => 'Closets';
+
+  @override
+  String get mainScreen_bottomNav_addItems => 'Add items';
+
+  @override
+  String get mainScreen_bottomNav_outfits => 'Outfits';
+
+  @override
+  String get mainScreen_bottomNav_profile => 'Profile';
+
+  @override
+  String get mainScreen_addItem_takePhoto => 'Take photo';
+
+  @override
+  String get mainScreen_addItem_fromAlbum => 'From album (up to 10)';
+
+  @override
+  String get mainScreen_tutorial_welcome =>
+      'Welcome to MinCloset! I\'m your personal fashion assistant.';
+
+  @override
+  String get mainScreen_tutorial_introduce =>
+      'Let me introduce you to the first and most important feature!';
+
+  @override
+  String get mainScreen_tutorial_showAddItem =>
+      'Let\'s start by adding your first item to the closet!';
+
+  @override
+  String get mainScreen_hint_addItem => 'Add Items';
+
+  @override
+  String get mainScreen_hint_addItem_description =>
+      'Tap here to digitize your clothes by taking a photo or choosing from your library.';
+
+  @override
+  String get suggestion_purposeHint => 'Purpose? (e.g. coffee, date night...)';
+
+  @override
+  String suggestion_purposeLength(int current, int max) {
+    return '$current/$max';
+  }
+
+  @override
+  String get suggestion_editAndSaveButton => 'Edit & Save';
+
+  @override
+  String get suggestion_placeholder =>
+      'Describe your purpose and tap the send button to get suggestions!';
+
+  @override
+  String get suggestion_weatherUnavailable =>
+      'Weather data unavailable. This is a general suggestion.';
+
+  @override
+  String suggestion_lastUpdated(String datetime) {
+    return 'Last updated: $datetime';
+  }
+
+  @override
+  String get getOutfitSuggestion_errorManualLocationMissing =>
+      'Your manually selected location data is missing. Please select your city again in the settings.';
+
+  @override
+  String get getOutfitSuggestion_errorLocationServicesDisabled =>
+      'Location services are disabled. Please enable it in your device settings.';
+
+  @override
+  String get getOutfitSuggestion_errorLocationPermissionDenied =>
+      'Location permissions are denied. Please enable it for MinCloset in your device settings.';
+
+  @override
+  String get getOutfitSuggestion_errorLocationUndetermined =>
+      'Could not determine your location to get weather data. Please check your device settings or select a location manually.';
+
+  @override
+  String get getOutfitSuggestion_errorNotEnoughItems =>
+      'Please add at least 3 tops and 3 bottoms/skirts to your closet to receive suggestions.';
+
+  @override
+  String get getOutfitSuggestion_defaultSelectedLocation => 'Selected Location';
+
+  @override
+  String get getOutfitSuggestion_defaultCurrentLocation => 'Current Location';
+
+  @override
+  String get getOutfitSuggestion_defaultNotSpecified => 'Not specified';
+
+  @override
+  String get getOutfitSuggestion_defaultAnyStyle => 'Any style';
+
+  @override
+  String get getOutfitSuggestion_defaultAnyColor => 'Any color';
+
+  @override
   String get category_tops => 'Tops';
 
   @override
@@ -553,880 +1317,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Failed to delete outfit. Please try again.';
 
   @override
-  String get closets_title => 'Your Closet';
-
-  @override
-  String closets_itemsSelected(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count selected',
-      one: '1 selected',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get closets_tabAllItems => 'All Items';
-
-  @override
-  String get closets_tabByCloset => 'By Closet';
-
-  @override
-  String closetDetail_itemsSelected(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count selected',
-      one: '1 selected',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String closetDetail_itemCount(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count items',
-      one: '1 item',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get closetDetail_searchHint => 'Search in this closet...';
-
-  @override
-  String get closetDetail_noItemsFound => 'No items found.';
-
-  @override
-  String get closetDetail_emptyCloset => 'This closet is empty.';
-
-  @override
-  String get closetDetail_delete => 'Delete';
-
-  @override
-  String get closetDetail_move => 'Move';
-
-  @override
-  String get closetDetail_createOutfit => 'Create Outfit';
-
-  @override
-  String get closetDetail_confirmDeleteTitle => 'Confirm Deletion';
-
-  @override
-  String closetDetail_confirmDeleteContent(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count selected items',
-      one: '1 selected item',
-    );
-    return 'Are you sure you want to permanently delete $_temp0?';
-  }
-
-  @override
-  String closetDetail_moveDialogTitle(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count items',
-      one: '1 item',
-    );
-    return 'Move $_temp0 to...';
-  }
-
-  @override
-  String get closetDetail_moveErrorNoClosets =>
-      'No other closets available to move to.';
-
-  @override
-  String get closetDetail_cancel => 'Cancel';
-
-  @override
-  String get closetDialog_editTitle => 'Edit closet name';
-
-  @override
-  String get closetDialog_createTitle => 'Create new closet';
-
-  @override
-  String get closetDialog_editLabel => 'New name';
-
-  @override
-  String get closetDialog_createLabel => 'Closet name';
-
-  @override
-  String get closet_error_emptyName => 'Closet name cannot be empty.';
-
-  @override
-  String get closet_error_maxLength =>
-      'Closet name cannot exceed 30 characters.';
-
-  @override
-  String get closet_error_limitReached =>
-      'Maximum number of closets (10) reached.';
-
-  @override
-  String get closet_error_duplicateName =>
-      'A closet with this name already exists.';
-
-  @override
-  String get closet_error_notEmptyOnDelete =>
-      'Closet is not empty. Move or delete items first.';
-
-  @override
-  String closet_success_created(Object closetName) {
-    return 'Successfully created \"$closetName\" closet.';
-  }
-
-  @override
-  String get closet_success_updated => 'Closet updated successfully.';
-
-  @override
-  String get closet_success_deleted => 'Closet deleted successfully.';
-
-  @override
-  String get closet_moveErrorNoClosets =>
-      'No other closets available to move to.';
-
-  @override
-  String get allItems_searchHint => 'Search items...';
-
-  @override
-  String get allItems_filterTooltip => 'Filter';
-
-  @override
-  String get allItems_emptyCloset => 'Your closet is empty.';
-
-  @override
-  String get allItems_noItemsFound =>
-      'No items found for your search or filter.';
-
-  @override
-  String get allItems_delete => 'Delete';
-
-  @override
-  String get allItems_createOutfit => 'Create Outfit';
-
-  @override
-  String get allItems_deleteDialogTitle => 'Confirm Deletion';
-
-  @override
-  String allItems_deleteDialogContent(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other:
-          'Are you sure you want to permanently delete $count selected items?',
-      one: 'Are you sure you want to permanently delete 1 selected item?',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get byCloset_addClosetHintTitle => 'Create a New Closet';
-
-  @override
-  String get byCloset_addClosetHintDescription =>
-      'Tap here to create a new closet, helping you organize your clothes for different purposes like \'Work\' or \'Gym\'.';
-
-  @override
-  String get byCloset_addNewCloset => 'Add new closet';
-
-  @override
-  String byCloset_itemCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count items',
-      one: '1 item',
-      zero: '0 items',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get byCloset_itemCountError => 'Error';
-
-  @override
-  String get byCloset_itemCountLoading => '...';
-
-  @override
-  String get byCloset_deleteDialogTitle => 'Confirm Deletion';
-
-  @override
-  String byCloset_deleteDialogContent(String closetName) {
-    return 'Are you sure you want to delete the \"$closetName\" closet?';
-  }
-
-  @override
-  String get byCloset_limitReached => 'Closet limit (10) reached.';
-
-  @override
-  String get closetForm_titleEdit => 'Edit Closet';
-
-  @override
-  String get closetForm_titleAdd => 'Add New Closet';
-
-  @override
-  String get closetForm_saveButton => 'Save';
-
-  @override
-  String get closetForm_nameLabel => 'Closet Name';
-
-  @override
-  String get closetForm_iconLabel => 'Choose Icon';
-
-  @override
-  String get closetForm_colorLabel => 'Choose Card Color';
-
-  @override
-  String get calendar_title => 'Style Journal';
-
-  @override
-  String get calendar_addLogButton => 'Add';
-
-  @override
-  String get calendar_logWearHintTitle => 'Log Your Wear';
-
-  @override
-  String get calendar_logWearHintDescription =>
-      'Select a day and tap here to log what you wore.';
-
-  @override
-  String get calendar_selectOutfits => 'Select Outfits';
-
-  @override
-  String get calendar_selectItems => 'Select Items';
-
-  @override
-  String get calendar_deleteDialogTitle => 'Confirm Deletion';
-
-  @override
-  String calendar_deleteDialogContent(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count selections',
-      one: '1 selection',
-    );
-    return 'Are you sure you want to remove $_temp0 from this day?';
-  }
-
-  @override
-  String calendar_deleteDialogContentOutfit(String outfitName) {
-    return 'Are you sure you want to remove the outfit \'$outfitName\' from this day\'s journal?';
-  }
-
-  @override
-  String calendar_deleteDialogContentItem(String itemName) {
-    return 'Are you sure you want to remove the item \'$itemName\' from this day\'s journal?';
-  }
-
-  @override
-  String get calendar_noItemsLogged => 'No items logged for this day.';
-
-  @override
-  String get calendar_outfitLabel => 'Outfit';
-
-  @override
-  String get calendar_formatMonth => 'Month';
-
-  @override
-  String get calendar_formatTwoWeeks => '2 Weeks';
-
-  @override
-  String get calendar_formatWeek => 'Week';
-
-  @override
-  String get logWear_title_items => 'Select Items';
-
-  @override
-  String get logWear_title_outfits => 'Select Outfits';
-
-  @override
-  String get logWear_noData_items => 'No items to select.';
-
-  @override
-  String get logWear_noData_outfits => 'No outfits to select.';
-
-  @override
-  String get logWear_label_outfit => 'Outfit';
-
-  @override
-  String get home_greeting => 'Hello,';
-
-  @override
-  String get home_userNameDefault => 'User';
-
-  @override
-  String get home_actionAddItem => 'Add\nItem';
-
-  @override
-  String get home_actionCreateCloset => 'Create Closet';
-
-  @override
-  String get home_actionCreateOutfits => 'Create Outfits';
-
-  @override
-  String get home_actionSavedOutfits => 'Saved Outfits';
-
-  @override
-  String get home_weeklyJournalTitle => 'Week\'s Journal';
-
-  @override
-  String get home_weeklyJournalViewMore => 'View more';
-
-  @override
-  String get home_suggestionTitle => 'Outfit suggestion';
-
-  @override
-  String get home_suggestion_showcase_description =>
-      'Describe your purpose for the day (e.g., \"coffee with friends\", \"work meeting\") and tap the send button to get a personalized outfit suggestion!';
-
-  @override
-  String get home_weather_noNetwork =>
-      'Weather unavailable. No network connection';
-
-  @override
-  String get mainScreen_bottomNav_home => 'Home';
-
-  @override
-  String get mainScreen_bottomNav_closets => 'Closets';
-
-  @override
-  String get mainScreen_bottomNav_addItems => 'Add items';
-
-  @override
-  String get mainScreen_bottomNav_outfits => 'Outfits';
-
-  @override
-  String get mainScreen_bottomNav_profile => 'Profile';
-
-  @override
-  String get mainScreen_addItem_takePhoto => 'Take photo';
-
-  @override
-  String get mainScreen_addItem_fromAlbum => 'From album (up to 10)';
-
-  @override
-  String get mainScreen_tutorial_welcome =>
-      'Welcome to MinCloset! I\'m your personal fashion assistant.';
-
-  @override
-  String get mainScreen_tutorial_introduce =>
-      'Let me introduce you to the first and most important feature!';
-
-  @override
-  String get mainScreen_tutorial_showAddItem =>
-      'Let\'s start by adding your first item to the closet!';
-
-  @override
-  String get mainScreen_hint_addItem => 'Add Items';
-
-  @override
-  String get mainScreen_hint_addItem_description =>
-      'Tap here to digitize your clothes by taking a photo or choosing from your library.';
-
-  @override
-  String get suggestion_purposeHint => 'Purpose? (e.g. coffee, date night...)';
-
-  @override
-  String suggestion_purposeLength(int current, int max) {
-    return '$current/$max';
-  }
-
-  @override
-  String get suggestion_editAndSaveButton => 'Edit & Save';
-
-  @override
-  String get suggestion_placeholder =>
-      'Describe your purpose and tap the send button to get suggestions!';
-
-  @override
-  String get suggestion_weatherUnavailable =>
-      'Weather data unavailable. This is a general suggestion.';
-
-  @override
-  String suggestion_lastUpdated(String datetime) {
-    return 'Last updated: $datetime';
-  }
-
-  @override
-  String get getOutfitSuggestion_errorManualLocationMissing =>
-      'Your manually selected location data is missing. Please select your city again in the settings.';
-
-  @override
-  String get getOutfitSuggestion_errorLocationServicesDisabled =>
-      'Location services are disabled. Please enable it in your device settings.';
-
-  @override
-  String get getOutfitSuggestion_errorLocationPermissionDenied =>
-      'Location permissions are denied. Please enable it for MinCloset in your device settings.';
-
-  @override
-  String get getOutfitSuggestion_errorLocationUndetermined =>
-      'Could not determine your location to get weather data. Please check your device settings or select a location manually.';
-
-  @override
-  String get getOutfitSuggestion_errorNotEnoughItems =>
-      'Please add at least 3 tops and 3 bottoms/skirts to your closet to receive suggestions.';
-
-  @override
-  String get getOutfitSuggestion_defaultSelectedLocation => 'Selected Location';
-
-  @override
-  String get getOutfitSuggestion_defaultCurrentLocation => 'Current Location';
-
-  @override
-  String get getOutfitSuggestion_defaultNotSpecified => 'Not specified';
-
-  @override
-  String get getOutfitSuggestion_defaultAnyStyle => 'Any style';
-
-  @override
-  String get getOutfitSuggestion_defaultAnyColor => 'Any color';
-
-  @override
-  String get itemDetail_titleEdit => 'Edit item';
-
-  @override
-  String get itemDetail_titleAdd => 'Add item';
-
-  @override
-  String get itemDetail_favoriteTooltip_add => 'Add to favorites';
-
-  @override
-  String get itemDetail_favoriteTooltip_remove => 'Remove from favorites';
-
-  @override
-  String get itemDetail_deleteTooltip => 'Delete item';
-
-  @override
-  String get itemDetail_deleteDialogTitle => 'Confirm deletion';
-
-  @override
-  String itemDetail_deleteDialogContent(String itemName) {
-    return 'Are you sure to permanently delete item \"$itemName\"?';
-  }
-
-  @override
-  String get itemDetail_saveButton => 'Save';
-
-  @override
-  String get itemDetail_form_imageError => 'Please add a photo for the item.';
-
-  @override
-  String get itemDetail_form_editButton => 'Edit';
-
-  @override
-  String get itemDetail_form_removeBgButton => 'Remove BG';
-
-  @override
-  String get itemDetail_form_removeBgDialogTitle =>
-      'Image May Have Been Processed';
-
-  @override
-  String get itemDetail_form_removeBgDialogContent =>
-      'This image might already have a transparent background. Proceeding again may cause errors. Do you want to continue?';
-
-  @override
-  String get itemDetail_form_removeBgDialogContinue => 'Continue';
-
-  @override
-  String get itemDetail_form_errorReadingImage => 'Error reading image format.';
-
-  @override
-  String get itemDetail_form_timeoutError =>
-      'Operation timed out after 45 seconds.';
-
-  @override
-  String itemDetail_form_unexpectedError(String error) {
-    return 'An unexpected error occurred: $error';
-  }
-
-  @override
-  String get itemDetail_form_nameLabel => 'Item name *';
-
-  @override
-  String get itemDetail_form_closetLabel => 'Select closet *';
-
-  @override
-  String get itemDetail_form_categoryLabel => 'Category *';
-
-  @override
-  String get itemDetail_form_categoryNoneSelected => 'None selected';
-
-  @override
-  String get itemDetail_form_colorLabel => 'Color';
-
-  @override
-  String get itemDetail_form_colorNotYet => 'Not yet';
-
-  @override
-  String get itemDetail_form_seasonLabel => 'Season';
-
-  @override
-  String get itemDetail_form_occasionLabel => 'Occasion';
-
-  @override
-  String get itemDetail_form_materialLabel => 'Material';
-
-  @override
-  String get itemDetail_form_patternLabel => 'Pattern';
-
-  @override
-  String get itemDetail_form_priceLabel => 'Price';
-
-  @override
-  String get itemDetail_form_notesLabel => 'Notes';
-
-  @override
-  String get itemBrowser_noItemsFound => 'No items found.';
-
-  @override
-  String get itemBrowser_empty => 'Your closet is empty.';
-
-  @override
-  String itemNotifier_analysis_error(Object error) {
-    return 'Pre-filling information failed.\\nReason: $error';
-  }
-
-  @override
-  String get itemNotifier_error_noPhoto => 'Please add a photo for the item.';
-
-  @override
-  String itemNotifier_error_createThumbnail(Object error) {
-    return 'Error creating thumbnail: $error';
-  }
-
-  @override
-  String get itemNotifier_save_success_updated => 'Item successfully updated.';
-
-  @override
-  String get itemNotifier_save_success_created => 'Item successfully saved.';
-
-  @override
-  String itemNotifier_delete_success(Object itemName) {
-    return 'Successfully deleted item \"$itemName\".';
-  }
-
-  @override
-  String itemNotifier_error_updateImage(Object error) {
-    return 'Could not update image: $error';
-  }
-
-  @override
-  String validation_nameTakenSingle(Object itemName) {
-    return '\"$itemName\" is already taken. Please use a different name. You can add numbers to distinguish items (e.g., Shirt 1, Shirt 2...).';
-  }
-
-  @override
-  String get filter_title => 'Filter';
-
-  @override
-  String get filter_closet => 'Closet';
-
-  @override
-  String get filter_allClosets => 'All closets';
-
-  @override
-  String get filter_category => 'Category';
-
-  @override
-  String get filter_allCategories => 'All categories';
-
-  @override
-  String get filter_color => 'Color';
-
-  @override
-  String get filter_season => 'Season';
-
-  @override
-  String get filter_occasion => 'Occasion';
-
-  @override
-  String get filter_material => 'Material';
-
-  @override
-  String get filter_pattern => 'Pattern';
-
-  @override
-  String get filter_clear => 'Clear filters';
-
-  @override
-  String get filter_apply => 'Apply';
-
-  @override
-  String batchAdd_title_page(Object current, Object total) {
-    return 'Add item ($current/$total)';
-  }
-
-  @override
-  String get batchAdd_button_previous => 'Previous';
-
-  @override
-  String get batchAdd_button_next => 'Next';
-
-  @override
-  String get batchAdd_button_saveAll => 'Save all';
-
-  @override
-  String get batchAdd_empty => 'No photos to display.';
-
-  @override
-  String batchNotifier_analysis_error(Object error) {
-    return 'Pre-filling information failed for one or more items.\\nReason: $error';
-  }
-
-  @override
-  String batchNotifier_validation_nameTaken(
-      Object itemName, Object itemNumber) {
-    return '\"$itemName\" for item $itemNumber is already taken. Please use a different name.';
-  }
-
-  @override
-  String batchNotifier_validation_nameConflict(
-      Object conflictNumber, Object itemName, Object itemNumber) {
-    return '\"$itemName\" for item $itemNumber is already used by item $conflictNumber. Please use a different name.';
-  }
-
-  @override
-  String get analysis_preparingImages => 'Preparing images...';
-
-  @override
-  String get analysis_prefillingInfo =>
-      'Pre-filling information...\nThis may take a moment to complete.';
-
-  @override
-  String get analysis_maxPhotosWarning =>
-      'Maximum of 10 photos selected. Extra photos were skipped.';
-
-  @override
-  String get analysis_error_pickImage =>
-      'An error occurred while picking images. Please try again.';
-
-  @override
-  String get onboarding_page1_title => 'A closet full of clothes...';
-
-  @override
-  String get onboarding_page1_subtitle => '...but nothing to wear?';
-
-  @override
-  String get onboarding_page1_description =>
-      'Do you often spend time wondering what to wear? Do you forget what amazing items you already own?';
-
-  @override
-  String get onboarding_page2_title => 'MinCloset\nYour Smart Closet Assistant';
-
-  @override
-  String get onboarding_page2_feature1_title => 'Digitize Your Closet';
-
-  @override
-  String get onboarding_page2_feature1_desc =>
-      'Snap a photo and let AI automatically categorize your clothes.';
-
-  @override
-  String get onboarding_page2_feature2_title => 'AI Outfit Suggestions';
-
-  @override
-  String get onboarding_page2_feature2_desc =>
-      'Get personalized outfit ideas based on your items and the weather.';
-
-  @override
-  String get onboarding_page2_feature3_title => 'Creative Outfit Studio';
-
-  @override
-  String get onboarding_page2_feature3_desc =>
-      'Freely mix and match items to create unique looks.';
-
-  @override
-  String get onboarding_page2_feature4_title => 'Track Your Style Journey';
-
-  @override
-  String get onboarding_page2_feature4_desc =>
-      'Log what you wear and discover your habits.';
-
-  @override
-  String get onboarding_page3_title => 'Let\'s get to know each other!';
-
-  @override
-  String get onboarding_page3_subtitle =>
-      'Tell us your name so we can get more personal.';
-
-  @override
-  String get onboarding_page3_nameHint => 'Enter your name...';
-
-  @override
-  String get onboarding_page3_nameValidator => 'Please tell me your name';
-
-  @override
-  String get permissions_title => 'Allow Access';
-
-  @override
-  String get permissions_description =>
-      'MinCloset needs some permissions to provide the best experience, including:';
-
-  @override
-  String get permissions_notifications_title => 'Notifications';
-
-  @override
-  String get permissions_notifications_desc =>
-      'To remind you what to wear every day.';
-
-  @override
-  String get permissions_camera_title => 'Camera';
-
-  @override
-  String get permissions_camera_desc =>
-      'To take photos and add new items to your closet.';
-
-  @override
-  String get permissions_location_title => 'Location';
-
-  @override
-  String get permissions_location_desc =>
-      'To provide outfit suggestions that match the weather.';
-
-  @override
-  String get permissions_continue_button => 'Continue';
-
-  @override
-  String get validation_error_name_required => 'Please enter item name';
-
-  @override
-  String get validation_error_closet_required => 'Please select a closet';
-
-  @override
-  String get validation_error_category_required => 'Please select a category';
-
-  @override
-  String validation_error_batch_name_required(Object itemNumber) {
-    return 'Please enter a name for Item $itemNumber';
-  }
-
-  @override
-  String validation_error_batch_closet_required(Object itemNumber) {
-    return 'Please select a closet for Item $itemNumber';
-  }
-
-  @override
-  String validation_error_batch_category_required(Object itemNumber) {
-    return 'Please select a category for Item $itemNumber';
-  }
-
-  @override
-  String get removeBg_title => 'Remove Background';
-
-  @override
-  String get removeBg_processing => 'Processing, please wait...';
-
-  @override
-  String get removeBg_error_process => 'Could not process image.';
-
-  @override
-  String removeBg_error_generic(Object error) {
-    return 'Error processing image: $error';
-  }
-
-  @override
-  String get proImageEditor_common_done => 'Done';
-
-  @override
-  String get proImageEditor_common_back => 'Back';
-
-  @override
-  String get proImageEditor_common_cancel => 'Cancel';
-
-  @override
-  String get proImageEditor_common_undo => 'Undo';
-
-  @override
-  String get proImageEditor_common_redo => 'Redo';
-
-  @override
-  String get proImageEditor_common_remove => 'Remove';
-
-  @override
-  String get proImageEditor_common_edit => 'Edit';
-
-  @override
-  String get proImageEditor_common_rotateScale => 'Rotate and Scale';
-
-  @override
-  String get proImageEditor_common_more => 'More';
-
-  @override
-  String get proImageEditor_crop_title => 'Crop/ Rotate';
-
-  @override
-  String get proImageEditor_crop_rotate => 'Rotate';
-
-  @override
-  String get proImageEditor_crop_flip => 'Flip';
-
-  @override
-  String get proImageEditor_crop_ratio => 'Ratio';
-
-  @override
-  String get proImageEditor_crop_reset => 'Reset';
-
-  @override
-  String get proImageEditor_filter_title => 'Filter';
-
-  @override
-  String get proImageEditor_filter_noFilter => 'No Filter';
-
-  @override
-  String get proImageEditor_tune_title => 'Tune';
-
-  @override
-  String get proImageEditor_tune_brightness => 'Brightness';
-
-  @override
-  String get proImageEditor_tune_contrast => 'Contrast';
-
-  @override
-  String get proImageEditor_tune_saturation => 'Saturation';
-
-  @override
-  String get proImageEditor_tune_exposure => 'Exposure';
-
-  @override
-  String get proImageEditor_tune_hue => 'Hue';
-
-  @override
-  String get proImageEditor_tune_temperature => 'Temperature';
-
-  @override
-  String get proImageEditor_tune_sharpness => 'Sharpness';
-
-  @override
-  String get proImageEditor_tune_fade => 'Fade';
-
-  @override
-  String get proImageEditor_tune_luminance => 'Luminance';
-
-  @override
-  String get proImageEditor_blur_title => 'Blur';
-
-  @override
-  String get proImageEditor_sticker_title => 'Stickers';
-
-  @override
-  String get proImageEditor_paint_title => 'Paint';
-
-  @override
-  String get proImageEditor_text_title => 'Text';
-
-  @override
-  String get proImageEditor_text_hint => 'Enter text';
-
-  @override
-  String get proImageEditor_emoji_title => 'Emoji';
-
-  @override
   String get profile_title => 'Profile';
 
   @override
@@ -1827,4 +1717,114 @@ class AppLocalizationsEn extends AppLocalizations {
   String insights_wearToday_success(Object itemName) {
     return 'Added \"$itemName\" to today\'s journal!';
   }
+
+  @override
+  String get removeBg_title => 'Remove Background';
+
+  @override
+  String get removeBg_processing => 'Processing, please wait...';
+
+  @override
+  String get removeBg_error_process => 'Could not process image.';
+
+  @override
+  String removeBg_error_generic(Object error) {
+    return 'Error processing image: $error';
+  }
+
+  @override
+  String get proImageEditor_common_done => 'Done';
+
+  @override
+  String get proImageEditor_common_back => 'Back';
+
+  @override
+  String get proImageEditor_common_cancel => 'Cancel';
+
+  @override
+  String get proImageEditor_common_undo => 'Undo';
+
+  @override
+  String get proImageEditor_common_redo => 'Redo';
+
+  @override
+  String get proImageEditor_common_remove => 'Remove';
+
+  @override
+  String get proImageEditor_common_edit => 'Edit';
+
+  @override
+  String get proImageEditor_common_rotateScale => 'Rotate and Scale';
+
+  @override
+  String get proImageEditor_common_more => 'More';
+
+  @override
+  String get proImageEditor_crop_title => 'Crop/ Rotate';
+
+  @override
+  String get proImageEditor_crop_rotate => 'Rotate';
+
+  @override
+  String get proImageEditor_crop_flip => 'Flip';
+
+  @override
+  String get proImageEditor_crop_ratio => 'Ratio';
+
+  @override
+  String get proImageEditor_crop_reset => 'Reset';
+
+  @override
+  String get proImageEditor_filter_title => 'Filter';
+
+  @override
+  String get proImageEditor_filter_noFilter => 'No Filter';
+
+  @override
+  String get proImageEditor_tune_title => 'Tune';
+
+  @override
+  String get proImageEditor_tune_brightness => 'Brightness';
+
+  @override
+  String get proImageEditor_tune_contrast => 'Contrast';
+
+  @override
+  String get proImageEditor_tune_saturation => 'Saturation';
+
+  @override
+  String get proImageEditor_tune_exposure => 'Exposure';
+
+  @override
+  String get proImageEditor_tune_hue => 'Hue';
+
+  @override
+  String get proImageEditor_tune_temperature => 'Temperature';
+
+  @override
+  String get proImageEditor_tune_sharpness => 'Sharpness';
+
+  @override
+  String get proImageEditor_tune_fade => 'Fade';
+
+  @override
+  String get proImageEditor_tune_luminance => 'Luminance';
+
+  @override
+  String get proImageEditor_blur_title => 'Blur';
+
+  @override
+  String get proImageEditor_sticker_title => 'Stickers';
+
+  @override
+  String get proImageEditor_paint_title => 'Paint';
+
+  @override
+  String get proImageEditor_text_title => 'Text';
+
+  @override
+  String get proImageEditor_text_hint => 'Enter text';
+
+  @override
+  String get proImageEditor_emoji_title => 'Emoji';
 }

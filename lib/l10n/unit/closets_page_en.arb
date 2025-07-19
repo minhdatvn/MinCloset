@@ -1,0 +1,83 @@
+{
+    "@@locale": "en",
+
+    "closets_title": "Your Closet",
+    "closets_itemsSelected": "{count,plural, =1{1 selected} other{{count} selected}}",
+    "closets_tabAllItems": "All Items",
+    "closets_tabByCloset": "By Closet",
+    "closetDetail_itemsSelected": "{count,plural, =1{1 selected} other{{count} selected}}",
+    "closetDetail_itemCount": "{count,plural, =1{1 item} other{{count} items}}",
+    "closetDetail_searchHint": "Search in this closet...",
+    "closetDetail_noItemsFound": "No items found.",
+    "closetDetail_emptyCloset": "This closet is empty.",
+    "closetDetail_delete": "Delete",
+    "closetDetail_move": "Move",
+    "closetDetail_createOutfit": "Create Outfit",
+    "closetDetail_confirmDeleteTitle": "Confirm Deletion",
+    "closetDetail_confirmDeleteContent": "Are you sure you want to permanently delete {count,plural, =1{1 selected item} other{{count} selected items}}?",
+    "closetDetail_moveDialogTitle": "Move {count,plural, =1{1 item} other{{count} items}} to...",
+    "closetDetail_moveErrorNoClosets": "No other closets available to move to.",
+    "closetDetail_cancel": "Cancel",
+
+    "closetDialog_editTitle": "Edit closet name",
+    "closetDialog_createTitle": "Create new closet",
+    "closetDialog_editLabel": "New name",
+    "closetDialog_createLabel": "Closet name",
+
+    "closet_error_emptyName": "Closet name cannot be empty.",
+    "closet_error_maxLength": "Closet name cannot exceed 30 characters.",
+    "closet_error_limitReached": "Maximum number of closets (10) reached.",
+    "closet_error_duplicateName": "A closet with this name already exists.",
+    "closet_error_notEmptyOnDelete": "Closet is not empty. Move or delete items first.",
+    "closet_success_created": "Successfully created \"{closetName}\" closet.",
+    "closet_success_updated": "Closet updated successfully.",
+    "closet_success_deleted": "Closet deleted successfully.",
+    "closet_moveErrorNoClosets": "No other closets available to move to.",
+
+    "allItems_searchHint": "Search items...",
+    "allItems_filterTooltip": "Filter",
+    "allItems_emptyCloset": "Your closet is empty.",
+    "allItems_noItemsFound": "No items found for your search or filter.",
+    "allItems_delete": "Delete",
+    "allItems_createOutfit": "Create Outfit",
+    "allItems_deleteDialogTitle": "Confirm Deletion",
+    "allItems_deleteDialogContent": "{count,plural, =1{Are you sure you want to permanently delete 1 selected item?} other{Are you sure you want to permanently delete {count} selected items?}}",
+    "@allItems_deleteDialogContent": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+
+    "byCloset_addClosetHintTitle": "Create a New Closet",
+    "byCloset_addClosetHintDescription": "Tap here to create a new closet, helping you organize your clothes for different purposes like 'Work' or 'Gym'.",
+    "byCloset_addNewCloset": "Add new closet",
+    "byCloset_itemCount": "{count,plural, =0{0 items} =1{1 item} other{{count} items}}",
+    "@byCloset_itemCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "byCloset_itemCountError": "Error",
+    "byCloset_itemCountLoading": "...",
+    "byCloset_deleteDialogTitle": "Confirm Deletion",
+    "byCloset_deleteDialogContent": "Are you sure you want to delete the \"{closetName}\" closet?",
+    "@byCloset_deleteDialogContent": {
+        "placeholders": {
+            "closetName": {
+                "type": "String"
+            }
+        }
+    },
+    "byCloset_limitReached": "Closet limit (10) reached.",
+
+    "closetForm_titleEdit": "Edit Closet",
+    "closetForm_titleAdd": "Add New Closet",
+    "closetForm_saveButton": "Save",
+    "closetForm_nameLabel": "Closet Name",
+    "closetForm_iconLabel": "Choose Icon",
+    "closetForm_colorLabel": "Choose Card Color"
+}

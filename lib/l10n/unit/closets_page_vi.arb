@@ -1,0 +1,83 @@
+{
+    "@@locale": "vi",
+
+    "closets_title": "Tủ đồ của bạn",
+    "closets_itemsSelected": "Đã chọn {count}",
+    "closets_tabAllItems": "Tất cả",
+    "closets_tabByCloset": "Theo Tủ đồ",
+    "closetDetail_itemsSelected": "Đã chọn {count}",
+    "closetDetail_itemCount": "{count,plural, =1{1 vật phẩm} other{{count} vật phẩm}}",
+    "closetDetail_searchHint": "Tìm trong tủ đồ này...",
+    "closetDetail_noItemsFound": "Không tìm thấy vật phẩm.",
+    "closetDetail_emptyCloset": "Tủ đồ này đang trống.",
+    "closetDetail_delete": "Xoá",
+    "closetDetail_move": "Di chuyển",
+    "closetDetail_createOutfit": "Tạo Trang phục",
+    "closetDetail_confirmDeleteTitle": "Xác nhận Xoá",
+    "closetDetail_confirmDeleteContent": "Bạn có chắc muốn xoá vĩnh viễn {count,plural, =1{1 vật phẩm đã chọn} other{{count} vật phẩm đã chọn}} không?",
+    "closetDetail_moveDialogTitle": "Di chuyển {count,plural, =1{1 vật phẩm} other{{count} vật phẩm}} tới...",
+    "closetDetail_moveErrorNoClosets": "Không có tủ đồ nào khác để di chuyển tới.",
+    "closetDetail_cancel": "Huỷ",
+
+    "closetDialog_editTitle": "Sửa tên tủ đồ",
+    "closetDialog_createTitle": "Tạo tủ đồ mới",
+    "closetDialog_editLabel": "Tên mới",
+    "closetDialog_createLabel": "Tên tủ đồ",
+
+    "closet_error_emptyName": "Tên tủ đồ không được để trống.",
+    "closet_error_maxLength": "Tên tủ đồ không được vượt quá 30 ký tự.",
+    "closet_error_limitReached": "Đã đạt giới hạn số lượng tủ đồ (10).",
+    "closet_error_duplicateName": "Tên tủ đồ này đã tồn tại.",
+    "closet_error_notEmptyOnDelete": "Tủ đồ không trống. Hãy di chuyển hoặc xóa các vật phẩm trước.",
+    "closet_success_created": "Đã tạo thành công tủ đồ \"{closetName}\".",
+    "closet_success_updated": "Cập nhật tủ đồ thành công.",
+    "closet_success_deleted": "Đã xóa tủ đồ thành công.",
+    "closet_moveErrorNoClosets": "Không có tủ đồ nào khác để di chuyển tới.",
+
+    "allItems_searchHint": "Tìm kiếm vật phẩm...",
+    "allItems_filterTooltip": "Lọc",
+    "allItems_emptyCloset": "Tủ đồ của bạn đang trống.",
+    "allItems_noItemsFound": "Không tìm thấy vật phẩm nào phù hợp.",
+    "allItems_delete": "Xoá",
+    "allItems_createOutfit": "Tạo Trang phục",
+    "allItems_deleteDialogTitle": "Xác nhận Xoá",
+    "allItems_deleteDialogContent": "Bạn có chắc chắn muốn xoá vĩnh viễn {count} vật phẩm đã chọn không?",
+    "@allItems_deleteDialogContent": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+
+    "byCloset_addClosetHintTitle": "Tạo Tủ đồ Mới",
+    "byCloset_addClosetHintDescription": "Nhấn vào đây để tạo một tủ đồ mới, giúp bạn sắp xếp quần áo cho các mục đích khác nhau như 'Công sở' hoặc 'Tập gym'.",
+    "byCloset_addNewCloset": "Thêm tủ đồ mới",
+    "byCloset_itemCount": "{count} vật phẩm",
+    "@byCloset_itemCount": {
+        "placeholders": {
+            "count": {
+                "type": "int"
+            }
+        }
+    },
+    "byCloset_itemCountError": "Lỗi",
+    "byCloset_itemCountLoading": "...",
+    "byCloset_deleteDialogTitle": "Xác nhận Xoá",
+    "byCloset_deleteDialogContent": "Bạn có chắc chắn muốn xoá tủ đồ \"{closetName}\" không?",
+    "@byCloset_deleteDialogContent": {
+        "placeholders": {
+            "closetName": {
+                "type": "String"
+            }
+        }
+    },
+    "byCloset_limitReached": "Đã đạt giới hạn tủ đồ (10).",
+
+    "closetForm_titleEdit": "Sửa Tủ đồ",
+    "closetForm_titleAdd": "Thêm Tủ đồ Mới",
+    "closetForm_saveButton": "Lưu",
+    "closetForm_nameLabel": "Tên Tủ đồ",
+    "closetForm_iconLabel": "Chọn Biểu tượng",
+    "closetForm_colorLabel": "Chọn Màu thẻ"
+}

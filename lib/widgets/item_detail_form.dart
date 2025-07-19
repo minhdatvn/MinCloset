@@ -19,6 +19,7 @@ import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/states/item_detail_state.dart';
 import 'package:mincloset/widgets/category_selector.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
+import 'package:mincloset/widgets/help_tooltip_icon.dart';
 
 class ItemDetailForm extends ConsumerStatefulWidget {
   final ItemDetailState itemState;
@@ -327,17 +328,13 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
             allOptions: AppOptions.materials,
             initialSelections: widget.itemState.selectedMaterials,
             onSelectionChanged: widget.onMaterialsChanged,
-            // Truyền IconButton vào thuộc tính mới
-            labelAction: InkWell( // <-- Dùng InkWell
-              customBorder: const CircleBorder(), // <-- Tạo hiệu ứng ripple tròn
-              onTap: () {
-                Navigator.pushNamed(context, AppRoutes.materialTips);
-              },
-              child: Padding( // <-- Thêm một chút padding để dễ nhấn hơn
-                padding: const EdgeInsets.all(4.0),
-                child: Icon(Icons.help_outline, color: Colors.grey.shade500, size: 20),
-              ),
-            ),
+            labelAction: settings.showTooltips
+                ? HelpTooltipIcon( // <-- Sử dụng widget mới có thể tái sử dụng
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoutes.materialTips);
+                    },
+                  )
+                : null, // <-- Nếu cài đặt là false, không hiển thị gì cả
           ),
           const SizedBox(height: 16),
           MultiSelectChipField(

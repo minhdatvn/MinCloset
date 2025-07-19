@@ -192,6 +192,16 @@ class SettingsPage extends ConsumerWidget {
                   },
                   secondary: const Icon(Icons.image_outlined),
                 ),
+
+                SwitchListTile(
+                  title: const Text("Show Help Tooltips"), // Sẽ đa ngôn ngữ sau
+                  subtitle: const Text("Display (?) icons for helpful tips."),
+                  value: profileState.showTooltips,
+                  onChanged: (bool value) {
+                    profileNotifier.updateShowTooltips(value);
+                  },
+                  secondary: const Icon(Icons.help_outline),
+                ),
                 Consumer(
                   builder: (context, ref, child) {
                     // Lấy provider quản lý trạng thái hiển thị của mascot

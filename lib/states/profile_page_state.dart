@@ -36,10 +36,10 @@ class ProfilePageState extends Equatable {
   final String? errorMessage;
   final String currency;
   final NumberFormatType numberFormat;
-
   final HeightUnit heightUnit;
   final WeightUnit weightUnit;
   final TempUnit tempUnit;
+  final bool showTooltips;
 
   const ProfilePageState({
     this.isLoading = true,
@@ -70,6 +70,7 @@ class ProfilePageState extends Equatable {
     this.heightUnit = HeightUnit.cm,
     this.weightUnit = WeightUnit.kg,
     this.tempUnit = TempUnit.celsius,
+    this.showTooltips = true,
   });
 
   int? get age {
@@ -112,6 +113,7 @@ class ProfilePageState extends Equatable {
     HeightUnit? heightUnit,
     WeightUnit? weightUnit,
     TempUnit? tempUnit,
+    bool? showTooltips,
   }) {
     return ProfilePageState(
       isLoading: isLoading ?? this.isLoading,
@@ -142,6 +144,7 @@ class ProfilePageState extends Equatable {
       heightUnit: heightUnit ?? this.heightUnit,
       weightUnit: weightUnit ?? this.weightUnit,
       tempUnit: tempUnit ?? this.tempUnit,
+      showTooltips: showTooltips ?? this.showTooltips,
     );
   }
 
@@ -175,5 +178,6 @@ class ProfilePageState extends Equatable {
         heightUnit,
         weightUnit,
         tempUnit,
+        showTooltips,
       ];
 }

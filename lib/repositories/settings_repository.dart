@@ -28,6 +28,7 @@ class SettingsRepository {
   static const String weightUnitKey = 'weight_unit';
   static const String tempUnitKey = 'temp_unit';
   static const String _userProfileKey = 'user_profile_data';
+  static const String showTooltipsKey = 'show_tooltips';
 
   Future<void> saveUserProfile(Map<String, dynamic> data) async {
     // Đọc dữ liệu hồ sơ hiện có

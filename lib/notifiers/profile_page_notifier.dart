@@ -85,6 +85,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
       final weightUnit = WeightUnit.values.byName(weightUnitString);
       final tempUnitString = profileData[SettingsRepository.tempUnitKey] as String? ?? 'celsius';
       final tempUnit = TempUnit.values.byName(tempUnitString);
+      final showTooltips = profileData[SettingsRepository.showTooltipsKey] as bool? ?? true;
       
       logger.i('3. Successfully read settings from repository.');
 
@@ -201,6 +202,7 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
                     heightUnit: heightUnit,
                     weightUnit: weightUnit,
                     tempUnit: tempUnit,
+                    showTooltips: showTooltips,
                   );
                   logger.i(
                       '8. State updated successfully! Profile page loading complete.');
@@ -351,6 +353,11 @@ class ProfilePageNotifier extends StateNotifier<ProfilePageState> {
     );
     // Báo cho các provider khác biết rằng có sự thay đổi để có thể tự làm mới
     _ref.read(profileChangedTriggerProvider.notifier).state++;
+  }
+
+  Future<void> updateShowTooltips(bool newValue) async {
+    await _settingsRepo.saveUserProfile({SettingsRepository.showTooltipsKey: newValue});
+    state = state.copyWith(showTooltips: newValue);
   }
 }
 

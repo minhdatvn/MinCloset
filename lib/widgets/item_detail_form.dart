@@ -1,9 +1,11 @@
 // lib/widgets/item_detail_form.dart
-import 'dart:io';
 import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image/image.dart' as img;
 import 'package:intl/intl.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/helpers/context_extensions.dart';
@@ -17,7 +19,6 @@ import 'package:mincloset/services/number_formatting_service.dart';
 import 'package:mincloset/states/item_detail_state.dart';
 import 'package:mincloset/widgets/category_selector.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
-import 'package:image/image.dart' as img;
 
 class ItemDetailForm extends ConsumerStatefulWidget {
   final ItemDetailState itemState;
@@ -322,6 +323,16 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
             allOptions: AppOptions.materials,
             initialSelections: widget.itemState.selectedMaterials,
             onSelectionChanged: widget.onMaterialsChanged,
+            // Truyền IconButton vào thuộc tính mới
+            labelAction: IconButton(
+              // Giảm padding để icon gần chữ hơn
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: Icon(Icons.help_outline, color: Colors.grey.shade500, size: 20),
+              onPressed: () {
+                Navigator.pushNamed(context, AppRoutes.materialTips);
+              },
+            ),
           ),
           MultiSelectChipField(
             label: l10n.itemDetail_form_patternLabel,

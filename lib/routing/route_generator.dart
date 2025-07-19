@@ -35,6 +35,7 @@ import 'package:mincloset/screens/guides_page.dart';
 import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/screens/webview_page.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:mincloset/screens/tips/material_tips_page.dart';
 
 class CalendarPageArgs {
   final bool showHint;
@@ -183,6 +184,9 @@ class RouteGenerator {
       
       case AppRoutes.permissions:
         return MaterialPageRoute(builder: (_) => const PermissionsScreen());
+      
+      case AppRoutes.materialTips:
+        return MaterialPageRoute(builder: (_) => const MaterialTipsPage());
 
       default:
         return _errorRoute();

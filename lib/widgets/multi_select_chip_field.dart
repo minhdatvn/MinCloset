@@ -9,6 +9,7 @@ class MultiSelectChipField extends StatefulWidget {
   final dynamic allOptions;
   final Set<String> initialSelections;
   final Function(Set<String>) onSelectionChanged;
+  final Widget? labelAction;
 
   const MultiSelectChipField({
     super.key,
@@ -16,6 +17,7 @@ class MultiSelectChipField extends StatefulWidget {
     required this.allOptions,
     required this.initialSelections,
     required this.onSelectionChanged,
+    this.labelAction,
   });
 
   @override
@@ -68,6 +70,10 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
             child: Row(
               children: [
                 Text(widget.label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                if (widget.labelAction != null) ...[
+                  const SizedBox(width: 4),
+                  widget.labelAction!,
+                ],
                 const SizedBox(width: 16),
                 Expanded(
                   child: Row(

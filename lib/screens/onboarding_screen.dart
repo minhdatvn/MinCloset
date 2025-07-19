@@ -5,10 +5,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/helpers/context_extensions.dart';
+import 'package:mincloset/helpers/dialog_helpers.dart';
+import 'package:mincloset/models/notification_type.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
 import 'package:mincloset/providers/auth_providers.dart';
+import 'package:mincloset/providers/event_providers.dart';
 import 'package:mincloset/providers/flow_providers.dart';
 import 'package:mincloset/providers/locale_provider.dart';
+import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/utils/logger.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,25 +61,24 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final authRepository = ref.read(authRepositoryProvider);
     final User? user = await authRepository.signInWithGoogle();
 
+    // Thêm kiểm tra `mounted` ở đây để đảm bảo an toàn sau `await`
     if (!mounted) {
-      setState(() => _isSigningIn = false);
+      // Không cần setState vì widget đã bị hủy
       return;
     }
 
     if (user != null) {
-      // 1. Đăng nhập thành công, lưu tên từ tài khoản Google
       await ref
           .read(profileProvider.notifier)
           .updateProfileInfo({'name': user.displayName ?? 'New User'});
 
-      // 2. Kiểm tra xem có bản sao lưu nào trên Firestore không
       final backupDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .get();
 
+      // Thêm một kiểm tra `mounted` nữa
       if (backupDoc.exists && mounted) {
-        // 3. Nếu có, hiển thị dialog hỏi người dùng có muốn phục hồi không
         final bool? shouldRestore = await showDialog<bool>(
           context: context,
           barrierDismissible: false,
@@ -95,17 +98,54 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
         );
 
-        if (shouldRestore == true) {
-          // TODO: GỌI LOGIC PHỤC HỒI DỮ LIỆU Ở ĐÂY (SẼ LÀM Ở GIAI ĐOẠN 4)
-          logger.i("User chose to restore data.");
+        // Thêm một kiểm tra `mounted` nữa sau khi dialog đóng lại
+        if (shouldRestore == true && mounted) {
+          // SỬA LỖI CÚ PHÁP: Truyền `context` như một tham số vị trí
+          showAnimatedDialog(
+            context, // <- SỬA Ở ĐÂY
+            barrierDismissible: false,
+            builder: (ctx) => const PopScope(
+              canPop: false,
+              child: AlertDialog(
+                content: Row(
+                  children: [
+                    CircularProgressIndicator(),
+                    SizedBox(width: 24),
+                    Text("Restoring data..."),
+                  ],
+                ),
+              ),
+            ),
+          );
+
+          try {
+            await ref.read(restoreServiceProvider).performRestore();
+
+            if (mounted) {
+              Navigator.of(context, rootNavigator: true).pop(); // Đóng dialog loading
+              ref.read(notificationServiceProvider).showBanner(
+                    message: "Data restored successfully!",
+                    type: NotificationType.success,
+                  );
+              ref.read(itemChangedTriggerProvider.notifier).state++;
+            }
+          } catch (e) {
+            if (mounted) {
+              Navigator.of(context, rootNavigator: true).pop(); // Đóng dialog loading
+              ref.read(notificationServiceProvider).showBanner(
+                    message: "Restore failed: ${e.toString()}",
+                  );
+            }
+          }
         }
       }
       
-      // 4. Hoàn tất onboarding
-      await _finishOnboarding();
+      // Hoàn tất onboarding, cần kiểm tra `mounted` lần cuối
+      if (mounted) {
+        await _finishOnboarding();
+      }
 
     } else {
-      // Xử lý trường hợp người dùng hủy đăng nhập
       logger.i("User cancelled Google Sign-In.");
       setState(() => _isSigningIn = false);
     }

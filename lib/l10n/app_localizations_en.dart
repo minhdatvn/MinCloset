@@ -418,408 +418,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pattern_other => 'Other';
 
   @override
-  String get profile_title => 'Profile';
-
-  @override
-  String get profile_settings_tooltip => 'Settings';
-
-  @override
-  String get profile_editProfile_label => 'Edit profile';
-
-  @override
-  String get profile_unnamed_label => 'Unnamed';
-
-  @override
-  String get profile_achievements_label => 'Achievements';
-
-  @override
-  String get profile_closetsOverview_sectionHeader => 'Closets overview';
-
-  @override
-  String get profile_insights_button => 'Insights';
-
-  @override
-  String get profile_statistics_sectionHeader => 'Statistics';
-
-  @override
-  String get profile_noData_message => 'No data for statistics';
-
-  @override
-  String get profile_statPage_category => 'Category';
-
-  @override
-  String get profile_statPage_color => 'Color';
-
-  @override
-  String get profile_statPage_season => 'Season';
-
-  @override
-  String get profile_statPage_occasion => 'Occasion';
-
-  @override
-  String get profile_statPage_material => 'Material';
-
-  @override
-  String get profile_statPage_pattern => 'Pattern';
-
-  @override
-  String get profile_takePhoto_label => 'Take Photo';
-
-  @override
-  String get profile_fromAlbum_label => 'From Album';
-
-  @override
-  String get settings_title => 'Settings';
-
-  @override
-  String get settings_general_sectionHeader => 'General Settings';
-
-  @override
-  String get settings_localization_tile => 'Localization';
-
-  @override
-  String get settings_location_tile => 'Location';
-
-  @override
-  String get settings_autoDetect_label => 'Auto-detect';
-
-  @override
-  String get settings_language_tile => 'Language';
-
-  @override
-  String get settings_currency_tile => 'Currency';
-
-  @override
-  String get settings_decimalFormat_tile => 'Decimal format';
-
-  @override
-  String get settings_units_tile => 'Units';
-
-  @override
-  String get settings_height_label => 'Height';
-
-  @override
-  String get settings_weight_label => 'Weight';
-
-  @override
-  String get settings_temp_label => 'Temperature';
-
-  @override
-  String get settings_notifications_tile => 'Notifications';
-
-  @override
-  String get settings_enableAllNotifications_label =>
-      'Enable all notifications';
-
-  @override
-  String get settings_dailyReminderDescription =>
-      'Receive a daily reminder to log your outfit.';
-
-  @override
-  String get settings_display_tile => 'Display';
-
-  @override
-  String get settings_showWeatherBg_label => 'Show weather background';
-
-  @override
-  String get settings_showWeatherBg_subtitle =>
-      'Display image based on weather';
-
-  @override
-  String get settings_showMascot_label => 'Show Mascot';
-
-  @override
-  String get settings_showMascot_subtitle => 'Display the assistant on screen';
-
-  @override
-  String get settings_aboutSupport_sectionHeader => 'About & Support';
-
-  @override
-  String get settings_aboutLegal_tile => 'About & Legal';
-
-  @override
-  String get settings_sendFeedback_tile => 'Send Feedback';
-
-  @override
-  String get settings_sendFeedback_subtitle => 'Help us improve MinCloset';
-
-  @override
-  String get settings_rateApp_tile => 'Rate on App Store';
-
-  @override
-  String get citySelection_title => 'Select Location';
-
-  @override
-  String get citySelection_autoDetect => 'Auto-detect';
-
-  @override
-  String get citySelection_autoDetect_subtitle => 'Use your current location';
-
-  @override
-  String get citySelection_manual => 'Manually';
-
-  @override
-  String get citySelection_searchHint => 'Search city/location…';
-
-  @override
-  String get about_title => 'About & Legal';
-
-  @override
-  String get about_privacy_title => 'Privacy Policy';
-
-  @override
-  String get about_privacy_subtitle => 'How we handle your data.';
-
-  @override
-  String get about_terms_title => 'Terms of Use';
-
-  @override
-  String get about_terms_subtitle => 'Rules for using the app.';
-
-  @override
-  String get about_loadingVersion => 'Loading version...';
-
-  @override
-  String about_version(Object buildNumber, Object version) {
-    return 'Version $version ($buildNumber)';
-  }
-
-  @override
-  String get editProfile_title => 'Edit profile';
-
-  @override
-  String get editProfile_saveButton => 'Save';
-
-  @override
-  String get editProfile_basicInfo_sectionHeader => 'Basic info';
-
-  @override
-  String get editProfile_fullName_label => 'Full name';
-
-  @override
-  String get editProfile_gender_label => 'Gender';
-
-  @override
-  String get editProfile_birthday_label => 'Birthday';
-
-  @override
-  String get editProfile_notSelected_label => 'Not selected';
-
-  @override
-  String get editProfile_height_cm_label => 'Height (cm)';
-
-  @override
-  String get editProfile_height_ft_in_label => 'Height';
-
-  @override
-  String get editProfile_weight_label => 'Weight';
-
-  @override
-  String get editProfile_interests_sectionHeader => 'Interests & Style';
-
-  @override
-  String get editProfile_personalStyle_label => 'Personal style';
-
-  @override
-  String get editProfile_favoriteColors_label => 'Favorite colors';
-
-  @override
-  String get gender_male => 'Male';
-
-  @override
-  String get gender_female => 'Female';
-
-  @override
-  String get gender_other => 'Other';
-
-  @override
-  String get quests_title => 'Achievements';
-
-  @override
-  String get quests_yourBadges_sectionHeader => 'Your Badges';
-
-  @override
-  String get quests_inProgress_sectionHeader => 'In Progress';
-
-  @override
-  String get quests_noActiveQuests_message => 'No active quests.';
-
-  @override
-  String get quest_event_topAdded => 'Tops Added';
-
-  @override
-  String get quest_event_bottomAdded => 'Bottoms Added';
-
-  @override
-  String get quest_event_suggestionReceived => 'AI Suggestion';
-
-  @override
-  String get quest_event_outfitCreated => 'Outfit Created';
-
-  @override
-  String get quest_event_closetCreated => 'New Closet';
-
-  @override
-  String get quest_event_logAdded => 'Item/Outfit Logged';
-
-  @override
-  String get quest_firstSteps_title => 'First Steps into Your Digital Closet';
-
-  @override
-  String get quest_firstSteps_description =>
-      'Add your first 3 tops and 3 bottoms (pants, skirts, etc.) to start receiving personalized suggestions.';
-
-  @override
-  String get quest_firstSuggestion_title => 'Your First AI-Powered Suggestion';
-
-  @override
-  String get quest_firstSuggestion_description =>
-      'Let\'s see what the AI has in store for you. Get your first outfit suggestion!';
-
-  @override
-  String get quest_firstOutfit_title => 'Your First Creation';
-
-  @override
-  String get quest_firstOutfit_description =>
-      'Use the Outfit Builder to create and save your first custom outfit.';
-
-  @override
-  String get quest_organizeCloset_title => 'Get Organized';
-
-  @override
-  String get quest_organizeCloset_description =>
-      'Create a new closet to better organize your clothing items (e.g., for work, for sports).';
-
-  @override
-  String get quest_firstLog_title => 'Track Your Style Journey';
-
-  @override
-  String get quest_firstLog_description =>
-      'Log an item or an outfit to your Journey to keep track of what you wear.';
-
-  @override
-  String get achievementDialog_title => 'ACHIEVEMENT UNLOCKED!';
-
-  @override
-  String get achievementDialog_button => 'Awesome!';
-
-  @override
-  String get badgeDetail_completedQuests => 'Completed Quests';
-
-  @override
-  String get badgeDetail_noQuests => 'No quests found for this badge.';
-
-  @override
-  String get mascot_newQuest => 'New Quest!';
-
-  @override
-  String get mascot_questCompleted => 'Quest Completed!';
-
-  @override
-  String stats_label_item(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Items',
-      one: 'Item',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String stats_label_closet(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Closets',
-      one: 'Closet',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String stats_label_outfit(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: 'Outfits',
-      one: 'Outfit',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String get insights_title => 'Closet Insights';
-
-  @override
-  String get insights_exclusive => 'MINCLOSET EXCLUSIVE';
-
-  @override
-  String insights_journeyTitle(Object userName) {
-    return 'Inside $userName\'s Style Journey';
-  }
-
-  @override
-  String get insights_mostLoved => 'The Most-Loved Pieces';
-
-  @override
-  String get insights_smartestInvestments => 'Smartest Investments';
-
-  @override
-  String get insights_rediscoverCloset => 'Rediscover Your Closet';
-
-  @override
-  String get insights_investmentFocus => 'Investment Focus';
-
-  @override
-  String get insights_noData => 'No insights available.';
-
-  @override
-  String get insights_error_noLogs =>
-      'Please add items or outfits to Style journal first!';
-
-  @override
-  String get insights_goToJournal => 'Go to Style Journal';
-
-  @override
-  String get insights_mostWorn_noData =>
-      'You haven\'t logged any worn items yet. Start your style journal today!';
-
-  @override
-  String get insights_bestValue_noData =>
-      'Wear items you\'ve added a price to and your smartest investments will appear here!';
-
-  @override
-  String get insights_addPrices => 'Add Prices to Items';
-
-  @override
-  String insights_wears(num count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count wears',
-      one: '1 wear',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String insights_costPerWear(Object price) {
-    return '$price/wear';
-  }
-
-  @override
-  String get insights_forgottenItem_subtitle => 'Not worn yet. Give it a try!';
-
-  @override
-  String get insights_wearToday => 'Wear Today';
-
-  @override
-  String insights_wearToday_success(Object itemName) {
-    return 'Added \"$itemName\" to today\'s journal!';
-  }
-
-  @override
   String get outfitsHub_title => 'Your Outfits';
 
   @override
@@ -1827,4 +1425,406 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get proImageEditor_emoji_title => 'Emoji';
+
+  @override
+  String get profile_title => 'Profile';
+
+  @override
+  String get profile_settings_tooltip => 'Settings';
+
+  @override
+  String get profile_editProfile_label => 'Edit profile';
+
+  @override
+  String get profile_unnamed_label => 'Unnamed';
+
+  @override
+  String get profile_achievements_label => 'Achievements';
+
+  @override
+  String get profile_closetsOverview_sectionHeader => 'Closets overview';
+
+  @override
+  String get profile_insights_button => 'Insights';
+
+  @override
+  String get profile_statistics_sectionHeader => 'Statistics';
+
+  @override
+  String get profile_noData_message => 'No data for statistics';
+
+  @override
+  String get profile_statPage_category => 'Category';
+
+  @override
+  String get profile_statPage_color => 'Color';
+
+  @override
+  String get profile_statPage_season => 'Season';
+
+  @override
+  String get profile_statPage_occasion => 'Occasion';
+
+  @override
+  String get profile_statPage_material => 'Material';
+
+  @override
+  String get profile_statPage_pattern => 'Pattern';
+
+  @override
+  String get profile_takePhoto_label => 'Take Photo';
+
+  @override
+  String get profile_fromAlbum_label => 'From Album';
+
+  @override
+  String get settings_title => 'Settings';
+
+  @override
+  String get settings_general_sectionHeader => 'General Settings';
+
+  @override
+  String get settings_localization_tile => 'Localization';
+
+  @override
+  String get settings_location_tile => 'Location';
+
+  @override
+  String get settings_autoDetect_label => 'Auto-detect';
+
+  @override
+  String get settings_language_tile => 'Language';
+
+  @override
+  String get settings_currency_tile => 'Currency';
+
+  @override
+  String get settings_decimalFormat_tile => 'Decimal format';
+
+  @override
+  String get settings_units_tile => 'Units';
+
+  @override
+  String get settings_height_label => 'Height';
+
+  @override
+  String get settings_weight_label => 'Weight';
+
+  @override
+  String get settings_temp_label => 'Temperature';
+
+  @override
+  String get settings_notifications_tile => 'Notifications';
+
+  @override
+  String get settings_enableAllNotifications_label =>
+      'Enable all notifications';
+
+  @override
+  String get settings_dailyReminderDescription =>
+      'Receive a daily reminder to log your outfit.';
+
+  @override
+  String get settings_display_tile => 'Display';
+
+  @override
+  String get settings_showWeatherBg_label => 'Show weather background';
+
+  @override
+  String get settings_showWeatherBg_subtitle =>
+      'Display image based on weather';
+
+  @override
+  String get settings_showMascot_label => 'Show Mascot';
+
+  @override
+  String get settings_showMascot_subtitle => 'Display the assistant on screen';
+
+  @override
+  String get settings_aboutSupport_sectionHeader => 'About & Support';
+
+  @override
+  String get settings_aboutLegal_tile => 'About & Legal';
+
+  @override
+  String get settings_sendFeedback_tile => 'Send Feedback';
+
+  @override
+  String get settings_sendFeedback_subtitle => 'Help us improve MinCloset';
+
+  @override
+  String get settings_rateApp_tile => 'Rate on App Store';
+
+  @override
+  String get citySelection_title => 'Select Location';
+
+  @override
+  String get citySelection_autoDetect => 'Auto-detect';
+
+  @override
+  String get citySelection_autoDetect_subtitle => 'Use your current location';
+
+  @override
+  String get citySelection_manual => 'Manually';
+
+  @override
+  String get citySelection_searchHint => 'Search city/location…';
+
+  @override
+  String get about_title => 'About & Legal';
+
+  @override
+  String get about_privacy_title => 'Privacy Policy';
+
+  @override
+  String get about_privacy_subtitle => 'How we handle your data.';
+
+  @override
+  String get about_terms_title => 'Terms of Use';
+
+  @override
+  String get about_terms_subtitle => 'Rules for using the app.';
+
+  @override
+  String get about_loadingVersion => 'Loading version...';
+
+  @override
+  String about_version(Object buildNumber, Object version) {
+    return 'Version $version ($buildNumber)';
+  }
+
+  @override
+  String get editProfile_title => 'Edit profile';
+
+  @override
+  String get editProfile_saveButton => 'Save';
+
+  @override
+  String get editProfile_basicInfo_sectionHeader => 'Basic info';
+
+  @override
+  String get editProfile_fullName_label => 'Full name';
+
+  @override
+  String get editProfile_gender_label => 'Gender';
+
+  @override
+  String get editProfile_birthday_label => 'Birthday';
+
+  @override
+  String get editProfile_notSelected_label => 'Not selected';
+
+  @override
+  String get editProfile_height_cm_label => 'Height (cm)';
+
+  @override
+  String get editProfile_height_ft_in_label => 'Height';
+
+  @override
+  String get editProfile_weight_label => 'Weight';
+
+  @override
+  String get editProfile_interests_sectionHeader => 'Interests & Style';
+
+  @override
+  String get editProfile_personalStyle_label => 'Personal style';
+
+  @override
+  String get editProfile_favoriteColors_label => 'Favorite colors';
+
+  @override
+  String get gender_male => 'Male';
+
+  @override
+  String get gender_female => 'Female';
+
+  @override
+  String get gender_other => 'Other';
+
+  @override
+  String get quests_title => 'Achievements';
+
+  @override
+  String get quests_yourBadges_sectionHeader => 'Your Badges';
+
+  @override
+  String get quests_inProgress_sectionHeader => 'In Progress';
+
+  @override
+  String get quests_noActiveQuests_message => 'No active quests.';
+
+  @override
+  String get quest_event_topAdded => 'Tops Added';
+
+  @override
+  String get quest_event_bottomAdded => 'Bottoms Added';
+
+  @override
+  String get quest_event_suggestionReceived => 'AI Suggestion';
+
+  @override
+  String get quest_event_outfitCreated => 'Outfit Created';
+
+  @override
+  String get quest_event_closetCreated => 'New Closet';
+
+  @override
+  String get quest_event_logAdded => 'Item/Outfit Logged';
+
+  @override
+  String get quest_firstSteps_title => 'First Steps into Your Digital Closet';
+
+  @override
+  String get quest_firstSteps_description =>
+      'Add your first 3 tops and 3 bottoms (pants, skirts, etc.) to start receiving personalized suggestions.';
+
+  @override
+  String get quest_firstSuggestion_title => 'Your First AI-Powered Suggestion';
+
+  @override
+  String get quest_firstSuggestion_description =>
+      'Let\'s see what the AI has in store for you. Get your first outfit suggestion!';
+
+  @override
+  String get quest_firstOutfit_title => 'Your First Creation';
+
+  @override
+  String get quest_firstOutfit_description =>
+      'Use the Outfit Builder to create and save your first custom outfit.';
+
+  @override
+  String get quest_organizeCloset_title => 'Get Organized';
+
+  @override
+  String get quest_organizeCloset_description =>
+      'Create a new closet to better organize your clothing items (e.g., for work, for sports).';
+
+  @override
+  String get quest_firstLog_title => 'Track Your Style Journey';
+
+  @override
+  String get quest_firstLog_description =>
+      'Log an item or an outfit to your Journey to keep track of what you wear.';
+
+  @override
+  String get achievementDialog_title => 'ACHIEVEMENT UNLOCKED!';
+
+  @override
+  String get achievementDialog_button => 'Awesome!';
+
+  @override
+  String get badgeDetail_completedQuests => 'Completed Quests';
+
+  @override
+  String get badgeDetail_noQuests => 'No quests found for this badge.';
+
+  @override
+  String get mascot_newQuest => 'New Quest!';
+
+  @override
+  String get mascot_questCompleted => 'Quest Completed!';
+
+  @override
+  String stats_label_item(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Items',
+      one: 'Item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String stats_label_closet(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Closets',
+      one: 'Closet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String stats_label_outfit(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Outfits',
+      one: 'Outfit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get insights_title => 'Closet Insights';
+
+  @override
+  String get insights_exclusive => 'MINCLOSET EXCLUSIVE';
+
+  @override
+  String insights_journeyTitle(Object userName) {
+    return 'Inside $userName\'s Style Journey';
+  }
+
+  @override
+  String get insights_mostLoved => 'The Most-Loved Pieces';
+
+  @override
+  String get insights_smartestInvestments => 'Smartest Investments';
+
+  @override
+  String get insights_rediscoverCloset => 'Rediscover Your Closet';
+
+  @override
+  String get insights_investmentFocus => 'Investment Focus';
+
+  @override
+  String get insights_noData => 'No insights available.';
+
+  @override
+  String get insights_error_noLogs =>
+      'Please add items or outfits to Style journal first!';
+
+  @override
+  String get insights_goToJournal => 'Go to Style Journal';
+
+  @override
+  String get insights_mostWorn_noData =>
+      'You haven\'t logged any worn items yet. Start your style journal today!';
+
+  @override
+  String get insights_bestValue_noData =>
+      'Wear items you\'ve added a price to and your smartest investments will appear here!';
+
+  @override
+  String get insights_addPrices => 'Add Prices to Items';
+
+  @override
+  String insights_wears(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wears',
+      one: '1 wear',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String insights_costPerWear(Object price) {
+    return '$price/wear';
+  }
+
+  @override
+  String get insights_forgottenItem_subtitle => 'Not worn yet. Give it a try!';
+
+  @override
+  String get insights_wearToday => 'Wear Today';
+
+  @override
+  String insights_wearToday_success(Object itemName) {
+    return 'Added \"$itemName\" to today\'s journal!';
+  }
 }

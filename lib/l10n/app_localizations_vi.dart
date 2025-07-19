@@ -416,388 +416,6 @@ class AppLocalizationsVi extends AppLocalizations {
   String get pattern_other => 'Khác';
 
   @override
-  String get profile_title => 'Hồ sơ';
-
-  @override
-  String get profile_settings_tooltip => 'Cài đặt';
-
-  @override
-  String get profile_editProfile_label => 'Chỉnh sửa hồ sơ';
-
-  @override
-  String get profile_unnamed_label => 'Chưa đặt tên';
-
-  @override
-  String get profile_achievements_label => 'Thành tích';
-
-  @override
-  String get profile_closetsOverview_sectionHeader => 'Tổng quan tủ đồ';
-
-  @override
-  String get profile_insights_button => 'Thống kê chi tiết';
-
-  @override
-  String get profile_statistics_sectionHeader => 'Thống kê';
-
-  @override
-  String get profile_noData_message => 'Không có dữ liệu thống kê';
-
-  @override
-  String get profile_statPage_category => 'Danh mục';
-
-  @override
-  String get profile_statPage_color => 'Màu sắc';
-
-  @override
-  String get profile_statPage_season => 'Mùa';
-
-  @override
-  String get profile_statPage_occasion => 'Dịp';
-
-  @override
-  String get profile_statPage_material => 'Chất liệu';
-
-  @override
-  String get profile_statPage_pattern => 'Hoạ tiết';
-
-  @override
-  String get profile_takePhoto_label => 'Chụp ảnh';
-
-  @override
-  String get profile_fromAlbum_label => 'Từ Album';
-
-  @override
-  String get settings_title => 'Cài đặt';
-
-  @override
-  String get settings_general_sectionHeader => 'Cài đặt chung';
-
-  @override
-  String get settings_localization_tile => 'Khu vực';
-
-  @override
-  String get settings_location_tile => 'Vị trí';
-
-  @override
-  String get settings_autoDetect_label => 'Tự động phát hiện';
-
-  @override
-  String get settings_language_tile => 'Ngôn ngữ';
-
-  @override
-  String get settings_currency_tile => 'Tiền tệ';
-
-  @override
-  String get settings_decimalFormat_tile => 'Định dạng số';
-
-  @override
-  String get settings_units_tile => 'Đơn vị';
-
-  @override
-  String get settings_height_label => 'Chiều cao';
-
-  @override
-  String get settings_weight_label => 'Cân nặng';
-
-  @override
-  String get settings_temp_label => 'Nhiệt độ';
-
-  @override
-  String get settings_notifications_tile => 'Thông báo';
-
-  @override
-  String get settings_enableAllNotifications_label => 'Bật tất cả thông báo';
-
-  @override
-  String get settings_dailyReminderDescription =>
-      'Nhận lời nhắc hàng ngày để ghi lại trang phục của bạn.';
-
-  @override
-  String get settings_display_tile => 'Hiển thị';
-
-  @override
-  String get settings_showWeatherBg_label => 'Hiện ảnh nền thời tiết';
-
-  @override
-  String get settings_showWeatherBg_subtitle =>
-      'Hiển thị hình ảnh dựa trên thời tiết';
-
-  @override
-  String get settings_showMascot_label => 'Hiển thị Mascot';
-
-  @override
-  String get settings_showMascot_subtitle => 'Hiển thị trợ lý trên màn hình';
-
-  @override
-  String get settings_aboutSupport_sectionHeader => 'Giới thiệu & Hỗ trợ';
-
-  @override
-  String get settings_aboutLegal_tile => 'Giới thiệu & Pháp lý';
-
-  @override
-  String get settings_sendFeedback_tile => 'Gửi phản hồi';
-
-  @override
-  String get settings_sendFeedback_subtitle =>
-      'Giúp chúng tôi cải thiện MinCloset';
-
-  @override
-  String get settings_rateApp_tile => 'Đánh giá trên App Store';
-
-  @override
-  String get citySelection_title => 'Chọn Vị trí';
-
-  @override
-  String get citySelection_autoDetect => 'Tự động phát hiện';
-
-  @override
-  String get citySelection_autoDetect_subtitle =>
-      'Sử dụng vị trí hiện tại của bạn';
-
-  @override
-  String get citySelection_manual => 'Thủ công';
-
-  @override
-  String get citySelection_searchHint => 'Tìm kiếm thành phố/vị trí…';
-
-  @override
-  String get about_title => 'Giới thiệu & Pháp lý';
-
-  @override
-  String get about_privacy_title => 'Chính sách Bảo mật';
-
-  @override
-  String get about_privacy_subtitle => 'Cách chúng tôi xử lý dữ liệu của bạn.';
-
-  @override
-  String get about_terms_title => 'Điều khoản Sử dụng';
-
-  @override
-  String get about_terms_subtitle => 'Các quy tắc khi sử dụng ứng dụng.';
-
-  @override
-  String get about_loadingVersion => 'Đang tải phiên bản...';
-
-  @override
-  String about_version(Object buildNumber, Object version) {
-    return 'Phiên bản $version ($buildNumber)';
-  }
-
-  @override
-  String get editProfile_title => 'Chỉnh sửa hồ sơ';
-
-  @override
-  String get editProfile_saveButton => 'Lưu';
-
-  @override
-  String get editProfile_basicInfo_sectionHeader => 'Thông tin cơ bản';
-
-  @override
-  String get editProfile_fullName_label => 'Họ và tên';
-
-  @override
-  String get editProfile_gender_label => 'Giới tính';
-
-  @override
-  String get editProfile_birthday_label => 'Ngày sinh';
-
-  @override
-  String get editProfile_notSelected_label => 'Chưa chọn';
-
-  @override
-  String get editProfile_height_cm_label => 'Chiều cao (cm)';
-
-  @override
-  String get editProfile_height_ft_in_label => 'Chiều cao';
-
-  @override
-  String get editProfile_weight_label => 'Cân nặng';
-
-  @override
-  String get editProfile_interests_sectionHeader => 'Sở thích & Phong cách';
-
-  @override
-  String get editProfile_personalStyle_label => 'Phong cách cá nhân';
-
-  @override
-  String get editProfile_favoriteColors_label => 'Màu sắc yêu thích';
-
-  @override
-  String get gender_male => 'Nam';
-
-  @override
-  String get gender_female => 'Nữ';
-
-  @override
-  String get gender_other => 'Khác';
-
-  @override
-  String get quests_title => 'Thành tích';
-
-  @override
-  String get quests_yourBadges_sectionHeader => 'Huy hiệu của bạn';
-
-  @override
-  String get quests_inProgress_sectionHeader => 'Đang thực hiện';
-
-  @override
-  String get quests_noActiveQuests_message => 'Không có nhiệm vụ nào.';
-
-  @override
-  String get quest_event_topAdded => 'Số lượng áo đã thêm';
-
-  @override
-  String get quest_event_bottomAdded => 'Số lượng quần/váy đã thêm';
-
-  @override
-  String get quest_event_suggestionReceived => 'Gợi ý từ AI';
-
-  @override
-  String get quest_event_outfitCreated => 'Đã tạo Trang phục';
-
-  @override
-  String get quest_event_closetCreated => 'Đã tạo Tủ đồ mới';
-
-  @override
-  String get quest_event_logAdded => 'Đã ghi Nhật ký';
-
-  @override
-  String get quest_firstSteps_title => 'Bước chân đầu tiên vào Tủ đồ số';
-
-  @override
-  String get quest_firstSteps_description =>
-      'Thêm 3 áo và 3 quần/váy đầu tiên để bắt đầu nhận gợi ý trang phục cá nhân hóa.';
-
-  @override
-  String get quest_firstSuggestion_title => 'Gợi ý đầu tiên từ AI';
-
-  @override
-  String get quest_firstSuggestion_description =>
-      'Hãy xem AI có gì dành cho bạn. Nhận ngay gợi ý trang phục đầu tiên!';
-
-  @override
-  String get quest_firstOutfit_title => 'Sáng tạo đầu tay';
-
-  @override
-  String get quest_firstOutfit_description =>
-      'Sử dụng Trình tạo Trang phục để tạo và lưu bộ đồ tùy chỉnh đầu tiên của bạn.';
-
-  @override
-  String get quest_organizeCloset_title => 'Sắp xếp gọn gàng';
-
-  @override
-  String get quest_organizeCloset_description =>
-      'Tạo một tủ đồ mới để sắp xếp quần áo tốt hơn (ví dụ: cho công việc, cho thể thao).';
-
-  @override
-  String get quest_firstLog_title => 'Theo dõi Hành trình Phong cách';
-
-  @override
-  String get quest_firstLog_description =>
-      'Ghi lại một món đồ hoặc một bộ trang phục vào Nhật ký để theo dõi những gì bạn mặc.';
-
-  @override
-  String get achievementDialog_title => 'ĐÃ MỞ KHÓA THÀNH TÍCH!';
-
-  @override
-  String get achievementDialog_button => 'Tuyệt vời!';
-
-  @override
-  String get badgeDetail_completedQuests => 'Nhiệm vụ đã Hoàn thành';
-
-  @override
-  String get badgeDetail_noQuests =>
-      'Không tìm thấy nhiệm vụ nào cho huy hiệu này.';
-
-  @override
-  String get mascot_newQuest => 'Nhiệm vụ mới!';
-
-  @override
-  String get mascot_questCompleted => 'Hoàn thành nhiệm vụ!';
-
-  @override
-  String stats_label_item(num count) {
-    return 'Vật phẩm';
-  }
-
-  @override
-  String stats_label_closet(num count) {
-    return 'Tủ đồ';
-  }
-
-  @override
-  String stats_label_outfit(num count) {
-    return 'Trang phục';
-  }
-
-  @override
-  String get insights_title => 'Thống kê Tủ đồ';
-
-  @override
-  String get insights_exclusive => 'MINCLOSET ĐỘC QUYỀN';
-
-  @override
-  String insights_journeyTitle(Object userName) {
-    return 'Hành trình Phong cách của $userName';
-  }
-
-  @override
-  String get insights_mostLoved => 'Những món đồ được yêu thích nhất';
-
-  @override
-  String get insights_smartestInvestments =>
-      'Những khoản đầu tư thông minh nhất';
-
-  @override
-  String get insights_rediscoverCloset => 'Khám phá lại Tủ đồ của bạn';
-
-  @override
-  String get insights_investmentFocus => 'Trọng tâm Đầu tư';
-
-  @override
-  String get insights_noData => 'Chưa có dữ liệu thống kê.';
-
-  @override
-  String get insights_error_noLogs =>
-      'Vui lòng thêm vật phẩm hoặc trang phục vào Nhật ký Phong cách trước!';
-
-  @override
-  String get insights_goToJournal => 'Đến Nhật ký Phong cách';
-
-  @override
-  String get insights_mostWorn_noData =>
-      'Bạn chưa ghi lại vật phẩm đã mặc nào. Hãy bắt đầu nhật ký phong cách của bạn ngay hôm nay!';
-
-  @override
-  String get insights_bestValue_noData =>
-      'Hãy mặc những vật phẩm bạn đã thêm giá và các khoản đầu tư thông minh nhất sẽ xuất hiện ở đây!';
-
-  @override
-  String get insights_addPrices => 'Thêm giá cho vật phẩm';
-
-  @override
-  String insights_wears(num count) {
-    return '$count lần mặc';
-  }
-
-  @override
-  String insights_costPerWear(Object price) {
-    return '$price/lần mặc';
-  }
-
-  @override
-  String get insights_forgottenItem_subtitle =>
-      'Chưa mặc lần nào. Hãy thử ngay!';
-
-  @override
-  String get insights_wearToday => 'Mặc hôm nay';
-
-  @override
-  String insights_wearToday_success(Object itemName) {
-    return 'Đã thêm \"$itemName\" vào nhật ký hôm nay!';
-  }
-
-  @override
   String get outfitsHub_title => 'Trang phục của bạn';
 
   @override
@@ -1772,4 +1390,386 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get proImageEditor_emoji_title => 'Biểu cảm';
+
+  @override
+  String get profile_title => 'Hồ sơ';
+
+  @override
+  String get profile_settings_tooltip => 'Cài đặt';
+
+  @override
+  String get profile_editProfile_label => 'Chỉnh sửa hồ sơ';
+
+  @override
+  String get profile_unnamed_label => 'Chưa đặt tên';
+
+  @override
+  String get profile_achievements_label => 'Thành tích';
+
+  @override
+  String get profile_closetsOverview_sectionHeader => 'Tổng quan tủ đồ';
+
+  @override
+  String get profile_insights_button => 'Thống kê chi tiết';
+
+  @override
+  String get profile_statistics_sectionHeader => 'Thống kê';
+
+  @override
+  String get profile_noData_message => 'Không có dữ liệu thống kê';
+
+  @override
+  String get profile_statPage_category => 'Danh mục';
+
+  @override
+  String get profile_statPage_color => 'Màu sắc';
+
+  @override
+  String get profile_statPage_season => 'Mùa';
+
+  @override
+  String get profile_statPage_occasion => 'Dịp';
+
+  @override
+  String get profile_statPage_material => 'Chất liệu';
+
+  @override
+  String get profile_statPage_pattern => 'Hoạ tiết';
+
+  @override
+  String get profile_takePhoto_label => 'Chụp ảnh';
+
+  @override
+  String get profile_fromAlbum_label => 'Từ Album';
+
+  @override
+  String get settings_title => 'Cài đặt';
+
+  @override
+  String get settings_general_sectionHeader => 'Cài đặt chung';
+
+  @override
+  String get settings_localization_tile => 'Khu vực';
+
+  @override
+  String get settings_location_tile => 'Vị trí';
+
+  @override
+  String get settings_autoDetect_label => 'Tự động phát hiện';
+
+  @override
+  String get settings_language_tile => 'Ngôn ngữ';
+
+  @override
+  String get settings_currency_tile => 'Tiền tệ';
+
+  @override
+  String get settings_decimalFormat_tile => 'Định dạng số';
+
+  @override
+  String get settings_units_tile => 'Đơn vị';
+
+  @override
+  String get settings_height_label => 'Chiều cao';
+
+  @override
+  String get settings_weight_label => 'Cân nặng';
+
+  @override
+  String get settings_temp_label => 'Nhiệt độ';
+
+  @override
+  String get settings_notifications_tile => 'Thông báo';
+
+  @override
+  String get settings_enableAllNotifications_label => 'Bật tất cả thông báo';
+
+  @override
+  String get settings_dailyReminderDescription =>
+      'Nhận lời nhắc hàng ngày để ghi lại trang phục của bạn.';
+
+  @override
+  String get settings_display_tile => 'Hiển thị';
+
+  @override
+  String get settings_showWeatherBg_label => 'Hiện ảnh nền thời tiết';
+
+  @override
+  String get settings_showWeatherBg_subtitle =>
+      'Hiển thị hình ảnh dựa trên thời tiết';
+
+  @override
+  String get settings_showMascot_label => 'Hiển thị Mascot';
+
+  @override
+  String get settings_showMascot_subtitle => 'Hiển thị trợ lý trên màn hình';
+
+  @override
+  String get settings_aboutSupport_sectionHeader => 'Giới thiệu & Hỗ trợ';
+
+  @override
+  String get settings_aboutLegal_tile => 'Giới thiệu & Pháp lý';
+
+  @override
+  String get settings_sendFeedback_tile => 'Gửi phản hồi';
+
+  @override
+  String get settings_sendFeedback_subtitle =>
+      'Giúp chúng tôi cải thiện MinCloset';
+
+  @override
+  String get settings_rateApp_tile => 'Đánh giá trên App Store';
+
+  @override
+  String get citySelection_title => 'Chọn Vị trí';
+
+  @override
+  String get citySelection_autoDetect => 'Tự động phát hiện';
+
+  @override
+  String get citySelection_autoDetect_subtitle =>
+      'Sử dụng vị trí hiện tại của bạn';
+
+  @override
+  String get citySelection_manual => 'Thủ công';
+
+  @override
+  String get citySelection_searchHint => 'Tìm kiếm thành phố/vị trí…';
+
+  @override
+  String get about_title => 'Giới thiệu & Pháp lý';
+
+  @override
+  String get about_privacy_title => 'Chính sách Bảo mật';
+
+  @override
+  String get about_privacy_subtitle => 'Cách chúng tôi xử lý dữ liệu của bạn.';
+
+  @override
+  String get about_terms_title => 'Điều khoản Sử dụng';
+
+  @override
+  String get about_terms_subtitle => 'Các quy tắc khi sử dụng ứng dụng.';
+
+  @override
+  String get about_loadingVersion => 'Đang tải phiên bản...';
+
+  @override
+  String about_version(Object buildNumber, Object version) {
+    return 'Phiên bản $version ($buildNumber)';
+  }
+
+  @override
+  String get editProfile_title => 'Chỉnh sửa hồ sơ';
+
+  @override
+  String get editProfile_saveButton => 'Lưu';
+
+  @override
+  String get editProfile_basicInfo_sectionHeader => 'Thông tin cơ bản';
+
+  @override
+  String get editProfile_fullName_label => 'Họ và tên';
+
+  @override
+  String get editProfile_gender_label => 'Giới tính';
+
+  @override
+  String get editProfile_birthday_label => 'Ngày sinh';
+
+  @override
+  String get editProfile_notSelected_label => 'Chưa chọn';
+
+  @override
+  String get editProfile_height_cm_label => 'Chiều cao (cm)';
+
+  @override
+  String get editProfile_height_ft_in_label => 'Chiều cao';
+
+  @override
+  String get editProfile_weight_label => 'Cân nặng';
+
+  @override
+  String get editProfile_interests_sectionHeader => 'Sở thích & Phong cách';
+
+  @override
+  String get editProfile_personalStyle_label => 'Phong cách cá nhân';
+
+  @override
+  String get editProfile_favoriteColors_label => 'Màu sắc yêu thích';
+
+  @override
+  String get gender_male => 'Nam';
+
+  @override
+  String get gender_female => 'Nữ';
+
+  @override
+  String get gender_other => 'Khác';
+
+  @override
+  String get quests_title => 'Thành tích';
+
+  @override
+  String get quests_yourBadges_sectionHeader => 'Huy hiệu của bạn';
+
+  @override
+  String get quests_inProgress_sectionHeader => 'Đang thực hiện';
+
+  @override
+  String get quests_noActiveQuests_message => 'Không có nhiệm vụ nào.';
+
+  @override
+  String get quest_event_topAdded => 'Số lượng áo đã thêm';
+
+  @override
+  String get quest_event_bottomAdded => 'Số lượng quần/váy đã thêm';
+
+  @override
+  String get quest_event_suggestionReceived => 'Gợi ý từ AI';
+
+  @override
+  String get quest_event_outfitCreated => 'Đã tạo Trang phục';
+
+  @override
+  String get quest_event_closetCreated => 'Đã tạo Tủ đồ mới';
+
+  @override
+  String get quest_event_logAdded => 'Đã ghi Nhật ký';
+
+  @override
+  String get quest_firstSteps_title => 'Bước chân đầu tiên vào Tủ đồ số';
+
+  @override
+  String get quest_firstSteps_description =>
+      'Thêm 3 áo và 3 quần/váy đầu tiên để bắt đầu nhận gợi ý trang phục cá nhân hóa.';
+
+  @override
+  String get quest_firstSuggestion_title => 'Gợi ý đầu tiên từ AI';
+
+  @override
+  String get quest_firstSuggestion_description =>
+      'Hãy xem AI có gì dành cho bạn. Nhận ngay gợi ý trang phục đầu tiên!';
+
+  @override
+  String get quest_firstOutfit_title => 'Sáng tạo đầu tay';
+
+  @override
+  String get quest_firstOutfit_description =>
+      'Sử dụng Trình tạo Trang phục để tạo và lưu bộ đồ tùy chỉnh đầu tiên của bạn.';
+
+  @override
+  String get quest_organizeCloset_title => 'Sắp xếp gọn gàng';
+
+  @override
+  String get quest_organizeCloset_description =>
+      'Tạo một tủ đồ mới để sắp xếp quần áo tốt hơn (ví dụ: cho công việc, cho thể thao).';
+
+  @override
+  String get quest_firstLog_title => 'Theo dõi Hành trình Phong cách';
+
+  @override
+  String get quest_firstLog_description =>
+      'Ghi lại một món đồ hoặc một bộ trang phục vào Nhật ký để theo dõi những gì bạn mặc.';
+
+  @override
+  String get achievementDialog_title => 'ĐÃ MỞ KHÓA THÀNH TÍCH!';
+
+  @override
+  String get achievementDialog_button => 'Tuyệt vời!';
+
+  @override
+  String get badgeDetail_completedQuests => 'Nhiệm vụ đã Hoàn thành';
+
+  @override
+  String get badgeDetail_noQuests =>
+      'Không tìm thấy nhiệm vụ nào cho huy hiệu này.';
+
+  @override
+  String get mascot_newQuest => 'Nhiệm vụ mới!';
+
+  @override
+  String get mascot_questCompleted => 'Hoàn thành nhiệm vụ!';
+
+  @override
+  String stats_label_item(num count) {
+    return 'Vật phẩm';
+  }
+
+  @override
+  String stats_label_closet(num count) {
+    return 'Tủ đồ';
+  }
+
+  @override
+  String stats_label_outfit(num count) {
+    return 'Trang phục';
+  }
+
+  @override
+  String get insights_title => 'Thống kê Tủ đồ';
+
+  @override
+  String get insights_exclusive => 'MINCLOSET ĐỘC QUYỀN';
+
+  @override
+  String insights_journeyTitle(Object userName) {
+    return 'Hành trình Phong cách của $userName';
+  }
+
+  @override
+  String get insights_mostLoved => 'Những món đồ được yêu thích nhất';
+
+  @override
+  String get insights_smartestInvestments =>
+      'Những khoản đầu tư thông minh nhất';
+
+  @override
+  String get insights_rediscoverCloset => 'Khám phá lại Tủ đồ của bạn';
+
+  @override
+  String get insights_investmentFocus => 'Trọng tâm Đầu tư';
+
+  @override
+  String get insights_noData => 'Chưa có dữ liệu thống kê.';
+
+  @override
+  String get insights_error_noLogs =>
+      'Vui lòng thêm vật phẩm hoặc trang phục vào Nhật ký Phong cách trước!';
+
+  @override
+  String get insights_goToJournal => 'Đến Nhật ký Phong cách';
+
+  @override
+  String get insights_mostWorn_noData =>
+      'Bạn chưa ghi lại vật phẩm đã mặc nào. Hãy bắt đầu nhật ký phong cách của bạn ngay hôm nay!';
+
+  @override
+  String get insights_bestValue_noData =>
+      'Hãy mặc những vật phẩm bạn đã thêm giá và các khoản đầu tư thông minh nhất sẽ xuất hiện ở đây!';
+
+  @override
+  String get insights_addPrices => 'Thêm giá cho vật phẩm';
+
+  @override
+  String insights_wears(num count) {
+    return '$count lần mặc';
+  }
+
+  @override
+  String insights_costPerWear(Object price) {
+    return '$price/lần mặc';
+  }
+
+  @override
+  String get insights_forgottenItem_subtitle =>
+      'Chưa mặc lần nào. Hãy thử ngay!';
+
+  @override
+  String get insights_wearToday => 'Mặc hôm nay';
+
+  @override
+  String insights_wearToday_success(Object itemName) {
+    return 'Đã thêm \"$itemName\" vào nhật ký hôm nay!';
+  }
 }

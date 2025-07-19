@@ -908,708 +908,6 @@ abstract class AppLocalizations {
   /// **'Other'**
   String get pattern_other;
 
-  /// No description provided for @profile_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Profile'**
-  String get profile_title;
-
-  /// No description provided for @profile_settings_tooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Settings'**
-  String get profile_settings_tooltip;
-
-  /// No description provided for @profile_editProfile_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit profile'**
-  String get profile_editProfile_label;
-
-  /// No description provided for @profile_unnamed_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Unnamed'**
-  String get profile_unnamed_label;
-
-  /// No description provided for @profile_achievements_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Achievements'**
-  String get profile_achievements_label;
-
-  /// No description provided for @profile_closetsOverview_sectionHeader.
-  ///
-  /// In en, this message translates to:
-  /// **'Closets overview'**
-  String get profile_closetsOverview_sectionHeader;
-
-  /// No description provided for @profile_insights_button.
-  ///
-  /// In en, this message translates to:
-  /// **'Insights'**
-  String get profile_insights_button;
-
-  /// No description provided for @profile_statistics_sectionHeader.
-  ///
-  /// In en, this message translates to:
-  /// **'Statistics'**
-  String get profile_statistics_sectionHeader;
-
-  /// No description provided for @profile_noData_message.
-  ///
-  /// In en, this message translates to:
-  /// **'No data for statistics'**
-  String get profile_noData_message;
-
-  /// No description provided for @profile_statPage_category.
-  ///
-  /// In en, this message translates to:
-  /// **'Category'**
-  String get profile_statPage_category;
-
-  /// No description provided for @profile_statPage_color.
-  ///
-  /// In en, this message translates to:
-  /// **'Color'**
-  String get profile_statPage_color;
-
-  /// No description provided for @profile_statPage_season.
-  ///
-  /// In en, this message translates to:
-  /// **'Season'**
-  String get profile_statPage_season;
-
-  /// No description provided for @profile_statPage_occasion.
-  ///
-  /// In en, this message translates to:
-  /// **'Occasion'**
-  String get profile_statPage_occasion;
-
-  /// No description provided for @profile_statPage_material.
-  ///
-  /// In en, this message translates to:
-  /// **'Material'**
-  String get profile_statPage_material;
-
-  /// No description provided for @profile_statPage_pattern.
-  ///
-  /// In en, this message translates to:
-  /// **'Pattern'**
-  String get profile_statPage_pattern;
-
-  /// No description provided for @profile_takePhoto_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Take Photo'**
-  String get profile_takePhoto_label;
-
-  /// No description provided for @profile_fromAlbum_label.
-  ///
-  /// In en, this message translates to:
-  /// **'From Album'**
-  String get profile_fromAlbum_label;
-
-  /// SCREEN: Settings. The title in the AppBar.
-  ///
-  /// In en, this message translates to:
-  /// **'Settings'**
-  String get settings_title;
-
-  /// No description provided for @settings_general_sectionHeader.
-  ///
-  /// In en, this message translates to:
-  /// **'General Settings'**
-  String get settings_general_sectionHeader;
-
-  /// No description provided for @settings_localization_tile.
-  ///
-  /// In en, this message translates to:
-  /// **'Localization'**
-  String get settings_localization_tile;
-
-  /// No description provided for @settings_location_tile.
-  ///
-  /// In en, this message translates to:
-  /// **'Location'**
-  String get settings_location_tile;
-
-  /// No description provided for @settings_autoDetect_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Auto-detect'**
-  String get settings_autoDetect_label;
-
-  /// No description provided for @settings_language_tile.
-  ///
-  /// In en, this message translates to:
-  /// **'Language'**
-  String get settings_language_tile;
-
-  /// No description provided for @settings_currency_tile.
-  ///
-  /// In en, this message translates to:
-  /// **'Currency'**
-  String get settings_currency_tile;
-
-  /// No description provided for @settings_decimalFormat_tile.
-  ///
-  /// In en, this message translates to:
-  /// **'Decimal format'**
-  String get settings_decimalFormat_tile;
-
-  /// No description provided for @settings_units_tile.
-  ///
-  /// In en, this message translates to:
-  /// **'Units'**
-  String get settings_units_tile;
-
-  /// No description provided for @settings_height_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Height'**
-  String get settings_height_label;
-
-  /// No description provided for @settings_weight_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Weight'**
-  String get settings_weight_label;
-
-  /// No description provided for @settings_temp_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Temperature'**
-  String get settings_temp_label;
-
-  /// No description provided for @settings_notifications_tile.
-  ///
-  /// In en, this message translates to:
-  /// **'Notifications'**
-  String get settings_notifications_tile;
-
-  /// No description provided for @settings_enableAllNotifications_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Enable all notifications'**
-  String get settings_enableAllNotifications_label;
-
-  /// No description provided for @settings_dailyReminderDescription.
-  ///
-  /// In en, this message translates to:
-  /// **'Receive a daily reminder to log your outfit.'**
-  String get settings_dailyReminderDescription;
-
-  /// No description provided for @settings_display_tile.
-  ///
-  /// In en, this message translates to:
-  /// **'Display'**
-  String get settings_display_tile;
-
-  /// No description provided for @settings_showWeatherBg_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Show weather background'**
-  String get settings_showWeatherBg_label;
-
-  /// No description provided for @settings_showWeatherBg_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Display image based on weather'**
-  String get settings_showWeatherBg_subtitle;
-
-  /// No description provided for @settings_showMascot_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Show Mascot'**
-  String get settings_showMascot_label;
-
-  /// No description provided for @settings_showMascot_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Display the assistant on screen'**
-  String get settings_showMascot_subtitle;
-
-  /// No description provided for @settings_aboutSupport_sectionHeader.
-  ///
-  /// In en, this message translates to:
-  /// **'About & Support'**
-  String get settings_aboutSupport_sectionHeader;
-
-  /// No description provided for @settings_aboutLegal_tile.
-  ///
-  /// In en, this message translates to:
-  /// **'About & Legal'**
-  String get settings_aboutLegal_tile;
-
-  /// No description provided for @settings_sendFeedback_tile.
-  ///
-  /// In en, this message translates to:
-  /// **'Send Feedback'**
-  String get settings_sendFeedback_tile;
-
-  /// No description provided for @settings_sendFeedback_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Help us improve MinCloset'**
-  String get settings_sendFeedback_subtitle;
-
-  /// No description provided for @settings_rateApp_tile.
-  ///
-  /// In en, this message translates to:
-  /// **'Rate on App Store'**
-  String get settings_rateApp_tile;
-
-  /// No description provided for @citySelection_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Select Location'**
-  String get citySelection_title;
-
-  /// No description provided for @citySelection_autoDetect.
-  ///
-  /// In en, this message translates to:
-  /// **'Auto-detect'**
-  String get citySelection_autoDetect;
-
-  /// No description provided for @citySelection_autoDetect_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Use your current location'**
-  String get citySelection_autoDetect_subtitle;
-
-  /// No description provided for @citySelection_manual.
-  ///
-  /// In en, this message translates to:
-  /// **'Manually'**
-  String get citySelection_manual;
-
-  /// No description provided for @citySelection_searchHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Search city/location…'**
-  String get citySelection_searchHint;
-
-  /// No description provided for @about_title.
-  ///
-  /// In en, this message translates to:
-  /// **'About & Legal'**
-  String get about_title;
-
-  /// No description provided for @about_privacy_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Privacy Policy'**
-  String get about_privacy_title;
-
-  /// No description provided for @about_privacy_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'How we handle your data.'**
-  String get about_privacy_subtitle;
-
-  /// No description provided for @about_terms_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Terms of Use'**
-  String get about_terms_title;
-
-  /// No description provided for @about_terms_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Rules for using the app.'**
-  String get about_terms_subtitle;
-
-  /// No description provided for @about_loadingVersion.
-  ///
-  /// In en, this message translates to:
-  /// **'Loading version...'**
-  String get about_loadingVersion;
-
-  /// No description provided for @about_version.
-  ///
-  /// In en, this message translates to:
-  /// **'Version {version} ({buildNumber})'**
-  String about_version(Object buildNumber, Object version);
-
-  /// No description provided for @editProfile_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit profile'**
-  String get editProfile_title;
-
-  /// No description provided for @editProfile_saveButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Save'**
-  String get editProfile_saveButton;
-
-  /// No description provided for @editProfile_basicInfo_sectionHeader.
-  ///
-  /// In en, this message translates to:
-  /// **'Basic info'**
-  String get editProfile_basicInfo_sectionHeader;
-
-  /// No description provided for @editProfile_fullName_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Full name'**
-  String get editProfile_fullName_label;
-
-  /// No description provided for @editProfile_gender_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Gender'**
-  String get editProfile_gender_label;
-
-  /// No description provided for @editProfile_birthday_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Birthday'**
-  String get editProfile_birthday_label;
-
-  /// No description provided for @editProfile_notSelected_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Not selected'**
-  String get editProfile_notSelected_label;
-
-  /// No description provided for @editProfile_height_cm_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Height (cm)'**
-  String get editProfile_height_cm_label;
-
-  /// No description provided for @editProfile_height_ft_in_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Height'**
-  String get editProfile_height_ft_in_label;
-
-  /// No description provided for @editProfile_weight_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Weight'**
-  String get editProfile_weight_label;
-
-  /// No description provided for @editProfile_interests_sectionHeader.
-  ///
-  /// In en, this message translates to:
-  /// **'Interests & Style'**
-  String get editProfile_interests_sectionHeader;
-
-  /// No description provided for @editProfile_personalStyle_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Personal style'**
-  String get editProfile_personalStyle_label;
-
-  /// No description provided for @editProfile_favoriteColors_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Favorite colors'**
-  String get editProfile_favoriteColors_label;
-
-  /// No description provided for @gender_male.
-  ///
-  /// In en, this message translates to:
-  /// **'Male'**
-  String get gender_male;
-
-  /// No description provided for @gender_female.
-  ///
-  /// In en, this message translates to:
-  /// **'Female'**
-  String get gender_female;
-
-  /// No description provided for @gender_other.
-  ///
-  /// In en, this message translates to:
-  /// **'Other'**
-  String get gender_other;
-
-  /// No description provided for @quests_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Achievements'**
-  String get quests_title;
-
-  /// No description provided for @quests_yourBadges_sectionHeader.
-  ///
-  /// In en, this message translates to:
-  /// **'Your Badges'**
-  String get quests_yourBadges_sectionHeader;
-
-  /// No description provided for @quests_inProgress_sectionHeader.
-  ///
-  /// In en, this message translates to:
-  /// **'In Progress'**
-  String get quests_inProgress_sectionHeader;
-
-  /// No description provided for @quests_noActiveQuests_message.
-  ///
-  /// In en, this message translates to:
-  /// **'No active quests.'**
-  String get quests_noActiveQuests_message;
-
-  /// No description provided for @quest_event_topAdded.
-  ///
-  /// In en, this message translates to:
-  /// **'Tops Added'**
-  String get quest_event_topAdded;
-
-  /// No description provided for @quest_event_bottomAdded.
-  ///
-  /// In en, this message translates to:
-  /// **'Bottoms Added'**
-  String get quest_event_bottomAdded;
-
-  /// No description provided for @quest_event_suggestionReceived.
-  ///
-  /// In en, this message translates to:
-  /// **'AI Suggestion'**
-  String get quest_event_suggestionReceived;
-
-  /// No description provided for @quest_event_outfitCreated.
-  ///
-  /// In en, this message translates to:
-  /// **'Outfit Created'**
-  String get quest_event_outfitCreated;
-
-  /// No description provided for @quest_event_closetCreated.
-  ///
-  /// In en, this message translates to:
-  /// **'New Closet'**
-  String get quest_event_closetCreated;
-
-  /// No description provided for @quest_event_logAdded.
-  ///
-  /// In en, this message translates to:
-  /// **'Item/Outfit Logged'**
-  String get quest_event_logAdded;
-
-  /// No description provided for @quest_firstSteps_title.
-  ///
-  /// In en, this message translates to:
-  /// **'First Steps into Your Digital Closet'**
-  String get quest_firstSteps_title;
-
-  /// No description provided for @quest_firstSteps_description.
-  ///
-  /// In en, this message translates to:
-  /// **'Add your first 3 tops and 3 bottoms (pants, skirts, etc.) to start receiving personalized suggestions.'**
-  String get quest_firstSteps_description;
-
-  /// No description provided for @quest_firstSuggestion_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Your First AI-Powered Suggestion'**
-  String get quest_firstSuggestion_title;
-
-  /// No description provided for @quest_firstSuggestion_description.
-  ///
-  /// In en, this message translates to:
-  /// **'Let\'s see what the AI has in store for you. Get your first outfit suggestion!'**
-  String get quest_firstSuggestion_description;
-
-  /// No description provided for @quest_firstOutfit_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Your First Creation'**
-  String get quest_firstOutfit_title;
-
-  /// No description provided for @quest_firstOutfit_description.
-  ///
-  /// In en, this message translates to:
-  /// **'Use the Outfit Builder to create and save your first custom outfit.'**
-  String get quest_firstOutfit_description;
-
-  /// No description provided for @quest_organizeCloset_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Get Organized'**
-  String get quest_organizeCloset_title;
-
-  /// No description provided for @quest_organizeCloset_description.
-  ///
-  /// In en, this message translates to:
-  /// **'Create a new closet to better organize your clothing items (e.g., for work, for sports).'**
-  String get quest_organizeCloset_description;
-
-  /// No description provided for @quest_firstLog_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Track Your Style Journey'**
-  String get quest_firstLog_title;
-
-  /// No description provided for @quest_firstLog_description.
-  ///
-  /// In en, this message translates to:
-  /// **'Log an item or an outfit to your Journey to keep track of what you wear.'**
-  String get quest_firstLog_description;
-
-  /// No description provided for @achievementDialog_title.
-  ///
-  /// In en, this message translates to:
-  /// **'ACHIEVEMENT UNLOCKED!'**
-  String get achievementDialog_title;
-
-  /// No description provided for @achievementDialog_button.
-  ///
-  /// In en, this message translates to:
-  /// **'Awesome!'**
-  String get achievementDialog_button;
-
-  /// No description provided for @badgeDetail_completedQuests.
-  ///
-  /// In en, this message translates to:
-  /// **'Completed Quests'**
-  String get badgeDetail_completedQuests;
-
-  /// No description provided for @badgeDetail_noQuests.
-  ///
-  /// In en, this message translates to:
-  /// **'No quests found for this badge.'**
-  String get badgeDetail_noQuests;
-
-  /// No description provided for @mascot_newQuest.
-  ///
-  /// In en, this message translates to:
-  /// **'New Quest!'**
-  String get mascot_newQuest;
-
-  /// No description provided for @mascot_questCompleted.
-  ///
-  /// In en, this message translates to:
-  /// **'Quest Completed!'**
-  String get mascot_questCompleted;
-
-  /// No description provided for @stats_label_item.
-  ///
-  /// In en, this message translates to:
-  /// **'{count,plural, =1{Item} other{Items}}'**
-  String stats_label_item(num count);
-
-  /// No description provided for @stats_label_closet.
-  ///
-  /// In en, this message translates to:
-  /// **'{count,plural, =1{Closet} other{Closets}}'**
-  String stats_label_closet(num count);
-
-  /// No description provided for @stats_label_outfit.
-  ///
-  /// In en, this message translates to:
-  /// **'{count,plural, =1{Outfit} other{Outfits}}'**
-  String stats_label_outfit(num count);
-
-  /// No description provided for @insights_title.
-  ///
-  /// In en, this message translates to:
-  /// **'Closet Insights'**
-  String get insights_title;
-
-  /// No description provided for @insights_exclusive.
-  ///
-  /// In en, this message translates to:
-  /// **'MINCLOSET EXCLUSIVE'**
-  String get insights_exclusive;
-
-  /// No description provided for @insights_journeyTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Inside {userName}\'s Style Journey'**
-  String insights_journeyTitle(Object userName);
-
-  /// No description provided for @insights_mostLoved.
-  ///
-  /// In en, this message translates to:
-  /// **'The Most-Loved Pieces'**
-  String get insights_mostLoved;
-
-  /// No description provided for @insights_smartestInvestments.
-  ///
-  /// In en, this message translates to:
-  /// **'Smartest Investments'**
-  String get insights_smartestInvestments;
-
-  /// No description provided for @insights_rediscoverCloset.
-  ///
-  /// In en, this message translates to:
-  /// **'Rediscover Your Closet'**
-  String get insights_rediscoverCloset;
-
-  /// No description provided for @insights_investmentFocus.
-  ///
-  /// In en, this message translates to:
-  /// **'Investment Focus'**
-  String get insights_investmentFocus;
-
-  /// No description provided for @insights_noData.
-  ///
-  /// In en, this message translates to:
-  /// **'No insights available.'**
-  String get insights_noData;
-
-  /// No description provided for @insights_error_noLogs.
-  ///
-  /// In en, this message translates to:
-  /// **'Please add items or outfits to Style journal first!'**
-  String get insights_error_noLogs;
-
-  /// No description provided for @insights_goToJournal.
-  ///
-  /// In en, this message translates to:
-  /// **'Go to Style Journal'**
-  String get insights_goToJournal;
-
-  /// No description provided for @insights_mostWorn_noData.
-  ///
-  /// In en, this message translates to:
-  /// **'You haven\'t logged any worn items yet. Start your style journal today!'**
-  String get insights_mostWorn_noData;
-
-  /// No description provided for @insights_bestValue_noData.
-  ///
-  /// In en, this message translates to:
-  /// **'Wear items you\'ve added a price to and your smartest investments will appear here!'**
-  String get insights_bestValue_noData;
-
-  /// No description provided for @insights_addPrices.
-  ///
-  /// In en, this message translates to:
-  /// **'Add Prices to Items'**
-  String get insights_addPrices;
-
-  /// No description provided for @insights_wears.
-  ///
-  /// In en, this message translates to:
-  /// **'{count,plural, =1{1 wear} other{{count} wears}}'**
-  String insights_wears(num count);
-
-  /// No description provided for @insights_costPerWear.
-  ///
-  /// In en, this message translates to:
-  /// **'{price}/wear'**
-  String insights_costPerWear(Object price);
-
-  /// No description provided for @insights_forgottenItem_subtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Not worn yet. Give it a try!'**
-  String get insights_forgottenItem_subtitle;
-
-  /// No description provided for @insights_wearToday.
-  ///
-  /// In en, this message translates to:
-  /// **'Wear Today'**
-  String get insights_wearToday;
-
-  /// No description provided for @insights_wearToday_success.
-  ///
-  /// In en, this message translates to:
-  /// **'Added \"{itemName}\" to today\'s journal!'**
-  String insights_wearToday_success(Object itemName);
-
   /// No description provided for @outfitsHub_title.
   ///
   /// In en, this message translates to:
@@ -3302,6 +2600,708 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Emoji'**
   String get proImageEditor_emoji_title;
+
+  /// No description provided for @profile_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profile_title;
+
+  /// No description provided for @profile_settings_tooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get profile_settings_tooltip;
+
+  /// No description provided for @profile_editProfile_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get profile_editProfile_label;
+
+  /// No description provided for @profile_unnamed_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Unnamed'**
+  String get profile_unnamed_label;
+
+  /// No description provided for @profile_achievements_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get profile_achievements_label;
+
+  /// No description provided for @profile_closetsOverview_sectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Closets overview'**
+  String get profile_closetsOverview_sectionHeader;
+
+  /// No description provided for @profile_insights_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Insights'**
+  String get profile_insights_button;
+
+  /// No description provided for @profile_statistics_sectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get profile_statistics_sectionHeader;
+
+  /// No description provided for @profile_noData_message.
+  ///
+  /// In en, this message translates to:
+  /// **'No data for statistics'**
+  String get profile_noData_message;
+
+  /// No description provided for @profile_statPage_category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get profile_statPage_category;
+
+  /// No description provided for @profile_statPage_color.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get profile_statPage_color;
+
+  /// No description provided for @profile_statPage_season.
+  ///
+  /// In en, this message translates to:
+  /// **'Season'**
+  String get profile_statPage_season;
+
+  /// No description provided for @profile_statPage_occasion.
+  ///
+  /// In en, this message translates to:
+  /// **'Occasion'**
+  String get profile_statPage_occasion;
+
+  /// No description provided for @profile_statPage_material.
+  ///
+  /// In en, this message translates to:
+  /// **'Material'**
+  String get profile_statPage_material;
+
+  /// No description provided for @profile_statPage_pattern.
+  ///
+  /// In en, this message translates to:
+  /// **'Pattern'**
+  String get profile_statPage_pattern;
+
+  /// No description provided for @profile_takePhoto_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo'**
+  String get profile_takePhoto_label;
+
+  /// No description provided for @profile_fromAlbum_label.
+  ///
+  /// In en, this message translates to:
+  /// **'From Album'**
+  String get profile_fromAlbum_label;
+
+  /// SCREEN: Settings. The title in the AppBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings_title;
+
+  /// No description provided for @settings_general_sectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'General Settings'**
+  String get settings_general_sectionHeader;
+
+  /// No description provided for @settings_localization_tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Localization'**
+  String get settings_localization_tile;
+
+  /// No description provided for @settings_location_tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get settings_location_tile;
+
+  /// No description provided for @settings_autoDetect_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-detect'**
+  String get settings_autoDetect_label;
+
+  /// No description provided for @settings_language_tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settings_language_tile;
+
+  /// No description provided for @settings_currency_tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get settings_currency_tile;
+
+  /// No description provided for @settings_decimalFormat_tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Decimal format'**
+  String get settings_decimalFormat_tile;
+
+  /// No description provided for @settings_units_tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Units'**
+  String get settings_units_tile;
+
+  /// No description provided for @settings_height_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get settings_height_label;
+
+  /// No description provided for @settings_weight_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get settings_weight_label;
+
+  /// No description provided for @settings_temp_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Temperature'**
+  String get settings_temp_label;
+
+  /// No description provided for @settings_notifications_tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get settings_notifications_tile;
+
+  /// No description provided for @settings_enableAllNotifications_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable all notifications'**
+  String get settings_enableAllNotifications_label;
+
+  /// No description provided for @settings_dailyReminderDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive a daily reminder to log your outfit.'**
+  String get settings_dailyReminderDescription;
+
+  /// No description provided for @settings_display_tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Display'**
+  String get settings_display_tile;
+
+  /// No description provided for @settings_showWeatherBg_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Show weather background'**
+  String get settings_showWeatherBg_label;
+
+  /// No description provided for @settings_showWeatherBg_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Display image based on weather'**
+  String get settings_showWeatherBg_subtitle;
+
+  /// No description provided for @settings_showMascot_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Mascot'**
+  String get settings_showMascot_label;
+
+  /// No description provided for @settings_showMascot_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Display the assistant on screen'**
+  String get settings_showMascot_subtitle;
+
+  /// No description provided for @settings_aboutSupport_sectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'About & Support'**
+  String get settings_aboutSupport_sectionHeader;
+
+  /// No description provided for @settings_aboutLegal_tile.
+  ///
+  /// In en, this message translates to:
+  /// **'About & Legal'**
+  String get settings_aboutLegal_tile;
+
+  /// No description provided for @settings_sendFeedback_tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Feedback'**
+  String get settings_sendFeedback_tile;
+
+  /// No description provided for @settings_sendFeedback_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Help us improve MinCloset'**
+  String get settings_sendFeedback_subtitle;
+
+  /// No description provided for @settings_rateApp_tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate on App Store'**
+  String get settings_rateApp_tile;
+
+  /// No description provided for @citySelection_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Location'**
+  String get citySelection_title;
+
+  /// No description provided for @citySelection_autoDetect.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-detect'**
+  String get citySelection_autoDetect;
+
+  /// No description provided for @citySelection_autoDetect_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your current location'**
+  String get citySelection_autoDetect_subtitle;
+
+  /// No description provided for @citySelection_manual.
+  ///
+  /// In en, this message translates to:
+  /// **'Manually'**
+  String get citySelection_manual;
+
+  /// No description provided for @citySelection_searchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search city/location…'**
+  String get citySelection_searchHint;
+
+  /// No description provided for @about_title.
+  ///
+  /// In en, this message translates to:
+  /// **'About & Legal'**
+  String get about_title;
+
+  /// No description provided for @about_privacy_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get about_privacy_title;
+
+  /// No description provided for @about_privacy_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How we handle your data.'**
+  String get about_privacy_subtitle;
+
+  /// No description provided for @about_terms_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Use'**
+  String get about_terms_title;
+
+  /// No description provided for @about_terms_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rules for using the app.'**
+  String get about_terms_subtitle;
+
+  /// No description provided for @about_loadingVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading version...'**
+  String get about_loadingVersion;
+
+  /// No description provided for @about_version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} ({buildNumber})'**
+  String about_version(Object buildNumber, Object version);
+
+  /// No description provided for @editProfile_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get editProfile_title;
+
+  /// No description provided for @editProfile_saveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get editProfile_saveButton;
+
+  /// No description provided for @editProfile_basicInfo_sectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Basic info'**
+  String get editProfile_basicInfo_sectionHeader;
+
+  /// No description provided for @editProfile_fullName_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Full name'**
+  String get editProfile_fullName_label;
+
+  /// No description provided for @editProfile_gender_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get editProfile_gender_label;
+
+  /// No description provided for @editProfile_birthday_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday'**
+  String get editProfile_birthday_label;
+
+  /// No description provided for @editProfile_notSelected_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Not selected'**
+  String get editProfile_notSelected_label;
+
+  /// No description provided for @editProfile_height_cm_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Height (cm)'**
+  String get editProfile_height_cm_label;
+
+  /// No description provided for @editProfile_height_ft_in_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get editProfile_height_ft_in_label;
+
+  /// No description provided for @editProfile_weight_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get editProfile_weight_label;
+
+  /// No description provided for @editProfile_interests_sectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Interests & Style'**
+  String get editProfile_interests_sectionHeader;
+
+  /// No description provided for @editProfile_personalStyle_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal style'**
+  String get editProfile_personalStyle_label;
+
+  /// No description provided for @editProfile_favoriteColors_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorite colors'**
+  String get editProfile_favoriteColors_label;
+
+  /// No description provided for @gender_male.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get gender_male;
+
+  /// No description provided for @gender_female.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get gender_female;
+
+  /// No description provided for @gender_other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get gender_other;
+
+  /// No description provided for @quests_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievements'**
+  String get quests_title;
+
+  /// No description provided for @quests_yourBadges_sectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Badges'**
+  String get quests_yourBadges_sectionHeader;
+
+  /// No description provided for @quests_inProgress_sectionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'In Progress'**
+  String get quests_inProgress_sectionHeader;
+
+  /// No description provided for @quests_noActiveQuests_message.
+  ///
+  /// In en, this message translates to:
+  /// **'No active quests.'**
+  String get quests_noActiveQuests_message;
+
+  /// No description provided for @quest_event_topAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Tops Added'**
+  String get quest_event_topAdded;
+
+  /// No description provided for @quest_event_bottomAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottoms Added'**
+  String get quest_event_bottomAdded;
+
+  /// No description provided for @quest_event_suggestionReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Suggestion'**
+  String get quest_event_suggestionReceived;
+
+  /// No description provided for @quest_event_outfitCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Outfit Created'**
+  String get quest_event_outfitCreated;
+
+  /// No description provided for @quest_event_closetCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'New Closet'**
+  String get quest_event_closetCreated;
+
+  /// No description provided for @quest_event_logAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Item/Outfit Logged'**
+  String get quest_event_logAdded;
+
+  /// No description provided for @quest_firstSteps_title.
+  ///
+  /// In en, this message translates to:
+  /// **'First Steps into Your Digital Closet'**
+  String get quest_firstSteps_title;
+
+  /// No description provided for @quest_firstSteps_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first 3 tops and 3 bottoms (pants, skirts, etc.) to start receiving personalized suggestions.'**
+  String get quest_firstSteps_description;
+
+  /// No description provided for @quest_firstSuggestion_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your First AI-Powered Suggestion'**
+  String get quest_firstSuggestion_title;
+
+  /// No description provided for @quest_firstSuggestion_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s see what the AI has in store for you. Get your first outfit suggestion!'**
+  String get quest_firstSuggestion_description;
+
+  /// No description provided for @quest_firstOutfit_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your First Creation'**
+  String get quest_firstOutfit_title;
+
+  /// No description provided for @quest_firstOutfit_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the Outfit Builder to create and save your first custom outfit.'**
+  String get quest_firstOutfit_description;
+
+  /// No description provided for @quest_organizeCloset_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Organized'**
+  String get quest_organizeCloset_title;
+
+  /// No description provided for @quest_organizeCloset_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a new closet to better organize your clothing items (e.g., for work, for sports).'**
+  String get quest_organizeCloset_description;
+
+  /// No description provided for @quest_firstLog_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Your Style Journey'**
+  String get quest_firstLog_title;
+
+  /// No description provided for @quest_firstLog_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Log an item or an outfit to your Journey to keep track of what you wear.'**
+  String get quest_firstLog_description;
+
+  /// No description provided for @achievementDialog_title.
+  ///
+  /// In en, this message translates to:
+  /// **'ACHIEVEMENT UNLOCKED!'**
+  String get achievementDialog_title;
+
+  /// No description provided for @achievementDialog_button.
+  ///
+  /// In en, this message translates to:
+  /// **'Awesome!'**
+  String get achievementDialog_button;
+
+  /// No description provided for @badgeDetail_completedQuests.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed Quests'**
+  String get badgeDetail_completedQuests;
+
+  /// No description provided for @badgeDetail_noQuests.
+  ///
+  /// In en, this message translates to:
+  /// **'No quests found for this badge.'**
+  String get badgeDetail_noQuests;
+
+  /// No description provided for @mascot_newQuest.
+  ///
+  /// In en, this message translates to:
+  /// **'New Quest!'**
+  String get mascot_newQuest;
+
+  /// No description provided for @mascot_questCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Quest Completed!'**
+  String get mascot_questCompleted;
+
+  /// No description provided for @stats_label_item.
+  ///
+  /// In en, this message translates to:
+  /// **'{count,plural, =1{Item} other{Items}}'**
+  String stats_label_item(num count);
+
+  /// No description provided for @stats_label_closet.
+  ///
+  /// In en, this message translates to:
+  /// **'{count,plural, =1{Closet} other{Closets}}'**
+  String stats_label_closet(num count);
+
+  /// No description provided for @stats_label_outfit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count,plural, =1{Outfit} other{Outfits}}'**
+  String stats_label_outfit(num count);
+
+  /// No description provided for @insights_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Closet Insights'**
+  String get insights_title;
+
+  /// No description provided for @insights_exclusive.
+  ///
+  /// In en, this message translates to:
+  /// **'MINCLOSET EXCLUSIVE'**
+  String get insights_exclusive;
+
+  /// No description provided for @insights_journeyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Inside {userName}\'s Style Journey'**
+  String insights_journeyTitle(Object userName);
+
+  /// No description provided for @insights_mostLoved.
+  ///
+  /// In en, this message translates to:
+  /// **'The Most-Loved Pieces'**
+  String get insights_mostLoved;
+
+  /// No description provided for @insights_smartestInvestments.
+  ///
+  /// In en, this message translates to:
+  /// **'Smartest Investments'**
+  String get insights_smartestInvestments;
+
+  /// No description provided for @insights_rediscoverCloset.
+  ///
+  /// In en, this message translates to:
+  /// **'Rediscover Your Closet'**
+  String get insights_rediscoverCloset;
+
+  /// No description provided for @insights_investmentFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Investment Focus'**
+  String get insights_investmentFocus;
+
+  /// No description provided for @insights_noData.
+  ///
+  /// In en, this message translates to:
+  /// **'No insights available.'**
+  String get insights_noData;
+
+  /// No description provided for @insights_error_noLogs.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add items or outfits to Style journal first!'**
+  String get insights_error_noLogs;
+
+  /// No description provided for @insights_goToJournal.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to Style Journal'**
+  String get insights_goToJournal;
+
+  /// No description provided for @insights_mostWorn_noData.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t logged any worn items yet. Start your style journal today!'**
+  String get insights_mostWorn_noData;
+
+  /// No description provided for @insights_bestValue_noData.
+  ///
+  /// In en, this message translates to:
+  /// **'Wear items you\'ve added a price to and your smartest investments will appear here!'**
+  String get insights_bestValue_noData;
+
+  /// No description provided for @insights_addPrices.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Prices to Items'**
+  String get insights_addPrices;
+
+  /// No description provided for @insights_wears.
+  ///
+  /// In en, this message translates to:
+  /// **'{count,plural, =1{1 wear} other{{count} wears}}'**
+  String insights_wears(num count);
+
+  /// No description provided for @insights_costPerWear.
+  ///
+  /// In en, this message translates to:
+  /// **'{price}/wear'**
+  String insights_costPerWear(Object price);
+
+  /// No description provided for @insights_forgottenItem_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not worn yet. Give it a try!'**
+  String get insights_forgottenItem_subtitle;
+
+  /// No description provided for @insights_wearToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Wear Today'**
+  String get insights_wearToday;
+
+  /// No description provided for @insights_wearToday_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Added \"{itemName}\" to today\'s journal!'**
+  String insights_wearToday_success(Object itemName);
 }
 
 class _AppLocalizationsDelegate

@@ -12,6 +12,8 @@ import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/widgets/statistic_card.dart';
 import 'package:mincloset/widgets/stats_overview_card.dart';
 import 'package:mincloset/widgets/section_header.dart';
+import 'package:mincloset/providers/locale_provider.dart';
+import 'package:mincloset/screens/webview_page.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
@@ -235,10 +237,27 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       title: const Text("FAQ", style: TextStyle(fontWeight: FontWeight.bold)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () {
-                        Navigator.pushNamed(context, AppRoutes.faq);
+                        // 1. Lấy ngôn ngữ hiện tại từ provider
+                        final locale = ref.read(localeProvider);
+                        
+                        // 2. Xác định URL dựa trên mã ngôn ngữ
+                        final url = locale.languageCode == 'vi'
+                            ? 'https://minhdatvn.github.io/MinCloset/faq_vi.html'
+                            : 'https://minhdatvn.github.io/MinCloset/faq_en.html';
+
+                        // 3. Điều hướng đến WebView với các tham số đúng
+                        Navigator.pushNamed(
+                          context,
+                          AppRoutes.webview,
+                          arguments: WebViewPageArgs(
+                            title: "FAQ",
+                            url: url,
+                          ),
+                        );
                       },
                     ),
                   ),
+
                   const SizedBox(height: 24),
                   SectionHeader(
                     title: l10n.profile_closetsOverview_sectionHeader,

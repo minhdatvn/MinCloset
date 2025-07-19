@@ -35,7 +35,6 @@ import 'package:mincloset/screens/guides_page.dart';
 import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/screens/webview_page.dart';
 import 'package:showcaseview/showcaseview.dart';
-import 'package:mincloset/screens/faq_page.dart';
 
 class CalendarPageArgs {
   final bool showHint;
@@ -174,9 +173,6 @@ class RouteGenerator {
       case AppRoutes.guides:
         return MaterialPageRoute(builder: (_) => const GuidesPage());
       
-      case AppRoutes.faq:
-        return MaterialPageRoute(builder: (_) => const FaqPage());
-
       case AppRoutes.editCloset:
         // Chấp nhận `args` có thể là null hoặc Closet
         final closetToEdit = args as Closet?; 

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MinCloset - Câu hỏi thường gặp</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f7f7f7;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        h1 {
+            text-align: center;
+            color: #1ABC9C;
+        }
+        .search-box {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .faq-item {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        .faq-question {
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .faq-answer {
+            margin-top: 10px;
+            padding-left: 10px;
+            border-left: 3px solid #1ABC9C;
+            color: #555;
+        }
+        /* Style for HTML5 details element */
+        details > summary {
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Câu hỏi thường gặp</h1>
+
+        <input type="text" id="searchInput" class="search-box" placeholder="Tìm kiếm câu hỏi...">
+
+        <div id="faq-list">
+            <details class="faq-item" open>
+                <summary class="faq-question">Gợi ý trang phục bằng AI hoạt động như thế nào?</summary>
+                <div class="faq-answer">
+                    <p>Ứng dụng sẽ gửi thông tin ẩn danh về các vật phẩm trong tủ đồ và thời tiết tại địa phương của bạn đến một AI mạnh mẽ (Gemini của Google) để tạo ra một gợi ý trang phục được cá nhân hóa và có giải thích hợp lý.</p>
+                </div>
+            </details>
+
+            <details class="faq-item" open>
+                <summary class="faq-question">Dữ liệu của tôi có riêng tư không?</summary>
+                <div class="faq-answer">
+                    <p>Có. Toàn bộ dữ liệu của bạn, bao gồm cả hình ảnh, được lưu trữ cục bộ trên thiết bị của bạn. Nếu bạn chọn sao lưu, dữ liệu của bạn sẽ được lưu trữ an toàn trong không gian đám mây riêng của bạn trên Firebase, được bảo vệ bởi các tiêu chuẩn bảo mật của Google.</p>
+                </div>
+            </details>
+
+            <details class="faq-item" open>
+                <summary class="faq-question">Tại sao tôi cần đăng nhập để sao lưu?</summary>
+                <div class="faq-answer">
+                    <p>Việc đăng nhập tạo ra một liên kết an toàn giữa bạn và dữ liệu của bạn trên đám mây. Điều này đảm bảo rằng chỉ bạn mới có thể truy cập, sao lưu hoặc phục hồi thông tin tủ đồ của mình.</p>
+                </div>
+            </details>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('searchInput').addEventListener('input', function() {
+            let filter = this.value.toLowerCase();
+            let faqItems = document.querySelectorAll('.faq-item');
+
+            faqItems.forEach(function(item) {
+                let question = item.querySelector('.faq-question').textContent.toLowerCase();
+                let answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+                if (question.includes(filter) || answer.includes(filter)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

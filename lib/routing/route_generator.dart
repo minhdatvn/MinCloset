@@ -15,7 +15,6 @@ import 'package:mincloset/screens/about_legal_page.dart';
 import 'package:mincloset/screens/analysis_loading_screen.dart';
 import 'package:mincloset/screens/avatar_cropper_screen.dart';
 import 'package:mincloset/screens/background_remover_page.dart';
-import 'package:mincloset/screens/badge_detail_page.dart';
 import 'package:mincloset/screens/batch_add_item_screen.dart';
 import 'package:mincloset/screens/calendar_page.dart';
 import 'package:mincloset/screens/location_selection_screen.dart';
@@ -32,7 +31,7 @@ import 'package:mincloset/screens/outfit_detail_page.dart';
 import 'package:mincloset/screens/pages/closet_detail_page.dart';
 import 'package:mincloset/screens/pages/outfit_builder_page.dart';
 import 'package:mincloset/screens/permissions_screen.dart';
-import 'package:mincloset/screens/quests_page.dart';
+import 'package:mincloset/screens/guides_page.dart';
 import 'package:mincloset/screens/settings_page.dart';
 import 'package:mincloset/screens/webview_page.dart';
 import 'package:showcaseview/showcaseview.dart';
@@ -171,14 +170,8 @@ class RouteGenerator {
         }
         return _errorRoute();
       
-      case AppRoutes.quests:
-        return MaterialPageRoute(builder: (_) => const QuestsPage());
-
-      case AppRoutes.badgeDetail:
-        if (args is BadgeDetailPageArgs) {
-          return AnimatePageRoute(page: BadgeDetailPage(args: args));
-        }
-        return _errorRoute();
+      case AppRoutes.guides:
+      return MaterialPageRoute(builder: (_) => const GuidesPage());
 
       case AppRoutes.editCloset:
         // Chấp nhận `args` có thể là null hoặc Closet

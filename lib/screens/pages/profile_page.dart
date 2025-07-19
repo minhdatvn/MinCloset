@@ -219,7 +219,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       title: Text(l10n.profile_achievements_label, style: const TextStyle(fontWeight: FontWeight.bold)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () {
-                        Navigator.pushNamed(context, AppRoutes.quests);
+                        Navigator.pushNamed(context, AppRoutes.guides);
                       },
                     ),
                   ),

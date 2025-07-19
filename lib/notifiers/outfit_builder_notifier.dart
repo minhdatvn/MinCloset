@@ -106,27 +106,21 @@ class OutfitBuilderNotifier extends StateNotifier<OutfitBuilderState> {
       },
       (_) async {
         final questRepo = _ref.read(questRepositoryProvider);
-        final achievementRepo = _ref.read(achievementRepositoryProvider);
 
-        // 1. Lấy kết quả từ việc cập nhật quest
+        // Cập nhật tiến độ quest
         final completedQuests = await questRepo.updateQuestProgress(QuestEvent.outfitCreated);
 
-        // 2. Nếu có quest hoàn thành, gửi tín hiệu cho mascot thông qua provider
+        // Nếu có quest hoàn thành, gửi tín hiệu cho mascot
         if (completedQuests.isNotEmpty && mounted) {
             _ref.read(completedQuestProvider.notifier).state = completedQuests.first;
         }
-        
-        final allQuests = questRepo.getCurrentQuests();
-        final unlockedAchievement = await achievementRepo.checkAndUnlockAchievements(allQuests);
 
         _ref.invalidate(outfitsHubProvider);
-        
-        // <<< THAY ĐỔI 2: Đặt cờ saveSuccess thành true >>>
-        // Giao diện sẽ lắng nghe sự thay đổi này để tự điều hướng
+
+        // Cập nhật state mà không có logic achievement
         state = state.copyWith(
           saveSuccess: true, 
           isSaving: false,
-          newlyUnlockedAchievement: unlockedAchievement,
         );
       }
     );

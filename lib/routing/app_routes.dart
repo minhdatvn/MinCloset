@@ -22,8 +22,7 @@ class AppRoutes {
   static const String backgroundRemover = '/background-remover';
   static const String imageEditor = '/image-editor';
   static const avatarCropper = '/avatar-cropper';
-  static const String quests = '/quests'; 
-  static const String badgeDetail = '/badge-detail';
+  static const String guides = '/guides';
   static const String permissions = '/permissions';
   static const String editCloset = '/edit-closet'; 
 }

@@ -1,7 +1,6 @@
 // lib/states/outfit_builder_state.dart
 import 'package:equatable/equatable.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mincloset/models/achievement.dart'; // Thêm import
 import 'package:mincloset/models/clothing_item.dart';
 
 @immutable
@@ -11,8 +10,6 @@ class OutfitBuilderState extends Equatable {
   final List<ClothingItem> allItems;
   final String? errorMessage;
   final bool saveSuccess;
-  // THÊM THUỘC TÍNH MỚI
-  final Achievement? newlyUnlockedAchievement; 
 
   const OutfitBuilderState({
     this.isLoading = true,
@@ -20,7 +17,6 @@ class OutfitBuilderState extends Equatable {
     this.allItems = const [],
     this.errorMessage,
     this.saveSuccess = false,
-    this.newlyUnlockedAchievement, // Thêm vào constructor
   });
 
   OutfitBuilderState copyWith({
@@ -29,7 +25,6 @@ class OutfitBuilderState extends Equatable {
     List<ClothingItem>? allItems,
     String? errorMessage,
     bool? saveSuccess,
-    Achievement? newlyUnlockedAchievement, // Thêm vào copyWith
   }) {
     return OutfitBuilderState(
       isLoading: isLoading ?? this.isLoading,
@@ -37,7 +32,6 @@ class OutfitBuilderState extends Equatable {
       allItems: allItems ?? this.allItems,
       errorMessage: errorMessage ?? this.errorMessage,
       saveSuccess: saveSuccess ?? this.saveSuccess,
-      newlyUnlockedAchievement: newlyUnlockedAchievement ?? this.newlyUnlockedAchievement,
     );
   }
 
@@ -48,6 +42,5 @@ class OutfitBuilderState extends Equatable {
         allItems,
         errorMessage,
         saveSuccess,
-        newlyUnlockedAchievement, // Thêm vào props
       ];
 }

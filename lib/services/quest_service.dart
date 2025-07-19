@@ -1,19 +1,14 @@
 // lib/services/quest_service.dart
 import 'dart:convert';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mincloset/models/quest.dart';
-import 'package:mincloset/providers/event_providers.dart';
-import 'package:mincloset/repositories/achievement_repository.dart';
 import 'package:mincloset/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class QuestService {
   final SharedPreferences _prefs;
-  final AchievementRepository _achievementRepo;
-  final Ref _ref;
 
-  QuestService(this._prefs, this._achievementRepo, this._ref);
+  QuestService(this._prefs);
 
   // Danh sách quest giờ đây sẽ lưu các "khóa" thay vì văn bản tĩnh
   static final List<Quest> _allQuests = [
@@ -101,7 +96,6 @@ class QuestService {
     final quests = getCurrentQuests();
     final List<Quest> newlyCompletedQuests = [];
     bool questsUnlocked = false;
-    Quest? finalBeginnerQuest;
 
     for (int i = 0; i < quests.length; i++) {
       if (quests[i].status == QuestStatus.inProgress && quests[i].goal.requiredCounts.containsKey(event)) {
@@ -114,10 +108,7 @@ class QuestService {
             newlyCompletedQuests.add(quests[i]);
             logger.i("Quest '${quests[i].id}' completed!");
 
-            if (quests[i].id == 'first_log') {
-              finalBeginnerQuest = quests[i];
-            }
-
+            // Mở khóa quest tiếp theo nếu có
             for (int j = 0; j < quests.length; j++) {
               if (quests[j].prerequisiteQuestId == quests[i].id && quests[j].status == QuestStatus.locked) {
                 quests[j] = quests[j].copyWith(status: QuestStatus.inProgress);
@@ -129,20 +120,10 @@ class QuestService {
       }
     }
 
-    if (finalBeginnerQuest != null) {
-        final unlockedAchievement = await _achievementRepo.checkAndUnlockAchievements(quests);
-        if (unlockedAchievement != null) {
-          _ref.read(beginnerAchievementProvider.notifier).state = unlockedAchievement;
-        }
-    } 
-    else if (newlyCompletedQuests.isNotEmpty) {
-      _ref.read(completedQuestProvider.notifier).state = newlyCompletedQuests.first;
-    }
-    
     if (newlyCompletedQuests.isNotEmpty || questsUnlocked) {
       await _saveQuests(quests);
     }
-    
+
     return newlyCompletedQuests;
   }
   

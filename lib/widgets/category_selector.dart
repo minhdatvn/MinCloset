@@ -87,7 +87,7 @@ class _CategorySelectorState extends State<CategorySelector> {
         InkWell(
           onTap: () => setState(() => _isExpanded = !_isExpanded),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 14.0),
+            padding: const EdgeInsets.symmetric(vertical: 0), 
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

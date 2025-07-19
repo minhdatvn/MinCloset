@@ -66,7 +66,7 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
         InkWell(
           onTap: () => setState(() => _isExpanded = !_isExpanded),
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 14.0),
+            padding: const EdgeInsets.symmetric(vertical: 0),
             child: Row(
               children: [
                 Text(widget.label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -182,7 +182,6 @@ class _MultiSelectChipFieldState extends State<MultiSelectChipField> {
                   color: color,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    // <<< SỬA ĐỔI: Viền xám nhạt cho trạng thái chưa chọn >>>
                     color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline,
                     width: isSelected ? 2.5 : 1,
                   ),

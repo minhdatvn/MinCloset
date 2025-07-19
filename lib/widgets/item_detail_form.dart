@@ -300,40 +300,46 @@ class _ItemDetailFormState extends ConsumerState<ItemDetailForm> {
             initialCategory: widget.itemState.selectedCategoryValue,
             onCategorySelected: widget.onCategoryChanged,
           ),
+          const SizedBox(height: 16),
           MultiSelectChipField(
             label: l10n.itemDetail_form_colorLabel,
             allOptions: AppOptions.colors,
             initialSelections: widget.itemState.selectedColors,
             onSelectionChanged: widget.onColorsChanged,
           ),
+          const SizedBox(height: 16),
           MultiSelectChipField(
             label: l10n.itemDetail_form_seasonLabel,
             allOptions: AppOptions.seasons,
             initialSelections: widget.itemState.selectedSeasons,
             onSelectionChanged: widget.onSeasonsChanged,
           ),
+          const SizedBox(height: 16),
           MultiSelectChipField(
             label: l10n.itemDetail_form_occasionLabel,
             allOptions: AppOptions.occasions,
             initialSelections: widget.itemState.selectedOccasions,
             onSelectionChanged: widget.onOccasionsChanged,
           ),
+          const SizedBox(height: 16),
           MultiSelectChipField(
             label: l10n.itemDetail_form_materialLabel,
             allOptions: AppOptions.materials,
             initialSelections: widget.itemState.selectedMaterials,
             onSelectionChanged: widget.onMaterialsChanged,
             // Truyền IconButton vào thuộc tính mới
-            labelAction: IconButton(
-              // Giảm padding để icon gần chữ hơn
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              icon: Icon(Icons.help_outline, color: Colors.grey.shade500, size: 20),
-              onPressed: () {
+            labelAction: InkWell( // <-- Dùng InkWell
+              customBorder: const CircleBorder(), // <-- Tạo hiệu ứng ripple tròn
+              onTap: () {
                 Navigator.pushNamed(context, AppRoutes.materialTips);
               },
+              child: Padding( // <-- Thêm một chút padding để dễ nhấn hơn
+                padding: const EdgeInsets.all(4.0),
+                child: Icon(Icons.help_outline, color: Colors.grey.shade500, size: 20),
+              ),
             ),
           ),
+          const SizedBox(height: 16),
           MultiSelectChipField(
             label: l10n.itemDetail_form_patternLabel,
             allOptions: AppOptions.patterns,

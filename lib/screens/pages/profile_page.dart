@@ -1,14 +1,12 @@
 // lib/screens/pages/profile_page.dart
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mincloset/constants/app_options.dart';
 import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
-import 'package:mincloset/providers/auth_providers.dart';
 import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/widgets/statistic_card.dart';
@@ -35,8 +33,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   /// Xử lý toàn bộ luồng chọn, cắt và lưu ảnh đại diện mới.
   Future<void> _handleAvatarTap(AppLocalizations l10n) async {
     final navigator = Navigator.of(context);
-
-    // 1. Hiển thị menu chọn nguồn ảnh
     final imageSource = await showModalBottomSheet<ImageSource>(
       context: context,
       builder: (ctx) => SafeArea(
@@ -58,22 +54,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       ),
     );
     if (imageSource == null || !mounted) return;
-
-    // 2. Chọn ảnh
     final imagePicker = ImagePicker();
     final pickedFile = await imagePicker.pickImage(source: imageSource);
     if (pickedFile == null || !mounted) return;
-
     final imageBytes = await pickedFile.readAsBytes();
     if (!mounted) return;
-
-    // 3. Điều hướng đến màn hình cắt ảnh
     final croppedBytes = await navigator.pushNamed<Uint8List?>(
       AppRoutes.avatarCropper,
       arguments: imageBytes,
     );
-
-    // 4. Gọi notifier để lưu kết quả
     if (croppedBytes != null && mounted) {
       await ref.read(profileProvider.notifier).saveAvatar(croppedBytes);
     }
@@ -159,79 +148,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  /// Xây dựng giao diện cho khu vực tài khoản, thay đổi tùy theo trạng thái đăng nhập.
-  Widget _buildAccountSection(User? user) {
-    // Nếu chưa đăng nhập
-    if (user == null) {
-      return Card(
-        elevation: 0,
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              const Text(
-                "Sign in to back up your data and sync across devices.",
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
-                onPressed: () {
-                  ref.read(authRepositoryProvider).signInWithGoogle();
-                },
-                icon: Image.asset('assets/images/google_logo.png', height: 24.0),
-                label: const Text('Sign in with Google'),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black, backgroundColor: Colors.white,
-                  side: const BorderSide(color: Colors.grey),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Nếu đã đăng nhập
-    return Card(
-      elevation: 0,
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        children: [
-          ListTile(
-            leading: const Icon(Icons.email_outlined),
-            title: const Text("Account"),
-            subtitle: Text(user.email ?? "No email"),
-          ),
-          const Divider(height: 1, indent: 16, endIndent: 16),
-          ListTile(
-            leading: const Icon(Icons.cloud_sync_outlined),
-            title: const Text("Backup & Restore"),
-            subtitle: const Text("Last backup: Not yet available"),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                OutlinedButton(onPressed: () {}, child: const Text("Backup")),
-                const SizedBox(width: 8),
-                FilledButton(onPressed: () {}, child: const Text("Restore")),
-              ],
-            ),
-          ),
-          const Divider(height: 1, indent: 16, endIndent: 16),
-          ListTile(
-            leading: Icon(Icons.logout, color: Colors.red.shade700),
-            title: Text("Logout", style: TextStyle(color: Colors.red.shade700)),
-            onTap: () async {
-              await ref.read(authRepositoryProvider).signOut();
-            },
-          )
-        ],
-      ),
-    );
-  }
-
   /// Hàm build chính của Widget.
   @override
   Widget build(BuildContext context) {
@@ -239,9 +155,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final notifier = ref.read(profileProvider.notifier);
     final l10n = AppLocalizations.of(context)!;
     
-    // Lắng nghe trạng thái đăng nhập từ provider
-    final authState = ref.watch(authStateChangesProvider);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.profile_title),
@@ -253,12 +166,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           )
         ],
       ),
-      body: _buildBody(context, state, notifier, l10n, authState),
+      body: _buildBody(context, state, notifier, l10n),
     );
   }
 
   /// Xây dựng phần thân chính có thể cuộn của trang Profile.
-  Widget _buildBody(BuildContext context, ProfilePageState state, ProfilePageNotifier notifier, AppLocalizations l10n, AsyncValue<User?> authState) {
+  Widget _buildBody(BuildContext context, ProfilePageState state, ProfilePageNotifier notifier, AppLocalizations l10n) {
     if (state.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -295,15 +208,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   const SizedBox(height: 16),
                   _buildProfileHeader(state, l10n),
                   const Divider(height: 32),
-                  
-                  // Hiển thị widget tài khoản dựa trên trạng thái đăng nhập
-                  authState.when(
-                    data: (user) => _buildAccountSection(user),
-                    loading: () => const Center(child: CircularProgressIndicator()),
-                    error: (err, stack) => Center(child: Text('Error: $err')),
-                  ),
-                  
-                  const SizedBox(height: 24),
+                  // KHU VỰC TÀI KHOẢN ĐÃ ĐƯỢC XÓA KHỎI ĐÂY
                   Card(
                     elevation: 0,
                     color: Theme.of(context).colorScheme.surfaceContainerHighest,

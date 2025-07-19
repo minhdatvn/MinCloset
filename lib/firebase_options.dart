@@ -64,6 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '35306730291',
     projectId: 'mincloset-vn',
     storageBucket: 'mincloset-vn.firebasestorage.app',
+    androidClientId: '35306730291-jitrls8sp27tdqjf76sagl985lonfu85.apps.googleusercontent.com',
     iosClientId: '35306730291-v9gn9frs2dsgbn8hrlbkp4i6e85023te.apps.googleusercontent.com',
     iosBundleId: 'com.example.mincloset',
   );
@@ -74,6 +75,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '35306730291',
     projectId: 'mincloset-vn',
     storageBucket: 'mincloset-vn.firebasestorage.app',
+    androidClientId: '35306730291-jitrls8sp27tdqjf76sagl985lonfu85.apps.googleusercontent.com',
     iosClientId: '35306730291-v9gn9frs2dsgbn8hrlbkp4i6e85023te.apps.googleusercontent.com',
     iosBundleId: 'com.example.mincloset',
   );

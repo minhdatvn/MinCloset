@@ -1,12 +1,14 @@
 // lib/screens/edit_profile_screen.dart
+import 'package:firebase_auth/firebase_auth.dart'; // <<< THÊM MỚI
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:mincloset/constants/app_options.dart';
+import 'package:mincloset/l10n/app_localizations.dart';
 import 'package:mincloset/notifiers/profile_page_notifier.dart';
+import 'package:mincloset/providers/auth_providers.dart'; // <<< THÊM MỚI
 import 'package:mincloset/services/unit_conversion_service.dart';
 import 'package:mincloset/states/profile_page_state.dart';
 import 'package:mincloset/widgets/multi_select_chip_field.dart';
@@ -27,7 +29,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   final _heightInchesController = TextEditingController();
   final _weightController = TextEditingController();
   
-
   String? _selectedGender;
   DateTime? _selectedDOB;
   Set<String> _selectedStyles = {};
@@ -44,10 +45,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _selectedDOB = initialState.dob;
     _selectedStyles = Set.from(initialState.personalStyles);
     _selectedFavoriteColors = Set.from(initialState.favoriteColors);
-
-    // <<< THAY ĐỔI 2: CẬP NHẬT LOGIC KHỞI TẠO CHO CHIỀU CAO >>>
+    
     if (initialState.height != null) {
-      // Dùng hàm mới để chuyển đổi
       final heightMap = unitConverter.cmToFeetAndInches(initialState.height!);
       _heightCmController.text = initialState.height.toString();
       _heightFeetController.text = heightMap['feet'].toString();
@@ -73,8 +72,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.dispose();
   }
 
-  // <<< THAY ĐỔI 3: CẬP NHẬT LOGIC LƯU PROFILE >>>
   Future<void> _saveProfile() async {
+    // ... logic lưu profile không đổi
     final navigator = Navigator.of(context);
     final profileState = ref.read(profileProvider);
     final unitConverter = ref.read(unitConversionServiceProvider);
@@ -83,7 +82,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     if (profileState.heightUnit == HeightUnit.cm) {
       heightToSave = int.tryParse(_heightCmController.text);
     } else {
-      // Đọc từ 2 ô feet và inches, sau đó gộp lại và chuyển về cm
       final feet = int.tryParse(_heightFeetController.text) ?? 0;
       final inches = int.tryParse(_heightInchesController.text) ?? 0;
       heightToSave = unitConverter.feetAndInchesToCm(feet, inches);
@@ -108,16 +106,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 
   void _selectDate() {
+    // ... logic chọn ngày không đổi
     final l10n = AppLocalizations.of(context)!;
     DateTime tempDate = _selectedDOB ?? DateTime.now().subtract(const Duration(days: 365 * 20));
     showModalBottomSheet(
       context: context,
       builder: (BuildContext builder) {
-        return SafeArea( // 1. Bọc bằng SafeArea
+        return SafeArea(
           child: Column(
-            mainAxisSize: MainAxisSize.min, // 2. Để Column tự co giãn
+            mainAxisSize: MainAxisSize.min,
             children: [
-              SizedBox( // 3. Đặt chiều cao cố định cho DatePicker
+              SizedBox(
                 height: 200,
                 child: CupertinoDatePicker(
                   mode: CupertinoDatePickerMode.date,
@@ -141,6 +140,104 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     );
   }
 
+  // <<< BẮT ĐẦU VÙNG CODE MỚI >>>
+
+  /// Xây dựng giao diện cho khu vực tài khoản, thay đổi tùy theo trạng thái đăng nhập.
+  Widget _buildAccountSection(User? user) {
+    if (user == null) {
+      return Card(
+        elevation: 0,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const Text(
+                "Sign in to back up your data and sync across devices.",
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () {
+                  ref.read(authRepositoryProvider).signInWithGoogle();
+                },
+                icon: Image.asset('assets/images/google_logo.png', height: 24.0),
+                label: const Text('Sign in with Google'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black, backgroundColor: Colors.white,
+                  side: const BorderSide(color: Colors.grey),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Card(
+      elevation: 0,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.email_outlined),
+            title: const Text("Account"),
+            subtitle: Text(user.email ?? "No email"),
+          ),
+          const Divider(height: 1, indent: 16, endIndent: 16),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Hàng chứa Icon và Text (giống ListTile)
+                Row(
+                  children: [
+                    const Icon(Icons.cloud_sync_outlined, color: Colors.grey),
+                    const SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Backup & Restore", style: TextStyle(fontSize: 16)),
+                        const SizedBox(height: 4),
+                        Text(
+                          "Last backup: Not yet available",
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12), // Tạo khoảng cách
+                // Hàng chỉ chứa các nút bấm
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center, // Đẩy các nút về phía bên phải
+                  children: [
+                    OutlinedButton(onPressed: () {}, child: const Text("Backup")),
+                    const SizedBox(width: 8),
+                    FilledButton(onPressed: () {}, child: const Text("Restore")),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, indent: 16, endIndent: 16),
+          ListTile(
+            leading: Icon(Icons.logout, color: Colors.red.shade700),
+            title: Text("Logout", style: TextStyle(color: Colors.red.shade700)),
+            onTap: () async {
+              await ref.read(authRepositoryProvider).signOut();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  // <<< KẾT THÚC VÙNG CODE MỚI >>>
+
   @override
   Widget build(BuildContext context) {
     final profileState = ref.watch(profileProvider);
@@ -150,6 +247,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       l10n.gender_female: 'Female',
       l10n.gender_other: 'Other'
     };
+    
+    // <<< THÊM MỚI: Lắng nghe trạng thái đăng nhập >>>
+    final authState = ref.watch(authStateChangesProvider);
+
     return PageScaffold(
       appBar: AppBar(
         title: Text(l10n.editProfile_title),
@@ -169,6 +270,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // <<< THÊM MỚI: Hiển thị khối tài khoản ở đây >>>
+            authState.when(
+              data: (user) => _buildAccountSection(user),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) => Center(child: Text('Error: $err')),
+            ),
+            const Divider(height: 48),
+
             SectionHeader(title: l10n.editProfile_basicInfo_sectionHeader),
             const SizedBox(height: 16),
             TextFormField(
@@ -197,7 +306,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            // <<< THAY ĐỔI 4: HIỂN THỊ Ô NHẬP LIỆU ĐỘNG >>>
             if (profileState.heightUnit == HeightUnit.cm)
               TextFormField(
                 controller: _heightCmController,
@@ -206,24 +314,22 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               )
             else
-              // Bọc các ô nhập liệu ft/in trong một InputDecorator
               InputDecorator(
                 decoration: InputDecoration(
                   labelText: l10n.editProfile_height_ft_in_label,
-                  border: OutlineInputBorder(), // Thêm đường viền
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.0),
+                  border: OutlineInputBorder(),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Ô nhập Feet
                     Expanded(
                       child: TextFormField(
                         controller: _heightFeetController,
-                        textAlign: TextAlign.center, // Căn giữa cho đẹp
+                        textAlign: TextAlign.center,
                         decoration: const InputDecoration(
-                          border: InputBorder.none, // Bỏ đường viền riêng
-                          suffixText: 'ft', // Thêm suffix "ft"
+                          border: InputBorder.none,
+                          suffixText: 'ft',
                           isDense: true,
                         ),
                         keyboardType: TextInputType.number,
@@ -231,17 +337,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    // Ngăn cách
                     Text("'", style: TextStyle(fontSize: 24, color: Colors.grey.shade600)),
                     const SizedBox(width: 8),
-                    // Ô nhập Inches
                     Expanded(
                       child: TextFormField(
                         controller: _heightInchesController,
                         textAlign: TextAlign.center,
                         decoration: const InputDecoration(
                           border: InputBorder.none,
-                          suffixText: 'in', // Thêm suffix "in"
+                          suffixText: 'in',
                           isDense: true,
                         ),
                         keyboardType: TextInputType.number,

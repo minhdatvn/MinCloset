@@ -215,11 +215,27 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     clipBehavior: Clip.antiAlias,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                     child: ListTile(
-                      leading: Icon(Icons.flag_outlined, color: Theme.of(context).colorScheme.primary),
-                      title: Text(l10n.profile_achievements_label, style: const TextStyle(fontWeight: FontWeight.bold)),
+                      leading: Icon(Icons.school_outlined, color: Theme.of(context).colorScheme.primary),
+                      title: const Text("Beginner Guides", style: TextStyle(fontWeight: FontWeight.bold)),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () {
                         Navigator.pushNamed(context, AppRoutes.guides);
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 8), // Thêm khoảng cách giữa 2 card
+                  // Card 2: Dẫn đến trang FAQ
+                  Card(
+                    elevation: 0,
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    clipBehavior: Clip.antiAlias,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: ListTile(
+                      leading: Icon(Icons.help_outline, color: Theme.of(context).colorScheme.primary),
+                      title: const Text("FAQ", style: TextStyle(fontWeight: FontWeight.bold)),
+                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                      onTap: () {
+                        Navigator.pushNamed(context, AppRoutes.faq);
                       },
                     ),
                   ),

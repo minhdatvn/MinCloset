@@ -25,4 +25,5 @@ class AppRoutes {
   static const String guides = '/guides';
   static const String permissions = '/permissions';
   static const String editCloset = '/edit-closet'; 
+  static const String faq = '/faq';
 }

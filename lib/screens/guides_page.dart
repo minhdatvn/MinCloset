@@ -7,26 +7,25 @@ import 'package:mincloset/models/quest.dart';
 import 'package:mincloset/notifiers/guides_page_notifier.dart';
 import 'package:mincloset/providers/service_providers.dart';
 import 'package:mincloset/providers/ui_providers.dart';
-import 'package:mincloset/routing/app_routes.dart';
 import 'package:mincloset/routing/route_generator.dart';
 import 'package:mincloset/widgets/page_scaffold.dart';
-import 'package:mincloset/helpers/context_extensions.dart'; 
+import 'package:mincloset/helpers/context_extensions.dart';
 import 'package:mincloset/widgets/section_header.dart';
+import 'package:mincloset/routing/app_routes.dart'; // Đảm bảo đã import
 
-// Đổi tên class
 class GuidesPage extends ConsumerWidget {
   const GuidesPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Sử dụng provider mới
     final state = ref.watch(guidesPageProvider);
     final notifier = ref.read(guidesPageProvider.notifier);
+    final l10n = context.l10n;
 
     return PageScaffold(
       appBar: AppBar(
-        // Đổi tiêu đề
-        title: const Text("FAQ & Guides"), 
+        // Cập nhật tiêu đề
+        title: const Text("Guides"),
       ),
       body: RefreshIndicator(
         onRefresh: notifier.loadGuides,
@@ -36,11 +35,10 @@ class GuidesPage extends ConsumerWidget {
                 padding: const EdgeInsets.all(16.0),
                 children: [
                   // Phần Guides đang thực hiện
-                  SectionHeader(title: "Beginner Guides"),
+                  SectionHeader(title: "In Progress"),
                   if (state.inProgressGuides.isEmpty)
                     Center(child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 32.0),
-                      // Thay đổi văn bản
                       child: const Text("You've completed all guides!"),
                     ))
                   else
@@ -57,7 +55,6 @@ class GuidesPage extends ConsumerWidget {
                             Navigator.of(context).pop();
                           }
                         },
-                        // Đổi tên QuestCard thành GuideCard
                         child: GuideCard(guide: guide),
                       );
                     }),
@@ -73,24 +70,6 @@ class GuidesPage extends ConsumerWidget {
                     ))
                   else
                      ...state.completedGuides.map((guide) => GuideCard(guide: guide)),
-
-                  const Divider(height: 32),
-
-                  // Phần FAQ mới
-                  SectionHeader(title: "Frequently Asked Questions (FAQ)"),
-                  const SizedBox(height: 8),
-                  const _FaqItem(
-                    question: "How does AI suggestion work?",
-                    answer: "The app sends anonymized information about your closet items and local weather to a powerful AI (Google's Gemini) to generate a personalized and reasoned outfit suggestion.",
-                  ),
-                  const _FaqItem(
-                    question: "Is my data private?",
-                    answer: "Yes. All your data, including photos, is stored locally on your device. If you choose to back up, your data is stored securely in your own private cloud space on Firebase, protected by Google's security standards.",
-                  ),
-                   const _FaqItem(
-                    question: "Why do I need to log in for backup?",
-                    answer: "Logging in creates a secure link between you and your data on the cloud. This ensures that only you can access, back up, or restore your closet information.",
-                  ),
                 ],
               ),
       ),
@@ -98,7 +77,7 @@ class GuidesPage extends ConsumerWidget {
   }
 }
 
-// Đổi tên QuestCard thành GuideCard
+// GuideCard và các widget con không thay đổi
 class GuideCard extends StatelessWidget {
   final Quest guide;
   const GuideCard({super.key, required this.guide});
@@ -177,7 +156,6 @@ class GuideCard extends StatelessWidget {
   }
 }
 
-// Widget helper cho thanh tiến trình (không đổi)
 class _ProgressIndicator extends StatelessWidget {
   final String label;
   final double value;
@@ -193,31 +171,6 @@ class _ProgressIndicator extends StatelessWidget {
           Text(label, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 4),
           LinearProgressIndicator(value: value, borderRadius: BorderRadius.circular(4), minHeight: 6),
-        ],
-      ),
-    );
-  }
-}
-
-// Widget helper mới cho các câu hỏi FAQ
-class _FaqItem extends StatelessWidget {
-  final String question;
-  final String answer;
-  const _FaqItem({required this.question, required this.answer});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ExpansionTile(
-        title: Text(question, style: const TextStyle(fontWeight: FontWeight.bold)),
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Text(answer),
-          ),
         ],
       ),
     );
